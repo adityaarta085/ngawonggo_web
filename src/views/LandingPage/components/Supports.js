@@ -21,14 +21,14 @@ const Supports = () => {
         mb={{ base: '5px', md: '7px', lg: '10px' }}
         mt={{ base: '15px', md: '18px', lg: '20px' }}
         ml={{ base: '5px', md: '7px', lg: '10px' }}
-        color={useColorModeValue('blue.700', 'gray.100')}
+        color={useColorModeValue('ngawonggo.green', 'gray.100')}
       >
-        Lembaga & Program Kabupaten
+        Lembaga & Program Desa
       </Text>
       <Flex flexDirection="row" p={"45px"} justifyContent="center" alignContent={"center"} flexWrap="wrap">
         {institutionSupports.map((e, index) => {
           return (
-            <Link href="https://probolinggokab.go.id/">
+            <Link key={index} href="#">
               <Box
                 m={2}
                 w={{ base : "130px",lg: "300px" }}
@@ -46,6 +46,7 @@ const Supports = () => {
                   alt={e.title}
                   objectFit="contain"
                   w={{base: "50px", lg: "140px" }}
+                  fallback={<Text fontWeight="bold" fontSize={{ base: "xs", lg: "md" }} textAlign="center">{e.title}</Text>}
                 />
               </Box>
             </Link>

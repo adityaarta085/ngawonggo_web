@@ -11,7 +11,7 @@ Project ini dibangun menggunakan :
 
 ## BackGround
 
-Project ini ditujukkan untuk meredesign / recreate portal website dari daerah <a href="https://probolinggokab.go.id/"> Kab.Probolinggo </a>
+Project ini adalah website resmi Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang.
 
 ## MockUp
 

@@ -24,9 +24,9 @@ const LatestNews = () => {
         fontWeight={700}
         mb={{base: "5px", lg: '10px' }}
         ml={{base: "5px", lg: '10px' }}
-        color="#4F7BA6"
+        color="ngawonggo.green"
       >
-        Berita Terbaru
+        Berita Desa
       </Text>
       <Grid
         templateRows={{ base : "", lg : "repeat(2, 1fr)" }}
@@ -45,30 +45,26 @@ const LatestNews = () => {
             m={{ base: "3" }}
           >
             <Image
-              src="https://probolinggokab.go.id/wp-content/uploads/2023/08/IMG-20230812-WA0100-1200x630.jpg"
+              src="https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=1200&q=80"
               borderRadius="lg"
               m={3}
             />
             <CardHeader pb={0}>
               <Badge colorScheme="green" fontSize="md" mb="2" fontFamily="default">
-                12 / 08 / 2023
+                20 / 05 / 2024
               </Badge>
               <Heading size={{ base : "sm" , lg : "md" }}>
-                Pemkab-KPN Ikuti Sosialisasi Program PTSL Tahun 2022 Secara
-                Virtual
+                Panen Raya, Petani Desa Ngawonggo Sukses Tingkatkan Hasil Sayuran Organik
               </Heading>
             </CardHeader>
             <CardBody fontFamily="body" pb={0}>
               <Text fontSize={{ lg : "lg", base : "sm" }} >
-                Ratusan Kepala Sekolah dan guru dari jenjang PAUD, SD dan SMP di
-                Kabupaten Probolinggo mengikuti sosialisasi akuntabilitas
-                pengelolaan dana Bantuan Operasional Sekolah (BOS) di Auditorium
-                Madakaripura, Kantor Bupati Probolinggo, Sabtu (12/8/2023).
+                Para petani di lereng Sumbing berhasil mengembangkan pertanian sayuran organik yang lebih sehat dan memiliki nilai jual tinggi, didukung oleh kesuburan tanah dan sumber air alami yang melimpah di Desa Ngawonggo.
               </Text>
             </CardBody>
             <CardFooter>
-              <Button fontFamily={'heading'} colorScheme="teal">
-                Kesehatan
+              <Button fontFamily={'heading'} colorScheme="green">
+                Pertanian
               </Button>
             </CardFooter>
           </Card>
@@ -85,24 +81,20 @@ const LatestNews = () => {
           >
             <CardHeader pb={0}>
               <Badge colorScheme="green" fontSize="md" mb="2" fontFamily="default">
-                12 / 08 / 2023
+                15 / 06 / 2024
               </Badge>
               <Heading size={{ base : "sm" , lg : "md" }}>
-                Ribuan ASN Kerja Bhakti Bersih-Bersih Stadion Gelora Merdeka
-                Kraksaan
+                Gelar Kesenian Tradisional, Ngawonggo Lestarikan Budaya Topeng Ireng dan Jatilan
               </Heading>
             </CardHeader>
             <CardBody fontFamily="body" pb={0}>
               <Text fontSize={{ lg : "lg", base : "sm" }} >
-                Ribuan Aparatur Sipil Negara (ASN) dari Organisasi Perangkat
-                Daerah (OPD) dan Kecamatan bersama dengan anggota TNI, Pramuka
-                dan Karang Taruna melakukan kerja bakti bersih-bersih Stadion
-                Gelora Merdeka Kraksaan, Sabtu (12/8/2023).
+                Acara pentas seni tahunan di Desa Ngawonggo berlangsung semarak dengan menampilkan kesenian khas seperti Topeng Ireng dan Jatilan, sebagai upaya nyata menjaga warisan budaya dan menarik minat generasi muda.
               </Text>
             </CardBody>
             <CardFooter>
-              <Button fontFamily={'heading'} colorScheme="teal">
-                Kemasyarakatan
+              <Button fontFamily={'heading'} colorScheme="green">
+                Budaya
               </Button>
             </CardFooter>
           </Card>
@@ -119,27 +111,20 @@ const LatestNews = () => {
           >
             <CardHeader pb={0}>
               <Badge colorScheme="green" fontSize="md" mb="2" fontFamily="default">
-                11 / 08 / 2023
+                10 / 05 / 2024
               </Badge>
               <Heading size={{ base : "sm" , lg : "md" }}>
-                Teken Nota Kesepakatan KUA-PPAS P-APBD TA 2023
+                Kerja Bakti Warga Membersihkan Jalur Sumber Mata Air Lereng Sumbing
               </Heading>
             </CardHeader>
             <CardBody fontFamily="body" pb={0}>
               <Text fontSize={{ lg : "lg", base : "sm" }}  >
-                Setelah melalui tahapan pembahasan oleh Tim Anggaran Pemerintah
-                Daerah (TAPD) dan Badan Anggaran (Banggar) DPRD Kabupaten
-                Probolinggo, Jum’at (11/8/2023) dilakukan penandatanganan
-                (teken) Nota Kesepakatan Bersama antara Pemkab Probolinggo
-                dengan DPRD Kabupaten Probolinggo Tentang Kebijakan Umum
-                Anggaran (KUA) dan Prioritas serta Plafon Anggaran Sementara
-                (PPAS) Perubahan Anggaran Pendapatan dan Belanja Daerah (P-APBD)
-                Kabupaten Probolinggo Tahun Anggaran 2023.
+                Masyarakat Desa Ngawonggo melaksanakan kegiatan gotong royong membersihkan jalur sumber mata air yang menjadi tumpuan utama untuk irigasi pertanian dan kebutuhan air bersih sehari-hari.
               </Text>
             </CardBody>
             <CardFooter>
-              <Button fontFamily={'heading'} colorScheme="teal">
-                Kesehatan
+              <Button fontFamily={'heading'} colorScheme="green">
+                Lingkungan
               </Button>
             </CardFooter>
           </Card>
