@@ -7,8 +7,6 @@ import {
   CardBody,
   // CardHeader,
   Heading,
-  CardFooter,
-  Button,
   Badge,
 } from '@chakra-ui/react';
 

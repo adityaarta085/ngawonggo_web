@@ -1,4 +1,4 @@
-import { Flex, Text, Box, Badge, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Text, Box, Badge } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 
 const Hero = () => {

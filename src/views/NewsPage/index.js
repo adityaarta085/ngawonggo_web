@@ -3,7 +3,6 @@ import {
   Divider,
   Flex,
   Heading,
-  Text,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -15,8 +14,6 @@ import {
   // Card,
   Link,
 } from '@chakra-ui/react';
-import LatestNews from '../LandingPage/components/LatestNews';
-import CardTravel from '../../components/CardTravel';
 import CardNews from '../../components/CardNews.js';
 import SmallCardNews from '../../components/SmallCardNews';
 import {

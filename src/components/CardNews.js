@@ -7,8 +7,6 @@ import {
   Heading,
   Image
 } from '@chakra-ui/react';
-import Image404 from "../assets/Image404.png"
-
 export default function CardNews({title, image,caption, date}) {
   return (
     <Card

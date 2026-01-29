@@ -1,4 +1,4 @@
-import { Flex, Text, AspectRatio, Box } from '@chakra-ui/react';
+import { Flex, Text, Box } from '@chakra-ui/react';
 
 const VideoPromo = () => {
   return (
