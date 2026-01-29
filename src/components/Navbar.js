@@ -24,7 +24,7 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { ColorModeSwitcher } from '../ColorModeSwitcher';
-import Logo from '../assets/LogoKabProb.png';
+import NgawonggoLogo from './NgawonggoLogo';
 
 function Navbar(props) {
   const {
@@ -64,29 +64,8 @@ function Navbar(props) {
           flex={{ base: 1 }}
           justify={{ base: 'center', md: 'start' }}
         >
-          <IconButton
-            aria-label="Logo Kab"
-            isRound={true}
-            icon={
-              <Box
-                bgColor="blue.700" // Ganti dengan skema warna yang Anda inginkan
-                p={2}
-                rounded="full"
-              >
-                <Image src={Logo} alt="Logo Kab" boxSize={6} />
-              </Box>
-            }
-          />
           <Link href="/">
-            <Text
-              textAlign={useBreakpointValue({ base: 'center', md: 'left' })}
-              fontFamily="heading"
-              color={useColorModeValue('gray.600', 'white')}
-              fontWeight={700}
-              ml={2}
-            >
-              Kab Probolinggo
-            </Text>
+            <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'xl' })} />
           </Link>
           <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
             <DesktopNav />
@@ -265,20 +244,12 @@ const MobileNavItem = ({ label, children, href }) => {
 
 const NAV_ITEMS = [
   {
-    label: 'Profil',
+    label: 'Profil Desa',
     parenHref: '/profil',
     children: [
       {
-        label: 'Data Wilayah',
-        href: '/profil/#datawilayah',
-      },
-      {
         label: 'Visi Misi',
         href: '/profil/#visimisi',
-      },
-      {
-        label: 'Logo Kabupaten',
-        href: '/profil/#logokabupaten',
       },
       {
         label: 'Kondisi Geografis',
@@ -287,70 +258,20 @@ const NAV_ITEMS = [
     ],
   },
   {
-    label: 'Prim',
-    parenHref: '/prim',
-    children: [
-      {
-        label: 'Data Fisik Konstruksi 2022',
-        // subLabel : `Tahun 2022`,
-        href: '#',
-      },
-      {
-        label: 'DPA Bidang Bina Marga',
-        href: '#',
-      },
-      {
-        label: 'Tahun Anggaran',
-        href: '#',
-      },
-      {
-        label: 'Daftar Ruas Penanganan',
-        href: '#',
-      },
-      {
-        label: 'Peta Penanganan Prim',
-        href: '#',
-      },
-    ],
+    label: 'Pemerintahan',
+    href: '/news#pemerintahan',
   },
 
   {
-    label: 'Kinerja',
-    parenHref: '/kinerja',
-    href: '#',
-    children: [
-      {
-        label: 'Kecamatan Besuk',
-        href: '#',
-      },
-      {
-        label: 'Kecamatan Bantaran',
-        href: '#',
-      },
-      {
-        label: 'Kecamatan Banyuanyar',
-        href: '#',
-      },
-      {
-        label: 'Kecamatan Dringu',
-        href: '#',
-      },
-      {
-        label: 'Kecamatan Gending',
-        href: '#',
-      },
-      {
-        label: 'Kecamatan Kraksaan',
-        href: '#',
-      },
-    ]
-  },
-  {
-    label: 'Wisata',
+    label: 'Potensi Desa',
     href: '/#wisata',
   },
   {
-    label: 'Berita',
+    label: 'Wisata & Budaya',
+    href: '/#wisata',
+  },
+  {
+    label: 'Berita Desa',
     href: '/news',
   },
 ];

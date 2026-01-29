@@ -13,11 +13,9 @@ import {
   Image,
   Link,
 } from '@chakra-ui/react';
-import { FaInstagram, FaTwitter, FaYoutube, FaFacebook } from 'react-icons/fa';
+import { FaInstagram, FaFacebook } from 'react-icons/fa';
 import { BiMailSend } from 'react-icons/bi';
-// import { ReactComponent as LogoSvg } from '../assets/LogoDaerah.svg';
-import LogoDaerah from '../assets/Logo_Daerah.png';
-import LogoDaerahKabProb from '../assets/Logo_Kabupaten_Probolinggo_-_Seal_of_Probolinggo_Regency.png';
+import NgawonggoLogo from './NgawonggoLogo';
 
 const Logo = props => {
   return (
@@ -78,80 +76,50 @@ export default function Footer() {
           spacing={4}
         >
           <Box>
-            <Image
-              src={LogoDaerahKabProb}
-              boxSize={{ base: '100px', md: '200px' }}
-              fit={'contain'}
-            />
+            <NgawonggoLogo fontSize="2xl" />
           </Box>
           <Stack spacing={3}>
             <Text fontSize={'lg'} fontWeight={'bold'}>
-              Kab Probolinggo
+              Pemerintah Desa Ngawonggo
             </Text>
             <Text fontSize={'sm'}>
-              Dinas Kominfo Jalan: Raya Panglima Sudirman No 134 Kota Kraksaan
+              Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang, Jawa Tengah 56153
             </Text>
-            <Text fontSize={'sm'}>© 2023 Kab Probolinggo</Text>
-            <Text fontSize={'sm'}>Tel : +62335846665</Text>
-            <Text fontSize={'sm'}>Fax : +62335846665</Text>
+            <Text fontSize={'sm'}>© 2026 Pemerintah Desa Ngawonggo</Text>
+            <Text fontSize={'sm'}>Tel : 081215030896</Text>
+            <Text fontSize={'sm'}>Email : ngawonggodesa@gmail.com</Text>
             <Stack direction={'row'} spacing={6}>
               <SocialButton
-                label={'Twitter'}
-                href={'https://twitter.com/Infokabprob'}
+                label={'Instagram'}
+                href={'#'}
               >
-                <FaTwitter />
-              </SocialButton>
-              <SocialButton
-                label={'YouTube'}
-                href={
-                  'https://www.youtube.com/channel/UCl1Skf0XEOJG0Ll_DBqRvMA'
-                }
-              >
-                <FaYoutube />
+                <FaInstagram />
               </SocialButton>
               <SocialButton
                 label={'Facebook'}
-                href={'https://www.facebook.com/infoprobolinggokab'}
+                href={'#'}
               >
                 <FaFacebook />
               </SocialButton>
             </Stack>
           </Stack>
           <Stack align={'flex-start'}>
-            <ListHeader>Company</ListHeader>
-            <Box as="a" href={'#'}>
-              About us
+            <ListHeader>Menu Utama</ListHeader>
+            <Box as="a" href={'/profil'}>
+              Profil Desa
             </Box>
             <Box as="a" href={'#'}>
-              Blog
+              Peta Desa
             </Box>
             <Box as="a" href={'#'}>
-              Contact us
+              Hubungi Kami
             </Box>
-            <Box as="a" href={'#'}>
-              Pricing
-            </Box>
-            <Box as="a" href={'#'}>
-              Testimonials
+            <Box as="a" href={'/#wisata'}>
+              Potensi Desa
             </Box>
           </Stack>
           <Stack align={'flex-start'}>
-            <ListHeader>Support</ListHeader>
-            <Box as="a" href={'#'}>
-              Help Center
-            </Box>
-            <Box as="a" href={'#'}>
-              Terms of Service
-            </Box>
-            <Box as="a" href={'#'}>
-              Legal
-            </Box>
-            <Box as="a" href={'#'}>
-              Privacy Policy
-            </Box>
-            <Box as="a" href={'#'}>
-              Status
-            </Box>
+            {/* Sederhanakan atau hapus bagian ini sesuai instruksi */}
           </Stack>
           <Stack align={'flex-start'}>
             <ListHeader>Stay up to date</ListHeader>

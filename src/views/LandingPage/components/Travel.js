@@ -30,17 +30,17 @@ const Travel = () => {
         mb={{ base: '5px',  md : "7px",lg: '10px' }}
         mt={{ base: '15px', md : "18px", lg: '20px' }}
         ml={{ base: '5px',  md : "7px",lg: '10px' }}
-        color={useColorModeValue('blue.700', 'gray.100')}
+        color={useColorModeValue('ngawonggo.green', 'gray.100')}
       >
-        Wisata
+        Pesona Alam dan Potensi Desa Ngawonggo
       </Text>
       <Text
         fontFamily="heading"
         fontWeight="500"
-        color={useColorModeValue('blue.700', 'gray.100')}
+        color={useColorModeValue('ngawonggo.blue', 'gray.100')}
         textAlign="center"
       >
-        Wisata wisata terkenal di daerah Kabupaten Probolinggo{' '}
+        Menjelajahi keindahan alam dan kekayaan budaya di lereng Gunung Sumbing
       </Text>
       <Grid
         templateColumns={{ base: 'repeat(2,1fr)', lg: 'repeat(3, 1fr)' }}
@@ -49,9 +49,9 @@ const Travel = () => {
         gap={5}
         mb={{ lg: "50px" }}
       >
-        {TravelPlace.map(e => {
+        {TravelPlace.map((e, index) => {
           return (
-            <GridItem>
+            <GridItem key={index}>
               <CardTravel
                 title={e.title}
                 image={e.image}

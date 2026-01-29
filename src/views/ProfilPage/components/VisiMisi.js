@@ -17,8 +17,7 @@ const VisiMisi = () => {
           Visi
         </Text>
         <Text fontFamily="heading">
-          Terwujudnya Kabupaten Probolinggo Yang Sejahtera, Berkeadilan,
-          Mandiri, Berwawasan Lingkungan dan Berakhlak Mulia.
+          Mewujudkan Desa Ngawonggo yang Asri, Mandiri, dan Berbudaya Berbasis Potensi Pertanian dan Keindahan Alam.
         </Text>
       </Box>
       <Box>
@@ -27,19 +26,17 @@ const VisiMisi = () => {
         </Text>
         <OrderedList fontFamily="heading">
           <ListItem>
-            Mewujudkan Kesejahteraan Masyarakat Melalui Peningkatan Daya Saing
+            Meningkatkan kualitas lingkungan desa yang asri dan lestari.
           </ListItem>
           <ListItem>
-            Daerah, Pertumbuhan Ekonomi Berbasis Kerakyatan, dan Optimalisasi
-          </ListItem>
-          <ListItem>Pengelolaan Sumber Daya Yang Berkelanjutan</ListItem>
-          <ListItem>
-            Mewujudkan Masyarakat Yang Berakhlak Mulia Melalui Peningkatan
+            Mendorong kemandirian ekonomi masyarakat berbasis potensi pertanian lokal.
           </ListItem>
           <ListItem>
-            Kualitas Pelaksanaan Otonomi Daerah Dalam Penyelenggaraan
+            Melestarikan nilai-nilai budaya dan kesenian tradisional desa.
           </ListItem>
-          <ListItem>Kepemerintahan Yang Baik dan Bersih</ListItem>
+          <ListItem>
+            Mengoptimalkan potensi keindahan alam untuk kesejahteraan warga.
+          </ListItem>
         </OrderedList>
       </Box>
     </Flex>

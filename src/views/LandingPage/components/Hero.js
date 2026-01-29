@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 
 const Hero = () => {
   const bgImage =
-    'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80';
-  const badgeColorScheme = 'blue';
+    'https://images.unsplash.com/photo-1591189863430-ab87e120f312?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80';
+  const badgeColorScheme = 'green';
   const badgeFontSize = '0.8em';
 
   return (
@@ -31,13 +31,14 @@ const Hero = () => {
           }}
         >
           <Text
-            fontSize={{ base: '30px', md: '70px', lg: '110px' }}
+            fontSize={{ base: '30px', md: '70px', lg: '80px' }}
             fontFamily="heading"
             fontWeight="900"
             color="gray.50"
             mb={{ base: '10px', md: '20px' }}
+            textShadow="2px 2px 4px rgba(0,0,0,0.4)"
           >
-            PRASAJA NGESTI WIBAWA
+            NGAWONGGO: PESONA LERENG SUMBING
           </Text>
         </motion.div>
 
@@ -53,24 +54,18 @@ const Hero = () => {
         <Text
           fontFamily="heading"
           color="gray.50"
-          fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
+          fontSize={{ base: 'sm', md: 'md', lg: 'xl' }}
+          fontWeight="semibold"
+          textShadow="1px 1px 2px rgba(0,0,0,0.4)"
         >
-          Terwujudnya Kabupaten Probolinggo Yang
+          "Mewujudkan Desa Ngawonggo yang
           <Badge
             variant="subtle"
             colorScheme={badgeColorScheme}
             fontSize={badgeFontSize}
             m={'0px 2px'}
           >
-            Sejahtera,
-          </Badge>
-          <Badge
-            variant="subtle"
-            colorScheme={badgeColorScheme}
-            fontSize={badgeFontSize}
-            m={'0px 2px'}
-          >
-            Berkeadilan
+            Asri
           </Badge>
           ,
           <Badge
@@ -81,24 +76,16 @@ const Hero = () => {
           >
             Mandiri
           </Badge>
-          ,
+          , dan
           <Badge
             variant="subtle"
             colorScheme={badgeColorScheme}
             fontSize={badgeFontSize}
             m={'0px 2px'}
           >
-            Berwawasan Lingkungan
+            Berbudaya
           </Badge>
-          dan
-          <Badge
-            variant="subtle"
-            colorScheme={badgeColorScheme}
-            fontSize={badgeFontSize}
-            m={'0px 2px'}
-          >
-            Berakhlak Mulia.
-          </Badge>
+          Berbasis Potensi Pertanian dan Keindahan Alam."
         </Text>
         </motion.div>
 
