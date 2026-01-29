@@ -10,26 +10,11 @@ import {
   Input,
   IconButton,
   useColorModeValue,
-  Image,
   Link,
 } from '@chakra-ui/react';
 import { FaInstagram, FaFacebook } from 'react-icons/fa';
 import { BiMailSend } from 'react-icons/bi';
 import NgawonggoLogo from './NgawonggoLogo';
-
-const Logo = props => {
-  return (
-    <svg
-      height={32}
-      viewBox="0 0 120 30"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      {/* SVG path data */}
-      {/* <LogoSvg /> */}
-    </svg>
-  );
-};
 
 const SocialButton = ({ children, label, href }) => {
   return (

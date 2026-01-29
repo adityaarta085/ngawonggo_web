@@ -1,5 +1,4 @@
 import {
-  AspectRatio,
   Box,
   Flex,
   Image,
@@ -7,7 +6,6 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
-import spt from '../../../assets/supports/image 5.png';
 import { institutionSupports } from '../../../variables/general';
 const Supports = () => {
   const bgSupport = useColorModeValue("transparent", "gray.200")
@@ -58,23 +56,3 @@ const Supports = () => {
 };
 
 export default Supports;
-
-const supportBox = () => {
-  return (
-    <Link href="youtube.com">
-      <Box
-        w="300px"
-        h="150px"
-        border="3px solid black"
-        rounded="lg"
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        // bg="teal"
-        _hover={{ bg: 'gray.100' }}
-      >
-        <Image src={spt} alt={'Youtube'} objectFit="contain" w="140px" />
-      </Box>
-    </Link>
-  );
-};

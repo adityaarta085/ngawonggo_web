@@ -4,10 +4,7 @@ import {
   Card,
   CardBody,
   CardFooter,
-  CardHeader,
   Heading,
-  Stack,
-  Text,
   useColorModeValue,
   Link,
 } from '@chakra-ui/react';

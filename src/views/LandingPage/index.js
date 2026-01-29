@@ -1,6 +1,5 @@
 import { Flex, Stack, Box } from '@chakra-ui/react';
 import Hero from './components/Hero.js';
-import Footer from '../../components/Footer.js';
 import LatestNews from './components/LatestNews.js';
 import Travel from './components/Travel.js';
 import VideoPromo from './components/VideoPromo.js';

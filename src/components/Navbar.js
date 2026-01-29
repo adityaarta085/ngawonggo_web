@@ -13,7 +13,6 @@ import {
   useColorModeValue,
   useBreakpointValue,
   useDisclosure,
-  Image,
   // Center,
   Link,
 } from '@chakra-ui/react';
@@ -26,10 +25,7 @@ import {
 import { ColorModeSwitcher } from '../ColorModeSwitcher';
 import NgawonggoLogo from './NgawonggoLogo';
 
-function Navbar(props) {
-  const {
-    linkWisata,
-  } = props
+function Navbar() {
   const { isOpen, onToggle } = useDisclosure();
 
   return (
