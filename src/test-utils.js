@@ -2,10 +2,13 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { ChakraProvider, theme } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 const AllProviders = ({ children }) => (
   <ChakraProvider theme={theme}>
-    <BrowserRouter>{children}</BrowserRouter>
+    <LanguageProvider>
+      <BrowserRouter>{children}</BrowserRouter>
+    </LanguageProvider>
   </ChakraProvider>
 );
 

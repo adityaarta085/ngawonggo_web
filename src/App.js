@@ -14,12 +14,19 @@ import LayananPage from './views/LayananPage/index.js';
 import PotensiPage from './views/PotensiPage/index.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
-import RadioPage from './views/RadioPage/index.js';
+import MediaPage from './views/MediaPage/index.js';
+import AdminPage from './views/AdminPage/index.js';
+import MiniPlayer from './components/MiniPlayer.js';
+import Chatbot from './components/Chatbot.js';
+import { useLocation } from 'react-router-dom';
 
 function App() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
+
   return (
     <Box>
-      <Navbar />
+      {!isAdmin && <Navbar />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/news" element={<NewsPage />} />
@@ -29,10 +36,13 @@ function App() {
         <Route path="/potensi" element={<PotensiPage />} />
         <Route path="/transparansi" element={<TransparansiPage />} />
         <Route path="/kontak" element={<KontakPage />} />
-        <Route path="/radio" element={<RadioPage />} />
+        <Route path="/media" element={<MediaPage />} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
-      <Footer />
+      {!isAdmin && <MiniPlayer />}
+      {!isAdmin && <Chatbot />}
+      {!isAdmin && <Footer />}
     </Box>
   );
 }

@@ -1,96 +1,116 @@
-import { Flex, Text, Box, Badge } from '@chakra-ui/react';
+
+import { Box, Container, Heading, Text, Button, Stack, useBreakpointValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../../../contexts/LanguageContext';
+import { translations } from '../../../translations';
+
+const MotionBox = motion(Box);
+const MotionHeading = motion(Heading);
+const MotionText = motion(Text);
+const MotionStack = motion(Stack);
 
 const Hero = () => {
-  const bgImage =
-    'https://images.unsplash.com/photo-1591189863430-ab87e120f312?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80';
-  const badgeColorScheme = 'green';
-  const badgeFontSize = '0.8em';
+  const { language } = useLanguage();
+  const t = translations[language].hero;
 
   return (
-    <Flex
-      bgImage={`url(${bgImage})`}
-      bgSize="cover"
-      bgPosition="center"
-      height={{ base: '200px', md: '300px', lg: '800px' }}
-      justifyContent="center"
+    <Box
+      position="relative"
+      height={{ base: '70vh', md: '85vh' }}
+      display="flex"
       alignItems="center"
-      mb="30px"
+      overflow="hidden"
+      bg="accent.blue"
     >
-      <Box
-        flexDirection="column"
-        boxSize={{ base: 'fit-content', md: 'fit-content', lg: 'max-content' }}
-        textAlign="center"
-      >
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{
-            ease: 'easeInOut',
-            duration: 2,
-          }}
-        >
-          <Text
-            fontSize={{ base: '30px', md: '70px', lg: '80px' }}
-            fontFamily="heading"
-            fontWeight="900"
-            color="gray.50"
-            mb={{ base: '10px', md: '20px' }}
-            textShadow="2px 2px 4px rgba(0,0,0,0.4)"
-          >
-            NGAWONGGO: PESONA LERENG SUMBING
-          </Text>
-        </motion.div>
-
-        <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{
-          ease: 'easeInOut',
-          duration: 5,
+      {/* Ambient Motion Background */}
+      <MotionBox
+        position="absolute"
+        top="-50%"
+        left="-50%"
+        right="-50%"
+        bottom="-50%"
+        zIndex={0}
+        animate={{
+          rotate: [0, 10, 0],
+          scale: [1, 1.1, 1],
         }}
-        >
+        transition={{
+          duration: 20,
+          repeat: Infinity,
+          ease: "linear"
+        }}
+        style={{
+          background: 'radial-gradient(circle, rgba(0,86,179,0.3) 0%, rgba(15,23,42,1) 70%)',
+        }}
+      />
 
-        <Text
-          fontFamily="heading"
-          color="gray.50"
-          fontSize={{ base: 'sm', md: 'md', lg: 'xl' }}
-          fontWeight="semibold"
-          textShadow="1px 1px 2px rgba(0,0,0,0.4)"
-        >
-          "Mewujudkan Desa Ngawonggo yang
-          <Badge
-            variant="subtle"
-            colorScheme={badgeColorScheme}
-            fontSize={badgeFontSize}
-            m={'0px 2px'}
+      <Container maxW="container.xl" zIndex={1} position="relative">
+        <Stack spacing={6} maxW="3xl">
+          <MotionHeading
+            as="h1"
+            fontSize={useBreakpointValue({ base: '4xl', md: '6xl', lg: '7xl' })}
+            color="white"
+            lineHeight="1.1"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Mandiri
-          </Badge>
-          ,
-          <Badge
-            variant="subtle"
-            colorScheme={badgeColorScheme}
-            fontSize={badgeFontSize}
-            m={'0px 2px'}
-          >
-            Religius
-          </Badge>
-          , dan
-          <Badge
-            variant="subtle"
-            colorScheme={badgeColorScheme}
-            fontSize={badgeFontSize}
-            m={'0px 2px'}
-          >
-            Berbudaya
-          </Badge>
-          Berbasis Potensi Lokal Menuju Era Digital 2045."
-        </Text>
-        </motion.div>
+            {t.title}
+          </MotionHeading>
 
-      </Box>
-    </Flex>
+          <MotionText
+            fontSize={useBreakpointValue({ base: 'lg', md: 'xl' })}
+            color="gray.300"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+            {t.subtitle}
+          </MotionText>
+
+          <MotionStack
+            direction={{ base: 'column', sm: 'row' }}
+            spacing={4}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          >
+            <Button
+              size="lg"
+              colorScheme="brand"
+              px={8}
+              height="60px"
+              fontSize="md"
+            >
+              {t.cta}
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              color="white"
+              _hover={{ bg: 'whiteAlpha.200' }}
+              px={8}
+              height="60px"
+              fontSize="md"
+            >
+              {language === 'id' ? 'Lihat Video' : 'Watch Video'}
+            </Button>
+          </MotionStack>
+        </Stack>
+      </Container>
+
+      {/* Decorative element */}
+      <Box
+        position="absolute"
+        bottom="0"
+        right="0"
+        width="40%"
+        height="100%"
+        opacity={0.1}
+        pointerEvents="none"
+        bgImage="url('https://www.transparenttextures.com/patterns/cubes.png')"
+      />
+    </Box>
   );
 };
 

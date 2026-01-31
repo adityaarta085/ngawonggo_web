@@ -1,139 +1,111 @@
+
 import React from 'react';
 import {
   Box,
-  chakra,
   Container,
   SimpleGrid,
   Stack,
   Text,
-  VisuallyHidden,
-  Input,
-  IconButton,
-  useColorModeValue,
+  Flex,
+  Icon,
+  HStack,
   Link,
+  Divider,
 } from '@chakra-ui/react';
-import { FaInstagram, FaFacebook } from 'react-icons/fa';
-import { BiMailSend } from 'react-icons/bi';
+import { FaInstagram, FaFacebook, FaTwitter, FaYoutube, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
 import NgawonggoLogo from './NgawonggoLogo';
 
-const SocialButton = ({ children, label, href }) => {
-  return (
-    <chakra.button
-      bg={useColorModeValue('blackAlpha.100', 'whiteAlpha.100')}
-      rounded={'full'}
-      w={8}
-      h={8}
-      cursor={'pointer'}
-      as={'a'}
-      href={href}
-      display={'inline-flex'}
-      alignItems={'center'}
-      justifyContent={'center'}
-      transition={'background 0.3s ease'}
-      _hover={{
-        bg: useColorModeValue('blackAlpha.200', 'whiteAlpha.200'),
-      }}
-    >
-      <VisuallyHidden>{label}</VisuallyHidden>
-      {children}
-    </chakra.button>
-  );
-};
-
-const ListHeader = ({ children }) => {
-  return (
-    <Text fontWeight={'500'} fontSize={'lg'} mb={2}>
-      {children}
-    </Text>
-  );
-};
+const SocialLink = ({ icon, href }) => (
+  <Link
+    href={href}
+    isExternal
+    w={10}
+    h={10}
+    borderRadius="full"
+    bg="whiteAlpha.200"
+    display="flex"
+    alignItems="center"
+    justifyContent="center"
+    _hover={{ bg: 'brand.500', transform: 'translateY(-2px)' }}
+    transition="all 0.3s"
+  >
+    <Icon as={icon} color="white" />
+  </Link>
+);
 
 export default function Footer() {
   return (
-    <Box
-      bg={useColorModeValue('gray.100', '#1C395A')}
-      color={useColorModeValue('gray.700', 'gray.200')}
-      fontFamily={'heading'}
-    >
-      <Container as={Stack} maxW={'6xl'} py={10}>
-        <SimpleGrid
-          templateColumns={{ sm: '1fr 1fr', md: '1fr 2fr 1fr 1fr 2fr' }}
-          spacing={4}
-        >
-          <Box>
+    <Box bg="accent.blue" color="white" pt={16} pb={8}>
+      <Container maxW="container.xl">
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={12} mb={12}>
+          <Stack spacing={6}>
             <NgawonggoLogo fontSize="2xl" />
-          </Box>
-          <Stack spacing={3}>
-            <Text fontSize={'lg'} fontWeight={'bold'}>
-              Pemerintah Desa Ngawonggo
+            <Text color="gray.400" fontSize="sm" lineHeight="tall">
+              Website Resmi Pemerintah Desa Ngawonggo. Berkomitmen mewujudkan desa digital yang mandiri, berbudaya, dan sejahtera menuju Indonesia 2045.
             </Text>
-            <Text fontSize={'sm'}>
-              Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang, Jawa Tengah 56153
-            </Text>
-            <Text fontSize={'sm'}>© 2026 Pemerintah Desa Ngawonggo</Text>
-            <Text fontSize={'sm'}>Tel : 081215030896</Text>
-            <Text fontSize={'sm'}>Email : ngawonggodesa@gmail.com</Text>
-            <Stack direction={'row'} spacing={6}>
-              <SocialButton
-                label={'Instagram'}
-                href={'#'}
-              >
-                <FaInstagram />
-              </SocialButton>
-              <SocialButton
-                label={'Facebook'}
-                href={'#'}
-              >
-                <FaFacebook />
-              </SocialButton>
+            <HStack spacing={4}>
+              <SocialLink icon={FaFacebook} href="#" />
+              <SocialLink icon={FaInstagram} href="#" />
+              <SocialLink icon={FaTwitter} href="#" />
+              <SocialLink icon={FaYoutube} href="#" />
+            </HStack>
+          </Stack>
+
+          <Stack spacing={6}>
+            <Text fontWeight="800" fontSize="lg">Tautan Cepat</Text>
+            <Stack spacing={3} color="gray.400" fontSize="sm">
+              <Link href="/profil" _hover={{ color: 'white' }}>Profil Desa</Link>
+              <Link href="/pemerintahan" _hover={{ color: 'white' }}>Pemerintahan</Link>
+              <Link href="/layanan" _hover={{ color: 'white' }}>Layanan Publik</Link>
+              <Link href="/news" _hover={{ color: 'white' }}>Berita Desa</Link>
+              <Link href="/media" _hover={{ color: 'white' }}>Bioskop Desa</Link>
             </Stack>
           </Stack>
-          <Stack align={'flex-start'}>
-            <ListHeader>Menu Utama</ListHeader>
-            <Box as="a" href={'/profil'}>
-              Profil Desa
-            </Box>
-            <Box as="a" href={'#'}>
-              Peta Desa
-            </Box>
-            <Box as="a" href={'#'}>
-              Hubungi Kami
-            </Box>
-            <Box as="a" href={'/#wisata'}>
-              Potensi Desa
-            </Box>
-          </Stack>
-          <Stack align={'flex-start'}>
-            {/* Sederhanakan atau hapus bagian ini sesuai instruksi */}
-          </Stack>
-          <Stack align={'flex-start'}>
-            <ListHeader>Stay up to date</ListHeader>
-            <Stack direction={'row'}>
-              <Input
-                placeholder={'Your email address'}
-                bg={useColorModeValue('blackAlpha.100', 'whiteAlpha.100')}
-                border={0}
-                _focus={{
-                  bg: 'whiteAlpha.300',
-                }}
-              />
-              <IconButton
-                bg={useColorModeValue('blue.400', 'blue.800')}
-                color={useColorModeValue('white', 'gray.800')}
-                _hover={{
-                  bg: 'blue.600',
-                }}
-                aria-label="Subscribe"
-                icon={<BiMailSend />}
-              />
+
+          <Stack spacing={6}>
+            <Text fontWeight="800" fontSize="lg">Kontak Kami</Text>
+            <Stack spacing={4} color="gray.400" fontSize="sm">
+              <HStack align="start" spacing={3}>
+                <Icon as={FaMapMarkerAlt} color="brand.500" mt={1} />
+                <Text>Desa Ngawonggo, Kec. Kaliangkrik, Kab. Magelang, Jawa Tengah 56153</Text>
+              </HStack>
+              <HStack spacing={3}>
+                <Icon as={FaPhone} color="brand.500" />
+                <Text>0812-1503-0896</Text>
+              </HStack>
+              <HStack spacing={3}>
+                <Icon as={FaEnvelope} color="brand.500" />
+                <Text>ngawonggodesa@gmail.com</Text>
+              </HStack>
             </Stack>
-            <Text fontWeight="700" marginTop="45px">
-              Made By
-              <Link href="https://github.com/frdmn12" ml={1}>@frdmn12</Link>
-              😸
-            </Text>
+          </Stack>
+
+          <Stack spacing={6}>
+            <Text fontWeight="800" fontSize="lg">Lokasi</Text>
+            <Box borderRadius="xl" overflow="hidden" h="200px" bg="gray.700">
+               {/* Placeholder for map */}
+               <iframe
+                title="Peta Lokasi Desa Ngawonggo"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31637.36873967073!2d110.0768434!3d-7.5028454!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a8de97c724773%3A0x5027a76e35689b0!2sNgawonggo%2C%20Kaliangkrik%2C%20Magelang%20Regency%2C%20Central%20Java!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+               ></iframe>
+            </Box>
           </Stack>
         </SimpleGrid>
+
+        <Divider borderColor="whiteAlpha.200" mb={8} />
+
+        <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align="center" color="gray.500" fontSize="xs">
+          <Text>© 2024 Pemerintah Desa Ngawonggo. Hak Cipta Dilindungi.</Text>
+          <HStack spacing={6} mt={{ base: 4, md: 0 }}>
+            <Link href="#">Kebijakan Privasi</Link>
+            <Link href="#">Syarat & Ketentuan</Link>
+          </HStack>
+        </Flex>
       </Container>
     </Box>
   );
