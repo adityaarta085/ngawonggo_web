@@ -12,7 +12,6 @@ import {
   SliderFilledTrack,
   SliderThumb,
   useColorModeValue,
-  Image,
   Badge,
   Flex,
   Link,
