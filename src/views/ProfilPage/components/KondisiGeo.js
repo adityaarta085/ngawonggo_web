@@ -13,10 +13,10 @@ const KondisiGeo = () => {
       <Box>
         <Text fontWeight={700}>Batas Wilayah Desa Ngawonggo:</Text>
         <OrderedList>
-          <ListItem>Sebelah Utara : Hutan Lindung Gunung Sumbing</ListItem>
-          <ListItem>Sebelah Timur : Desa Balekerto</ListItem>
-          <ListItem>Sebelah Barat : Desa Butuh (Nepal van Java)</ListItem>
-          <ListItem>Sebelah Selatan : Desa Adipuro</ListItem>
+          <ListItem>Sebelah Utara : Desa Adipura</ListItem>
+          <ListItem>Sebelah Timur : Desa Kaliangkrik</ListItem>
+          <ListItem>Sebelah Selatan : Desa Temanggung</ListItem>
+          <ListItem>Sebelah Barat : Desa Balekerto / Lereng Gunung Sumbing</ListItem>
         </OrderedList>
       </Box>
       <Box>

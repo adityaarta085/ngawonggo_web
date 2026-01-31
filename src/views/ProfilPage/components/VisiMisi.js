@@ -17,7 +17,7 @@ const VisiMisi = () => {
           Visi
         </Text>
         <Text fontFamily="heading">
-          Mewujudkan Desa Ngawonggo yang Asri, Mandiri, dan Berbudaya Berbasis Potensi Pertanian dan Keindahan Alam.
+          “Mewujudkan Desa Ngawonggo yang Mandiri, Religius, dan Berbudaya Berbasis Potensi Lokal Menuju Era Digital 2045.”
         </Text>
       </Box>
       <Box>
@@ -26,16 +26,16 @@ const VisiMisi = () => {
         </Text>
         <OrderedList fontFamily="heading">
           <ListItem>
-            Meningkatkan kualitas lingkungan desa yang asri dan lestari.
+            Meningkatkan kualitas pelayanan publik melalui transformasi digital.
           </ListItem>
           <ListItem>
-            Mendorong kemandirian ekonomi masyarakat berbasis potensi pertanian lokal.
+            Mengoptimalkan potensi pertanian kopi dan hortikultura sebagai penggerak ekonomi desa.
           </ListItem>
           <ListItem>
-            Melestarikan nilai-nilai budaya dan kesenian tradisional desa.
+            Melestarikan nilai-nilai budaya lokal dan memperkuat identitas desa religius.
           </ListItem>
           <ListItem>
-            Mengoptimalkan potensi keindahan alam untuk kesejahteraan warga.
+            Membangun infrastruktur desa yang berkelanjutan dan ramah lingkungan.
           </ListItem>
         </OrderedList>
       </Box>

@@ -65,7 +65,7 @@ const Hero = () => {
             fontSize={badgeFontSize}
             m={'0px 2px'}
           >
-            Asri
+            Mandiri
           </Badge>
           ,
           <Badge
@@ -74,7 +74,7 @@ const Hero = () => {
             fontSize={badgeFontSize}
             m={'0px 2px'}
           >
-            Mandiri
+            Religius
           </Badge>
           , dan
           <Badge
@@ -85,7 +85,7 @@ const Hero = () => {
           >
             Berbudaya
           </Badge>
-          Berbasis Potensi Pertanian dan Keindahan Alam."
+          Berbasis Potensi Lokal Menuju Era Digital 2045."
         </Text>
         </motion.div>
 
