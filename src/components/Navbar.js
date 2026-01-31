@@ -186,7 +186,7 @@ const MobileNav = () => {
   );
 };
 
-const MobileNavItem = ({ label, children, href }) => {
+const MobileNavItem = ({ label, children, href, parenHref }) => {
   const { isOpen, onToggle } = useDisclosure();
 
   return (
@@ -194,7 +194,7 @@ const MobileNavItem = ({ label, children, href }) => {
       <Box
         py={2}
         as="a"
-        href={href ?? '#'}
+        href={href ?? parenHref ?? '#'}
         justifyContent="space-between"
         alignItems="center"
         _hover={{
@@ -240,35 +240,54 @@ const MobileNavItem = ({ label, children, href }) => {
 
 const NAV_ITEMS = [
   {
+    label: 'Beranda',
+    href: '/',
+  },
+  {
     label: 'Profil Desa',
     parenHref: '/profil',
     children: [
       {
-        label: 'Visi Misi',
-        href: '/profil/#visimisi',
+        label: 'Sejarah',
+        href: '/profil#sejarah',
       },
       {
-        label: 'Kondisi Geografis',
-        href: '/profil/#kondisigeografis',
+        label: 'Visi Misi',
+        href: '/profil#visimisi',
+      },
+      {
+        label: 'Geografis',
+        href: '/profil#kondisigeografis',
+      },
+      {
+        label: 'Demografi',
+        href: '/profil#demografi',
       },
     ],
   },
   {
     label: 'Pemerintahan',
-    href: '/news#pemerintahan',
-  },
-
-  {
-    label: 'Potensi Desa',
-    href: '/#wisata',
+    href: '/pemerintahan',
   },
   {
-    label: 'Wisata & Budaya',
-    href: '/#wisata',
+    label: 'Layanan Publik',
+    href: '/layanan',
   },
   {
-    label: 'Berita Desa',
+    label: 'Potensi & Ekonomi',
+    href: '/potensi',
+  },
+  {
+    label: 'Transparansi',
+    href: '/transparansi',
+  },
+  {
+    label: 'Berita',
     href: '/news',
+  },
+  {
+    label: 'Kontak',
+    href: '/kontak',
   },
 ];
 

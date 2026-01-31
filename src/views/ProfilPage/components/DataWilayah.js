@@ -14,16 +14,17 @@ const DataWilayah = () => {
       </Text>
       <UnorderedList fontFamily="heading" spacing={3}>
         <ListItem>Nama Resmi : Desa Ngawonggo </ListItem>
+        <ListItem>Luas Wilayah : 5,34 km² </ListItem>
         <ListItem>Kecamatan : Kaliangkrik </ListItem>
         <ListItem>Kabupaten : Magelang </ListItem>
         <ListItem>Provinsi : Jawa Tengah </ListItem>
-        <ListItem>Batas Wilayah </ListItem>
-        <ListItem>Utara : Desa Butuh & Gunung Sumbing </ListItem>
-        <ListItem>Selatan : Desa Kaliangkrik </ListItem>
-        <ListItem>Barat : Hutan Lindung Gunung Sumbing </ListItem>
-        <ListItem>Timur : Desa Balerejo </ListItem>
-        <ListItem>Potensi Utama : Pertanian Sayuran & Pariwisata Alam </ListItem>
-        <ListItem>Website Resmi : ngawonggo-magelang.desa.id </ListItem>
+        <ListItem>Batas Wilayah :</ListItem>
+        <ListItem>Utara : Desa Adipura </ListItem>
+        <ListItem>Timur : Desa Kaliangkrik </ListItem>
+        <ListItem>Selatan : Desa Temanggung </ListItem>
+        <ListItem>Barat : Desa Balekerto / Lereng Gunung Sumbing </ListItem>
+        <ListItem>Koordinat Geografis : -7.485, 110.125 </ListItem>
+        <ListItem>Potensi Utama : Kopi Arabika, Hortikultura, Wisata Religi </ListItem>
       </UnorderedList>
       <AspectRatio
         ratio={16 / 9}
