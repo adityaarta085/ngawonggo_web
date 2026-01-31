@@ -270,10 +270,6 @@ const NAV_ITEMS = [
     label: 'Berita Desa',
     href: '/news',
   },
-  {
-    label: 'Radio Gemilang 98.6 FM',
-    href: '/radio',
-  },
 ];
 
 export default Navbar;
