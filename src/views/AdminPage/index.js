@@ -27,7 +27,7 @@ import DashboardStats from './components/DashboardStats';
 import StatsManager from './components/StatsManager';
 import InstitutionManager from './components/InstitutionManager';
 
-const AdminPage = () => {
+const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Dashboard');
   const sidebarColor = useColorModeValue('white', 'gray.800');
@@ -43,6 +43,8 @@ const AdminPage = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    localStorage.removeItem('adminSession');
+    if (setSession) setSession(null);
     navigate('/');
   };
 

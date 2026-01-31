@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Box, Container, SimpleGrid, Text, Heading, Icon, VStack } from '@chakra-ui/react';
 import { FaUsers, FaMapMarkedAlt, FaSeedling, FaMountain, FaMars, FaVenus, FaMap } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import { useLanguage } from '../../../contexts/LanguageContext';
 import { supabase } from '../../../lib/supabase';
 
 const MotionBox = motion(Box);
@@ -18,7 +17,6 @@ const iconMap = {
 };
 
 const StatsSection = () => {
-  const { language } = useLanguage();
   const [stats, setStats] = useState([]);
 
   useEffect(() => {

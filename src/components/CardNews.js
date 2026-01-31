@@ -1,6 +1,5 @@
 import {
   Card,
-  Text,
   CardHeader,
   CardBody,
   Badge,
@@ -8,7 +7,8 @@ import {
   Image,
   Box
 } from '@chakra-ui/react';
-export default function CardNews({title, image,caption, date}) {
+
+export default function CardNews({ title, image, caption, date }) {
   return (
     <Card
       size="md"
@@ -17,15 +17,12 @@ export default function CardNews({title, image,caption, date}) {
         transition: 'transform 0.3s',
       }}
       w={"400px"}
-    //   h="100%"
-      // m={{ base: '1' }}
     >
-        <Image
+      <Image
         src={image}
         alt='ImageNews'
         objectFit="cover"
-        // maxW="300px"
-        />
+      />
       <CardHeader pb={0}>
         <Badge colorScheme="green" fontSize="xs" mb="2" fontFamily="default">
           {date}

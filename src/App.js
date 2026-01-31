@@ -37,19 +37,27 @@ const TopBar = () => {
 function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState(() => {
+    const localSession = localStorage.getItem('adminSession');
+    return localSession ? JSON.parse(localSession) : null;
+  });
 
   usePageTracking();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    // Tetap dengarkan sesi Supabase jika ada fitur lain yang membutuhkannya
+    supabase.auth.getSession().then(({ data: { session: authSession } }) => {
+      if (authSession) setSession(authSession);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    } = supabase.auth.onAuthStateChange((_event, authSession) => {
+      if (authSession) {
+        setSession(authSession);
+      } else if (!localStorage.getItem('adminSession')) {
+        setSession(null);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -72,10 +80,10 @@ function App() {
         <Route
           path="/admin"
           element={
-            session ? <AdminPage /> : <Navigate to="/admin/login" replace />
+            session ? <AdminPage setSession={setSession} /> : <Navigate to="/admin/login" replace />
           }
         />
-        <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin/login" element={<Login setSession={setSession} />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
       {!isAdmin && <MiniPlayer />}
