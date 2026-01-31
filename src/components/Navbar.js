@@ -1,9 +1,10 @@
+
 import {
   Box,
   Flex,
   Text,
   IconButton,
-  // Button,
+  Button,
   Stack,
   Collapse,
   Icon,
@@ -13,8 +14,9 @@ import {
   useColorModeValue,
   useBreakpointValue,
   useDisclosure,
-  // Center,
   Link,
+  Container,
+  HStack,
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -22,86 +24,130 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from '@chakra-ui/icons';
-import { ColorModeSwitcher } from '../ColorModeSwitcher';
+import { Link as RouterLink } from 'react-router-dom';
 import NgawonggoLogo from './NgawonggoLogo';
+import { useLanguage } from '../contexts/LanguageContext';
+import { translations } from '../translations';
 
 function Navbar() {
   const { isOpen, onToggle } = useDisclosure();
+  const { language, setLanguage } = useLanguage();
+  const t = translations[language].nav;
+
+  const NAV_ITEMS = [
+    { label: t.home, href: '/' },
+    {
+      label: t.profile,
+      parenHref: '/profil',
+      children: [
+        { label: 'Sejarah', href: '/profil#sejarah' },
+        { label: 'Visi Misi', href: '/profil#visimisi' },
+        { label: 'Geografis', href: '/profil#kondisigeografis' },
+        { label: 'Demografi', href: '/profil#demografi' },
+      ],
+    },
+    { label: t.government, href: '/pemerintahan' },
+    { label: t.services, href: '/layanan' },
+    { label: 'Potensi', href: '/potensi' },
+    { label: t.news, href: '/news' },
+    { label: t.media, href: '/media' },
+    { label: t.contact, href: '/kontak' },
+    { label: t.admin, href: '/admin', isSpecial: true },
+  ];
 
   return (
-    <Box>
+    <Box position="sticky" top={0} zIndex={1000}>
       <Flex
-        bg={useColorModeValue('white', '#1C395A')}
+        bg={useColorModeValue('white', 'accent.blue')}
         color={useColorModeValue('gray.600', 'white')}
-        minH={'60px'}
+        minH={'70px'}
         py={{ base: 2 }}
         px={{ base: 4 }}
         borderBottom={1}
         borderStyle={'solid'}
-        borderColor={useColorModeValue('gray.200', 'gray.900')}
+        borderColor={useColorModeValue('gray.100', 'whiteAlpha.100')}
         align={'center'}
+        boxShadow="sm"
       >
-        <Flex
-          flex={{ base: 1, md: 'auto' }}
-          ml={{ base: -2 }}
-          display={{ base: 'flex', md: 'none' }}
-        >
-          <IconButton
-            onClick={onToggle}
-            icon={
-              isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
-            }
-            variant={'ghost'}
-            aria-label={'Toggle Navigation'}
-          />
-        </Flex>
-        <Flex
-          alignItems="center"
-          flex={{ base: 1 }}
-          justify={{ base: 'center', md: 'start' }}
-        >
-          <Link href="/">
-            <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'xl' })} />
-          </Link>
-          <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
-            <DesktopNav />
+        <Container maxW="container.xl" display="flex" alignItems="center">
+          <Flex
+            flex={{ base: 1, md: 'auto' }}
+            ml={{ base: -2 }}
+            display={{ base: 'flex', md: 'none' }}
+          >
+            <IconButton
+              onClick={onToggle}
+              icon={
+                isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
+              }
+              variant={'ghost'}
+              aria-label={'Toggle Navigation'}
+            />
           </Flex>
-        </Flex>
-        <Stack
-          flex={{ base: 1, md: 0 }}
-          justify={'flex-end'}
-          direction={'row'}
-          spacing={6}
-          alignItems={'center'}
-        >
-          <ColorModeSwitcher />
-        </Stack>
+
+          <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }} alignItems="center">
+            <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
+              <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'xl' })} />
+            </Link>
+
+            <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
+              <DesktopNav navItems={NAV_ITEMS} />
+            </Flex>
+          </Flex>
+
+          <Stack
+            flex={{ base: 1, md: 0 }}
+            justify={'flex-end'}
+            direction={'row'}
+            spacing={4}
+          >
+            <HStack spacing={1}>
+              <Button
+                size="xs"
+                variant={language === 'id' ? 'solid' : 'ghost'}
+                colorScheme="brand"
+                onClick={() => setLanguage('id')}
+              >
+                ID
+              </Button>
+              <Button
+                size="xs"
+                variant={language === 'en' ? 'solid' : 'ghost'}
+                colorScheme="brand"
+                onClick={() => setLanguage('en')}
+              >
+                EN
+              </Button>
+            </HStack>
+          </Stack>
+        </Container>
       </Flex>
+
       <Collapse in={isOpen} animateOpacity>
-        <MobileNav />
+        <MobileNav navItems={NAV_ITEMS} />
       </Collapse>
     </Box>
   );
 }
 
-const DesktopNav = () => {
+const DesktopNav = ({ navItems }) => {
   const linkColor = useColorModeValue('gray.600', 'gray.200');
-  const linkHoverColor = useColorModeValue('gray.800', 'white');
+  const linkHoverColor = useColorModeValue('brand.500', 'brand.300');
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
 
   return (
-    <Stack direction={'row'} spacing={4} fontFamily="heading">
-      {NAV_ITEMS.map(navItem => (
+    <Stack direction={'row'} spacing={4}>
+      {navItems.map((navItem) => (
         <Box key={navItem.label}>
           <Popover trigger={'hover'} placement={'bottom-start'}>
             <PopoverTrigger>
               <Box
-                as="a"
+                as={RouterLink}
                 p={2}
-                href={navItem.href ?? navItem.parenHref}
-                fontSize={'xs'}
-                fontWeight={500}
-                color={linkColor}
+                to={navItem.href ?? '#'}
+                fontSize={'sm'}
+                fontWeight={600}
+                color={navItem.isSpecial ? 'brand.500' : linkColor}
                 _hover={{
                   textDecoration: 'none',
                   color: linkHoverColor,
@@ -110,6 +156,7 @@ const DesktopNav = () => {
                 {navItem.label}
               </Box>
             </PopoverTrigger>
+
             {navItem.children && (
               <PopoverContent
                 border={0}
@@ -120,7 +167,7 @@ const DesktopNav = () => {
                 minW={'sm'}
               >
                 <Stack>
-                  {navItem.children.map(child => (
+                  {navItem.children.map((child) => (
                     <DesktopSubNav key={child.label} {...child} />
                   ))}
                 </Stack>
@@ -136,19 +183,19 @@ const DesktopNav = () => {
 const DesktopSubNav = ({ label, href, subLabel }) => {
   return (
     <Box
-      as="a"
-      href={href}
+      as={RouterLink}
+      to={href}
       role={'group'}
       display={'block'}
       p={2}
       rounded={'md'}
-      _hover={{ bg: useColorModeValue('teal.50', 'gray.900') }}
+      _hover={{ bg: useColorModeValue('brand.50', 'gray.900') }}
     >
       <Stack direction={'row'} align={'center'}>
         <Box>
           <Text
             transition={'all .3s ease'}
-            _groupHover={{ color: 'teal.400' }}
+            _groupHover={{ color: 'brand.500' }}
             fontWeight={500}
           >
             {label}
@@ -164,39 +211,38 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
           align={'center'}
           flex={1}
         >
-          <Icon color={'teal.400'} w={5} h={5} as={ChevronRightIcon} />
+          <Icon color={'brand.500'} w={5} h={5} as={ChevronRightIcon} />
         </Flex>
       </Stack>
     </Box>
   );
 };
 
-const MobileNav = () => {
+const MobileNav = ({ navItems }) => {
   return (
     <Stack
       bg={useColorModeValue('white', 'gray.800')}
       p={4}
       display={{ md: 'none' }}
-      fontFamily={'heading'}
     >
-      {NAV_ITEMS.map(navItem => (
+      {navItems.map((navItem) => (
         <MobileNavItem key={navItem.label} {...navItem} />
       ))}
     </Stack>
   );
 };
 
-const MobileNavItem = ({ label, children, href, parenHref }) => {
+const MobileNavItem = ({ label, children, href }) => {
   const { isOpen, onToggle } = useDisclosure();
 
   return (
     <Stack spacing={4} onClick={children && onToggle}>
-      <Box
+      <Flex
         py={2}
-        as="a"
-        href={href ?? parenHref ?? '#'}
-        justifyContent="space-between"
-        alignItems="center"
+        as={RouterLink}
+        to={href ?? '#'}
+        justify={'space-between'}
+        align={'center'}
         _hover={{
           textDecoration: 'none',
         }}
@@ -216,7 +262,8 @@ const MobileNavItem = ({ label, children, href, parenHref }) => {
             h={6}
           />
         )}
-      </Box>
+      </Flex>
+
       <Collapse in={isOpen} animateOpacity style={{ marginTop: '0!important' }}>
         <Stack
           mt={2}
@@ -227,8 +274,8 @@ const MobileNavItem = ({ label, children, href, parenHref }) => {
           align={'start'}
         >
           {children &&
-            children.map(child => (
-              <Box as="a" key={child.label} py={2} href={child.href}>
+            children.map((child) => (
+              <Box as={RouterLink} key={child.label} py={2} to={child.href}>
                 {child.label}
               </Box>
             ))}
@@ -237,58 +284,5 @@ const MobileNavItem = ({ label, children, href, parenHref }) => {
     </Stack>
   );
 };
-
-const NAV_ITEMS = [
-  {
-    label: 'Beranda',
-    href: '/',
-  },
-  {
-    label: 'Profil Desa',
-    parenHref: '/profil',
-    children: [
-      {
-        label: 'Sejarah',
-        href: '/profil#sejarah',
-      },
-      {
-        label: 'Visi Misi',
-        href: '/profil#visimisi',
-      },
-      {
-        label: 'Geografis',
-        href: '/profil#kondisigeografis',
-      },
-      {
-        label: 'Demografi',
-        href: '/profil#demografi',
-      },
-    ],
-  },
-  {
-    label: 'Pemerintahan',
-    href: '/pemerintahan',
-  },
-  {
-    label: 'Layanan Publik',
-    href: '/layanan',
-  },
-  {
-    label: 'Potensi & Ekonomi',
-    href: '/potensi',
-  },
-  {
-    label: 'Transparansi',
-    href: '/transparansi',
-  },
-  {
-    label: 'Berita',
-    href: '/news',
-  },
-  {
-    label: 'Kontak',
-    href: '/kontak',
-  },
-];
 
 export default Navbar;

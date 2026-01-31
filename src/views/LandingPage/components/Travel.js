@@ -1,62 +1,65 @@
+
 import {
-  Flex,
   Text,
   Grid,
   GridItem,
-  useColorModeValue,
+  Box,
+  Container,
+  Heading,
+  VStack,
 } from '@chakra-ui/react';
 import CardTravel from '../../../components/CardTravel';
 import { TravelPlace } from '../../../variables/general';
+import { useLanguage } from '../../../contexts/LanguageContext';
 
 const Travel = () => {
+  const { language } = useLanguage();
+
   return (
-    <Flex
-      flexDirection="column"
-      alignItems="center"
-      p={{base: "25px", lg :"25" }}
-      bg={useColorModeValue('gray.300', 'blue.900')}
-      //   borderTopRadius="20px"
-    >
-      {/* <Stack spacing="10px"> */}
-      <Text
-        fontFamily={'heading'}
-        fontSize={{ base: '25px', md: '35px', lg: '45px' }}
-        fontWeight={700}
-        mb={{ base: '5px',  md : "7px",lg: '10px' }}
-        mt={{ base: '15px', md : "18px", lg: '20px' }}
-        ml={{ base: '5px',  md : "7px",lg: '10px' }}
-        color={useColorModeValue('ngawonggo.green', 'gray.100')}
-      >
-        Pesona Alam dan Potensi Desa Ngawonggo
-      </Text>
-      <Text
-        fontFamily="heading"
-        fontWeight="500"
-        color={useColorModeValue('ngawonggo.blue', 'gray.100')}
-        textAlign="center"
-      >
-        Menjelajahi keindahan alam dan kekayaan budaya di lereng Gunung Sumbing
-      </Text>
-      <Grid
-        templateColumns={{ base: 'repeat(2,1fr)', lg: 'repeat(3, 1fr)' }}
-        p={15}
-        // m={7}
-        gap={5}
-        mb={{ lg: "50px" }}
-      >
-        {TravelPlace.map((e, index) => {
-          return (
-            <GridItem key={index}>
-              <CardTravel
-                title={e.title}
-                image={e.image}
-                location={e.location}
-              />
-            </GridItem>
-          );
-        })}
-      </Grid>
-    </Flex>
+    <Box py={20} bg="accent.blue">
+      <Container maxW="container.xl">
+        <VStack spacing={12} align="center" textAlign="center">
+          <Box>
+            <Text
+              fontSize="sm"
+              fontWeight="bold"
+              color="brand.400"
+              textTransform="uppercase"
+              letterSpacing="widest"
+              mb={2}
+            >
+              {language === 'id' ? 'Destinasi Desa' : 'Village Destinations'}
+            </Text>
+            <Heading as="h2" size="xl" fontWeight="800" color="white">
+              {language === 'id' ? 'Pesona Alam Ngawonggo' : 'Ngawonggo Natural Charm'}
+            </Heading>
+            <Text color="gray.300" maxW="2xl" mt={4}>
+              {language === 'id'
+                ? 'Menjelajahi keindahan alam dan kekayaan budaya di lereng Gunung Sumbing yang menawan.'
+                : 'Exploring the natural beauty and cultural richness on the captivating slopes of Mount Sumbing.'}
+            </Text>
+          </Box>
+
+          <Grid
+            templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
+            gap={8}
+            w="full"
+          >
+            {TravelPlace.map((e, index) => {
+              return (
+                <GridItem key={index}>
+                  <CardTravel
+                    title={e.title}
+                    image={e.image}
+                    location={e.location}
+                  />
+                </GridItem>
+              );
+            })}
+          </Grid>
+        </VStack>
+      </Container>
+    </Box>
   );
 };
 
