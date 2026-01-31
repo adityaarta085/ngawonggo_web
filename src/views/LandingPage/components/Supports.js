@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Flex,
@@ -6,9 +7,19 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { institutionSupports } from '../../../variables/general';
+import { supabase } from '../../../lib/supabase';
+
 const Supports = () => {
-  const bgSupport = useColorModeValue("transparent", "gray.200")
+  const bgSupport = useColorModeValue("transparent", "gray.200");
+  const [institutions, setInstitutions] = useState([]);
+
+  useEffect(() => {
+    const fetchInstitutions = async () => {
+      const { data, error } = await supabase.from('institutions').select('*').order('id', { ascending: true });
+      if (!error && data) setInstitutions(data);
+    };
+    fetchInstitutions();
+  }, []);
 
   return (
     <Flex flexDirection="column" alignItems="center" textAlign="center" mt={100}>
@@ -24,9 +35,9 @@ const Supports = () => {
         Lembaga & Program Desa
       </Text>
       <Flex flexDirection="row" p={"45px"} justifyContent="center" alignContent={"center"} flexWrap="wrap">
-        {institutionSupports.map((e, index) => {
+        {institutions.map((e, index) => {
           return (
-            <Link key={index} href="#">
+            <Link key={e.id} href="#">
               <Box
                 m={2}
                 w={{ base : "130px",lg: "300px" }}

@@ -1,4 +1,4 @@
-
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -11,13 +11,17 @@ import {
   VStack,
   HStack,
   Button,
+  Icon,
+  Flex,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { supabase } from '../../../lib/supabase';
+import { FaPlay } from 'react-icons/fa';
 
 const MotionBox = motion(Box);
 
-const NewsCard = ({ title, date, category, image, delay }) => {
+const NewsCard = ({ title, date, category, image, video_url, delay }) => {
   return (
     <MotionBox
       initial={{ opacity: 0, y: 20 }}
@@ -34,6 +38,19 @@ const NewsCard = ({ title, date, category, image, delay }) => {
     >
       <Box position="relative">
         <Image src={image} alt={title} h="240px" w="100%" objectFit="cover" />
+        {video_url && (
+          <Flex
+            position="absolute"
+            top="50%"
+            left="50%"
+            transform="translate(-50%, -50%)"
+            bg="whiteAlpha.800"
+            borderRadius="full"
+            p={4}
+          >
+            <Icon as={FaPlay} color="brand.500" />
+          </Flex>
+        )}
         <Badge
           position="absolute"
           top={4}
@@ -63,27 +80,19 @@ const NewsCard = ({ title, date, category, image, delay }) => {
 
 const LatestNews = () => {
   const { language } = useLanguage();
+  const [newsItems, setNewsItems] = useState([]);
 
-  const newsItems = [
-    {
-      title: 'Panen Raya, Petani Desa Ngawonggo Sukses Tingkatkan Hasil Sayuran Organik',
-      date: '20 Mei 2024',
-      category: 'Pertanian',
-      image: 'https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      title: 'Gelar Kesenian Tradisional, Ngawonggo Lestarikan Budaya Topeng Ireng dan Jatilan',
-      date: '15 Juni 2024',
-      category: 'Budaya',
-      image: 'https://images.unsplash.com/photo-1545127398-14699f92334b?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      title: 'Kerja Bakti Warga Membersihkan Jalur Sumber Mata Air Lereng Sumbing',
-      date: '10 Mei 2024',
-      category: 'Lingkungan',
-      image: 'https://images.unsplash.com/photo-1591189863430-ab87e120f312?auto=format&fit=crop&w=800&q=80',
-    },
-  ];
+  useEffect(() => {
+    const fetchNews = async () => {
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .order('id', { ascending: false })
+        .limit(3);
+      if (!error && data) setNewsItems(data);
+    };
+    fetchNews();
+  }, []);
 
   return (
     <Box py={20}>
@@ -111,7 +120,7 @@ const LatestNews = () => {
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
           {newsItems.map((news, index) => (
-            <NewsCard key={index} {...news} delay={index * 0.1} />
+            <NewsCard key={news.id} {...news} delay={index * 0.1} />
           ))}
         </SimpleGrid>
       </Container>
