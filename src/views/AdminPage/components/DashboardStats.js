@@ -5,8 +5,6 @@ import {
   Stat,
   StatLabel,
   StatNumber,
-  StatHelpText,
-  StatArrow,
   Heading,
   VStack,
   HStack,
@@ -17,22 +15,18 @@ import {
   Tr,
   Th,
   Td,
-  Text,
 } from '@chakra-ui/react';
-import { FaUsers, FaEye, FaCalendarAlt, FaFileAlt } from 'react-icons/fa';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { FaEye, FaCalendarAlt, FaFileAlt } from 'react-icons/fa';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../../../lib/supabase';
 
 const DashboardStats = () => {
   const [totalViews, setTotalViews] = useState(0);
   const [dailyViews, setDailyViews] = useState([]);
   const [topPages, setTopPages] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
-      setLoading(true);
-
       // Fetch total views
       const { count, error: countError } = await supabase
         .from('page_views')
@@ -75,8 +69,6 @@ const DashboardStats = () => {
           .slice(0, 5);
         setTopPages(sortedPages);
       }
-
-      setLoading(false);
     };
 
     fetchStats();

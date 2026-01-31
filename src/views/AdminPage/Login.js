@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Box,
   Button,
   FormControl,
   FormLabel,
@@ -14,8 +13,8 @@ import {
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {
-  const [email, setEmail] = useState('');
+const Login = ({ setSession }) => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const toast = useToast();
@@ -24,23 +23,49 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
 
-    if (error) {
+    try {
+      // Menggunakan RPC untuk keamanan (password dicek di sisi database)
+      const { data, error } = await supabase
+        .rpc('check_admin_credentials', {
+          p_username: username,
+          p_password: password
+        });
+
+      if (error || !data || data.length === 0) {
+        toast({
+          title: 'Login Gagal',
+          description: 'Username atau password salah',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        // Simpan sesi ke localStorage (data[0] karena rpc mengembalikan array)
+        const user = data[0];
+        localStorage.setItem('adminSession', JSON.stringify(user));
+        if (setSession) {
+          setSession(user);
+        }
+        toast({
+          title: 'Login Berhasil',
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+        });
+        navigate('/admin');
+      }
+    } catch (err) {
       toast({
-        title: 'Login Gagal',
-        description: error.message,
+        title: 'Error',
+        description: 'Terjadi kesalahan sistem',
         status: 'error',
         duration: 3000,
         isClosable: true,
       });
-    } else {
-      navigate('/admin');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -53,11 +78,11 @@ const Login = () => {
         <form onSubmit={handleLogin}>
           <VStack spacing={4}>
             <FormControl isRequired>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Username</FormLabel>
               <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </FormControl>
             <FormControl isRequired>
