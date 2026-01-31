@@ -286,3 +286,9 @@ const NAV_ITEMS = [
     href: '/news',
   },
   {
+    label: 'Kontak',
+    href: '/kontak',
+  },
+];
+
+export default Navbar;
