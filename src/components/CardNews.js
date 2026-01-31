@@ -5,7 +5,8 @@ import {
   CardBody,
   Badge,
   Heading,
-  Image
+  Image,
+  Box
 } from '@chakra-ui/react';
 export default function CardNews({title, image,caption, date}) {
   return (
@@ -34,9 +35,11 @@ export default function CardNews({title, image,caption, date}) {
         </Heading>
       </CardHeader>
       <CardBody fontFamily="body" pb={2}>
-        <Text fontSize={{ lg: 'sm', base: 'xs' }} numberOfLine={1} >
-          {caption} 
-        </Text>
+        <Box
+          fontSize={{ lg: 'sm', base: 'xs' }}
+          noOfLines={3}
+          dangerouslySetInnerHTML={{ __html: caption }}
+        />
       </CardBody>
     </Card>
   );

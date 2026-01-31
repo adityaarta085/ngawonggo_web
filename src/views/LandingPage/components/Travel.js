@@ -1,4 +1,4 @@
-
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   Grid,
@@ -9,11 +9,20 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import CardTravel from '../../../components/CardTravel';
-import { TravelPlace } from '../../../variables/general';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { supabase } from '../../../lib/supabase';
 
 const Travel = () => {
   const { language } = useLanguage();
+  const [places, setPlaces] = useState([]);
+
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      const { data, error } = await supabase.from('travel_places').select('*').order('id', { ascending: true });
+      if (!error && data) setPlaces(data);
+    };
+    fetchPlaces();
+  }, []);
 
   return (
     <Box py={20} bg="accent.blue">
@@ -45,9 +54,9 @@ const Travel = () => {
             gap={8}
             w="full"
           >
-            {TravelPlace.map((e, index) => {
+            {places.map((e, index) => {
               return (
-                <GridItem key={index}>
+                <GridItem key={e.id}>
                   <CardTravel
                     title={e.title}
                     image={e.image}

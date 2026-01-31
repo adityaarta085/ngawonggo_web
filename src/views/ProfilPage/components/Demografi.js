@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import {
   Flex,
   Text,
@@ -7,47 +8,36 @@ import {
   Td,
   TableContainer,
 } from '@chakra-ui/react';
+import { supabase } from '../../../lib/supabase';
 
 const Demografi = () => {
+  const [stats, setStats] = useState([]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const { data, error } = await supabase.from('village_stats').select('*').order('id', { ascending: true });
+      if (!error && data) setStats(data);
+    };
+    fetchStats();
+  }, []);
+
   return (
     <Flex flexDirection="column" fontFamily="heading" gap={4}>
       <Text fontWeight="600" fontSize="35px">
         Demografi Penduduk
       </Text>
       <Text>
-        Berdasarkan data statistik terbaru (BPS 2024), profil kependudukan Desa Ngawonggo adalah sebagai berikut:
+        Berdasarkan data statistik terbaru, profil kependudukan Desa Ngawonggo adalah sebagai berikut:
       </Text>
       <TableContainer border="1px solid" borderColor="gray.200" borderRadius="md">
         <Table variant="simple">
           <Tbody>
-            <Tr>
-              <Td fontWeight="bold">Total Penduduk</Td>
-              <Td>6.052 Jiwa</Td>
-            </Tr>
-            <Tr>
-              <Td fontWeight="bold">Laki-laki</Td>
-              <Td>3.088 Jiwa</Td>
-            </Tr>
-            <Tr>
-              <Td fontWeight="bold">Perempuan</Td>
-              <Td>2.964 Jiwa</Td>
-            </Tr>
-            <Tr>
-              <Td fontWeight="bold">Kepadatan Penduduk</Td>
-              <Td>1.133 jiwa/km²</Td>
-            </Tr>
-            <Tr>
-              <Td fontWeight="bold">Mata Pencaharian Utama</Td>
-              <Td>Petani (Kopi, Cabe, Sayuran)</Td>
-            </Tr>
-            <Tr>
-              <Td fontWeight="bold">Agama Mayoritas</Td>
-              <Td>Islam (100%)</Td>
-            </Tr>
-            <Tr>
-              <Td fontWeight="bold">Tingkat Pendidikan Dominan</Td>
-              <Td>SD / Sederajat</Td>
-            </Tr>
+            {stats.map(stat => (
+              <Tr key={stat.id}>
+                <Td fontWeight="bold">{stat.label}</Td>
+                <Td>{stat.value}</Td>
+              </Tr>
+            ))}
           </Tbody>
         </Table>
       </TableContainer>

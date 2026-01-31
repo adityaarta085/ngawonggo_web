@@ -1,48 +1,41 @@
-
+import React, { useEffect, useState } from 'react';
 import { Box, Container, SimpleGrid, Text, Heading, Icon, VStack } from '@chakra-ui/react';
-import { FaUsers, FaMapMarkedAlt, FaSeedling, FaMountain } from 'react-icons/fa';
+import { FaUsers, FaMapMarkedAlt, FaSeedling, FaMountain, FaMars, FaVenus, FaMap } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { supabase } from '../../../lib/supabase';
 
 const MotionBox = motion(Box);
 
+const iconMap = {
+  FaUsers,
+  FaMapMarkedAlt,
+  FaSeedling,
+  FaMountain,
+  FaMars,
+  FaVenus,
+  FaMap,
+};
+
 const StatsSection = () => {
   const { language } = useLanguage();
+  const [stats, setStats] = useState([]);
 
-  const stats = [
-    {
-      label: language === 'id' ? 'Penduduk' : 'Residents',
-      value: '6.052',
-      icon: FaUsers,
-      color: 'blue.500',
-    },
-    {
-      label: language === 'id' ? 'Luas Wilayah' : 'Area Size',
-      value: '5,34 km²',
-      icon: FaMapMarkedAlt,
-      color: 'green.500',
-    },
-    {
-      label: language === 'id' ? 'Ketinggian' : 'Altitude',
-      value: '1.200 mdpl',
-      icon: FaMountain,
-      color: 'orange.500',
-    },
-    {
-      label: language === 'id' ? 'Produksi Kopi' : 'Coffee Production',
-      value: '12 Ton/Thn',
-      icon: FaSeedling,
-      color: 'red.500',
-    },
-  ];
+  useEffect(() => {
+    const fetchStats = async () => {
+      const { data, error } = await supabase.from('village_stats').select('*').order('id', { ascending: true });
+      if (!error && data) setStats(data);
+    };
+    fetchStats();
+  }, []);
 
   return (
     <Box py={20} bg="gray.50">
       <Container maxW="container.xl">
         <SimpleGrid columns={{ base: 2, md: 4 }} spacing={10}>
-          {stats.map((stat, index) => (
+          {stats.length > 0 ? stats.map((stat, index) => (
             <MotionBox
-              key={index}
+              key={stat.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -50,7 +43,7 @@ const StatsSection = () => {
               textAlign="center"
             >
               <VStack spacing={3}>
-                <Icon as={stat.icon} w={10} h={10} color={stat.color} />
+                <Icon as={iconMap[stat.icon] || FaUsers} w={10} h={10} color={stat.color} />
                 <Heading size="xl" fontWeight="800">
                   {stat.value}
                 </Heading>
@@ -59,7 +52,9 @@ const StatsSection = () => {
                 </Text>
               </VStack>
             </MotionBox>
-          ))}
+          )) : (
+            <Text>Loading stats...</Text>
+          )}
         </SimpleGrid>
       </Container>
     </Box>

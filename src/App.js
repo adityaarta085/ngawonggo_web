@@ -1,10 +1,8 @@
-import React from 'react';
-import { Box } from '@chakra-ui/react';
-// import { ColorModeSwitcher } from './ColorModeSwitcher';
-// import { Logo } from './Logo';
+import React, { useState, useEffect } from 'react';
+import { Box, Flex, Image } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import NewsPage from './views/NewsPage/index.js';
 import Footer from './components/Footer.js';
 import ProfilPage from './views/ProfilPage/index.js';
@@ -16,16 +14,50 @@ import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
 import AdminPage from './views/AdminPage/index.js';
+import Login from './views/AdminPage/Login.js';
 import MiniPlayer from './components/MiniPlayer.js';
 import Chatbot from './components/Chatbot.js';
-import { useLocation } from 'react-router-dom';
+import usePageTracking from './hooks/usePageTracking';
+import { supabase } from './lib/supabase';
+
+const TopBar = () => {
+  return (
+    <Box bg="white" py={2} px={8} borderBottom="1px solid" borderColor="gray.100">
+      <Flex justify="flex-end">
+        <Image
+          src="https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png"
+          h="30px"
+          alt="Berakhlak - Bangga Melayani Bangsa"
+        />
+      </Flex>
+    </Box>
+  );
+};
 
 function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+  const [session, setSession] = useState(null);
+
+  usePageTracking();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <Box>
+      {!isAdmin && <TopBar />}
       {!isAdmin && <Navbar />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
@@ -37,7 +69,13 @@ function App() {
         <Route path="/transparansi" element={<TransparansiPage />} />
         <Route path="/kontak" element={<KontakPage />} />
         <Route path="/media" element={<MediaPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route
+          path="/admin"
+          element={
+            session ? <AdminPage /> : <Navigate to="/admin/login" replace />
+          }
+        />
+        <Route path="/admin/login" element={<Login />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
       {!isAdmin && <MiniPlayer />}

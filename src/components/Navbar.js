@@ -25,6 +25,7 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
+import { Image } from '@chakra-ui/react';
 import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
@@ -90,7 +91,25 @@ function Navbar() {
               <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'xl' })} />
             </Link>
 
-            <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
+            <HStack spacing={2} ml={4} display={{ base: 'none', sm: 'flex' }}>
+              <Image
+                src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
+                h="30px"
+                alt="Logo Kab Magelang"
+              />
+              <Link
+                href="https://menpan.go.id/site/tentang-kami/kedeputian/transformasi-digital-pemerintah/sistem-pemerintahan-berbasis-elektronik-spbe-2"
+                isExternal
+              >
+                <Image
+                  src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png"
+                  h="30px"
+                  alt="Logo SPBE"
+                />
+              </Link>
+            </HStack>
+
+            <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
               <DesktopNav navItems={NAV_ITEMS} />
             </Flex>
           </Flex>

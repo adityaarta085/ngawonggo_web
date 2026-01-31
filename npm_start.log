@@ -2,19 +2,86 @@
 > my-app@0.1.0 start
 > react-scripts start
 
-(node:6058) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:3655) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
 (Use `node --trace-deprecation ...` to show where the warning was created)
-(node:6058) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:3655) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
 Starting the development server...
 
-Compiled successfully!
+Failed to compile.
 
-You can now view my-app in the browser.
+[eslint]
+src/components/CardNews.js
+  Line 37:10:  'Box' is not defined  react/jsx-no-undef
 
-  Local:            http://localhost:3000
-  On Your Network:  http://192.168.0.2:3000
+Search for the keywords to learn more about each error.
+WARNING in [eslint]
+src/components/CardNews.js
+  Line 3:3:  'Text' is defined but never used  no-unused-vars
 
-Note that the development build is not optimized.
-To create a production build, use npm run build.
+src/views/AdminPage/Login.js
+  Line 3:3:  'Box' is defined but never used  no-unused-vars
 
-webpack compiled successfully
+src/views/AdminPage/components/DashboardStats.js
+  Line 8:3:    'StatHelpText' is defined but never used      no-unused-vars
+  Line 9:3:    'StatArrow' is defined but never used         no-unused-vars
+  Line 20:3:   'Text' is defined but never used              no-unused-vars
+  Line 22:10:  'FaUsers' is defined but never used           no-unused-vars
+  Line 23:86:  'BarChart' is defined but never used          no-unused-vars
+  Line 23:96:  'Bar' is defined but never used               no-unused-vars
+  Line 30:10:  'loading' is assigned a value but never used  no-unused-vars
+
+src/views/LandingPage/components/StatsSection.js
+  Line 21:11:  'language' is assigned a value but never used  no-unused-vars
+
+ERROR in [eslint]
+src/components/CardNews.js
+  Line 37:10:  'Box' is not defined  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error and 1 warning
+Compiling...
+Compiled with warnings.
+
+[eslint]
+src/components/CardNews.js
+  Line 3:3:  'Text' is defined but never used  no-unused-vars
+
+src/views/AdminPage/Login.js
+  Line 3:3:  'Box' is defined but never used  no-unused-vars
+
+src/views/AdminPage/components/DashboardStats.js
+  Line 8:3:    'StatHelpText' is defined but never used      no-unused-vars
+  Line 9:3:    'StatArrow' is defined but never used         no-unused-vars
+  Line 20:3:   'Text' is defined but never used              no-unused-vars
+  Line 22:10:  'FaUsers' is defined but never used           no-unused-vars
+  Line 23:86:  'BarChart' is defined but never used          no-unused-vars
+  Line 23:96:  'Bar' is defined but never used               no-unused-vars
+  Line 30:10:  'loading' is assigned a value but never used  no-unused-vars
+
+src/views/LandingPage/components/StatsSection.js
+  Line 21:11:  'language' is assigned a value but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint]
+src/components/CardNews.js
+  Line 3:3:  'Text' is defined but never used  no-unused-vars
+
+src/views/AdminPage/Login.js
+  Line 3:3:  'Box' is defined but never used  no-unused-vars
+
+src/views/AdminPage/components/DashboardStats.js
+  Line 8:3:    'StatHelpText' is defined but never used      no-unused-vars
+  Line 9:3:    'StatArrow' is defined but never used         no-unused-vars
+  Line 20:3:   'Text' is defined but never used              no-unused-vars
+  Line 22:10:  'FaUsers' is defined but never used           no-unused-vars
+  Line 23:86:  'BarChart' is defined but never used          no-unused-vars
+  Line 23:96:  'Bar' is defined but never used               no-unused-vars
+  Line 30:10:  'loading' is assigned a value but never used  no-unused-vars
+
+src/views/LandingPage/components/StatsSection.js
+  Line 21:11:  'language' is assigned a value but never used  no-unused-vars
+
+webpack compiled with 1 warning
