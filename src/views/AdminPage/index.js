@@ -18,6 +18,8 @@ import {
   FaImage,
   FaMap,
   FaSignOutAlt,
+  FaBullhorn,
+  FaWindowMaximize,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +28,8 @@ import TravelManager from './components/TravelManager';
 import DashboardStats from './components/DashboardStats';
 import StatsManager from './components/StatsManager';
 import InstitutionManager from './components/InstitutionManager';
+import AnnouncementManager from './components/AnnouncementManager';
+import PopupManager from './components/PopupManager';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -39,6 +43,8 @@ const AdminPage = ({ setSession }) => {
     { name: 'Lembaga', icon: FaImage },
     { name: 'Statistik', icon: FaChartBar },
     { name: 'Wisata', icon: FaMap },
+    { name: 'Running Text', icon: FaBullhorn },
+    { name: 'Popup', icon: FaWindowMaximize },
   ];
 
   const handleLogout = async () => {
@@ -110,6 +116,8 @@ const AdminPage = ({ setSession }) => {
         {activeTab === 'Lembaga' && <InstitutionManager />}
         {activeTab === 'Wisata' && <TravelManager />}
         {activeTab === 'Statistik' && <StatsManager />}
+        {activeTab === 'Running Text' && <AnnouncementManager />}
+        {activeTab === 'Popup' && <PopupManager />}
       </Box>
     </Box>
   );

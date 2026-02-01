@@ -19,6 +19,8 @@ import Login from './views/AdminPage/Login.js';
 import MiniPlayer from './components/MiniPlayer.js';
 import SplashScreen from './components/SplashScreen.js';
 import Chatbot from './components/Chatbot.js';
+import RunningText from './components/RunningText.js';
+import PopupNotification from './components/PopupNotification.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
 
@@ -72,7 +74,9 @@ function App() {
         <SplashScreen onComplete={() => setShowSplash(false)} />
       )}
       {!isAdmin && <TopBar />}
+      {!isAdmin && <RunningText />}
       {!isAdmin && <Navbar />}
+      {!isAdmin && <PopupNotification />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/news" element={<NewsPage />} />

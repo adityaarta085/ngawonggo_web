@@ -8,6 +8,7 @@ import {
   Text,
   Flex,
   Icon,
+  Image,
   HStack,
   Link,
   Divider,
@@ -81,8 +82,23 @@ export default function Footer() {
           </Stack>
 
           <Stack spacing={6}>
-            <Text fontWeight="800" fontSize="lg">Lokasi</Text>
-            <Box borderRadius="xl" overflow="hidden" h="200px" bg="gray.700">
+            <Text fontWeight="800" fontSize="lg">Layanan Pengaduan</Text>
+            <Link href="https://prod.lapor.go.id" isExternal>
+              <Image
+                src="https://web.komdigi.go.id/resource/dXBsb2Fkcy8yMDI1LzIvMjEvOTFhZGU2OGEtY2JlNS00YjhmLTgzOTEtZDcxNmQ3ZDRmYWVkLnBuZw=="
+                alt="Logo LAPOR"
+                h="50px"
+                bg="white"
+                p={2}
+                borderRadius="md"
+              />
+            </Link>
+            <Text color="gray.400" fontSize="xs">
+              Sampaikan aspirasi dan pengaduan Anda secara online melalui LAPOR!
+            </Text>
+
+            <Text fontWeight="800" fontSize="lg" mt={4}>Lokasi</Text>
+            <Box borderRadius="xl" overflow="hidden" h="150px" bg="gray.700">
                <iframe
                 title="Peta Lokasi Desa Ngawonggo"
                 src="https://maps.google.com/maps?q=Desa%20Ngawonggo%2C%20Kaliangkrik%2C%20Magelang&t=&z=13&ie=UTF8&iwloc=&output=embed"
