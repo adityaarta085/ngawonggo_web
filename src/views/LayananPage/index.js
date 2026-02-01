@@ -9,6 +9,8 @@ import {
   Stack,
   StackDivider,
   Icon,
+  Link,
+  Image,
 } from '@chakra-ui/react';
 import { EmailIcon, InfoIcon, EditIcon } from '@chakra-ui/icons';
 
@@ -58,12 +60,31 @@ export default function LayananPage() {
         ))}
       </SimpleGrid>
 
-      <Box mt={10} p={5} bg="gray.50" borderRadius="md" border="1px dashed" borderColor="gray.300">
-        <Heading size="sm" mb={2}>Digitalisasi Layanan</Heading>
-        <Text fontSize="sm">
-          Sesuai Misi Desa, kami sedang mengembangkan sistem form pengajuan online untuk mempercepat proses administrasi warga.
-        </Text>
-      </Box>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10} mt={10}>
+        <Box p={5} bg="gray.50" borderRadius="xl" border="1px dashed" borderColor="gray.300">
+          <Heading size="sm" mb={2}>Digitalisasi Layanan</Heading>
+          <Text fontSize="sm">
+            Sesuai Misi Desa, kami sedang mengembangkan sistem form pengajuan online untuk mempercepat proses administrasi warga.
+          </Text>
+        </Box>
+
+        <Box p={5} bg="blue.50" borderRadius="xl" border="1px solid" borderColor="blue.100">
+          <Heading size="sm" mb={3}>Aspirasi & Pengaduan (LAPOR!)</Heading>
+          <Text fontSize="sm" mb={4}>
+            Pemerintah Desa Ngawonggo terintegrasi dengan SP4N-LAPOR! Sampaikan keluhan atau saran Anda melalui kanal resmi nasional.
+          </Text>
+          <Link href="https://prod.lapor.go.id" isExternal>
+            <Image
+              src="https://web.komdigi.go.id/resource/dXBsb2Fkcy8yMDI1LzIvMjEvOTFhZGU2OGEtY2JlNS00YjhmLTgzOTEtZDcxNmQ3ZDRmYWVkLnBuZw=="
+              alt="Logo LAPOR"
+              h="40px"
+              bg="white"
+              p={1}
+              borderRadius="md"
+            />
+          </Link>
+        </Box>
+      </SimpleGrid>
     </Box>
   );
 }
