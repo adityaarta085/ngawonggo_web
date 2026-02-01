@@ -5,10 +5,12 @@ import {
   Badge,
   Heading,
   Image,
-  Box
+  Box,
+  Button
 } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 
-export default function CardNews({ title, image, caption, date }) {
+export default function CardNews({ id, title, image, caption, date }) {
   return (
     <Card
       size="md"
@@ -31,12 +33,23 @@ export default function CardNews({ title, image, caption, date }) {
           {title}
         </Heading>
       </CardHeader>
-      <CardBody fontFamily="body" pb={2}>
+      <CardBody fontFamily="body" pb={4}>
         <Box
           fontSize={{ lg: 'sm', base: 'xs' }}
           noOfLines={3}
           dangerouslySetInnerHTML={{ __html: caption }}
+          mb={4}
         />
+        <Button
+          as={RouterLink}
+          to={`/news/${id}`}
+          size="sm"
+          colorScheme="brand"
+          variant="outline"
+          _hover={{ bg: 'brand.500', color: 'white' }}
+        >
+          Selengkapnya
+        </Button>
       </CardBody>
     </Card>
   );

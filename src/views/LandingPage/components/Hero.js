@@ -1,6 +1,7 @@
 
 import { Box, Container, Heading, Text, Button, Stack, useBreakpointValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { translations } from '../../../translations';
 
@@ -76,6 +77,8 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
           >
             <Button
+              as={RouterLink}
+              to="/profil"
               size="lg"
               colorScheme="brand"
               px={8}
@@ -85,6 +88,8 @@ const Hero = () => {
               {t.cta}
             </Button>
             <Button
+              as={RouterLink}
+              to="/media"
               size="lg"
               variant="outline"
               color="white"

@@ -72,6 +72,7 @@ export default function NewsPage() {
                 {filteredNews.slice(0, 1).map(e => (
                   <CardNews
                     key={e.id}
+                    id={e.id}
                     title={e.title}
                     image={e.image}
                     date={e.date}
@@ -86,7 +87,13 @@ export default function NewsPage() {
                 justifyContent="start"
               >
                 {filteredNews.slice(1, 4).map(e => (
-                  <SmallCardNews key={e.id} title={e.title} image={e.image} date={e.date} />
+                  <SmallCardNews
+                    key={e.id}
+                    id={e.id}
+                    title={e.title}
+                    image={e.image}
+                    date={e.date}
+                  />
                 ))}
               </Flex>
             </Flex>
