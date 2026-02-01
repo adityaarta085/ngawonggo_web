@@ -16,6 +16,8 @@ import MediaPage from './views/MediaPage/index.js';
 import NewsDetail from './views/NewsPage/NewsDetail.js';
 import AdminPage from './views/AdminPage/index.js';
 import Login from './views/AdminPage/Login.js';
+import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
+import TermsConditions from './views/Legal/TermsConditions.js';
 import MiniPlayer from './components/MiniPlayer.js';
 import SplashScreen from './components/SplashScreen.js';
 import Chatbot from './components/Chatbot.js';
@@ -27,7 +29,10 @@ import { supabase } from './lib/supabase';
 const TopBar = () => {
   return (
     <Box bg="white" py={2} px={8} borderBottom="1px solid" borderColor="gray.100">
-      <Flex justify="flex-end">
+      <Flex justify="space-between" align="center">
+        <Box flex={1} mr={4} maxW="70%">
+          <RunningText isEmbedded={true} />
+        </Box>
         <Image
           src="https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png"
           h="30px"
@@ -74,7 +79,6 @@ function App() {
         <SplashScreen onComplete={() => setShowSplash(false)} />
       )}
       {!isAdmin && <TopBar />}
-      {!isAdmin && <RunningText />}
       {!isAdmin && <Navbar />}
       {!isAdmin && <PopupNotification />}
       <Routes>
@@ -88,6 +92,8 @@ function App() {
         <Route path="/transparansi" element={<TransparansiPage />} />
         <Route path="/kontak" element={<KontakPage />} />
         <Route path="/media" element={<MediaPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-conditions" element={<TermsConditions />} />
         <Route
           path="/admin"
           element={

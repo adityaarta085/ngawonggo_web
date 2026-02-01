@@ -20,6 +20,8 @@ import {
   FaSignOutAlt,
   FaBullhorn,
   FaWindowMaximize,
+  FaComments,
+  FaExclamationCircle,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +32,8 @@ import StatsManager from './components/StatsManager';
 import InstitutionManager from './components/InstitutionManager';
 import AnnouncementManager from './components/AnnouncementManager';
 import PopupManager from './components/PopupManager';
+import ComplaintManager from './components/ComplaintManager';
+import CommentManager from './components/CommentManager';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -45,6 +49,8 @@ const AdminPage = ({ setSession }) => {
     { name: 'Wisata', icon: FaMap },
     { name: 'Running Text', icon: FaBullhorn },
     { name: 'Popup', icon: FaWindowMaximize },
+    { name: 'Pengaduan', icon: FaExclamationCircle },
+    { name: 'Komentar', icon: FaComments },
   ];
 
   const handleLogout = async () => {
@@ -118,6 +124,8 @@ const AdminPage = ({ setSession }) => {
         {activeTab === 'Statistik' && <StatsManager />}
         {activeTab === 'Running Text' && <AnnouncementManager />}
         {activeTab === 'Popup' && <PopupManager />}
+        {activeTab === 'Pengaduan' && <ComplaintManager />}
+        {activeTab === 'Komentar' && <CommentManager />}
       </Box>
     </Box>
   );

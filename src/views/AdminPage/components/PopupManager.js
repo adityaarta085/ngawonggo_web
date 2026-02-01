@@ -25,6 +25,7 @@ import {
   useToast,
   HStack,
   Text,
+  Divider,
   VStack,
   Image,
 } from '@chakra-ui/react';
@@ -40,6 +41,8 @@ const PopupManager = () => {
     content: '',
     type: 'text',
     is_active: true,
+    button_label: '',
+    button_link: '',
   });
   const toast = useToast();
 
@@ -73,6 +76,8 @@ const PopupManager = () => {
       content: '',
       type: 'text',
       is_active: true,
+      button_label: '',
+      button_link: '',
     });
     onOpen();
   };
@@ -184,6 +189,17 @@ const PopupManager = () => {
                     <Image src={formData.content} mt={2} h="100px" objectFit="contain" />
                   )}
                 </FormControl>
+                <Divider />
+                <Text fontWeight="bold" fontSize="sm">Aksi Tombol (Opsional)</Text>
+                <FormControl>
+                  <FormLabel>Label Tombol</FormLabel>
+                  <Input placeholder="Misal: Kunjungi Website" value={formData.button_label} onChange={(e) => setFormData({...formData, button_label: e.target.value})} />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Link Tombol</FormLabel>
+                  <Input placeholder="https://..." value={formData.button_link} onChange={(e) => setFormData({...formData, button_link: e.target.value})} />
+                </FormControl>
+                <Divider />
                 <FormControl display="flex" align="center">
                   <FormLabel mb="0">Aktifkan?</FormLabel>
                   <Switch isChecked={formData.is_active} onChange={(e) => setFormData({...formData, is_active: e.target.checked})} />

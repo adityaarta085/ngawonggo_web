@@ -13,6 +13,7 @@ import {
   Image,
 } from '@chakra-ui/react';
 import { EmailIcon, InfoIcon, EditIcon } from '@chakra-ui/icons';
+import ComplaintSystem from './ComplaintSystem';
 
 export default function LayananPage() {
   const services = [
@@ -85,6 +86,11 @@ export default function LayananPage() {
           </Link>
         </Box>
       </SimpleGrid>
+
+      <Box mt={16}>
+        <Heading size="lg" mb={8} textAlign="center" color="brand.500">Pusat Bantuan & Pengaduan Mandiri</Heading>
+        <ComplaintSystem />
+      </Box>
     </Box>
   );
 }

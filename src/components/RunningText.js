@@ -4,7 +4,7 @@ import { FaBullhorn } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 
-const RunningText = () => {
+const RunningText = ({ isEmbedded = false }) => {
   const [announcements, setAnnouncements] = useState([]);
 
   const fetchAnnouncements = useCallback(async () => {
@@ -30,6 +30,29 @@ const RunningText = () => {
   if (announcements.length === 0) return null;
 
   const combinedText = announcements.map(a => a.content).join('  •  ');
+
+  if (isEmbedded) {
+    return (
+      <Flex align="center" overflow="hidden" whiteSpace="nowrap">
+        <Icon as={FaBullhorn} mr={2} color="brand.500" />
+        <Box flex={1} overflow="hidden">
+          <motion.div
+            animate={{ x: ['100%', '-100%'] }}
+            transition={{
+              repeat: Infinity,
+              duration: 20,
+              ease: "linear"
+            }}
+            style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
+          >
+            <Text fontWeight="600" fontSize="xs" color="gray.600">
+              {combinedText}
+            </Text>
+          </motion.div>
+        </Box>
+      </Flex>
+    );
+  }
 
   return (
     <Box bg="brand.500" color="white" py={1} overflow="hidden" position="relative">
