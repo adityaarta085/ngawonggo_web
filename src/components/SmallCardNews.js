@@ -8,9 +8,11 @@ import {
   // CardHeader,
   Heading,
   Badge,
+  Button
 } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 
-const SmallCardNews = ({ image, title, date }) => {
+const SmallCardNews = ({ id, image, title, date }) => {
   return (
     <Box>
       <Card
@@ -37,6 +39,18 @@ const SmallCardNews = ({ image, title, date }) => {
             <Badge fontFamily="default" size={{ base: "sm" }} my={2}>
               <Text py="2">{date}</Text>
             </Badge>
+            <Box mt={2}>
+              <Button
+                as={RouterLink}
+                to={`/news/${id}`}
+                size="xs"
+                variant="link"
+                color="brand.500"
+                _hover={{ textDecoration: 'none', color: 'brand.600' }}
+              >
+                Selengkapnya →
+              </Button>
+            </Box>
           </CardBody>
         </Stack>
       </Card>

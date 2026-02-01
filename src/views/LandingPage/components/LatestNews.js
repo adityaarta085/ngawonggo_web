@@ -18,10 +18,11 @@ import { motion } from 'framer-motion';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { supabase } from '../../../lib/supabase';
 import { FaPlay } from 'react-icons/fa';
+import { Link as RouterLink } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
-const NewsCard = ({ title, date, category, image, video_url, delay }) => {
+const NewsCard = ({ id, title, date, category, image, video_url, delay }) => {
   return (
     <MotionBox
       initial={{ opacity: 0, y: 20 }}
@@ -70,7 +71,14 @@ const NewsCard = ({ title, date, category, image, video_url, delay }) => {
         <Heading size="md" lineHeight="tall" noOfLines={2}>
           {title}
         </Heading>
-        <Link color="brand.500" fontWeight="700" fontSize="sm" _hover={{ textDecoration: 'none', color: 'brand.600' }}>
+        <Link
+          as={RouterLink}
+          to={`/news/${id}`}
+          color="brand.500"
+          fontWeight="700"
+          fontSize="sm"
+          _hover={{ textDecoration: 'none', color: 'brand.600' }}
+        >
           Selengkapnya →
         </Link>
       </VStack>
@@ -113,14 +121,20 @@ const LatestNews = () => {
               {language === 'id' ? 'Berita Desa Ngawonggo' : 'Ngawonggo Village News'}
             </Heading>
           </Box>
-          <Button variant="ghost" colorScheme="brand" rightIcon={<span>→</span>}>
+          <Button
+            as={RouterLink}
+            to="/news"
+            variant="ghost"
+            colorScheme="brand"
+            rightIcon={<span>→</span>}
+          >
             {language === 'id' ? 'Lihat Semua' : 'View All'}
           </Button>
         </HStack>
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
           {newsItems.map((news, index) => (
-            <NewsCard key={news.id} {...news} delay={index * 0.1} />
+            <NewsCard key={news.id} id={news.id} {...news} delay={index * 0.1} />
           ))}
         </SimpleGrid>
       </Container>

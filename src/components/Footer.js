@@ -44,10 +44,10 @@ export default function Footer() {
               Website Resmi Pemerintah Desa Ngawonggo. Berkomitmen mewujudkan desa digital yang mandiri, berbudaya, dan sejahtera menuju Indonesia 2045.
             </Text>
             <HStack spacing={4}>
-              <SocialLink icon={FaFacebook} href="#" />
-              <SocialLink icon={FaInstagram} href="#" />
-              <SocialLink icon={FaTwitter} href="#" />
-              <SocialLink icon={FaYoutube} href="#" />
+              <SocialLink icon={FaFacebook} href="https://www.facebook.com/search/top/?q=Radio%20Komunitas%20Pendowo%20FM%20Pendowo%20Gugah%20Nusantara" />
+              <SocialLink icon={FaInstagram} href="https://www.instagram.com/cakwidodo" />
+              <SocialLink icon={FaTwitter} href="https://twitter.com/rakompendowo" />
+              <SocialLink icon={FaYoutube} href="https://www.youtube.com/@rakompendowo" />
             </HStack>
           </Stack>
 
@@ -83,10 +83,9 @@ export default function Footer() {
           <Stack spacing={6}>
             <Text fontWeight="800" fontSize="lg">Lokasi</Text>
             <Box borderRadius="xl" overflow="hidden" h="200px" bg="gray.700">
-               {/* Placeholder for map */}
                <iframe
                 title="Peta Lokasi Desa Ngawonggo"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31637.36873967073!2d110.0768434!3d-7.5028454!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a8de97c724773%3A0x5027a76e35689b0!2sNgawonggo%2C%20Kaliangkrik%2C%20Magelang%20Regency%2C%20Central%20Java!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid"
+                src="https://maps.google.com/maps?q=Desa%20Ngawonggo%2C%20Kaliangkrik%2C%20Magelang&t=&z=13&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

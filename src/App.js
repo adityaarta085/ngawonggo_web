@@ -13,9 +13,11 @@ import PotensiPage from './views/PotensiPage/index.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
+import NewsDetail from './views/NewsPage/NewsDetail.js';
 import AdminPage from './views/AdminPage/index.js';
 import Login from './views/AdminPage/Login.js';
 import MiniPlayer from './components/MiniPlayer.js';
+import SplashScreen from './components/SplashScreen.js';
 import Chatbot from './components/Chatbot.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
@@ -41,6 +43,7 @@ function App() {
     const localSession = localStorage.getItem('adminSession');
     return localSession ? JSON.parse(localSession) : null;
   });
+  const [showSplash, setShowSplash] = useState(true);
 
   usePageTracking();
 
@@ -65,11 +68,15 @@ function App() {
 
   return (
     <Box>
+      {showSplash && !isAdmin && (
+        <SplashScreen onComplete={() => setShowSplash(false)} />
+      )}
       {!isAdmin && <TopBar />}
       {!isAdmin && <Navbar />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/:id" element={<NewsDetail />} />
         <Route path="/profil" element={<ProfilPage />} />
         <Route path="/pemerintahan" element={<PemerintahanPage />} />
         <Route path="/layanan" element={<LayananPage />} />
