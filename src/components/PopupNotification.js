@@ -10,70 +10,93 @@ import {
   Button,
   Image,
   Text,
+  HStack,
   useDisclosure,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 
 const PopupNotification = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [popupData, setPopupData] = useState(null);
+  const [popups, setPopups] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const fetchPopup = useCallback(async () => {
+  const fetchPopups = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('popups')
         .select('*')
         .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order('created_at', { ascending: false });
 
-      if (!error && data) {
-        setPopupData(data);
-        // Check if already shown in this session
-        const lastShown = sessionStorage.getItem('last_popup_id');
-        if (lastShown !== data.id.toString()) {
+      if (!error && data && data.length > 0) {
+        // Check session storage to see if popups already shown
+        const sessionShown = sessionStorage.getItem('popups_shown');
+        if (!sessionShown) {
+          setPopups(data);
+          setCurrentIndex(0);
           onOpen();
-          sessionStorage.setItem('last_popup_id', data.id.toString());
         }
       }
     } catch (err) {
-      console.error('Error fetching popup:', err);
+      console.error('Error fetching popups:', err);
     }
   }, [onOpen]);
 
   useEffect(() => {
-    fetchPopup();
-  }, [fetchPopup]);
+    fetchPopups();
+  }, [fetchPopups]);
 
-  if (!popupData) return null;
+  const handleClose = () => {
+    if (currentIndex < popups.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+    } else {
+      sessionStorage.setItem('popups_shown', 'true');
+      onClose();
+    }
+  };
+
+  if (popups.length === 0 || currentIndex >= popups.length) return null;
+
+  const currentPopup = popups[currentIndex];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay bg="blackAlpha.700" backdropFilter="blur(5px)" />
       <ModalContent borderRadius="xl" overflow="hidden">
         <ModalHeader borderBottomWidth="1px" borderColor="gray.100">
-          {popupData.title || 'Pengumuman Penting'}
+          {currentPopup.title || 'Pengumuman Penting'}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody p={0}>
-          {popupData.type === 'image' ? (
+          {currentPopup.type === 'image' ? (
             <Image
-              src={popupData.content}
-              alt={popupData.title}
+              src={currentPopup.content}
+              alt={currentPopup.title}
               w="100%"
               objectFit="cover"
             />
           ) : (
             <Text p={6} fontSize="md">
-              {popupData.content}
+              {currentPopup.content}
             </Text>
           )}
         </ModalBody>
         <ModalFooter>
-          <Button colorScheme="brand" mr={3} onClick={onClose}>
-            Tutup
-          </Button>
+          <HStack spacing={3}>
+            {currentPopup.button_link && (
+              <Button
+                as="a"
+                href={currentPopup.button_link}
+                target="_blank"
+                colorScheme="blue"
+              >
+                {currentPopup.button_label || 'Kunjungi'}
+              </Button>
+            )}
+            <Button colorScheme="brand" onClick={handleClose}>
+              {currentIndex < popups.length - 1 ? 'Berikutnya' : 'Tutup'}
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
     </Modal>

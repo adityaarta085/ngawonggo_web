@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+import CommentSection from './CommentSection';
 
 const NewsDetail = () => {
   const { id } = useParams();
@@ -111,6 +112,10 @@ const NewsDetail = () => {
             }}
             dangerouslySetInnerHTML={{ __html: news.content }}
           />
+
+          <Box w="100%">
+            <CommentSection newsId={id} />
+          </Box>
         </VStack>
       </Container>
     </Box>

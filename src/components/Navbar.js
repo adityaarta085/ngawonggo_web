@@ -1,4 +1,5 @@
 
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -28,12 +29,67 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import { translations } from '../translations';
 
 function Navbar() {
   const { isOpen, onToggle } = useDisclosure();
+  const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
   const t = translations[language].nav;
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLogoIndex((prev) => (prev + 1) % 3);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const logos = [
+    {
+      id: 'desa',
+      content: (
+        <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
+          <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'lg' })} />
+        </Link>
+      ),
+    },
+    {
+      id: 'kab',
+      content: (
+        <HStack spacing={3}>
+          <Image
+            src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
+            h="35px"
+            alt="Logo Kab Magelang"
+          />
+          <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
+            Kabupaten Magelang
+          </Text>
+        </HStack>
+      ),
+    },
+    {
+      id: 'spbe',
+      content: (
+        <Link
+          href="https://menpan.go.id/site/tentang-kami/kedeputian/transformasi-digital-pemerintah/sistem-pemerintahan-berbasis-elektronik-spbe-2"
+          isExternal
+        >
+          <HStack spacing={3}>
+            <Image
+              src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png"
+              h="35px"
+              alt="Logo SPBE"
+            />
+            <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
+              SPBE Digital
+            </Text>
+          </HStack>
+        </Link>
+      ),
+    },
+  ];
 
   const NAV_ITEMS = [
     { label: t.home, href: '/' },
@@ -87,27 +143,20 @@ function Navbar() {
           </Flex>
 
           <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }} alignItems="center">
-            <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
-              <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'xl' })} />
-            </Link>
-
-            <HStack spacing={2} ml={4} display={{ base: 'none', sm: 'flex' }}>
-              <Image
-                src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
-                h="30px"
-                alt="Logo Kab Magelang"
-              />
-              <Link
-                href="https://menpan.go.id/site/tentang-kami/kedeputian/transformasi-digital-pemerintah/sistem-pemerintahan-berbasis-elektronik-spbe-2"
-                isExternal
-              >
-                <Image
-                  src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png"
-                  h="30px"
-                  alt="Logo SPBE"
-                />
-              </Link>
-            </HStack>
+            <Box h="45px" display="flex" alignItems="center" overflow="hidden" minW={{ base: "180px", md: "300px" }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={logoIndex}
+                  initial={{ x: 20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -20, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  {logos[logoIndex].content}
+                </motion.div>
+              </AnimatePresence>
+            </Box>
 
             <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
               <DesktopNav navItems={NAV_ITEMS} />

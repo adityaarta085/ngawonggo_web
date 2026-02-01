@@ -6,6 +6,7 @@ import {
   SimpleGrid,
   Stack,
   Text,
+  VStack,
   Flex,
   Icon,
   Image,
@@ -14,6 +15,7 @@ import {
   Divider,
 } from '@chakra-ui/react';
 import { FaInstagram, FaFacebook, FaTwitter, FaYoutube, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
+import { Link as RouterLink } from 'react-router-dom';
 import NgawonggoLogo from './NgawonggoLogo';
 
 const SocialLink = ({ icon, href }) => (
@@ -114,11 +116,17 @@ export default function Footer() {
 
         <Divider borderColor="whiteAlpha.200" mb={8} />
 
+        <VStack spacing={4} align="center" mb={6}>
+          <Text fontSize="xs" color="gray.500" fontStyle="italic">
+            Made With SMK Muhammadiyah Bandongan 2026 TJKT A
+          </Text>
+        </VStack>
+
         <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align="center" color="gray.500" fontSize="xs">
-          <Text>© 2024 Pemerintah Desa Ngawonggo. Hak Cipta Dilindungi.</Text>
+          <Text>© 2026 Pemerintah Desa Ngawonggo. Hak Cipta Dilindungi.</Text>
           <HStack spacing={6} mt={{ base: 4, md: 0 }}>
-            <Link href="#">Kebijakan Privasi</Link>
-            <Link href="#">Syarat & Ketentuan</Link>
+            <Link as={RouterLink} to="/privacy-policy">Kebijakan Privasi</Link>
+            <Link as={RouterLink} to="/terms-conditions">Syarat & Ketentuan</Link>
           </HStack>
         </Flex>
       </Container>
