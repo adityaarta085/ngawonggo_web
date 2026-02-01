@@ -10,7 +10,7 @@ const SplashScreen = ({ onComplete }) => {
   const [step, setStep] = useState(0);
 
   const logos = [
-    { type: 'component', component: <NgawonggoLogo fontSize="4xl" iconSize={16} flexDirection="column" /> },
+    { type: 'component', component: <NgawonggoLogo fontSize="4xl" iconSize={20} flexDirection="column" /> },
     { type: 'image', src: 'https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png', label: 'Kabupaten Magelang' },
     { type: 'image', src: 'https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png', label: 'Berakhlak' },
     { type: 'image', src: 'https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png', label: 'SPBE' },
@@ -20,7 +20,7 @@ const SplashScreen = ({ onComplete }) => {
     if (step < logos.length) {
       const timer = setTimeout(() => {
         setStep(step + 1);
-      }, 1000);
+      }, 1500); // Increased slightly for smoother pacing
       return () => clearTimeout(timer);
     } else {
       const finalTimer = setTimeout(() => {
@@ -49,17 +49,33 @@ const SplashScreen = ({ onComplete }) => {
           {logos[step] && (
             <MotionBox
               key={step}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.2 }}
-              transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 1.05, y: -10 }}
+              transition={{
+                duration: 0.8,
+                ease: [0.4, 0, 0.2, 1] // Custom cubic-bezier for smoother feel
+              }}
             >
               {logos[step].type === 'component' ? (
                 logos[step].component
               ) : (
-                <VStack spacing={4}>
-                  <Image src={logos[step].src} h="120px" objectFit="contain" alt={logos[step].label} />
-                  <Text fontWeight="bold" fontSize="xl" color="gray.600">{logos[step].label}</Text>
+                <VStack spacing={6}>
+                  <Image
+                    src={logos[step].src}
+                    h="140px"
+                    objectFit="contain"
+                    alt={logos[step].label}
+                    filter="drop-shadow(0px 4px 10px rgba(0,0,0,0.05))"
+                  />
+                  <Text
+                    fontWeight="bold"
+                    fontSize="2xl"
+                    color="gray.700"
+                    letterSpacing="wider"
+                  >
+                    {logos[step].label}
+                  </Text>
                 </VStack>
               )}
             </MotionBox>
@@ -71,13 +87,14 @@ const SplashScreen = ({ onComplete }) => {
         <MotionText
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          fontSize="sm"
+          transition={{ delay: 0.8, duration: 1 }}
+          fontSize="xs"
           color="gray.400"
-          fontWeight="500"
+          fontWeight="600"
           letterSpacing="widest"
+          textTransform="uppercase"
         >
-          MADE WITH KELOMPOK 1 SMK MUHAMMADIYAH BANDONGAN 2026 TJKT A
+          Made With Kelompok 1 SMK Muhammadiyah Bandongan 2026 TJKT A
         </MotionText>
       </Box>
     </Box>

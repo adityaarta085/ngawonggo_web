@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   IconButton,
@@ -11,8 +11,10 @@ import {
   Input,
   Avatar,
   useColorModeValue,
+  Spinner,
 } from '@chakra-ui/react';
 import { FaComments, FaPaperPlane, FaTimes, FaRobot } from 'react-icons/fa';
+import Groq from 'groq-sdk';
 
 const Chatbot = () => {
   const { isOpen, onToggle } = useDisclosure();
@@ -20,29 +22,93 @@ const Chatbot = () => {
     { text: "Halo! Saya Asisten Digital Desa Ngawonggo. Ada yang bisa saya bantu?", isBot: true }
   ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef(null);
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
 
     const userMsg = { text: input, isBot: false };
-    setMessages([...messages, userMsg]);
+    setMessages(prev => [...prev, userMsg]);
     setInput("");
+    setIsLoading(true);
 
-    // Simple bot response logic
-    setTimeout(() => {
-      let botText = "Maaf, saya belum memahami pertanyaan tersebut. Silakan hubungi kantor desa untuk informasi lebih lanjut.";
-      const lowInput = input.toLowerCase();
+    try {
+      const groq = new Groq({
+        apiKey: process.env.REACT_APP_GROQ_API_KEY,
+        dangerouslyAllowBrowser: true // Essential for client-side usage, though risky
+      });
 
-      if (lowInput.includes("layanan") || lowInput.includes("surat")) {
-        botText = "Untuk layanan surat menyurat, Anda bisa datang ke kantor desa pada jam kerja (Senin-Jumat, 08:00 - 15:00) atau cek menu Layanan Publik.";
-      } else if (lowInput.includes("wisata") || lowInput.includes("jalan")) {
-        botText = "Desa Ngawonggo memiliki wisata alam yang indah. Cek menu Potensi Desa untuk melihat daftar destinasi wisata kami.";
-      } else if (lowInput.includes("halo") || lowInput.includes("pagi") || lowInput.includes("siang")) {
-        botText = "Halo juga! Ada yang bisa saya bantu hari ini?";
+      const systemPrompt = `Anda adalah Asisten Digital Resmi Desa Ngawonggo, Magelang.
+      Visi Desa: "Mewujudkan Desa Ngawonggo yang Mandiri, Religius, dan Berbudaya Berbasis Potensi Lokal Menuju Era Digital 2045".
+      Data Desa:
+      - Lokasi: Kecamatan Kaliangkrik, Kabupaten Magelang, Jawa Tengah.
+      - Penduduk: 6.052 jiwa (3.088 Laki-laki, 2.964 Perempuan) - Data BPS 2024.
+      - Luas Wilayah: 5,34 km2.
+      - Komoditas Unggulan: Kopi Arabika dan Hortikultura.
+      - Layanan: Surat menyurat, kependudukan, pengaduan masyarakat.
+      - Wisata: Keindahan alam lereng Gunung Sumbing.
+      - Kontak: Phone 081215030896, Email ngawonggodesa@gmail.com.
+      - Jam Kerja: Senin-Jumat, 08:00 - 15:00 WIB.
+
+      Berikan jawaban yang ramah, informatif, dan profesional dalam Bahasa Indonesia (atau Bahasa Jawa jika ditanya dalam Bahasa Jawa).
+      Gunakan data di atas untuk menjawab pertanyaan pengguna tentang Desa Ngawonggo. Jika tidak tahu, arahkan untuk menghubungi kantor desa.`;
+
+      const chatCompletion = await groq.chat.completions.create({
+        model: "llama-3.1-8b-instant",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages.map(m => ({
+            role: m.isBot ? "assistant" : "user",
+            content: m.text
+          })),
+          { role: "user", content: input }
+        ],
+        temperature: 0.7,
+        max_completion_tokens: 512,
+        stream: true,
+      });
+
+      let botText = "";
+      setMessages(prev => [...prev, { text: "", isBot: true, isStreaming: true }]);
+
+      for await (const chunk of chatCompletion) {
+        const content = chunk.choices[0]?.delta?.content || "";
+        botText += content;
+
+        // eslint-disable-next-line no-loop-func
+        setMessages(prev => {
+          const newMessages = [...prev];
+          const lastMsg = newMessages[newMessages.length - 1];
+          if (lastMsg && lastMsg.isBot && lastMsg.isStreaming) {
+            lastMsg.text = botText;
+          }
+          return newMessages;
+        });
       }
 
-      setMessages(prev => [...prev, { text: botText, isBot: true }]);
-    }, 1000);
+      setMessages(prev => {
+        const newMessages = [...prev];
+        const lastMsg = newMessages[newMessages.length - 1];
+        if (lastMsg) lastMsg.isStreaming = false;
+        return newMessages;
+      });
+
+    } catch (error) {
+      console.error("Groq Error:", error);
+      setMessages(prev => [...prev, {
+        text: "Maaf, sistem sedang sibuk. Silakan coba beberapa saat lagi atau hubungi kami via WhatsApp.",
+        isBot: true
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -50,8 +116,8 @@ const Chatbot = () => {
       <Collapse in={isOpen} animateOpacity>
         <Box
           bg={useColorModeValue('white', 'gray.800')}
-          w={{ base: "300px", md: "350px" }}
-          h="450px"
+          w={{ base: "320px", md: "380px" }}
+          h="500px"
           borderRadius="2xl"
           boxShadow="2xl"
           mb={4}
@@ -66,8 +132,8 @@ const Chatbot = () => {
             <HStack>
               <Avatar size="sm" icon={<FaRobot />} bg="white" color="brand.500" />
               <VStack align="start" spacing={0}>
-                <Text fontWeight="bold" fontSize="sm">Asisten Desa</Text>
-                <Text fontSize="xs" opacity={0.8}>Online</Text>
+                <Text fontWeight="bold" fontSize="sm">Asisten Desa Digital</Text>
+                <Text fontSize="xs" opacity={0.8}>Powered by Groq AI</Text>
               </VStack>
             </HStack>
             <IconButton
@@ -81,7 +147,19 @@ const Chatbot = () => {
           </HStack>
 
           {/* Messages */}
-          <VStack flex={1} p={4} overflowY="auto" align="stretch" spacing={4} bg="gray.50">
+          <VStack
+            ref={scrollRef}
+            flex={1}
+            p={4}
+            overflowY="auto"
+            align="stretch"
+            spacing={4}
+            bg="gray.50"
+            sx={{
+              '&::-webkit-scrollbar': { width: '4px' },
+              '&::-webkit-scrollbar-thumb': { bg: 'gray.200', borderRadius: 'full' },
+            }}
+          >
             {messages.map((msg, i) => (
               <Box
                 key={i}
@@ -94,9 +172,10 @@ const Chatbot = () => {
                 borderTopLeftRadius={msg.isBot ? "0" : "2xl"}
                 borderTopRightRadius={msg.isBot ? "2xl" : "0"}
                 boxShadow="sm"
-                maxW="80%"
+                maxW="85%"
               >
-                <Text fontSize="sm">{msg.text}</Text>
+                <Text fontSize="sm" whiteSpace="pre-wrap">{msg.text}</Text>
+                {msg.isStreaming && <Spinner size="xs" mt={2} />}
               </Box>
             ))}
           </VStack>
@@ -104,12 +183,13 @@ const Chatbot = () => {
           {/* Input */}
           <HStack p={4} bg="white" borderTop="1px solid" borderColor="gray.100">
             <Input
-              placeholder="Ketik pesan..."
+              placeholder="Tanya sesuatu..."
               size="sm"
               borderRadius="full"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              disabled={isLoading}
             />
             <IconButton
               icon={<FaPaperPlane />}
@@ -117,6 +197,7 @@ const Chatbot = () => {
               borderRadius="full"
               size="sm"
               onClick={handleSend}
+              isLoading={isLoading}
               aria-label="Send message"
             />
           </HStack>

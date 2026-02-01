@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Flex, Image } from '@chakra-ui/react';
+import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -16,9 +17,11 @@ import MediaPage from './views/MediaPage/index.js';
 import NewsDetail from './views/NewsPage/NewsDetail.js';
 import AdminPage from './views/AdminPage/index.js';
 import Login from './views/AdminPage/Login.js';
+import AITeknologi from './views/AITeknologi/index.js';
 import MiniPlayer from './components/MiniPlayer.js';
 import SplashScreen from './components/SplashScreen.js';
 import Chatbot from './components/Chatbot.js';
+import PageTransition from './components/PageTransition.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
 
@@ -73,26 +76,31 @@ function App() {
       )}
       {!isAdmin && <TopBar />}
       {!isAdmin && <Navbar />}
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/news" element={<NewsPage />} />
-        <Route path="/news/:id" element={<NewsDetail />} />
-        <Route path="/profil" element={<ProfilPage />} />
-        <Route path="/pemerintahan" element={<PemerintahanPage />} />
-        <Route path="/layanan" element={<LayananPage />} />
-        <Route path="/potensi" element={<PotensiPage />} />
-        <Route path="/transparansi" element={<TransparansiPage />} />
-        <Route path="/kontak" element={<KontakPage />} />
-        <Route path="/media" element={<MediaPage />} />
-        <Route
-          path="/admin"
-          element={
-            session ? <AdminPage setSession={setSession} /> : <Navigate to="/admin/login" replace />
-          }
-        />
-        <Route path="/admin/login" element={<Login setSession={setSession} />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
+      <Box minH="80vh">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<PageTransition><LandingPage /></PageTransition>} />
+            <Route path="/news" element={<PageTransition><NewsPage /></PageTransition>} />
+            <Route path="/news/:id" element={<PageTransition><NewsDetail /></PageTransition>} />
+            <Route path="/profil" element={<PageTransition><ProfilPage /></PageTransition>} />
+            <Route path="/pemerintahan" element={<PageTransition><PemerintahanPage /></PageTransition>} />
+            <Route path="/layanan" element={<PageTransition><LayananPage /></PageTransition>} />
+            <Route path="/potensi" element={<PageTransition><PotensiPage /></PageTransition>} />
+            <Route path="/transparansi" element={<PageTransition><TransparansiPage /></PageTransition>} />
+            <Route path="/kontak" element={<PageTransition><KontakPage /></PageTransition>} />
+            <Route path="/media" element={<PageTransition><MediaPage /></PageTransition>} />
+            <Route path="/ai-teknologi" element={<PageTransition><AITeknologi /></PageTransition>} />
+            <Route
+              path="/admin"
+              element={
+                session ? <PageTransition><AdminPage setSession={setSession} /></PageTransition> : <Navigate to="/admin/login" replace />
+              }
+            />
+            <Route path="/admin/login" element={<PageTransition><Login setSession={setSession} /></PageTransition>} />
+            <Route path="*" element={<PageTransition><PageNotFound /></PageTransition>} />
+          </Routes>
+        </AnimatePresence>
+      </Box>
       {!isAdmin && <MiniPlayer />}
       {!isAdmin && <Chatbot />}
       {!isAdmin && <Footer />}

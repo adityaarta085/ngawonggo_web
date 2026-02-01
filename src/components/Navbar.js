@@ -51,6 +51,7 @@ function Navbar() {
     { label: t.services, href: '/layanan' },
     { label: 'Potensi', href: '/potensi' },
     { label: t.news, href: '/news' },
+    { label: 'AI Teknologi', href: '/ai-teknologi' },
     { label: t.media, href: '/media' },
     { label: t.contact, href: '/kontak' },
     { label: t.admin, href: '/admin', isSpecial: true },
@@ -136,6 +137,14 @@ function Navbar() {
                 onClick={() => setLanguage('en')}
               >
                 EN
+              </Button>
+              <Button
+                size="xs"
+                variant={language === 'jv' ? 'solid' : 'ghost'}
+                colorScheme="brand"
+                onClick={() => setLanguage('jv')}
+              >
+                JV
               </Button>
             </HStack>
           </Stack>
