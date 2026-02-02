@@ -81,6 +81,8 @@ CREATE TABLE announcements (
 CREATE TABLE complaints (
   id TEXT PRIMARY KEY, -- ID Unik (Contoh: NGA-12345)
   name TEXT NOT NULL,
+  contact TEXT,
+  category TEXT,
   status TEXT DEFAULT 'open', -- 'open' atau 'resolved'
   created_at TIMESTAMPTZ DEFAULT NOW()
 );

@@ -88,7 +88,6 @@ export default function LayananPage() {
       </SimpleGrid>
 
       <Box mt={16}>
-        <Heading size="lg" mb={8} textAlign="center" color="brand.500">Pusat Bantuan & Pengaduan Mandiri</Heading>
         <ComplaintSystem />
       </Box>
     </Box>

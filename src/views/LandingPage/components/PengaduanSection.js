@@ -4,105 +4,89 @@ import {
   Container,
   Heading,
   Text,
-  SimpleGrid,
-  VStack,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
+  Stack,
   Button,
-  Select,
-  useToast,
   HStack,
   Icon,
+  useColorModeValue,
 } from '@chakra-ui/react';
-import { FaBullhorn, FaCheckCircle } from 'react-icons/fa';
+import { FaBullhorn, FaArrowRight } from 'react-icons/fa';
+import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
 const PengaduanSection = () => {
   const { language } = useLanguage();
-  const toast = useToast();
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    toast({
-      title: language === 'id' ? 'Laporan Terkirim' : 'Report Sent',
-      description: language === 'id'
-        ? 'Terima kasih atas laporan Anda. Kami akan segera menindaklanjuti.'
-        : 'Thank you for your report. We will follow up soon.',
-      status: 'success',
-      duration: 5000,
-      isClosable: true,
-      position: 'top',
-    });
-  };
+  const bg = useColorModeValue('brand.500', 'brand.600');
 
   return (
     <Box py={20} bg="white" id="pengaduan">
       <Container maxW="container.xl">
-        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={16} align="center">
-          <VStack align="start" spacing={6}>
-            <HStack color="brand.500">
-              <Icon as={FaBullhorn} w={6} h={6} />
-              <Text fontWeight="800" textTransform="uppercase" letterSpacing="widest" fontSize="sm">
-                Layanan Pengaduan
-              </Text>
-            </HStack>
-            <Heading as="h2" size="xl" fontWeight="800">
-              {language === 'id' ? 'Sampaikan Aspirasi & Keluhan Anda' : 'Submit Your Aspirations & Complaints'}
-            </Heading>
-            <Text color="gray.600" fontSize="lg">
-              {language === 'id'
-                ? 'Pemerintah Desa Ngawonggo berkomitmen untuk selalu mendengarkan warga. Sampaikan pengaduan atau saran Anda melalui formulir ini.'
-                : 'Ngawonggo Village Government is committed to listening to citizens. Submit your complaints or suggestions through this form.'}
-            </Text>
-            <VStack align="start" spacing={4} w="100%">
-              <HStack spacing={4}>
-                <Icon as={FaCheckCircle} color="green.500" />
-                <Text fontSize="sm" color="gray.600">Proses Cepat & Transparan</Text>
-              </HStack>
-              <HStack spacing={4}>
-                <Icon as={FaCheckCircle} color="green.500" />
-                <Text fontSize="sm" color="gray.600">Langsung Diterima Perangkat Desa</Text>
-              </HStack>
-              <HStack spacing={4}>
-                <Icon as={FaCheckCircle} color="green.500" />
-                <Text fontSize="sm" color="gray.600">Kerahasiaan Pelapor Terjamin</Text>
-              </HStack>
-            </VStack>
-          </VStack>
+        <Box
+          bg={bg}
+          borderRadius="3xl"
+          p={{ base: 8, md: 16 }}
+          color="white"
+          position="relative"
+          overflow="hidden"
+          boxShadow="2xl"
+        >
+          {/* Decorative background circle */}
+          <Box
+            position="absolute"
+            top="-10%"
+            right="-5%"
+            w="300px"
+            h="300px"
+            bg="whiteAlpha.100"
+            borderRadius="full"
+          />
 
-          <Box bg="gray.50" p={8} borderRadius="3xl" boxShadow="sm" w="100%">
-            <form onSubmit={handleSubmit}>
-              <VStack spacing={4}>
-                <FormControl isRequired>
-                  <FormLabel fontSize="sm" fontWeight="700">Nama Lengkap</FormLabel>
-                  <Input bg="white" borderRadius="xl" placeholder="Masukkan nama Anda" />
-                </FormControl>
-                <FormControl isRequired>
-                  <FormLabel fontSize="sm" fontWeight="700">Kontak (WA/Email)</FormLabel>
-                  <Input bg="white" borderRadius="xl" placeholder="Nomor WhatsApp atau Email" />
-                </FormControl>
-                <FormControl isRequired>
-                  <FormLabel fontSize="sm" fontWeight="700">Kategori</FormLabel>
-                  <Select bg="white" borderRadius="xl">
-                    <option value="infrastruktur">Infrastruktur</option>
-                    <option value="pelayanan">Pelayanan Publik</option>
-                    <option value="keamanan">Keamanan & Ketertiban</option>
-                    <option value="saran">Saran & Kritik</option>
-                  </Select>
-                </FormControl>
-                <FormControl isRequired>
-                  <FormLabel fontSize="sm" fontWeight="700">Isi Pengaduan</FormLabel>
-                  <Textarea bg="white" borderRadius="xl" placeholder="Ceritakan detail pengaduan Anda" rows={4} />
-                </FormControl>
-                <Button type="submit" colorScheme="brand" size="lg" w="100%" borderRadius="xl" mt={4}>
-                  Kirim Pengaduan
-                </Button>
-              </VStack>
-            </form>
-          </Box>
-        </SimpleGrid>
+          <Stack
+            direction={{ base: 'column', md: 'row' }}
+            spacing={10}
+            align="center"
+            justify="space-between"
+            position="relative"
+            zIndex={1}
+          >
+            <Stack spacing={6} maxW={{ base: 'full', md: '60%' }}>
+              <HStack>
+                <Icon as={FaBullhorn} w={8} h={8} />
+                <Text fontWeight="800" textTransform="uppercase" letterSpacing="widest" fontSize="sm">
+                  Layanan Pengaduan
+                </Text>
+              </HStack>
+              <Heading as="h2" size="2xl" fontWeight="800" lineHeight="1.2">
+                {language === 'id'
+                  ? 'Sampaikan Aspirasi & Keluhan Anda'
+                  : 'Submit Your Aspirations & Complaints'}
+              </Heading>
+              <Text fontSize="lg" opacity={0.9}>
+                {language === 'id'
+                  ? 'Pemerintah Desa Ngawonggo berkomitmen untuk selalu mendengarkan warga. Sampaikan pengaduan atau saran Anda melalui sistem pengaduan mandiri kami.'
+                  : 'Ngawonggo Village Government is committed to listening to citizens. Submit your complaints or suggestions through our independent complaint system.'}
+              </Text>
+            </Stack>
+
+            <Button
+              as={RouterLink}
+              to="/layanan"
+              size="lg"
+              bg="white"
+              color="brand.500"
+              px={10}
+              py={8}
+              fontSize="xl"
+              fontWeight="bold"
+              borderRadius="2xl"
+              _hover={{ bg: 'gray.100', transform: 'translateY(-2px)' }}
+              transition="all 0.3s"
+              rightIcon={<FaArrowRight />}
+            >
+              {language === 'id' ? 'Mulai Pengaduan' : 'Start Complaint'}
+            </Button>
+          </Stack>
+        </Box>
       </Container>
     </Box>
   );

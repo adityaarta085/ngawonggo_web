@@ -17,8 +17,11 @@ import {
   Badge,
   Textarea,
   Heading,
+  Select,
+  SimpleGrid,
+  Icon,
 } from '@chakra-ui/react';
-import { FaPaperPlane, FaImage, FaSync, FaSignOutAlt } from 'react-icons/fa';
+import { FaPaperPlane, FaImage, FaSync, FaSignOutAlt, FaCheckCircle } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { uploadDeline } from '../../lib/uploader';
 
@@ -32,6 +35,8 @@ const ComplaintSystem = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [name, setName] = useState('');
+  const [contact, setContact] = useState('');
+  const [category, setCategory] = useState('Infrastruktur');
   const [trackId, setTrackId] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -104,7 +109,7 @@ const ComplaintSystem = () => {
 
   const handleStartComplaint = async (e) => {
     e.preventDefault();
-    if (!name || !newMessage) return;
+    if (!name || !contact || !newMessage) return;
 
     setLoading(true);
     const newId = generateComplaintId();
@@ -112,7 +117,12 @@ const ComplaintSystem = () => {
     try {
       const { error: cError } = await supabase
         .from('complaints')
-        .insert([{ id: newId, name: name }]);
+        .insert([{
+          id: newId,
+          name: name,
+          contact: contact,
+          category: category
+        }]);
 
       if (cError) throw cError;
 
@@ -185,24 +195,67 @@ const ComplaintSystem = () => {
 
   if (!complaintId) {
     return (
-      <Box p={6} bg="white" borderRadius="xl" boxShadow="md" maxW="600px" mx="auto">
-        <VStack spacing={6} align="stretch">
+      <Box p={{ base: 4, md: 8 }} bg="white" borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" border="1px solid" borderColor="gray.100">
+        <VStack spacing={8} align="stretch">
           <Box textAlign="center">
-            <Heading size="md" color="brand.500" mb={2}>Layanan Pengaduan Mandiri</Heading>
-            <Text fontSize="sm" color="gray.500">Sampaikan keluhan atau aspirasi Anda secara langsung.</Text>
+            <Heading size="lg" color="brand.500" mb={3}>Sampaikan Aspirasi & Keluhan Anda</Heading>
+            <Text fontSize="md" color="gray.600">
+              Pemerintah Desa Ngawonggo berkomitmen untuk selalu mendengarkan warga. Sampaikan pengaduan atau saran Anda melalui formulir ini.
+            </Text>
           </Box>
+
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+            <HStack bg="green.50" p={3} borderRadius="xl">
+               <Icon as={FaCheckCircle} color="green.500" />
+               <Text fontSize="xs" fontWeight="bold">Proses Cepat</Text>
+            </HStack>
+            <HStack bg="blue.50" p={3} borderRadius="xl">
+               <Icon as={FaCheckCircle} color="blue.500" />
+               <Text fontSize="xs" fontWeight="bold">Langsung Diterima</Text>
+            </HStack>
+            <HStack bg="purple.50" p={3} borderRadius="xl">
+               <Icon as={FaCheckCircle} color="purple.500" />
+               <Text fontSize="xs" fontWeight="bold">Kerahasiaan Terjamin</Text>
+            </HStack>
+          </SimpleGrid>
+
           <form onSubmit={handleStartComplaint}>
-            <VStack spacing={4}>
+            <VStack spacing={5}>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
+                <FormControl isRequired>
+                  <FormLabel fontWeight="bold">Nama Lengkap</FormLabel>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Masukkan nama Anda" borderRadius="xl" />
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel fontWeight="bold">Kontak (WA/Email)</FormLabel>
+                  <Input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Nomor WhatsApp atau Email" borderRadius="xl" />
+                </FormControl>
+              </SimpleGrid>
+
               <FormControl isRequired>
-                <FormLabel>Nama Lengkap</FormLabel>
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Masukkan nama Anda" />
+                <FormLabel fontWeight="bold">Kategori</FormLabel>
+                <Select value={category} onChange={(e) => setCategory(e.target.value)} borderRadius="xl">
+                  <option value="Infrastruktur">Infrastruktur</option>
+                  <option value="Pelayanan Publik">Pelayanan Publik</option>
+                  <option value="Keamanan & Ketertiban">Keamanan & Ketertiban</option>
+                  <option value="Saran & Kritik">Saran & Kritik</option>
+                  <option value="Lainnya">Lainnya</option>
+                </Select>
               </FormControl>
+
               <FormControl isRequired>
-                <FormLabel>Pesan / Keluhan Awal</FormLabel>
-                <Textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Apa yang ingin Anda sampaikan?" />
+                <FormLabel fontWeight="bold">Isi Pengaduan</FormLabel>
+                <Textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Ceritakan detail pengaduan atau aspirasi Anda..."
+                  borderRadius="xl"
+                  rows={4}
+                />
               </FormControl>
-              <Button colorScheme="brand" w="full" type="submit" isLoading={loading}>
-                Kirim Pengaduan
+
+              <Button colorScheme="brand" w="full" type="submit" isLoading={loading} size="lg" borderRadius="xl">
+                Kirim Pengaduan Sekarang
               </Button>
             </VStack>
           </form>
