@@ -10,7 +10,7 @@ import { FaMapMarkerAlt } from 'react-icons/fa';
 const CardTravel = ({ title, location, image }) => {
   return (
     <Box
-      position="relative"
+      position="relative"jnxcnjknjbs
       borderRadius="2xl"
       overflow="hidden"
       h={{ base: '300px', lg: '400px' }}
