@@ -108,6 +108,7 @@ function Navbar() {
     { label: 'Potensi', href: '/potensi' },
     { label: t.news, href: '/news' },
     { label: t.media, href: '/media' },
+    { label: t.games, href: '/game-edukasi' },
     { label: t.contact, href: '/kontak' },
     { label: t.admin, href: '/admin', isSpecial: true },
   ];
@@ -143,7 +144,7 @@ function Navbar() {
           </Flex>
 
           <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }} alignItems="center">
-            <Box h="45px" display="flex" alignItems="center" overflow="hidden" minW={{ base: "180px", md: "300px" }}>
+            <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "200px", md: "320px" }} flexShrink={0}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={logoIndex}

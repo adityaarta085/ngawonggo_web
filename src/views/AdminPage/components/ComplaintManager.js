@@ -117,14 +117,22 @@ const ComplaintManager = () => {
   if (selectedComplaint) {
     return (
       <Box bg="white" p={6} borderRadius="xl" boxShadow="sm" h="700px" display="flex" flexDirection="column">
-        <HStack mb={4} justify="space-between">
-          <Button leftIcon={<FaArrowLeft />} variant="ghost" onClick={() => setSelectedComplaint(null)}>Kembali</Button>
-          <HStack>
-            <Badge colorScheme="purple">{selectedComplaint.id}</Badge>
-            <Badge colorScheme={selectedComplaint.status === 'resolved' ? 'green' : 'orange'}>
-              {selectedComplaint.status === 'resolved' ? 'Selesai' : 'Terbuka'}
-            </Badge>
-          </HStack>
+        <HStack mb={4} justify="space-between" align="start">
+          <VStack align="start" spacing={1}>
+            <Button leftIcon={<FaArrowLeft />} variant="ghost" size="sm" onClick={() => setSelectedComplaint(null)}>Kembali</Button>
+            <HStack>
+              <Text fontWeight="bold" fontSize="lg">{selectedComplaint.name}</Text>
+              <Badge colorScheme="purple">{selectedComplaint.id}</Badge>
+            </HStack>
+            <HStack fontSize="sm" color="gray.600">
+               <Text><b>Kontak:</b> {selectedComplaint.contact || '-'}</Text>
+               <Text>•</Text>
+               <Text><b>Kategori:</b> {selectedComplaint.category || '-'}</Text>
+            </HStack>
+          </VStack>
+          <Badge colorScheme={selectedComplaint.status === 'resolved' ? 'green' : 'orange'} p={2} borderRadius="md">
+            {selectedComplaint.status === 'resolved' ? 'Selesai' : 'Terbuka'}
+          </Badge>
         </HStack>
 
         <Box flex={1} overflowY="auto" mb={4} p={2} border="1px solid" borderColor="gray.100" borderRadius="md">
@@ -161,7 +169,8 @@ const ComplaintManager = () => {
         <Thead bg="gray.50">
           <Tr>
             <Th>ID</Th>
-            <Th>Nama</Th>
+            <Th>Nama & Kontak</Th>
+            <Th>Kategori</Th>
             <Th>Status</Th>
             <Th>Tanggal</Th>
             <Th>Aksi</Th>
@@ -171,7 +180,15 @@ const ComplaintManager = () => {
           {complaints.map(c => (
             <Tr key={c.id}>
               <Td><Badge>{c.id}</Badge></Td>
-              <Td fontWeight="bold">{c.name}</Td>
+              <Td>
+                <VStack align="start" spacing={0}>
+                  <Text fontWeight="bold">{c.name}</Text>
+                  <Text fontSize="xs" color="gray.500">{c.contact}</Text>
+                </VStack>
+              </Td>
+              <Td>
+                <Badge variant="outline" colorScheme="blue">{c.category}</Badge>
+              </Td>
               <Td>
                 <Badge colorScheme={c.status === 'resolved' ? 'green' : 'orange'}>{c.status}</Badge>
               </Td>
