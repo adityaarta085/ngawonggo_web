@@ -24,10 +24,10 @@ export default function PemerintahanPage() {
           <Tbody>
             <Tr>
               <Td fontWeight="bold">Kepala Desa</Td>
-              <Td>Heru Wibowo</Td>
+              <Td>Khoirur Faidah</Td>
             </Tr>
             <Tr>
-              <Td fontWeight="bold">Sekretaris Desa</Td>
+              <Td fontWeight="bold">Sekertariat Desa</Td>
               <Td>Bambang Dwi Hendriyono</Td>
             </Tr>
             <Tr>
