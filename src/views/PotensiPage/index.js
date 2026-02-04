@@ -6,7 +6,8 @@ import {
   Image,
   Stack,
   Badge,
-  Divider,
+  Container,
+  VStack,
 } from '@chakra-ui/react';
 
 export default function PotensiPage() {
@@ -32,33 +33,37 @@ export default function PotensiPage() {
   ];
 
   return (
-    <Box p={10} fontFamily="heading">
-      <Heading mb={5} color="ngawonggo.green">Potensi & Ekonomi Desa</Heading>
-      <Text mb={8}>
-        Ngawonggo memiliki kekayaan alam dan budaya yang melimpah, menjadi penggerak utama ekonomi masyarakat.
-      </Text>
-
-      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} mb={10}>
-        {potentials.map((item, index) => (
-          <Box key={index} borderRadius="lg" overflow="hidden" boxShadow="md" bg="white">
-            <Image src={item.image} alt={item.title} h="200px" w="100%" objectFit="cover" />
-            <Stack p={4}>
-              <Badge colorScheme="green" alignSelf="start">{item.category}</Badge>
-              <Heading size="md">{item.title}</Heading>
-              <Text fontSize="sm">{item.desc}</Text>
-            </Stack>
+    <Box py={12} minH="100vh" bg="gray.50">
+      <Container maxW="container.xl">
+        <VStack spacing={12} align="stretch">
+          <Box layerStyle="glassCard" p={10} bgGradient="linear(to-br, brand.600, blue.600)" color="white">
+            <Heading mb={4} size="2xl">Potensi & Ekonomi Desa</Heading>
+            <Text fontSize="lg" opacity={0.9}>
+              Ngawonggo memiliki kekayaan alam dan budaya yang melimpah, menjadi penggerak utama ekonomi masyarakat menuju kemandirian.
+            </Text>
           </Box>
-        ))}
-      </SimpleGrid>
 
-      <Divider mb={10} />
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
+            {potentials.map((item, index) => (
+              <Box key={index} layerStyle="glassCard" overflow="hidden" transition="all 0.3s" _hover={{ transform: 'translateY(-10px)', boxShadow: '2xl' }}>
+                <Image src={item.image} alt={item.title} h="240px" w="100%" objectFit="cover" />
+                <Stack p={6} spacing={4}>
+                  <Badge colorScheme="brand" alignSelf="start" variant="solid" borderRadius="full" px={3}>{item.category}</Badge>
+                  <Heading size="md" color="gray.800">{item.title}</Heading>
+                  <Text fontSize="md" color="gray.600">{item.desc}</Text>
+                </Stack>
+              </Box>
+            ))}
+          </SimpleGrid>
 
-      <Box bg="green.50" p={8} borderRadius="xl">
-        <Heading size="lg" mb={4}>UMKM Desa</Heading>
-        <Text>
-          Pemerintah Desa terus mendukung pelaku UMKM lokal, khususnya pengolah kopi dan kerajinan tangan, untuk menembus pasar digital melalui program pemberdayaan ekonomi kreatif.
-        </Text>
-      </Box>
+          <Box layerStyle="glassCard" p={8} borderLeft="4px solid" borderColor="brand.500">
+            <Heading size="lg" mb={4} color="gray.800">UMKM Desa</Heading>
+            <Text color="gray.600" fontSize="lg">
+              Pemerintah Desa terus mendukung pelaku UMKM lokal, khususnya pengolah kopi dan kerajinan tangan, untuk menembus pasar digital melalui program pemberdayaan ekonomi kreatif. Kami percaya produk lokal adalah masa depan Ngawonggo.
+            </Text>
+          </Box>
+        </VStack>
+      </Container>
     </Box>
   );
 }

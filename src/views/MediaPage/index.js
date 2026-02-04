@@ -20,6 +20,7 @@ import {
   SliderFilledTrack,
   SliderThumb,
   IconButton,
+  Flex,
 } from '@chakra-ui/react';
 import { FaBroadcastTower, FaTv, FaPlay, FaPause, FaVolumeUp } from 'react-icons/fa';
 import videojs from 'video.js';
@@ -95,38 +96,36 @@ const MediaPage = () => {
             </Text>
           </Box>
 
-          <Tabs variant="enclosed" colorScheme="brand">
-            <TabList bg="white" p={2} borderRadius="xl" border="none" boxShadow="sm">
-              <Tab fontWeight="700" borderRadius="lg">
+          <Tabs variant="soft-rounded" colorScheme="brand">
+            <TabList layerStyle="glassCard" p={2} mb={8} display="inline-flex">
+              <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
                 <Icon as={FaBroadcastTower} mr={2} /> Radio Gemilang
               </Tab>
-              <Tab fontWeight="700" borderRadius="lg">
+              <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
                 <Icon as={FaTv} mr={2} /> TVRI Nasional
               </Tab>
             </TabList>
 
-            <TabPanels mt={8}>
+            <TabPanels>
               <TabPanel p={0}>
                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
-                  <Box bg="white" p={10} borderRadius="3xl" boxShadow="xl" textAlign="center">
+                  <Box layerStyle="glassCard" p={10} textAlign="center">
                     <VStack spacing={8}>
-                      <Box
+                      <Flex
                         w={40}
                         h={40}
                         bg="brand.50"
                         borderRadius="full"
-                        display="flex"
                         align="center"
                         justify="center"
                         color="brand.500"
                         fontSize="5xl"
-                        alignItems="center"
-                        justifyContent="center"
+                        shadow="inner"
                       >
                         <FaBroadcastTower />
-                      </Box>
+                      </Flex>
                       <Box>
-                        <Heading size="lg">Radio Gemilang</Heading>
+                        <Heading size="lg" color="gray.800">Radio Gemilang</Heading>
                         <Text color="brand.500" fontWeight="800">98.6 FM</Text>
                       </Box>
                       <HStack spacing={6}>
@@ -136,9 +135,11 @@ const MediaPage = () => {
                           onClick={toggleRadio}
                           colorScheme="brand"
                           borderRadius="full"
-                          w={20}
-                          h={20}
-                          fontSize="2xl"
+                          w={24}
+                          h={24}
+                          fontSize="3xl"
+                          boxShadow="xl"
+                          _hover={{ transform: 'scale(1.1)' }}
                           aria-label="Toggle Play"
                         />
                       </HStack>
@@ -146,38 +147,38 @@ const MediaPage = () => {
                         <HStack spacing={4}>
                           <Icon as={FaVolumeUp} color="gray.400" />
                           <Slider value={volume} onChange={setVolume} min={0} max={100} colorScheme="brand">
-                            <SliderTrack><SliderFilledTrack /></SliderTrack>
-                            <SliderThumb />
+                            <SliderTrack h={2} borderRadius="full"><SliderFilledTrack /></SliderTrack>
+                            <SliderThumb boxSize={6} />
                           </Slider>
                         </HStack>
                       </Box>
                     </VStack>
                   </Box>
-                  <Box bg="accent.blue" p={10} borderRadius="3xl" color="white">
+                  <Box bgGradient="linear(to-br, blue.600, brand.600)" p={10} borderRadius="3xl" color="white" boxShadow="xl">
                     <Heading size="md" mb={6}>Tentang Radio Gemilang</Heading>
-                    <Text opacity={0.8} lineHeight="tall">
+                    <Text opacity={0.9} lineHeight="relaxed" fontSize="lg">
                       Radio Gemilang 98.6 FM adalah stasiun radio pemerintah Kabupaten Magelang.
                       Menyajikan informasi terkini seputar Magelang, hiburan musik pilihan, dan program edukasi untuk masyarakat.
                       Kini hadir secara streaming untuk menjangkau warga Ngawonggo di mana pun berada.
                     </Text>
-                    <VStack mt={8} align="start" spacing={4}>
-                      <HStack><Badge colorScheme="green">LIVE</Badge><Text fontSize="sm">24 Jam Nonstop</Text></HStack>
-                      <HStack><Badge colorScheme="blue">NEWS</Badge><Text fontSize="sm">Info Kabupaten Magelang</Text></HStack>
+                    <VStack mt={10} align="start" spacing={4}>
+                      <HStack layerStyle="glass" p={2} px={4} borderRadius="xl"><Badge colorScheme="green">LIVE</Badge><Text fontSize="sm" fontWeight="bold">24 Jam Nonstop</Text></HStack>
+                      <HStack layerStyle="glass" p={2} px={4} borderRadius="xl"><Badge colorScheme="blue">NEWS</Badge><Text fontSize="sm" fontWeight="bold">Info Kabupaten Magelang</Text></HStack>
                     </VStack>
                   </Box>
                 </SimpleGrid>
               </TabPanel>
 
               <TabPanel p={0}>
-                <Box bg="black" borderRadius="3xl" overflow="hidden" boxShadow="2xl">
+                <Box layerStyle="glassCard" bg="black" borderRadius="3xl" overflow="hidden" boxShadow="2xl">
                   <div data-vjs-player>
                     <video ref={videoRef} className="video-js vjs-big-play-centered vjs-16-9" />
                   </div>
                 </Box>
-                <Box mt={8} p={8} bg="white" borderRadius="3xl">
-                  <Heading size="md" mb={4}>TVRI Nasional</Heading>
-                  <Text color="gray.600">
-                    Saksikan siaran TVRI Nasional secara langsung. Menghadirkan berita nasional, program kebudayaan, dan edukasi untuk seluruh rakyat Indonesia.
+                <Box mt={10} p={10} layerStyle="glassCard">
+                  <Heading size="lg" mb={4} color="gray.800">TVRI Nasional</Heading>
+                  <Text color="gray.600" fontSize="lg" lineHeight="relaxed">
+                    Saksikan siaran TVRI Nasional secara langsung. Menghadirkan berita nasional, program kebudayaan, dan edukasi untuk seluruh rakyat Indonesia. Media pemersatu bangsa kini hadir dalam genggaman Anda.
                   </Text>
                 </Box>
               </TabPanel>

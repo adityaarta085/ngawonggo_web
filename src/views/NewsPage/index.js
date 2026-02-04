@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Divider,
   Flex,
   Heading,
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  ButtonGroup,
   Button,
-  Link,
   Text,
+  Container,
+  VStack,
+  HStack,
 } from '@chakra-ui/react';
 import CardNews from '../../components/CardNews.js';
 import SmallCardNews from '../../components/SmallCardNews';
@@ -34,72 +34,90 @@ export default function NewsPage() {
   if (loading) return <Box p={10}><Text>Loading news...</Text></Box>;
 
   return (
-    <Flex direction="column" m={30}>
-      <Box display="row" fontFamily="heading">
-        <Heading>Informasi Dan Berita Daerah</Heading>
-        <Breadcrumb>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-
-          <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink href="/news ">Berita</BreadcrumbLink>
-          </BreadcrumbItem>
-        </Breadcrumb>
-      </Box>
-      <Box my={2}>
-        <ButtonGroup colorScheme="teal" flexWrap="wrap">
-          {categories.map(cat => (
-            <Link key={cat} href={`#${cat}`}>
-              <Button fontFamily={'default'} m={2} textTransform="capitalize">
-                {cat}
-              </Button>
-            </Link>
-          ))}
-        </ButtonGroup>
-      </Box>
-
-      {categories.map(category => {
-        const filteredNews = allNews.filter(n => n.category?.toLowerCase() === category);
-        if (filteredNews.length === 0) return null;
-
-        return (
-          <Box key={category} my={15} id={category}>
-            <Heading size={'lg'} textTransform="capitalize">{category}</Heading>
-            <Divider mt={1} />
-            <Flex gap={5} mt={5} flexWrap={{ base: 'wrap', lg: 'nowrap' }}>
-              <Box flex={1}>
-                {filteredNews.slice(0, 1).map(e => (
-                  <CardNews
-                    key={e.id}
-                    id={e.id}
-                    title={e.title}
-                    image={e.image}
-                    date={e.date}
-                    caption={e.content} // Using content for caption
-                  />
-                ))}
-              </Box>
-              <Flex
-                flexDirection={{ base: 'row', lg: 'column' }}
-                flexWrap={{ base: 'wrap', lg: 'nowrap' }}
-                gap={5}
-                justifyContent="start"
-              >
-                {filteredNews.slice(1, 4).map(e => (
-                  <SmallCardNews
-                    key={e.id}
-                    id={e.id}
-                    title={e.title}
-                    image={e.image}
-                    date={e.date}
-                  />
-                ))}
-              </Flex>
-            </Flex>
+    <Box minH="100vh" bg="gray.50" py={12}>
+      <Container maxW="container.xl">
+        <Flex direction="column" gap={10}>
+          <Box layerStyle="glassCard" p={8} bgGradient="linear(to-br, brand.500, blue.600)" color="white">
+            <VStack align="start" spacing={2}>
+              <Heading size="2xl">Informasi Dan Berita Daerah</Heading>
+              <Breadcrumb fontSize="sm" opacity={0.9}>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">Beranda</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbItem isCurrentPage>
+                  <BreadcrumbLink>Berita</BreadcrumbLink>
+                </BreadcrumbItem>
+              </Breadcrumb>
+            </VStack>
           </Box>
-        );
-      })}
-    </Flex>
+
+          <Box overflowX="auto" pb={2}>
+            <HStack spacing={4}>
+              {categories.map(cat => (
+                <Button
+                  key={cat}
+                  as="a"
+                  href={`#${cat}`}
+                  layerStyle="glass"
+                  colorScheme="brand"
+                  variant="outline"
+                  textTransform="capitalize"
+                  px={8}
+                  borderRadius="full"
+                  _hover={{ bg: 'brand.500', color: 'white' }}
+                >
+                  {cat}
+                </Button>
+              ))}
+            </HStack>
+          </Box>
+
+          {categories.map(category => {
+            const filteredNews = allNews.filter(n => n.category?.toLowerCase() === category);
+            if (filteredNews.length === 0) return null;
+
+            return (
+              <Box key={category} id={category} scrollMarginTop="100px">
+                <HStack mb={6} spacing={4}>
+                  <Heading size="lg" textTransform="capitalize" color="gray.800">
+                    {category}
+                  </Heading>
+                  <Box flex={1} h="1px" bg="gray.200" />
+                </HStack>
+                <Flex gap={8} flexWrap={{ base: 'wrap', lg: 'nowrap' }}>
+                  <Box flex={{ base: '1 1 100%', lg: '2' }}>
+                    {filteredNews.slice(0, 1).map(e => (
+                      <CardNews
+                        key={e.id}
+                        id={e.id}
+                        title={e.title}
+                        image={e.image}
+                        date={e.date}
+                        caption={e.content}
+                      />
+                    ))}
+                  </Box>
+                  <Flex
+                    flex={{ base: '1 1 100%', lg: '1' }}
+                    flexDirection="column"
+                    gap={6}
+                  >
+                    {filteredNews.slice(1, 4).map(e => (
+                      <SmallCardNews
+                        key={e.id}
+                        id={e.id}
+                        title={e.title}
+                        image={e.image}
+                        date={e.date}
+                      />
+                    ))}
+                  </Flex>
+                </Flex>
+              </Box>
+            );
+          })}
+        </Flex>
+      </Container>
+    </Box>
   );
 }

@@ -6,6 +6,31 @@ const theme = extendTheme({
     heading: '"Plus Jakarta Sans", sans-serif',
     body: '"Inter", sans-serif',
   },
+  layerStyles: {
+    glass: {
+      bg: 'rgba(255, 255, 255, 0.7)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+    },
+    glassCard: {
+      bg: 'rgba(255, 255, 255, 0.8)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      border: '1px solid rgba(255, 255, 255, 0.5)',
+      borderRadius: '2xl',
+      boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)',
+      transition: 'all 0.3s cubic-bezier(.4,0,.2,1)',
+    },
+    darkGlass: {
+      bg: 'rgba(15, 23, 42, 0.7)',
+      backdropFilter: 'blur(20px) saturate(160%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+    }
+  },
   colors: {
     brand: {
       50: '#e6f0ff',
