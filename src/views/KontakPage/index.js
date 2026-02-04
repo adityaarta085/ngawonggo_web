@@ -10,7 +10,8 @@ import {
   Link,
   VStack,
   HStack,
-  useColorModeValue,
+  Flex,
+  Badge,
 } from '@chakra-ui/react';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaWhatsapp, FaInstagram, FaFacebook } from 'react-icons/fa';
 

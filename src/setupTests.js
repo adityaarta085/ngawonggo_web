@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -21,3 +25,7 @@ class ResizeObserver {
 }
 
 window.ResizeObserver = ResizeObserver;
+
+if (typeof window.URL.createObjectURL === 'undefined') {
+  window.URL.createObjectURL = jest.fn();
+}
