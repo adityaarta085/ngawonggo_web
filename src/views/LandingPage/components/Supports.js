@@ -6,14 +6,12 @@ import {
   Link,
   Text,
   Heading,
-  useColorModeValue,
   Container,
   VStack,
 } from '@chakra-ui/react';
 import { supabase } from '../../../lib/supabase';
 
 const Supports = () => {
-  const bgSupport = useColorModeValue("transparent", "gray.200");
   const [institutions, setInstitutions] = useState([]);
 
   useEffect(() => {
