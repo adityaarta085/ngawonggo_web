@@ -4,6 +4,7 @@ import Hero from './components/Hero.js';
 import QuickLinks from './components/QuickLinks.js';
 import LatestNews from './components/LatestNews.js';
 import Travel from './components/Travel.js';
+import DusunSection from './components/DusunSection.js';
 import VideoPromo from './components/VideoPromo.js';
 import Supports from './components/Supports.js';
 import StatsSection from './components/StatsSection.js';
@@ -15,6 +16,7 @@ export default function LandingPage() {
       <Hero />
       <StatsSection />
       <QuickLinks />
+      <DusunSection />
       <LatestNews />
       <Box id='wisata'>
         <Travel />

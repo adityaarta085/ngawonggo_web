@@ -5,7 +5,10 @@ import {
   Image,
   Link,
   Text,
+  Heading,
   useColorModeValue,
+  Container,
+  VStack,
 } from '@chakra-ui/react';
 import { supabase } from '../../../lib/supabase';
 
@@ -22,47 +25,60 @@ const Supports = () => {
   }, []);
 
   return (
-    <Flex flexDirection="column" alignItems="center" textAlign="center" mt={100}>
-      <Text
-        fontFamily={'heading'}
-        fontSize={{ base: '25px', md: '35px', lg: '45px' }}
-        fontWeight={700}
-        mb={{ base: '5px', md: '7px', lg: '10px' }}
-        mt={{ base: '15px', md: '18px', lg: '20px' }}
-        ml={{ base: '5px', md: '7px', lg: '10px' }}
-        color={useColorModeValue('ngawonggo.green', 'gray.100')}
-      >
-        Lembaga & Program Desa
-      </Text>
-      <Flex flexDirection="row" p={"45px"} justifyContent="center" alignContent={"center"} flexWrap="wrap">
-        {institutions.map((e, index) => {
-          return (
-            <Link key={e.id} href="#">
-              <Box
-                m={2}
-                w={{ base : "130px",lg: "300px" }}
-                h={{ base : "65px",lg: "150px" }}
-                border="3px solid black"
-                rounded="lg"
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                bg={bgSupport}
-                _hover={{ bg: 'gray.100' }}
-              >
-                <Image
-                  src={e.image}
-                  alt={e.title}
-                  objectFit="contain"
-                  w={{base: "50px", lg: "140px" }}
-                  fallback={<Text fontWeight="bold" fontSize={{ base: "xs", lg: "md" }} textAlign="center">{e.title}</Text>}
-                />
-              </Box>
-            </Link>
-          );
-        })}
-      </Flex>
-    </Flex>
+    <Box py={24} bg="gray.50">
+      <Container maxW="container.xl">
+        <VStack spacing={12}>
+          <Box textAlign="center">
+            <Text
+              fontSize="sm"
+              fontWeight="bold"
+              color="brand.500"
+              textTransform="uppercase"
+              letterSpacing="widest"
+              mb={2}
+            >
+              Kemitraan Strategis
+            </Text>
+            <Heading as="h2" size="2xl" fontWeight="800" color="gray.800">
+              Lembaga & Program Desa
+            </Heading>
+          </Box>
+
+          <Flex gap={8} justify="center" wrap="wrap">
+            {institutions.map((e) => (
+              <Link key={e.id} href="#" _hover={{ textDecoration: 'none' }}>
+                <Box
+                  layerStyle="glassCard"
+                  w={{ base: "140px", md: "200px", lg: "280px" }}
+                  h={{ base: "80px", md: "100px", lg: "140px" }}
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  p={6}
+                  transition="all 0.3s cubic-bezier(.4,0,.2,1)"
+                  _hover={{ transform: 'scale(1.05)', boxShadow: 'xl', borderColor: 'brand.200' }}
+                >
+                  <Image
+                    src={e.image}
+                    alt={e.title}
+                    objectFit="contain"
+                    maxH="80%"
+                    filter="grayscale(100%)"
+                    opacity={0.6}
+                    transition="all 0.3s"
+                    _groupHover={{ filter: 'grayscale(0%)', opacity: 1 }}
+                    fallback={<Text fontWeight="bold" fontSize={{ base: "xs", lg: "md" }} color="gray.400">{e.title}</Text>}
+                  />
+                </Box>
+              </Link>
+            ))}
+            {institutions.length === 0 && [1, 2, 3, 4].map(i => (
+               <Box key={i} layerStyle="glassCard" w="200px" h="100px" opacity={0.5} />
+            ))}
+          </Flex>
+        </VStack>
+      </Container>
+    </Box>
   );
 };
 

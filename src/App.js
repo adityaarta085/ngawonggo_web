@@ -14,6 +14,7 @@ import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
 import EduGamePage from './views/EduGamePage/index.js';
+import DusunPage from './views/DusunPage/index.js';
 import NewsDetail from './views/NewsPage/NewsDetail.js';
 import AdminPage from './views/AdminPage/index.js';
 import Login from './views/AdminPage/Login.js';
@@ -94,6 +95,7 @@ function App() {
         <Route path="/kontak" element={<KontakPage />} />
         <Route path="/media" element={<MediaPage />} />
         <Route path="/game-edukasi" element={<EduGamePage />} />
+        <Route path="/dusun/:slug" element={<DusunPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<TermsConditions />} />
         <Route

@@ -25,11 +25,12 @@ const SocialLink = ({ icon, href }) => (
     w={10}
     h={10}
     borderRadius="full"
-    bg="whiteAlpha.200"
+    bg="whiteAlpha.100"
+    layerStyle="glass"
     display="flex"
     alignItems="center"
     justifyContent="center"
-    _hover={{ bg: 'brand.500', transform: 'translateY(-2px)' }}
+    _hover={{ bg: 'brand.500', transform: 'translateY(-5px)', boxShadow: '0 0 20px rgba(72, 187, 120, 0.4)' }}
     transition="all 0.3s"
   >
     <Icon as={icon} color="white" />
@@ -38,9 +39,12 @@ const SocialLink = ({ icon, href }) => (
 
 export default function Footer() {
   return (
-    <Box bg="accent.blue" color="white" pt={16} pb={8}>
-      <Container maxW="container.xl">
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={12} mb={12}>
+    <Box bg="gray.900" color="white" pt={20} pb={8} position="relative" overflow="hidden">
+      {/* Footer background accent */}
+      <Box position="absolute" top="-10%" left="50%" transform="translateX(-50%)" w="80%" h="200px" bgGradient="radial(brand.500 0%, transparent 70%)" opacity={0.1} />
+
+      <Container maxW="container.xl" position="relative">
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={12} mb={16}>
           <Stack spacing={6}>
             <NgawonggoLogo fontSize="2xl" />
             <Text color="gray.400" fontSize="sm" lineHeight="tall">
