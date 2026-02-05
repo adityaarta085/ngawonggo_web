@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Image } from '@chakra-ui/react';
+import { Box, Flex, Image, useColorModeValue } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -29,8 +29,9 @@ import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
 
 const TopBar = () => {
+  const glassStyle = useColorModeValue('glass', 'darkGlass');
   return (
-    <Box bg="white" py={2} px={8} borderBottom="1px solid" borderColor="gray.100">
+    <Box layerStyle={glassStyle} py={2} px={8}>
       <Flex justify="space-between" align="center">
         <Box flex={1} mr={4} maxW="70%">
           <RunningText isEmbedded={true} />

@@ -37,6 +37,8 @@ function Navbar() {
   const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
   const t = translations[language].nav;
+  const glassStyle = useColorModeValue('glass', 'darkGlass');
+  const textColor = useColorModeValue('gray.600', 'white');
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -116,16 +118,12 @@ function Navbar() {
   return (
     <Box position="sticky" top={0} zIndex={1000}>
       <Flex
-        bg={useColorModeValue('white', 'accent.blue')}
-        color={useColorModeValue('gray.600', 'white')}
+        layerStyle={glassStyle}
+        color={textColor}
         minH={'70px'}
         py={{ base: 2 }}
         px={{ base: 4 }}
-        borderBottom={1}
-        borderStyle={'solid'}
-        borderColor={useColorModeValue('gray.100', 'whiteAlpha.100')}
         align={'center'}
-        boxShadow="sm"
       >
         <Container maxW="container.xl" display="flex" alignItems="center">
           <Flex
@@ -202,7 +200,7 @@ function Navbar() {
 const DesktopNav = ({ navItems }) => {
   const linkColor = useColorModeValue('gray.600', 'gray.200');
   const linkHoverColor = useColorModeValue('brand.500', 'brand.300');
-  const popoverContentBgColor = useColorModeValue('white', 'gray.800');
+  const popoverLayerStyle = useColorModeValue('glassCard', 'darkGlass');
 
   return (
     <Stack direction={'row'} spacing={4}>
@@ -228,11 +226,9 @@ const DesktopNav = ({ navItems }) => {
 
             {navItem.children && (
               <PopoverContent
+                layerStyle={popoverLayerStyle}
                 border={0}
-                boxShadow={'xl'}
-                bg={popoverContentBgColor}
                 p={4}
-                rounded={'xl'}
                 minW={'sm'}
               >
                 <Stack>
@@ -250,6 +246,7 @@ const DesktopNav = ({ navItems }) => {
 };
 
 const DesktopSubNav = ({ label, href, subLabel }) => {
+  const hoverBg = useColorModeValue('brand.50', 'gray.900');
   return (
     <Box
       as={RouterLink}
@@ -258,7 +255,7 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
       display={'block'}
       p={2}
       rounded={'md'}
-      _hover={{ bg: useColorModeValue('brand.50', 'gray.900') }}
+      _hover={{ bg: hoverBg }}
     >
       <Stack direction={'row'} align={'center'}>
         <Box>
@@ -288,9 +285,10 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
 };
 
 const MobileNav = ({ navItems }) => {
+  const navLayerStyle = useColorModeValue('glass', 'darkGlass');
   return (
     <Stack
-      bg={useColorModeValue('white', 'gray.800')}
+      layerStyle={navLayerStyle}
       p={4}
       display={{ md: 'none' }}
     >
@@ -303,6 +301,8 @@ const MobileNav = ({ navItems }) => {
 
 const MobileNavItem = ({ label, children, href }) => {
   const { isOpen, onToggle } = useDisclosure();
+  const textColor = useColorModeValue('gray.600', 'gray.200');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   return (
     <Stack spacing={4} onClick={children && onToggle}>
@@ -318,7 +318,7 @@ const MobileNavItem = ({ label, children, href }) => {
       >
         <Text
           fontWeight={600}
-          color={useColorModeValue('gray.600', 'gray.200')}
+          color={textColor}
         >
           {label}
         </Text>
@@ -339,7 +339,7 @@ const MobileNavItem = ({ label, children, href }) => {
           pl={4}
           borderLeft={1}
           borderStyle={'solid'}
-          borderColor={useColorModeValue('gray.200', 'gray.700')}
+          borderColor={borderColor}
           align={'start'}
         >
           {children &&
