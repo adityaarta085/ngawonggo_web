@@ -2,8 +2,10 @@ import {
   Box,
   Flex,
   Text,
+  Divider,
 } from '@chakra-ui/react';
 import NgawonggoLogo from '../../../components/NgawonggoLogo';
+import DownloadSection from './DownloadSection';
 
 const LogoDesa = () => {
   return (
@@ -31,6 +33,10 @@ const LogoDesa = () => {
           Warna Biru melambangkan kejernihan sumber mata air pegunungan dan langit yang cerah di lereng Sumbing.
         </Text>
       </Box>
+
+      <Divider my={10} />
+
+      <DownloadSection />
     </Flex>
   );
 };
