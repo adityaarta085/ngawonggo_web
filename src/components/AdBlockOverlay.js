@@ -13,6 +13,7 @@ import { WarningIcon } from '@chakra-ui/icons';
 
 const AdBlockOverlay = () => {
   const [isDetected, setIsDetected] = useState(false);
+  const bgColor = useColorModeValue('white', 'gray.800');
 
   useEffect(() => {
     const handleDetected = (e) => {
@@ -41,7 +42,7 @@ const AdBlockOverlay = () => {
     >
       <Center p={8}>
         <VStack
-          bg={useColorModeValue('white', 'gray.800')}
+          bg={bgColor}
           p={10}
           borderRadius="2xl"
           spacing={6}
