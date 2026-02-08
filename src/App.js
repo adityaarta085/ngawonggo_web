@@ -25,6 +25,7 @@ import SplashScreen from './components/SplashScreen.js';
 import Chatbot from './components/Chatbot.js';
 import RunningText from './components/RunningText.js';
 import PopupNotification from './components/PopupNotification.js';
+import { AdManager, AdBlockOverlay } from './components';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
 
@@ -77,6 +78,8 @@ function App() {
 
   return (
     <Box>
+      <AdManager />
+      <AdBlockOverlay />
       {showSplash && !isAdmin && (
         <SplashScreen onComplete={() => setShowSplash(false)} />
       )}
