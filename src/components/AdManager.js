@@ -18,7 +18,7 @@ const AdManager = () => {
     // Method 2: Bait Script
     let scriptBlocked = false;
     try {
-      const response = await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
+      await fetch('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', {
         method: 'HEAD',
         mode: 'no-cors',
       });
