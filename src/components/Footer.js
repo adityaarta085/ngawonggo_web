@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -13,6 +13,7 @@ import {
   HStack,
   Link,
   Divider,
+  useToast,
 } from '@chakra-ui/react';
 import { FaInstagram, FaFacebook, FaTwitter, FaYoutube, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
@@ -38,6 +39,32 @@ const SocialLink = ({ icon, href }) => (
 );
 
 export default function Footer() {
+  const [clickCount, setClickCount] = useState(0);
+  const [startTime, setStartTime] = useState(0);
+  const toast = useToast();
+
+  const handleLogoClick = () => {
+    const now = Date.now();
+    if (clickCount === 0 || now - startTime > 5000) {
+      setStartTime(now);
+      setClickCount(1);
+    } else {
+      const newCount = clickCount + 1;
+      setClickCount(newCount);
+      if (newCount >= 10) {
+        localStorage.setItem('adsDisabledByUser', 'true');
+        toast({
+          title: 'Mode bebas iklan aktif',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
+        window.dispatchEvent(new CustomEvent('adsPreferenceChanged'));
+        setClickCount(0);
+      }
+    }
+  };
+
   return (
     <Box bg="gray.900" color="white" pt={20} pb={8} position="relative" overflow="hidden">
       {/* Footer background accent */}
@@ -46,7 +73,9 @@ export default function Footer() {
       <Container maxW="container.xl" position="relative">
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={12} mb={16}>
           <Stack spacing={6}>
-            <NgawonggoLogo fontSize="2xl" />
+            <Box onClick={handleLogoClick} cursor="pointer" userSelect="none">
+              <NgawonggoLogo fontSize="2xl" />
+            </Box>
             <Text color="gray.400" fontSize="sm" lineHeight="tall">
               Website Resmi Pemerintah Desa Ngawonggo. Berkomitmen mewujudkan desa digital yang mandiri, berbudaya, dan sejahtera menuju Indonesia 2045.
             </Text>

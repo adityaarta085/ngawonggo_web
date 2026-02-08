@@ -1,62 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script type="text/javascript" src="https://docdn.ezmob.com/prebid.js" async></script>
-<script>
-	var pbjs = pbjs || {};
-	pbjs.que = pbjs.que || [];
-	
-	pbjs.que.push(function() {
-		var adUnits = [{
-			code: 'container-1',
-			mediaTypes: {
-				video: {
-					context: 'outstream',
-					playerSize: [300, 250],
-					renderer: {
-						url: 'https://docdn.ezmob.com/outstream_pb.js',
-						render: renderOutstream
-					}
-				}
-			},
-			bids: [{
-				bidder: 'adkernel',
-				params: {
-				  zoneId: 329693,
-				  host: 'cpm.ezmob.com'
-				}
-
-			}]
-		}];
-		pbjs.addAdUnits(adUnits);
-		pbjs.requestBids({
-			bidsBackHandler: function(bidResponses) {
-				process('container-1');
-			}
-		});
-	});
-
-	function process(adUnit) {
-		var bidResponses = pbjs.getHighestCpmBids(adUnit);
-		if (bidResponses.length == 0) {
-			return;
-		}
-		var bid = bidResponses[0];
-		pbjs.renderAd(document, bid.adId);
-	}
-	
-	function renderOutstream(bid) {
-		OutstreamPlayerPB(bid, {
-			displayMode: 'floating',
-			transitions: true,
-			vpaidMode: 2
-		});
-	}
-</script>
-<div id="container-1"></div>
-    <script src="https://quge5.com/88/tag.min.js" data-zone="208854" async data-cfasync="false"></script>
-    <script>(function(s){s.dataset.zone='10575512',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-    <meta name="monetag" content="76a8d4189fc76873b6c1e55c4aa970ce">
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/EmblemDaerahKabProb.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
