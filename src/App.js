@@ -9,6 +9,7 @@ import ProfilPage from './views/ProfilPage/index.js';
 import PageNotFound from './views/PageNotFound/index.js';
 import PemerintahanPage from './views/PemerintahanPage/index.js';
 import LayananPage from './views/LayananPage/index.js';
+import PlnPrabayar from './views/LayananPage/PlnPrabayar.js';
 import PotensiPage from './views/PotensiPage/index.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
@@ -49,6 +50,7 @@ const TopBar = () => {
 function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
+  const isPln = location.pathname === '/layanan/pln';
   const [session, setSession] = useState(() => {
     const localSession = localStorage.getItem('adminSession');
     return localSession ? JSON.parse(localSession) : null;
@@ -83,9 +85,9 @@ function App() {
       {showSplash && !isAdmin && (
         <SplashScreen onComplete={() => setShowSplash(false)} />
       )}
-      {!isAdmin && <TopBar />}
-      {!isAdmin && <Navbar />}
-      {!isAdmin && <PopupNotification />}
+      {!isAdmin && !isPln && <TopBar />}
+      {!isAdmin && !isPln && <Navbar />}
+      {!isAdmin && !isPln && <PopupNotification />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/news" element={<NewsPage />} />
@@ -93,6 +95,7 @@ function App() {
         <Route path="/profil" element={<ProfilPage />} />
         <Route path="/pemerintahan" element={<PemerintahanPage />} />
         <Route path="/layanan" element={<LayananPage />} />
+        <Route path="/layanan/pln" element={<PlnPrabayar />} />
         <Route path="/potensi" element={<PotensiPage />} />
         <Route path="/transparansi" element={<TransparansiPage />} />
         <Route path="/kontak" element={<KontakPage />} />
@@ -110,9 +113,9 @@ function App() {
         <Route path="/admin/login" element={<Login setSession={setSession} />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
-      {!isAdmin && <MiniPlayer />}
-      {!isAdmin && <Chatbot />}
-      {!isAdmin && <Footer />}
+      {!isAdmin && !isPln && <MiniPlayer />}
+      {!isAdmin && !isPln && <Chatbot />}
+      {!isAdmin && !isPln && <Footer />}
     </Box>
   );
 }

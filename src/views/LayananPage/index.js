@@ -13,10 +13,19 @@ import {
   Image,
 } from '@chakra-ui/react';
 import { EmailIcon, InfoIcon, EditIcon } from '@chakra-ui/icons';
+import { FaBolt } from 'react-icons/fa';
+import { Link as RouterLink } from 'react-router-dom';
 import ComplaintSystem from './ComplaintSystem';
 
 export default function LayananPage() {
   const services = [
+    {
+      title: 'PLN Prabayar',
+      desc: 'Top up token listrik PLN Prabayar Anda secara mudah dan cepat di sini.',
+      icon: FaBolt,
+      link: '/layanan/pln',
+      isNew: true
+    },
     {
       title: 'Kartu Keluarga (KK)',
       desc: 'Layanan pembuatan KK baru, perubahan data, atau penggantian karena hilang/rusak.',
@@ -43,9 +52,23 @@ export default function LayananPage() {
 
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
         {services.map((service, index) => (
-          <Card key={index} variant="outline">
+          <Card
+            key={index}
+            variant="outline"
+            as={service.link ? RouterLink : 'div'}
+            to={service.link}
+            cursor={service.link ? 'pointer' : 'default'}
+            _hover={service.link ? { shadow: 'md', borderColor: 'brand.500' } : {}}
+            transition="all 0.2s"
+            position="relative"
+          >
+            {service.isNew && (
+              <Box position="absolute" top={2} right={2}>
+                <Box bg="red.500" color="white" fontSize="xs" px={2} py={0.5} borderRadius="full" fontWeight="bold">NEW</Box>
+              </Box>
+            )}
             <CardHeader pb={0}>
-              <Icon as={service.icon} w={6} h={6} color="blue.500" mb={2} />
+              <Icon as={service.icon} w={6} h={6} color={service.isNew ? "brand.500" : "blue.500"} mb={2} />
               <Heading size="md">{service.title}</Heading>
             </CardHeader>
             <CardBody>
