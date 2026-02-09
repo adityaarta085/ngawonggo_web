@@ -7,82 +7,80 @@ import {
   SimpleGrid,
   Image,
   Badge,
-  Link,
   VStack,
-  HStack,
+
   Button,
   Icon,
   Flex,
+  Link,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { supabase } from '../../../lib/supabase';
-import { FaPlay } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
-const NewsCard = ({ id, title, date, category, image, video_url, delay }) => {
+const NewsCard = ({ id, title, date, category, image, delay }) => {
   return (
-    <MotionBox
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay }}
-      bg="white"
-      borderRadius="2xl"
-      overflow="hidden"
-      boxShadow="sm"
-      border="1px solid"
-      borderColor="gray.100"
-      _hover={{ transform: 'translateY(-10px)', boxShadow: 'xl' }}
-    >
-      <Box position="relative">
-        <Image src={image} alt={title} h="240px" w="100%" objectFit="cover" />
-        {video_url && (
-          <Flex
+    <Link as={RouterLink} to={`/news/${id}`} _hover={{ textDecoration: 'none' }} display="block" group="true">
+      <MotionBox
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay }}
+        display="flex"
+        flexDirection="column"
+        gap={3}
+      >
+        <Box
+          aspectRatio={16/9}
+          borderRadius="xl"
+          overflow="hidden"
+          bg="gray.200"
+          position="relative"
+        >
+          <Image
+            src={image}
+            alt={title}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+            transition="transform 0.5s"
+            _groupHover={{ transform: 'scale(1.05)' }}
+          />
+          <Badge
             position="absolute"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            bg="whiteAlpha.800"
-            borderRadius="full"
-            p={4}
+            top={2}
+            left={2}
+            bg="brand.500"
+            color="white"
+            fontSize="10px"
+            fontWeight="bold"
+            px={2}
+            py={1}
+            borderRadius="md"
           >
-            <Icon as={FaPlay} color="brand.500" />
-          </Flex>
-        )}
-        <Badge
-          position="absolute"
-          top={4}
-          left={4}
-          colorScheme="brand"
-          px={3}
-          py={1}
-          borderRadius="full"
-        >
-          {category}
-        </Badge>
-      </Box>
-      <VStack p={6} align="start" spacing={3}>
-        <Text fontSize="sm" color="gray.500" fontWeight="600">
-          {date}
-        </Text>
-        <Heading size="md" lineHeight="tall" noOfLines={2}>
-          {title}
-        </Heading>
-        <Link
-          as={RouterLink}
-          to={`/news/${id}`}
-          color="brand.500"
-          fontWeight="700"
-          fontSize="sm"
-          _hover={{ textDecoration: 'none', color: 'brand.600' }}
-        >
-          Selengkapnya →
-        </Link>
-      </VStack>
-    </MotionBox>
+            {category.toUpperCase()}
+          </Badge>
+        </Box>
+        <VStack align="start" spacing={1}>
+          <Text fontSize="xs" color="gray.500" fontWeight="500">
+            {date}
+          </Text>
+          <Heading
+            size="sm"
+            fontWeight="bold"
+            lineHeight="snug"
+            _groupHover={{ color: 'brand.500' }}
+            transition="color 0.3s"
+          >
+            {title}
+          </Heading>
+        </VStack>
+      </MotionBox>
+    </Link>
   );
 };
 
@@ -96,46 +94,46 @@ const LatestNews = () => {
         .from('news')
         .select('*')
         .order('id', { ascending: false })
-        .limit(3);
+        .limit(4);
       if (!error && data) setNewsItems(data);
     };
     fetchNews();
   }, []);
 
   return (
-    <Box py={20}>
+    <Box py={24} bg="ikn.light" _dark={{ bg: 'ikn.dark' }}>
       <Container maxW="container.xl">
-        <HStack justify="space-between" mb={12} align="flex-end">
+        <Flex justify="space-between" align="flex-end" mb={10}>
           <Box>
-            <Text
-              fontSize="sm"
-              fontWeight="bold"
-              color="brand.500"
-              textTransform="uppercase"
-              letterSpacing="widest"
-              mb={2}
-            >
-              {language === 'id' ? 'Kabar Terbaru' : 'Latest Updates'}
-            </Text>
-            <Heading as="h2" size="xl" fontWeight="800">
-              {language === 'id' ? 'Berita Desa Ngawonggo' : 'Ngawonggo Village News'}
+            <Heading as="h2" size="xl" fontWeight="900" lineHeight="tight">
+              {language === 'id' ? 'Berita Terkini' : 'Latest News'}
             </Heading>
+            <Text color="gray.500" mt={2}>
+              {language === 'id' ? 'Update progres pembangunan dan informasi terbaru.' : 'Construction progress updates and latest information.'}
+            </Text>
           </Box>
           <Button
             as={RouterLink}
             to="/news"
-            variant="ghost"
-            colorScheme="brand"
-            rightIcon={<span>→</span>}
+            variant="link"
+            color="brand.500"
+            fontWeight="bold"
+            fontSize="sm"
+            rightIcon={<Icon as={FaArrowRight} boxSize={3} />}
+            _hover={{ textDecoration: 'underline' }}
           >
             {language === 'id' ? 'Lihat Semua' : 'View All'}
           </Button>
-        </HStack>
+        </Flex>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
-          {newsItems.map((news, index) => (
+        <SimpleGrid columns={{ base: 1, sm: 2, lg: 4 }} spacing={6}>
+          {newsItems.length > 0 ? newsItems.map((news, index) => (
             <NewsCard key={news.id} id={news.id} {...news} delay={index * 0.1} />
-          ))}
+          )) : (
+            [1, 2, 3, 4].map((i) => (
+              <Box key={i} h="200px" bg="gray.100" borderRadius="xl" animate="pulse" />
+            ))
+          )}
         </SimpleGrid>
       </Container>
     </Box>

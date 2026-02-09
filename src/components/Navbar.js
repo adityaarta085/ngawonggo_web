@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -18,6 +17,7 @@ import {
   Link,
   Container,
   HStack,
+  Image,
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -26,7 +26,6 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
-import { Image } from '@chakra-ui/react';
 import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -37,6 +36,15 @@ function Navbar() {
   const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
   const t = translations[language].nav;
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -50,7 +58,7 @@ function Navbar() {
       id: 'desa',
       content: (
         <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
-          <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'lg' })} />
+          <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'lg' })} color={scrolled ? "gray.800" : "white"} />
         </Link>
       ),
     },
@@ -63,7 +71,7 @@ function Navbar() {
             h="35px"
             alt="Logo Kab Magelang"
           />
-          <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
+          <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap" color={scrolled ? "gray.800" : "white"}>
             Kabupaten Magelang
           </Text>
         </HStack>
@@ -82,7 +90,7 @@ function Navbar() {
               h="35px"
               alt="Logo SPBE"
             />
-            <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
+            <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap" color={scrolled ? "gray.800" : "white"}>
               SPBE Digital
             </Text>
           </HStack>
@@ -114,83 +122,99 @@ function Navbar() {
   ];
 
   return (
-    <Box position="sticky" top={0} zIndex={1000}>
-      <Flex
-        bg={useColorModeValue('white', 'accent.blue')}
-        color={useColorModeValue('gray.600', 'white')}
-        minH={'70px'}
-        py={{ base: 2 }}
-        px={{ base: 4 }}
-        borderBottom={1}
-        borderStyle={'solid'}
+    <Box
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      zIndex={1000}
+      transition="all 0.3s ease"
+    >
+      <Box
+        bg={scrolled ? "white" : "transparent"}
+        _dark={{ bg: scrolled ? "ikn.dark" : "transparent" }}
+        backdropFilter={scrolled ? "blur(10px)" : "none"}
+        boxShadow={scrolled ? "sm" : "none"}
+        borderBottom={scrolled ? "1px solid" : "none"}
         borderColor={useColorModeValue('gray.100', 'whiteAlpha.100')}
-        align={'center'}
-        boxShadow="sm"
+        transition="all 0.3s ease"
       >
-        <Container maxW="container.xl" display="flex" alignItems="center">
-          <Flex
-            flex={{ base: 1, md: 'auto' }}
-            ml={{ base: -2 }}
-            display={{ base: 'flex', md: 'none' }}
-          >
-            <IconButton
-              onClick={onToggle}
-              icon={
-                isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
-              }
-              variant={'ghost'}
-              aria-label={'Toggle Navigation'}
-            />
-          </Flex>
+        <Box bgGradient={!scrolled ? "linear(to-b, blackAlpha.600, transparent)" : "none"} pb={!scrolled ? 8 : 0}>
+          <Container maxW="container.xl">
+            <Flex
+              minH={'70px'}
+              py={{ base: 2 }}
+              px={{ base: 4 }}
+              align={'center'}
+            >
+              <Flex
+                flex={{ base: 1, md: 'auto' }}
+                ml={{ base: -2 }}
+                display={{ base: 'flex', md: 'none' }}
+              >
+                <IconButton
+                  onClick={onToggle}
+                  icon={
+                    isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
+                  }
+                  variant={'ghost'}
+                  color={scrolled ? "gray.600" : "white"}
+                  aria-label={'Toggle Navigation'}
+                />
+              </Flex>
 
-          <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }} alignItems="center">
-            <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "200px", md: "320px" }} flexShrink={0}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={logoIndex}
-                  initial={{ x: 20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -20, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
-                  {logos[logoIndex].content}
-                </motion.div>
-              </AnimatePresence>
-            </Box>
+              <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }} alignItems="center">
+                <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "200px", md: "320px" }} flexShrink={0}>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={logoIndex}
+                      initial={{ x: 20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      exit={{ x: -20, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      style={{ display: 'flex', alignItems: 'center' }}
+                    >
+                      {logos[logoIndex].content}
+                    </motion.div>
+                  </AnimatePresence>
+                </Box>
 
-            <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
-              <DesktopNav navItems={NAV_ITEMS} />
+                <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
+                  <DesktopNav navItems={NAV_ITEMS} scrolled={scrolled} />
+                </Flex>
+              </Flex>
+
+              <Stack
+                flex={{ base: 1, md: 0 }}
+                justify={'flex-end'}
+                direction={'row'}
+                spacing={4}
+              >
+                <HStack spacing={1}>
+                  <Button
+                    size="xs"
+                    variant={language === 'id' ? 'solid' : 'ghost'}
+                    colorScheme="brand"
+                    onClick={() => setLanguage('id')}
+                    color={!scrolled && language !== 'id' ? "white" : undefined}
+                  >
+                    ID
+                  </Button>
+                  <Button
+                    size="xs"
+                    variant={language === 'en' ? 'solid' : 'ghost'}
+                    colorScheme="brand"
+                    onClick={() => setLanguage('en')}
+                    color={!scrolled && language !== 'en' ? "white" : undefined}
+                  >
+                    EN
+                  </Button>
+                </HStack>
+              </Stack>
             </Flex>
-          </Flex>
-
-          <Stack
-            flex={{ base: 1, md: 0 }}
-            justify={'flex-end'}
-            direction={'row'}
-            spacing={4}
-          >
-            <HStack spacing={1}>
-              <Button
-                size="xs"
-                variant={language === 'id' ? 'solid' : 'ghost'}
-                colorScheme="brand"
-                onClick={() => setLanguage('id')}
-              >
-                ID
-              </Button>
-              <Button
-                size="xs"
-                variant={language === 'en' ? 'solid' : 'ghost'}
-                colorScheme="brand"
-                onClick={() => setLanguage('en')}
-              >
-                EN
-              </Button>
-            </HStack>
-          </Stack>
-        </Container>
-      </Flex>
+          </Container>
+        </Box>
+      </Box>
 
       <Collapse in={isOpen} animateOpacity>
         <MobileNav navItems={NAV_ITEMS} />
@@ -199,9 +223,9 @@ function Navbar() {
   );
 }
 
-const DesktopNav = ({ navItems }) => {
-  const linkColor = useColorModeValue('gray.600', 'gray.200');
-  const linkHoverColor = useColorModeValue('brand.500', 'brand.300');
+const DesktopNav = ({ navItems, scrolled }) => {
+  const linkColor = useColorModeValue(scrolled ? 'gray.600' : 'whiteAlpha.900', 'whiteAlpha.900');
+  const linkHoverColor = useColorModeValue(scrolled ? 'brand.500' : 'ikn.gold', 'ikn.gold');
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
 
   return (

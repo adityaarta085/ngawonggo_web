@@ -10,7 +10,7 @@ const MountainIcon = (props) => (
   </Icon>
 );
 
-const NgawonggoLogo = ({ color = "ngawonggo.green", fontSize = "xl", iconSize = 8, showText = true, flexDirection = "row" }) => {
+const NgawonggoLogo = ({ color = "brand.500", fontSize = "xl", iconSize = 8, showText = true, flexDirection = "row" }) => {
   return (
     <Flex align="center" direction={flexDirection}>
       <MountainIcon boxSize={iconSize} color={color} />

@@ -1,165 +1,112 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Box,
   Container,
   SimpleGrid,
-  Stack,
   Text,
   VStack,
   Flex,
   Icon,
-  Image,
   HStack,
   Link,
   Divider,
-  useToast,
+  Heading,
 } from '@chakra-ui/react';
-import { FaInstagram, FaFacebook, FaTwitter, FaYoutube, FaMapMarkerAlt, FaPhone, FaEnvelope } from 'react-icons/fa';
+import { FaPhone, FaEnvelope, FaGlobe, FaRss, FaShareAlt } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 import NgawonggoLogo from './NgawonggoLogo';
+import { useLanguage } from '../contexts/LanguageContext';
 
-const SocialLink = ({ icon, href }) => (
+const FooterLink = ({ children, href }) => (
   <Link
-    href={href}
-    isExternal
-    w={10}
-    h={10}
-    borderRadius="full"
-    bg="whiteAlpha.100"
-    layerStyle="glass"
-    display="flex"
-    alignItems="center"
-    justifyContent="center"
-    _hover={{ bg: 'brand.500', transform: 'translateY(-5px)', boxShadow: '0 0 20px rgba(72, 187, 120, 0.4)' }}
-    transition="all 0.3s"
+    as={RouterLink}
+    to={href}
+    fontSize="sm"
+    color="gray.400"
+    _hover={{ color: 'white', textDecoration: 'none' }}
+    transition="color 0.2s"
   >
-    <Icon as={icon} color="white" />
+    {children}
   </Link>
 );
 
 export default function Footer() {
-  const [clickCount, setClickCount] = useState(0);
-  const [startTime, setStartTime] = useState(0);
-  const toast = useToast();
-
-  const handleLogoClick = () => {
-    const now = Date.now();
-    if (clickCount === 0 || now - startTime > 5000) {
-      setStartTime(now);
-      setClickCount(1);
-    } else {
-      const newCount = clickCount + 1;
-      setClickCount(newCount);
-      if (newCount >= 10) {
-        localStorage.setItem('adsDisabledByUser', 'true');
-        toast({
-          title: 'Mode bebas iklan aktif',
-          status: 'success',
-          duration: 3000,
-          isClosable: true,
-        });
-        window.dispatchEvent(new CustomEvent('adsPreferenceChanged'));
-        setClickCount(0);
-      }
-    }
-  };
+  const { language } = useLanguage();
 
   return (
-    <Box bg="gray.900" color="white" pt={20} pb={8} position="relative" overflow="hidden">
-      {/* Footer background accent */}
-      <Box position="absolute" top="-10%" left="50%" transform="translateX(-50%)" w="80%" h="200px" bgGradient="radial(brand.500 0%, transparent 70%)" opacity={0.1} />
-
-      <Container maxW="container.xl" position="relative">
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={12} mb={16}>
-          <Stack spacing={6}>
-            <Box onClick={handleLogoClick} cursor="pointer" userSelect="none">
-              <NgawonggoLogo fontSize="2xl" />
-            </Box>
-            <Text color="gray.400" fontSize="sm" lineHeight="tall">
-              Website Resmi Pemerintah Desa Ngawonggo. Berkomitmen mewujudkan desa digital yang mandiri, berbudaya, dan sejahtera menuju Indonesia 2045.
-            </Text>
-            <HStack spacing={4}>
-              <SocialLink icon={FaFacebook} href="https://www.facebook.com/search/top/?q=Radio%20Komunitas%20Pendowo%20FM%20Pendowo%20Gugah%20Nusantara" />
-              <SocialLink icon={FaInstagram} href="https://www.instagram.com/cakwidodo" />
-              <SocialLink icon={FaTwitter} href="https://twitter.com/rakompendowo" />
-              <SocialLink icon={FaYoutube} href="https://www.youtube.com/@rakompendowo" />
+    <Box bg="slate.900" color="gray.400" pt={20} pb={8} borderTop="1px solid" borderColor="whiteAlpha.100">
+      <Container maxW="container.xl">
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={12} mb={12}>
+          {/* Brand */}
+          <VStack align="start" spacing={6}>
+            <HStack spacing={3}>
+              <Box p={2} bg="whiteAlpha.100" borderRadius="full" border="1px solid" borderColor="whiteAlpha.200">
+                <NgawonggoLogo showText={false} iconSize={6} color="ikn.gold" />
+              </Box>
+              <Heading size="md" color="white" fontWeight="bold" letterSpacing="wide">
+                Desa Ngawonggo
+              </Heading>
             </HStack>
-          </Stack>
-
-          <Stack spacing={6}>
-            <Text fontWeight="800" fontSize="lg">Tautan Cepat</Text>
-            <Stack spacing={3} color="gray.400" fontSize="sm">
-              <Link href="/profil" _hover={{ color: 'white' }}>Profil Desa</Link>
-              <Link href="/pemerintahan" _hover={{ color: 'white' }}>Pemerintahan</Link>
-              <Link href="/layanan" _hover={{ color: 'white' }}>Layanan Publik</Link>
-              <Link href="/news" _hover={{ color: 'white' }}>Berita Desa</Link>
-              <Link href="/media" _hover={{ color: 'white' }}>Bioskop Desa</Link>
-            </Stack>
-          </Stack>
-
-          <Stack spacing={6}>
-            <Text fontWeight="800" fontSize="lg">Kontak Kami</Text>
-            <Stack spacing={4} color="gray.400" fontSize="sm">
-              <HStack align="start" spacing={3}>
-                <Icon as={FaMapMarkerAlt} color="brand.500" mt={1} />
-                <Text>Desa Ngawonggo, Kec. Kaliangkrik, Kab. Magelang, Jawa Tengah 56153</Text>
-              </HStack>
-              <HStack spacing={3}>
-                <Icon as={FaPhone} color="brand.500" />
-                <Text>0812-1503-0896</Text>
-              </HStack>
-              <HStack spacing={3}>
-                <Icon as={FaEnvelope} color="brand.500" />
-                <Text>ngawonggodesa@gmail.com</Text>
-              </HStack>
-            </Stack>
-          </Stack>
-
-          <Stack spacing={6}>
-            <Text fontWeight="800" fontSize="lg">Layanan Pengaduan</Text>
-            <Link href="https://prod.lapor.go.id" isExternal>
-              <Image
-                src="https://web.komdigi.go.id/resource/dXBsb2Fkcy8yMDI1LzIvMjEvOTFhZGU2OGEtY2JlNS00YjhmLTgzOTEtZDcxNmQ3ZDRmYWVkLnBuZw=="
-                alt="Logo LAPOR"
-                h="50px"
-                bg="white"
-                p={2}
-                borderRadius="md"
-              />
-            </Link>
-            <Text color="gray.400" fontSize="xs">
-              Sampaikan aspirasi dan pengaduan Anda secara online melalui LAPOR!
+            <Text fontSize="sm" lineHeight="relaxed">
+              {language === 'id'
+                ? 'Menuju Desa Digital untuk Semua. Pusat kemandirian ekonomi yang cerdas, hijau, dan berkelanjutan.'
+                : 'Towards a Digital Village for All. A center for smart, green, and sustainable economic independence.'}
             </Text>
+          </VStack>
 
-            <Text fontWeight="800" fontSize="lg" mt={4}>Lokasi</Text>
-            <Box borderRadius="xl" overflow="hidden" h="150px" bg="gray.700">
-               <iframe
-                title="Peta Lokasi Desa Ngawonggo"
-                src="https://maps.google.com/maps?q=Desa%20Ngawonggo%2C%20Kaliangkrik%2C%20Magelang&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen=""
-                loading="lazy"
-               ></iframe>
-            </Box>
-          </Stack>
+          {/* Links 1 */}
+          <VStack align="start" spacing={4}>
+            <Text color="white" fontWeight="bold" fontSize="base">
+              {language === 'id' ? 'Tentang Kami' : 'About Us'}
+            </Text>
+            <FooterLink href="/profil">{language === 'id' ? 'Sejarah Desa' : 'Village History'}</FooterLink>
+            <FooterLink href="/profil#visimisi">{language === 'id' ? 'Visi & Misi' : 'Vision & Mission'}</FooterLink>
+            <FooterLink href="/pemerintahan">{language === 'id' ? 'Struktur Organisasi' : 'Organization Structure'}</FooterLink>
+            <FooterLink href="/privacy-policy">{language === 'id' ? 'Regulasi' : 'Regulation'}</FooterLink>
+          </VStack>
+
+          {/* Links 2 */}
+          <VStack align="start" spacing={4}>
+            <Text color="white" fontWeight="bold" fontSize="base">
+              {language === 'id' ? 'Informasi Publik' : 'Public Information'}
+            </Text>
+            <FooterLink href="/news">{language === 'id' ? 'Berita & Artikel' : 'News & Articles'}</FooterLink>
+            <FooterLink href="/media">{language === 'id' ? 'Galeri & Video' : 'Gallery & Video'}</FooterLink>
+            <FooterLink href="/layanan">{language === 'id' ? 'Layanan Mandiri' : 'Self-Service'}</FooterLink>
+            <FooterLink href="/kontak">{language === 'id' ? 'Layanan Pengaduan' : 'Complaint Service'}</FooterLink>
+          </VStack>
+
+          {/* Contact */}
+          <VStack align="start" spacing={4}>
+            <Text color="white" fontWeight="bold" fontSize="base">
+              {language === 'id' ? 'Hubungi Kami' : 'Contact Us'}
+            </Text>
+            <HStack spacing={3} fontSize="sm">
+              <Icon as={FaEnvelope} color="gray.500" />
+              <Text>ngawonggodesa@gmail.com</Text>
+            </HStack>
+            <HStack spacing={3} fontSize="sm">
+              <Icon as={FaPhone} color="gray.500" />
+              <Text>0812-1503-0896</Text>
+            </HStack>
+            <HStack spacing={4} mt={2}>
+              <Icon as={FaGlobe} cursor="pointer" _hover={{ color: 'white' }} />
+              <Icon as={FaRss} cursor="pointer" _hover={{ color: 'white' }} />
+              <Icon as={FaShareAlt} cursor="pointer" _hover={{ color: 'white' }} />
+            </HStack>
+          </VStack>
         </SimpleGrid>
 
-        <Divider borderColor="whiteAlpha.200" mb={8} />
+        <Divider borderColor="whiteAlpha.100" mb={8} />
 
-        <VStack spacing={4} align="center" mb={6}>
-          <Text fontSize="xs" color="gray.500" fontStyle="italic">
-            Made With SMK Muhammadiyah Bandongan 2026 TJKT A
-          </Text>
-        </VStack>
-
-        <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align="center" color="gray.500" fontSize="xs">
-          <Text>© 2026 Pemerintah Desa Ngawonggo. Hak Cipta Dilindungi.</Text>
-          <HStack spacing={6} mt={{ base: 4, md: 0 }}>
-            <Link as={RouterLink} to="/privacy-policy">Kebijakan Privasi</Link>
-            <Link as={RouterLink} to="/terms-conditions">Syarat & Ketentuan</Link>
+        <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align="center" gap={4} fontSize="xs">
+          <VStack align={{ base: 'center', md: 'start' }} spacing={1}>
+            <Text>© 2026 Pemerintah Desa Ngawonggo. Hak Cipta Dilindungi.</Text>
+            <Text fontStyle="italic" color="gray.600">Made With SMK Muhammadiyah Bandongan 2026 TJKT A</Text>
+          </VStack>
+          <HStack spacing={6}>
+            <FooterLink href="/privacy-policy">{language === 'id' ? 'Kebijakan Privasi' : 'Privacy Policy'}</FooterLink>
+            <FooterLink href="/terms-conditions">{language === 'id' ? 'Syarat & Ketentuan' : 'Terms & Conditions'}</FooterLink>
           </HStack>
         </Flex>
       </Container>
