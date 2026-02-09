@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -25,7 +24,7 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from '@chakra-ui/icons';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -37,6 +36,26 @@ function Navbar() {
   const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
   const t = translations[language].nav;
+  const location = useLocation();
+  const [scrolled, setScrolled] = useState(false);
+
+  const bgColor = useColorModeValue('white', 'accent.blue');
+  const textColor = useColorModeValue('gray.600', 'white');
+  const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100');
+
+  const isHomePage = location.pathname === '/';
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -50,18 +69,22 @@ function Navbar() {
       id: 'desa',
       content: (
         <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
-          <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'lg' })} />
+          <NgawonggoLogo
+            fontSize={useBreakpointValue({ base: 'md', md: 'lg' })}
+            color={!scrolled && isHomePage ? "white" : "brand.500"}
+          />
         </Link>
       ),
     },
     {
       id: 'kab',
       content: (
-        <HStack spacing={3}>
+        <HStack spacing={3} color={!scrolled && isHomePage ? "white" : "inherit"}>
           <Image
             src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
             h="35px"
             alt="Logo Kab Magelang"
+            filter={!scrolled && isHomePage ? "brightness(0) invert(1)" : "none"}
           />
           <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
             Kabupaten Magelang
@@ -76,11 +99,12 @@ function Navbar() {
           href="https://menpan.go.id/site/tentang-kami/kedeputian/transformasi-digital-pemerintah/sistem-pemerintahan-berbasis-elektronik-spbe-2"
           isExternal
         >
-          <HStack spacing={3}>
+          <HStack spacing={3} color={!scrolled && isHomePage ? "white" : "inherit"}>
             <Image
               src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png"
               h="35px"
               alt="Logo SPBE"
+              filter={!scrolled && isHomePage ? "brightness(0) invert(1)" : "none"}
             />
             <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
               SPBE Digital
@@ -113,19 +137,42 @@ function Navbar() {
     { label: t.admin, href: '/admin', isSpecial: true },
   ];
 
+  const navIsTransparent = !scrolled && isHomePage;
+
   return (
-    <Box position="sticky" top={0} zIndex={1000}>
+    <Box
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      zIndex={1000}
+      transition="all 0.3s ease"
+    >
+      {navIsTransparent && (
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          height="120px"
+          bgGradient="linear(to-b, blackAlpha.600, transparent)"
+          pointerEvents="none"
+          zIndex={-1}
+        />
+      )}
+
       <Flex
-        bg={useColorModeValue('white', 'accent.blue')}
-        color={useColorModeValue('gray.600', 'white')}
+        bg={navIsTransparent ? 'transparent' : bgColor}
+        color={navIsTransparent ? 'white' : textColor}
         minH={'70px'}
         py={{ base: 2 }}
         px={{ base: 4 }}
-        borderBottom={1}
+        borderBottom={navIsTransparent ? 0 : 1}
         borderStyle={'solid'}
-        borderColor={useColorModeValue('gray.100', 'whiteAlpha.100')}
+        borderColor={borderColor}
         align={'center'}
-        boxShadow="sm"
+        boxShadow={navIsTransparent ? "none" : "sm"}
+        transition="all 0.3s ease"
       >
         <Container maxW="container.xl" display="flex" alignItems="center">
           <Flex
@@ -139,7 +186,9 @@ function Navbar() {
                 isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
               }
               variant={'ghost'}
+              color={navIsTransparent ? "white" : "inherit"}
               aria-label={'Toggle Navigation'}
+              _hover={{ bg: 'whiteAlpha.200' }}
             />
           </Flex>
 
@@ -160,7 +209,7 @@ function Navbar() {
             </Box>
 
             <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
-              <DesktopNav navItems={NAV_ITEMS} />
+              <DesktopNav navItems={NAV_ITEMS} isTransparent={navIsTransparent} />
             </Flex>
           </Flex>
 
@@ -174,7 +223,8 @@ function Navbar() {
               <Button
                 size="xs"
                 variant={language === 'id' ? 'solid' : 'ghost'}
-                colorScheme="brand"
+                colorScheme={navIsTransparent ? "whiteAlpha" : "brand"}
+                color={navIsTransparent && language !== 'id' ? "white" : undefined}
                 onClick={() => setLanguage('id')}
               >
                 ID
@@ -182,7 +232,8 @@ function Navbar() {
               <Button
                 size="xs"
                 variant={language === 'en' ? 'solid' : 'ghost'}
-                colorScheme="brand"
+                colorScheme={navIsTransparent ? "whiteAlpha" : "brand"}
+                color={navIsTransparent && language !== 'en' ? "white" : undefined}
                 onClick={() => setLanguage('en')}
               >
                 EN
@@ -199,7 +250,7 @@ function Navbar() {
   );
 }
 
-const DesktopNav = ({ navItems }) => {
+const DesktopNav = ({ navItems, isTransparent }) => {
   const linkColor = useColorModeValue('gray.600', 'gray.200');
   const linkHoverColor = useColorModeValue('brand.500', 'brand.300');
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
@@ -216,10 +267,10 @@ const DesktopNav = ({ navItems }) => {
                 to={navItem.href ?? '#'}
                 fontSize={'sm'}
                 fontWeight={600}
-                color={navItem.isSpecial ? 'brand.500' : linkColor}
+                color={navItem.isSpecial ? 'brand.500' : (isTransparent ? 'white' : linkColor)}
                 _hover={{
                   textDecoration: 'none',
-                  color: linkHoverColor,
+                  color: isTransparent ? 'whiteAlpha.800' : linkHoverColor,
                 }}
               >
                 {navItem.label}

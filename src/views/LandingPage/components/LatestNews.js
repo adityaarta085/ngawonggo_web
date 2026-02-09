@@ -7,82 +7,74 @@ import {
   SimpleGrid,
   Image,
   Badge,
-  Link,
-  VStack,
   HStack,
   Button,
   Icon,
-  Flex,
+  VStack,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { supabase } from '../../../lib/supabase';
-import { FaPlay } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 
-const MotionBox = motion(Box);
+const NewsCard = ({ id, title, date, category, image }) => {
+  const textColor = useColorModeValue('gray.900', 'white');
+  const dateColor = useColorModeValue('gray.500', 'gray.400');
 
-const NewsCard = ({ id, title, date, category, image, video_url, delay }) => {
   return (
-    <MotionBox
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay }}
-      bg="white"
-      borderRadius="2xl"
-      overflow="hidden"
-      boxShadow="sm"
-      border="1px solid"
-      borderColor="gray.100"
-      _hover={{ transform: 'translateY(-10px)', boxShadow: 'xl' }}
-    >
-      <Box position="relative">
-        <Image src={image} alt={title} h="240px" w="100%" objectFit="cover" />
-        {video_url && (
-          <Flex
+    <Box as={RouterLink} to={`/news/${id}`} role="group" display="block">
+      <VStack align="start" spacing={4}>
+        <Box
+          overflow="hidden"
+          borderRadius="xl"
+          w="100%"
+          aspectRatio={16/9}
+          position="relative"
+          bg="gray.100"
+        >
+          <Image
+            src={image}
+            alt={title}
+            w="100%"
+            h="100%"
+            objectFit="cover"
+            transition="transform 0.5s ease"
+            _groupHover={{ transform: 'scale(1.05)' }}
+          />
+          <Badge
             position="absolute"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            bg="whiteAlpha.800"
-            borderRadius="full"
-            p={4}
+            top={3}
+            left={3}
+            bg="brand.500"
+            color="white"
+            fontSize="2xs"
+            fontWeight="bold"
+            px={2}
+            py={1}
+            borderRadius="md"
           >
-            <Icon as={FaPlay} color="brand.500" />
-          </Flex>
-        )}
-        <Badge
-          position="absolute"
-          top={4}
-          left={4}
-          colorScheme="brand"
-          px={3}
-          py={1}
-          borderRadius="full"
-        >
-          {category}
-        </Badge>
-      </Box>
-      <VStack p={6} align="start" spacing={3}>
-        <Text fontSize="sm" color="gray.500" fontWeight="600">
-          {date}
-        </Text>
-        <Heading size="md" lineHeight="tall" noOfLines={2}>
-          {title}
-        </Heading>
-        <Link
-          as={RouterLink}
-          to={`/news/${id}`}
-          color="brand.500"
-          fontWeight="700"
-          fontSize="sm"
-          _hover={{ textDecoration: 'none', color: 'brand.600' }}
-        >
-          Selengkapnya →
-        </Link>
+            {category?.toUpperCase() || 'BERITA'}
+          </Badge>
+        </Box>
+        <Box>
+          <Text fontSize="xs" color={dateColor} fontWeight="600" mb={1}>
+            {date}
+          </Text>
+          <Heading
+            size="sm"
+            color={textColor}
+            lineHeight="snug"
+            noOfLines={2}
+            _groupHover={{ color: 'brand.500' }}
+            transition="color 0.3s ease"
+          >
+            {title}
+          </Heading>
+        </Box>
       </VStack>
-    </MotionBox>
+    </Box>
   );
 };
 
@@ -96,45 +88,44 @@ const LatestNews = () => {
         .from('news')
         .select('*')
         .order('id', { ascending: false })
-        .limit(3);
+        .limit(4);
       if (!error && data) setNewsItems(data);
     };
     fetchNews();
   }, []);
 
   return (
-    <Box py={20}>
+    <Box py={24} bg={useColorModeValue('white', 'background-dark')}>
       <Container maxW="container.xl">
         <HStack justify="space-between" mb={12} align="flex-end">
           <Box>
-            <Text
-              fontSize="sm"
-              fontWeight="bold"
-              color="brand.500"
-              textTransform="uppercase"
-              letterSpacing="widest"
-              mb={2}
-            >
-              {language === 'id' ? 'Kabar Terbaru' : 'Latest Updates'}
-            </Text>
-            <Heading as="h2" size="xl" fontWeight="800">
-              {language === 'id' ? 'Berita Desa Ngawonggo' : 'Ngawonggo Village News'}
+            <Heading as="h2" size="xl" fontWeight="900" mb={2}>
+              {language === 'id' ? 'Berita Terkini' : 'Latest News'}
             </Heading>
+            <Text color="gray.500">
+              {language === 'id'
+                ? 'Update progres pembangunan dan informasi terbaru Desa Ngawonggo.'
+                : 'Update on development progress and latest information of Ngawonggo Village.'}
+            </Text>
           </Box>
           <Button
             as={RouterLink}
             to="/news"
-            variant="ghost"
-            colorScheme="brand"
-            rightIcon={<span>→</span>}
+            variant="link"
+            color="brand.500"
+            rightIcon={<Icon as={FaArrowRight} boxSize={3} />}
+            fontSize="sm"
+            fontWeight="bold"
+            _hover={{ textDecoration: 'none', transform: 'translateX(5px)' }}
+            transition="all 0.3s ease"
           >
             {language === 'id' ? 'Lihat Semua' : 'View All'}
           </Button>
         </HStack>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
-          {newsItems.map((news, index) => (
-            <NewsCard key={news.id} id={news.id} {...news} delay={index * 0.1} />
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={8}>
+          {newsItems.map((news) => (
+            <NewsCard key={news.id} id={news.id} {...news} />
           ))}
         </SimpleGrid>
       </Container>

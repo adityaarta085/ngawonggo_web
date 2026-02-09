@@ -1,4 +1,3 @@
-
 import { Box } from '@chakra-ui/react';
 import Hero from './components/Hero.js';
 import QuickLinks from './components/QuickLinks.js';
@@ -9,12 +8,14 @@ import VideoPromo from './components/VideoPromo.js';
 import Supports from './components/Supports.js';
 import StatsSection from './components/StatsSection.js';
 import PengaduanSection from './components/PengaduanSection.js';
+import VisionSection from './components/VisionSection.js';
 
 export default function LandingPage() {
   return (
     <Box>
       <Hero />
       <StatsSection />
+      <VisionSection />
       <QuickLinks />
       <DusunSection />
       <LatestNews />
