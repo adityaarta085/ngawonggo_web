@@ -160,3 +160,25 @@ VALUES ('admin', crypt('admin123', gen_salt('bf')));
 - Supabase (Backend & Auth)
 - React Quill (Rich Text Editor)
 - Recharts (Statistics)
+
+## Modern Front-End Revamp (2026-ready)
+- **React 18 + Chakra UI** untuk komponen responsif premium.
+- **Framer Motion** untuk animasi halus, transisi GPU-friendly, dan micro-interactions modern.
+- Landing page didesain ulang total dengan konsep:
+  - dark futuristic gradient,
+  - glassmorphism cards,
+  - animated radial glows,
+  - struktur modular untuk iterasi cepat.
+
+## Deploy ke Vercel (Mudah & Cepat)
+1. Push project ke GitHub/GitLab/Bitbucket.
+2. Login ke [Vercel](https://vercel.com), pilih **Add New Project**.
+3. Import repository ini.
+4. Vercel akan otomatis membaca:
+   - `buildCommand`: `npm run build`
+   - `outputDirectory`: `build`
+   dari file `vercel.json`.
+5. Tambahkan environment variable dari `.env.example` bila memakai Supabase.
+6. Klik **Deploy**.
+
+Untuk update selanjutnya, cukup push commit baru dan Vercel akan redeploy otomatis.
