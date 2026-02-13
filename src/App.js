@@ -26,7 +26,6 @@ import HumanVerification from './components/HumanVerification.js';
 import Chatbot from './components/Chatbot.js';
 import RunningText from './components/RunningText.js';
 import PopupNotification from './components/PopupNotification.js';
-import { AdManager, AdBlockOverlay } from './components';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
 
@@ -82,8 +81,6 @@ function App() {
 
   return (
     <Box>
-      <AdManager />
-      <AdBlockOverlay />
       {/* Integration Gate untuk interaksi video */}
       {!showSplash && !isVerified && !isAdmin && (
         <HumanVerification onVerified={() => {
