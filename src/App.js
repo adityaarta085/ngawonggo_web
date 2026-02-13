@@ -22,6 +22,7 @@ import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
 import TermsConditions from './views/Legal/TermsConditions.js';
 import MiniPlayer from './components/MiniPlayer.js';
 import SplashScreen from './components/SplashScreen.js';
+import HumanVerification from './components/HumanVerification.js';
 import Chatbot from './components/Chatbot.js';
 import RunningText from './components/RunningText.js';
 import PopupNotification from './components/PopupNotification.js';
@@ -54,6 +55,9 @@ function App() {
     return localSession ? JSON.parse(localSession) : null;
   });
   const [showSplash, setShowSplash] = useState(true);
+  const [isVerified, setIsVerified] = useState(() => {
+    return sessionStorage.getItem('isVerified') === 'true';
+  });
 
   usePageTracking();
 
@@ -80,6 +84,13 @@ function App() {
     <Box>
       <AdManager />
       <AdBlockOverlay />
+      {/* Integration Gate untuk interaksi video */}
+      {!showSplash && !isVerified && !isAdmin && (
+        <HumanVerification onVerified={() => {
+          setIsVerified(true);
+          sessionStorage.setItem('isVerified', 'true');
+        }} />
+      )}
       {showSplash && !isAdmin && (
         <SplashScreen onComplete={() => setShowSplash(false)} />
       )}
