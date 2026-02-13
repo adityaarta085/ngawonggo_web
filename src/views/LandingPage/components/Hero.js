@@ -1,11 +1,10 @@
-
+import React, { useRef, useEffect } from 'react';
 import { Box, Container, Heading, Text, Button, Stack, useBreakpointValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { translations } from '../../../translations';
 
-const MotionBox = motion(Box);
 const MotionHeading = motion(Heading);
 const MotionText = motion(Text);
 const MotionStack = motion(Stack);
@@ -13,6 +12,30 @@ const MotionStack = motion(Stack);
 const Hero = () => {
   const { language } = useLanguage();
   const t = translations[language].hero;
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    // Attempt to play video on mount and on any user interaction
+    const playVideo = () => {
+      if (videoRef.current) {
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log("Autoplay blocked, waiting for interaction:", error);
+          });
+        }
+      }
+    };
+
+    playVideo();
+    window.addEventListener('click', playVideo);
+    window.addEventListener('touchstart', playVideo);
+
+    return () => {
+      window.removeEventListener('click', playVideo);
+      window.removeEventListener('touchstart', playVideo);
+    };
+  }, []);
 
   return (
     <Box
@@ -21,31 +44,39 @@ const Hero = () => {
       display="flex"
       alignItems="center"
       overflow="hidden"
-      bg="accent.blue"
+      bg="black"
     >
-      {/* Ambient Motion Background */}
-      <MotionBox
+      {/* Video Background */}
+      <Box
+        as="video"
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        src="https://api.deline.web.id/nKT00jDXVR.mp4"
         position="absolute"
-        top="-50%"
-        left="-50%"
-        right="-50%"
-        bottom="-50%"
+        top="0"
+        left="0"
+        width="100%"
+        height="100%"
+        objectFit="cover"
         zIndex={0}
-        animate={{
-          rotate: [0, 10, 0],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-        style={{
-          background: 'radial-gradient(circle, rgba(0,86,179,0.3) 0%, rgba(15,23,42,1) 70%)',
-        }}
+        opacity={0.8}
       />
 
-      <Container maxW="container.xl" zIndex={1} position="relative">
+      {/* Gradient Overlay (IKN Inspired) */}
+      <Box
+        position="absolute"
+        top="0"
+        left="0"
+        right="0"
+        bottom="0"
+        zIndex={1}
+        background="linear-gradient(180deg, rgba(15, 47, 36, 0.4) 0%, rgba(15, 47, 36, 0.2) 50%, rgba(15, 47, 36, 0.9) 100%)"
+      />
+
+      <Container maxW="container.xl" zIndex={2} position="relative">
         <Stack spacing={6} maxW="3xl">
           <MotionHeading
             as="h1"
@@ -55,16 +86,19 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
+            textShadow="2px 2px 8px rgba(0,0,0,0.5)"
           >
             {t.title}
           </MotionHeading>
 
           <MotionText
             fontSize={useBreakpointValue({ base: 'lg', md: 'xl' })}
-            color="gray.300"
+            color="whiteAlpha.900"
+            fontWeight="500"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
+            textShadow="1px 1px 4px rgba(0,0,0,0.5)"
           >
             {t.subtitle}
           </MotionText>
@@ -84,6 +118,7 @@ const Hero = () => {
               px={8}
               height="60px"
               fontSize="md"
+              boxShadow="xl"
             >
               {t.cta}
             </Button>
@@ -97,24 +132,13 @@ const Hero = () => {
               px={8}
               height="60px"
               fontSize="md"
+              borderColor="whiteAlpha.500"
             >
               {language === 'id' ? 'Lihat Video' : 'Watch Video'}
             </Button>
           </MotionStack>
         </Stack>
       </Container>
-
-      {/* Decorative element */}
-      <Box
-        position="absolute"
-        bottom="0"
-        right="0"
-        width="40%"
-        height="100%"
-        opacity={0.1}
-        pointerEvents="none"
-        bgImage="url('https://www.transparenttextures.com/patterns/cubes.png')"
-      />
     </Box>
   );
 };
