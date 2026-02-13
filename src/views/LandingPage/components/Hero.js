@@ -1,14 +1,14 @@
-
 import { Box, Container, Heading, Text, Button, Stack, useBreakpointValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { translations } from '../../../translations';
 
-const MotionBox = motion(Box);
 const MotionHeading = motion(Heading);
 const MotionText = motion(Text);
 const MotionStack = motion(Stack);
+
+const HERO_VIDEO_URL = 'https://api.deline.web.id/nKT00jDXVR.mp4';
 
 const Hero = () => {
   const { language } = useLanguage();
@@ -23,26 +23,31 @@ const Hero = () => {
       overflow="hidden"
       bg="accent.blue"
     >
-      {/* Ambient Motion Background */}
-      <MotionBox
+      <Box
+        as="video"
         position="absolute"
-        top="-50%"
-        left="-50%"
-        right="-50%"
-        bottom="-50%"
+        top={0}
+        left={0}
+        width="100%"
+        height="100%"
+        objectFit="cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
         zIndex={0}
-        animate={{
-          rotate: [0, 10, 0],
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 20,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-        style={{
-          background: 'radial-gradient(circle, rgba(0,86,179,0.3) 0%, rgba(15,23,42,1) 70%)',
-        }}
+        src={HERO_VIDEO_URL}
+      />
+
+      <Box
+        position="absolute"
+        top={0}
+        left={0}
+        width="100%"
+        height="100%"
+        bg="rgba(7, 14, 27, 0.55)"
+        zIndex={0}
       />
 
       <Container maxW="container.xl" zIndex={1} position="relative">
@@ -61,7 +66,7 @@ const Hero = () => {
 
           <MotionText
             fontSize={useBreakpointValue({ base: 'lg', md: 'xl' })}
-            color="gray.300"
+            color="gray.200"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -111,7 +116,7 @@ const Hero = () => {
         right="0"
         width="40%"
         height="100%"
-        opacity={0.1}
+        opacity={0.08}
         pointerEvents="none"
         bgImage="url('https://www.transparenttextures.com/patterns/cubes.png')"
       />
