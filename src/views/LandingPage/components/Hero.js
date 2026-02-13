@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { translations } from '../../../translations';
+import { useRef, useState } from 'react';
 
 const MotionBox = motion(Box);
 const MotionHeading = motion(Heading);
@@ -13,6 +14,17 @@ const MotionStack = motion(Stack);
 const Hero = () => {
   const { language } = useLanguage();
   const t = translations[language].hero;
+  const videoRef = useRef(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const handleUserInteraction = () => {
+    if (!hasInteracted && videoRef.current) {
+      setHasInteracted(true);
+      videoRef.current.play().catch(() => {
+        console.log("Video autoplay prevented by browser");
+      });
+    }
+  };
 
   return (
     <Box
@@ -22,8 +34,39 @@ const Hero = () => {
       alignItems="center"
       overflow="hidden"
       bg="accent.blue"
+      onClick={handleUserInteraction}
+      onTouchStart={handleUserInteraction}
+      cursor="pointer"
     >
-      {/* Ambient Motion Background */}
+      {/* Video Background */}
+      <Box
+        as="video"
+        ref={videoRef}
+        position="absolute"
+        top="0"
+        left="0"
+        right="0"
+        bottom="0"
+        width="100%"
+        height="100%"
+        objectFit="cover"
+        zIndex={0}
+        opacity={hasInteracted ? 1 : 0}
+        transition="opacity 0.5s ease-in-out"
+        muted
+        loop={false}
+        onEnded={() => {
+          if (videoRef.current) {
+            videoRef.current.src = 'https://files.catbox.moe/oe2cl3.mp4';
+            videoRef.current.play().catch(() => {
+              console.log("Video autoplay prevented by browser");
+            });
+          }
+        }}
+        src="https://c.termai.cc/v122/qOEd.mp4"
+      />
+
+      {/* Fallback Ambient Motion Background */}
       <MotionBox
         position="absolute"
         top="-50%"
@@ -31,6 +74,8 @@ const Hero = () => {
         right="-50%"
         bottom="-50%"
         zIndex={0}
+        opacity={hasInteracted ? 0 : 1}
+        transition="opacity 0.5s ease-in-out"
         animate={{
           rotate: [0, 10, 0],
           scale: [1, 1.1, 1],
