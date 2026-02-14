@@ -64,7 +64,7 @@ const NewsDetail = () => {
 
   return (
     <Box py={10}>
-      <Container maxW="container.lg">
+      <Container maxW="container.lg" layerStyle="glassCard" p={{ base: 6, md: 12 }}>
         <Breadcrumb mb={8}>
           <BreadcrumbItem>
             <BreadcrumbLink as={RouterLink} to="/">Beranda</BreadcrumbLink>

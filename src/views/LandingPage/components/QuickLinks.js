@@ -52,7 +52,7 @@ const QuickLinks = () => {
   ];
 
   return (
-    <Box py={20} bg="white">
+    <Box py={20} >
       <Container maxW="container.xl">
         <Box textAlign="center" mb={12}>
           <Heading as="h2" size="xl" fontWeight="800">
@@ -68,11 +68,11 @@ const QuickLinks = () => {
             >
               <Box
                 p={8}
-                bg="white"
-                borderRadius="2xl"
-                boxShadow="sm"
-                border="1px solid"
-                borderColor="gray.100"
+
+                layerStyle="glassCard"
+
+
+
                 transition="all 0.3s"
                 textAlign="center"
                 _hover={{
@@ -84,9 +84,9 @@ const QuickLinks = () => {
                 <Flex
                   w={16}
                   h={16}
-                  bg={`${link.color.split('.')[0]}.50`}
+                  bg="whiteAlpha.200" backdropFilter="blur(5px)"
                   color={link.color}
-                  borderRadius="2xl"
+                  layerStyle="glassCard"
                   align="center"
                   justify="center"
                   mb={6}

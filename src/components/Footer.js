@@ -41,7 +41,7 @@ export default function Footer() {
 
 
   return (
-    <Box bg="gray.900" color="white" pt={20} pb={8} position="relative" overflow="hidden">
+    <Box layerStyle="darkGlass" color="white" pt={20} pb={8} position="relative" overflow="hidden" mt={20} borderTop="1px solid" borderColor="whiteAlpha.200">
       {/* Footer background accent */}
       <Box position="absolute" top="-10%" left="50%" transform="translateX(-50%)" w="80%" h="200px" bgGradient="radial(brand.500 0%, transparent 70%)" opacity={0.1} />
 

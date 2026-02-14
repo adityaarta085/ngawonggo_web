@@ -25,7 +25,7 @@ const Travel = () => {
   }, []);
 
   return (
-    <Box py={20} bg="accent.blue">
+    <Box py={20} layerStyle="darkGlass" my={10} borderRadius="3xl" border="1px solid" borderColor="whiteAlpha.100">
       <Container maxW="container.xl">
         <VStack spacing={12} align="center" textAlign="center">
           <Box>

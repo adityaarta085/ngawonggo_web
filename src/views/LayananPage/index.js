@@ -35,15 +35,15 @@ export default function LayananPage() {
   ];
 
   return (
-    <Box p={10} fontFamily="heading">
-      <Heading mb={5} color="ngawonggo.green">Layanan Publik</Heading>
+    <Box p={10} minH="100vh">
+      <Heading mb={5} color="brand.500" fontWeight="800">Layanan Publik</Heading>
       <Text mb={8}>
         Pemerintah Desa Ngawonggo berkomitmen memudahkan warga dalam mengurus administrasi kependudukan.
       </Text>
 
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
         {services.map((service, index) => (
-          <Card key={index} variant="outline">
+          <Card key={index} layerStyle="glassCard" border="none">
             <CardHeader pb={0}>
               <Icon as={service.icon} w={6} h={6} color="blue.500" mb={2} />
               <Heading size="md">{service.title}</Heading>
@@ -62,14 +62,14 @@ export default function LayananPage() {
       </SimpleGrid>
 
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10} mt={10}>
-        <Box p={5} bg="gray.50" borderRadius="xl" border="1px dashed" borderColor="gray.300">
+        <Box layerStyle="glassCard" p={6}>
           <Heading size="sm" mb={2}>Digitalisasi Layanan</Heading>
           <Text fontSize="sm">
             Sesuai Misi Desa, kami sedang mengembangkan sistem form pengajuan online untuk mempercepat proses administrasi warga.
           </Text>
         </Box>
 
-        <Box p={5} bg="blue.50" borderRadius="xl" border="1px solid" borderColor="blue.100">
+        <Box layerStyle="glass" bg="rgba(19, 127, 236, 0.1)" border="1px solid" borderColor="brand.200" borderRadius="2xl" p={6}>
           <Heading size="sm" mb={3}>Aspirasi & Pengaduan (LAPOR!)</Heading>
           <Text fontSize="sm" mb={4}>
             Pemerintah Desa Ngawonggo terintegrasi dengan SP4N-LAPOR! Sampaikan keluhan atau saran Anda melalui kanal resmi nasional.

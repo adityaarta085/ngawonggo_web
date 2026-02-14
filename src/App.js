@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Image } from '@chakra-ui/react';
-import Navbar from './components/Navbar.js';
+import { Box, Flex, Image } from "@chakra-ui/react";
+import { Navbar, AuroraBackground } from './components/index.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import NewsPage from './views/NewsPage/index.js';
@@ -31,7 +31,7 @@ import { supabase } from './lib/supabase';
 
 const TopBar = () => {
   return (
-    <Box bg="white" py={2} px={8} borderBottom="1px solid" borderColor="gray.100">
+    <Box layerStyle="glass" py={2} px={8} borderBottom="1px solid" borderColor="rgba(255, 255, 255, 0.1)">
       <Flex justify="space-between" align="center">
         <Box flex={1} mr={4} maxW="70%">
           <RunningText isEmbedded={true} />
@@ -61,7 +61,6 @@ function App() {
   usePageTracking();
 
   useEffect(() => {
-    // Tetap dengarkan sesi Supabase jika ada fitur lain yang membutuhkannya
     supabase.auth.getSession().then(({ data: { session: authSession } }) => {
       if (authSession) setSession(authSession);
     });
@@ -80,7 +79,9 @@ function App() {
   }, []);
 
   return (
-    <Box>
+    <Box minH="100vh" position="relative">
+      {!isAdmin && <AuroraBackground />}
+
       {/* Integration Gate untuk interaksi video */}
       {!showSplash && !isVerified && !isAdmin && (
         <HumanVerification onVerified={() => {

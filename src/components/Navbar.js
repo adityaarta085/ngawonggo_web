@@ -113,7 +113,6 @@ function Navbar() {
     { label: t.admin, href: '/admin', isSpecial: true },
   ];
 
-  const navBg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)');
   const navColor = useColorModeValue('gray.700', 'white');
 
   return (
@@ -126,7 +125,7 @@ function Navbar() {
     >
       <Flex
         layerStyle="liquidGlass"
-        bg={navBg}
+
         color={navColor}
         minH={'70px'}
         py={{ base: 2 }}
@@ -136,7 +135,7 @@ function Navbar() {
         maxW="container.xl"
         mx="auto"
         transition="all 0.3s ease"
-        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.1)"
+
       >
         <Container maxW="full" display="flex" alignItems="center" px={0}>
           <Flex

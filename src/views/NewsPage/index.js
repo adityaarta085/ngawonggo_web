@@ -34,10 +34,10 @@ export default function NewsPage() {
   if (loading) return <Box p={10}><Text>Loading news...</Text></Box>;
 
   return (
-    <Box minH="100vh" bg="gray.50" py={12}>
+    <Box minH="100vh"  py={12}>
       <Container maxW="container.xl">
         <Flex direction="column" gap={10}>
-          <Box layerStyle="glassCard" p={8} bgGradient="linear(to-br, brand.500, blue.600)" color="white">
+          <Box layerStyle="glassCard" p={8} bg="rgba(19, 127, 236, 0.8)" backdropFilter="blur(20px)" border="1px solid" borderColor="whiteAlpha.300" color="white">
             <VStack align="start" spacing={2}>
               <Heading size="2xl">Informasi Dan Berita Daerah</Heading>
               <Breadcrumb fontSize="sm" opacity={0.9}>

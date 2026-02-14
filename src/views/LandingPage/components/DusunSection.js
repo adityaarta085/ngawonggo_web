@@ -30,7 +30,7 @@ const DUSUNS = [
 
 const DusunSection = () => {
   return (
-    <Box py={24} bg="white" position="relative">
+    <Box py={24} bg="transparent" position="relative">
       <Container maxW="container.xl">
         <VStack spacing={12} align="center">
           <Box textAlign="center">

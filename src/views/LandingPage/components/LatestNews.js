@@ -29,12 +29,12 @@ const NewsCard = ({ id, title, date, category, image, video_url, delay }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      bg="white"
-      borderRadius="2xl"
+      layerStyle="glassCard"
+
       overflow="hidden"
-      boxShadow="sm"
-      border="1px solid"
-      borderColor="gray.100"
+
+
+
       _hover={{ transform: 'translateY(-10px)', boxShadow: 'xl' }}
     >
       <Box position="relative">

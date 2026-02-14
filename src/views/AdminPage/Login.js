@@ -70,7 +70,7 @@ const Login = ({ setSession }) => {
 
   return (
     <Container maxW="md" py={20}>
-      <VStack spacing={8} align="stretch" bg="white" p={8} borderRadius="xl" boxShadow="lg">
+      <VStack spacing={8} align="stretch" layerStyle="glassCard" p={8}>
         <VStack spacing={2} align="center">
           <Heading size="lg">Admin Login</Heading>
           <Text color="gray.500">Desa Ngawonggo</Text>

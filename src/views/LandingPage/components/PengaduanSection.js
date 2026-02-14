@@ -8,7 +8,7 @@ import {
   Button,
   HStack,
   Icon,
-  useColorModeValue,
+
 } from '@chakra-ui/react';
 import { FaBullhorn, FaArrowRight } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
@@ -16,13 +16,12 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 
 const PengaduanSection = () => {
   const { language } = useLanguage();
-  const bg = useColorModeValue('brand.500', 'brand.600');
 
   return (
-    <Box py={20} bg="white" id="pengaduan">
+    <Box py={20} bg="transparent" id="pengaduan">
       <Container maxW="container.xl">
         <Box
-          bg={bg}
+          bg="rgba(19, 127, 236, 0.8)" backdropFilter="blur(20px)" border="1px solid" borderColor="whiteAlpha.300"
           borderRadius="3xl"
           p={{ base: 8, md: 16 }}
           color="white"

@@ -2,10 +2,9 @@ import {
   Box,
   Card,
   Image,
-  Text,
+
   Stack,
   CardBody,
-  // CardHeader,
   Heading,
   Badge,
   Button
@@ -14,39 +13,35 @@ import { Link as RouterLink } from 'react-router-dom';
 
 const SmallCardNews = ({ id, image, title, date }) => {
   return (
-    <Box>
+    <Box w="100%">
       <Card
         direction={{ base: 'column', sm: 'row' }}
         overflow="hidden"
-        variant="outline"
-        _hover={{
-          transform: 'translateY(-5px)',
-          transition: 'transform 0.3s',
-        }}
-        size={{ base: "sm" }}
+        layerStyle="glassCard"
+        border="none"
+        size="sm"
+        p={0}
       >
         <Image
           objectFit="cover"
-          maxW={{ base: '100%', sm: '200px', lg : "250px" }}
+          maxW={{ base: '100%', sm: '150px' }}
           src={image}
           alt="Image News"
         />
 
-        <Stack>
+        <Stack flex={1}>
           <CardBody>
-            <Heading size={{ base: "sm",lg : "md" }}>{title}</Heading>
-
-            <Badge fontFamily="default" size={{ base: "sm" }} my={2}>
-              <Text py="2">{date}</Text>
+            <Heading size="xs" noOfLines={2} mb={2}>{title}</Heading>
+            <Badge colorScheme="brand" variant="subtle" borderRadius="full" px={2} mb={3}>
+              {date}
             </Badge>
-            <Box mt={2}>
+            <Box>
               <Button
                 as={RouterLink}
                 to={`/news/${id}`}
                 size="xs"
                 variant="link"
                 color="brand.500"
-                _hover={{ textDecoration: 'none', color: 'brand.600' }}
               >
                 Selengkapnya →
               </Button>

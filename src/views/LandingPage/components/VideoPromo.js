@@ -10,16 +10,21 @@ const VideoPromo = () => {
       m={{ base: 10, md: 20 }}
     >
       <Box
-        as="iframe"
-        src="https://www.youtube.com/embed/Wc7lxuRx0LI"
-        width={{ base: '100%', md: "700px", lg: '1000px' }}
-        sx={{
-          aspectRatio: '16/9',
-          borderRadius: 'xl',
-          boxShadow: '2xl',
-        }}
-        allowFullScreen
-      />
+        layerStyle="glassCard"
+        p={4}
+      >
+        <Box
+          as="iframe"
+          src="https://www.youtube.com/embed/Wc7lxuRx0LI"
+          width={{ base: '100%', md: "700px", lg: '1000px' }}
+          sx={{
+            aspectRatio: '16/9',
+            borderRadius: 'xl',
+            boxShadow: '2xl',
+          }}
+          allowFullScreen
+        />
+      </Box>
     </Flex>
   );
 };

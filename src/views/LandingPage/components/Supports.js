@@ -23,7 +23,7 @@ const Supports = () => {
   }, []);
 
   return (
-    <Box py={24} bg="gray.50">
+    <Box py={24} bg="transparent">
       <Container maxW="container.xl">
         <VStack spacing={12}>
           <Box textAlign="center">
@@ -46,7 +46,7 @@ const Supports = () => {
             {institutions.map((e) => (
               <Link key={e.id} href="#" _hover={{ textDecoration: 'none' }}>
                 <Box
-                  layerStyle="glassCard"
+                  role="group" layerStyle="glassCard"
                   w={{ base: "140px", md: "200px", lg: "280px" }}
                   h={{ base: "80px", md: "100px", lg: "140px" }}
                   display="flex"
@@ -61,8 +61,8 @@ const Supports = () => {
                     alt={e.title}
                     objectFit="contain"
                     maxH="80%"
-                    filter="grayscale(100%)"
-                    opacity={0.6}
+                    filter="grayscale(20%)"
+                    opacity={0.8}
                     transition="all 0.3s"
                     _groupHover={{ filter: 'grayscale(0%)', opacity: 1 }}
                     fallback={<Text fontWeight="bold" fontSize={{ base: "xs", lg: "md" }} color="gray.400">{e.title}</Text>}
@@ -71,7 +71,7 @@ const Supports = () => {
               </Link>
             ))}
             {institutions.length === 0 && [1, 2, 3, 4].map(i => (
-               <Box key={i} layerStyle="glassCard" w="200px" h="100px" opacity={0.5} />
+               <Box key={i} role="group" layerStyle="glassCard" w="200px" h="100px" opacity={0.5} />
             ))}
           </Flex>
         </VStack>

@@ -28,9 +28,9 @@ const StatsSection = () => {
   }, []);
 
   return (
-    <Box py={20} bg="gray.50">
+    <Box py={20} bg="transparent">
       <Container maxW="container.xl">
-        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={10}>
+        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={10} layerStyle="glassCard" p={10}>
           {stats.length > 0 ? stats.map((stat, index) => (
             <MotionBox
               key={stat.id}

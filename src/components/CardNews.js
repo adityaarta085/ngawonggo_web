@@ -13,42 +13,43 @@ import { Link as RouterLink } from 'react-router-dom';
 export default function CardNews({ id, title, image, caption, date }) {
   return (
     <Card
-      size="md"
-      _hover={{
-        transform: 'translateY(-5px)',
-        transition: 'transform 0.3s',
-      }}
-      w={"400px"}
+      layerStyle="glassCard"
+      overflow="hidden"
+      w="100%"
+      border="none"
+      p={0}
     >
       <Image
         src={image}
         alt='ImageNews'
         objectFit="cover"
+        h="250px"
       />
       <CardHeader pb={0}>
-        <Badge colorScheme="green" fontSize="xs" mb="2" fontFamily="default">
+        <Badge colorScheme="brand" fontSize="xs" mb="2" borderRadius="full" px={3}>
           {date}
         </Badge>
-        <Heading size={{ base: 'sm', lg: 'sm' }}>
+        <Heading size="md">
           {title}
         </Heading>
       </CardHeader>
-      <CardBody fontFamily="body" pb={4}>
+      <CardBody fontFamily="body" pb={6}>
         <Box
-          fontSize={{ lg: 'sm', base: 'xs' }}
+          fontSize="sm"
           noOfLines={3}
           dangerouslySetInnerHTML={{ __html: caption }}
-          mb={4}
+          mb={6}
+          color="gray.600"
         />
         <Button
           as={RouterLink}
           to={`/news/${id}`}
-          size="sm"
+          size="md"
           colorScheme="brand"
-          variant="outline"
-          _hover={{ bg: 'brand.500', color: 'white' }}
+          variant="solid"
+          w="full"
         >
-          Selengkapnya
+          Baca Selengkapnya
         </Button>
       </CardBody>
     </Card>

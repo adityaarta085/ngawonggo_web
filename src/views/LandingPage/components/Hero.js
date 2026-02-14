@@ -123,7 +123,7 @@ const Hero = ({ isReady }) => {
               px={8}
               height="60px"
               fontSize="md"
-              boxShadow="xl"
+              boxShadow="0 8px 32px 0 rgba(19, 127, 236, 0.3)" backdropFilter="blur(5px)"
             >
               {t.cta}
             </Button>
@@ -131,13 +131,13 @@ const Hero = ({ isReady }) => {
               as={RouterLink}
               to="/media"
               size="lg"
-              variant="outline"
+              variant="outline" bg="whiteAlpha.100" backdropFilter="blur(10px)"
               color="white"
               _hover={{ bg: 'whiteAlpha.200' }}
               px={8}
               height="60px"
               fontSize="md"
-              borderColor="whiteAlpha.500"
+              borderColor="whiteAlpha.400"
             >
               {language === 'id' ? 'Lihat Video' : 'Watch Video'}
             </Button>
