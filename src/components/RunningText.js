@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Text, Flex, Icon } from '@chakra-ui/react';
-import { FaBullhorn } from 'react-icons/fa';
+import { Box, Typography, SvgIcon } from '@mui/material';
+import { Campaign as CampaignIcon } from '@mui/icons-material';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 
@@ -33,9 +33,9 @@ const RunningText = ({ isEmbedded = false }) => {
 
   if (isEmbedded) {
     return (
-      <Flex align="center" overflow="hidden" whiteSpace="nowrap">
-        <Icon as={FaBullhorn} mr={2} color="brand.500" />
-        <Box flex={1} overflow="hidden">
+      <Box sx={{ display: 'flex', alignItems: 'center', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+        <CampaignIcon sx={{ mr: 1, color: 'primary.main', fontSize: '1rem' }} />
+        <Box sx={{ flex: 1, overflow: 'hidden' }}>
           <motion.div
             animate={{ x: ['100%', '-100%'] }}
             transition={{
@@ -45,20 +45,20 @@ const RunningText = ({ isEmbedded = false }) => {
             }}
             style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
           >
-            <Text fontWeight="600" fontSize="xs" color="gray.600">
+            <Typography sx={{ fontWeight: 600, fontSize: '0.75rem', color: 'text.secondary' }}>
               {combinedText}
-            </Text>
+            </Typography>
           </motion.div>
         </Box>
-      </Flex>
+      </Box>
     );
   }
 
   return (
-    <Box bg="brand.500" color="white" py={1} overflow="hidden" position="relative">
-      <Flex align="center" maxW="container.xl" mx="auto" px={4}>
-        <Icon as={FaBullhorn} mr={3} />
-        <Box flex={1} overflow="hidden" whiteSpace="nowrap">
+    <Box sx={{ bgcolor: 'primary.main', color: 'white', py: 0.5, overflow: 'hidden', position: 'relative' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', maxWidth: 'lg', mx: 'auto', px: 2 }}>
+        <CampaignIcon sx={{ mr: 1.5 }} />
+        <Box sx={{ flex: 1, overflow: 'hidden', whiteSpace: 'nowrap' }}>
           <motion.div
             animate={{ x: ['100%', '-100%'] }}
             transition={{
@@ -68,12 +68,12 @@ const RunningText = ({ isEmbedded = false }) => {
             }}
             style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
           >
-            <Text fontWeight="600" fontSize="sm">
+            <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
               {combinedText}
-            </Text>
+            </Typography>
           </motion.div>
         </Box>
-      </Flex>
+      </Box>
     </Box>
   );
 };

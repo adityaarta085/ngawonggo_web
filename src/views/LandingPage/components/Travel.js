@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Text,
+  Typography,
   Grid,
-  GridItem,
   Box,
   Container,
-  Heading,
-  VStack,
-} from '@chakra-ui/react';
+  Stack,
+} from '@mui/material';
 import CardTravel from '../../../components/CardTravel';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { supabase } from '../../../lib/supabase';
@@ -25,48 +23,45 @@ const Travel = () => {
   }, []);
 
   return (
-    <Box py={20} bg="accent.blue">
-      <Container maxW="container.xl">
-        <VStack spacing={12} align="center" textAlign="center">
+    <Box sx={{ py: 10, bgcolor: '#0F172A' }}>
+      <Container maxWidth="lg">
+        <Stack spacing={6} alignItems="center" textAlign="center" sx={{ mb: 6 }}>
           <Box>
-            <Text
-              fontSize="sm"
-              fontWeight="bold"
-              color="brand.400"
-              textTransform="uppercase"
-              letterSpacing="widest"
-              mb={2}
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 'bold',
+                color: 'primary.light',
+                textTransform: 'uppercase',
+                letterSpacing: '0.15em',
+                display: 'block',
+                mb: 1
+              }}
             >
               {language === 'id' ? 'Destinasi Desa' : 'Village Destinations'}
-            </Text>
-            <Heading as="h2" size="xl" fontWeight="800" color="white">
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: 'white' }}>
               {language === 'id' ? 'Pesona Alam Ngawonggo' : 'Ngawonggo Natural Charm'}
-            </Heading>
-            <Text color="gray.300" maxW="2xl" mt={4}>
+            </Typography>
+            <Typography sx={{ color: 'grey.400', maxWidth: '600px', mt: 2, mx: 'auto' }}>
               {language === 'id'
                 ? 'Menjelajahi keindahan alam dan kekayaan budaya di lereng Gunung Sumbing yang menawan.'
                 : 'Exploring the natural beauty and cultural richness on the captivating slopes of Mount Sumbing.'}
-            </Text>
+            </Typography>
           </Box>
+        </Stack>
 
-          <Grid
-            templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
-            gap={8}
-            w="full"
-          >
-            {places.map((e, index) => {
-              return (
-                <GridItem key={e.id}>
-                  <CardTravel
-                    title={e.title}
-                    image={e.image}
-                    location={e.location}
-                  />
-                </GridItem>
-              );
-            })}
-          </Grid>
-        </VStack>
+        <Grid container spacing={4}>
+          {places.map((e) => (
+            <Grid item xs={12} sm={6} md={4} key={e.id}>
+              <CardTravel
+                title={e.title}
+                image={e.image}
+                location={e.location}
+              />
+            </Grid>
+          ))}
+        </Grid>
       </Container>
     </Box>
   );

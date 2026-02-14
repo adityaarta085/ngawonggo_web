@@ -3,67 +3,66 @@ import {
   Box,
   Button,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
   IconButton,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  FormControl,
-  FormLabel,
-  Input,
-  useToast,
-  HStack,
-  Image,
-  Text,
-  VStack,
-  Textarea,
-} from '@chakra-ui/react';
-import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Stack,
+  Typography,
+  Paper,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import { Edit as EditIcon, Delete as TrashIcon, Add as PlusIcon } from '@mui/icons-material';
 import { supabase } from '../../../lib/supabase';
 
 const TravelManager = () => {
   const [items, setItems] = useState([]);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({ title: '', image: '', location: '', description: '' });
-  const toast = useToast();
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const fetchItems = useCallback(async () => {
     const { data, error } = await supabase.from('travel_places').select('*').order('id', { ascending: false });
-    if (error) toast({ title: 'Error', description: error.message, status: 'error' });
+    if (error) setSnackbar({ open: true, message: 'Error: ' + error.message, severity: 'error' });
     else setItems(data);
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
 
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => {
+    setOpen(false);
+    setEditingItem(null);
+  };
+
   const handleEdit = (item) => {
     setEditingItem(item);
     setFormData(item);
-    onOpen();
+    handleOpen();
   };
 
   const handleAddNew = () => {
     setEditingItem(null);
     setFormData({ title: '', image: '', location: '', description: '' });
-    onOpen();
+    handleOpen();
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Hapus destinasi ini?')) {
       const { error } = await supabase.from('travel_places').delete().eq('id', id);
-      if (error) toast({ title: 'Error', status: 'error' });
-      else { fetchItems(); toast({ title: 'Dihapus', status: 'success' }); }
+      if (error) setSnackbar({ open: true, message: 'Gagal menghapus', severity: 'error' });
+      else { fetchItems(); setSnackbar({ open: true, message: 'Dihapus', severity: 'success' }); }
     }
   };
 
@@ -71,70 +70,80 @@ const TravelManager = () => {
     e.preventDefault();
     if (editingItem) {
       const { error } = await supabase.from('travel_places').update(formData).eq('id', editingItem.id);
-      if (error) toast({ title: 'Error', status: 'error' });
-      else { onClose(); fetchItems(); toast({ title: 'Berhasil diupdate', status: 'success' }); }
+      if (error) setSnackbar({ open: true, message: 'Gagal update', severity: 'error' });
+      else { handleClose(); fetchItems(); setSnackbar({ open: true, message: 'Berhasil diupdate', severity: 'success' }); }
     } else {
       const { error } = await supabase.from('travel_places').insert([formData]);
-      if (error) toast({ title: 'Error', status: 'error' });
-      else { onClose(); fetchItems(); toast({ title: 'Berhasil ditambah', status: 'success' }); }
+      if (error) setSnackbar({ open: true, message: 'Gagal tambah', severity: 'error' });
+      else { handleClose(); fetchItems(); setSnackbar({ open: true, message: 'Berhasil ditambah', severity: 'success' }); }
     }
   };
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <Text fontSize="xl" fontWeight="bold">Manajemen Wisata</Text>
-        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={handleAddNew}>Tambah Wisata</Button>
-      </HStack>
-      <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
-        <Table variant="simple">
-          <Thead bg="gray.50">
-            <Tr>
-              <Th>Gambar</Th>
-              <Th>Nama</Th>
-              <Th>Lokasi</Th>
-              <Th>Aksi</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {items.map((item) => (
-              <Tr key={item.id}>
-                <Td><Image src={item.image} h="40px" w="60px" objectFit="cover" borderRadius="md" /></Td>
-                <Td fontWeight="600">{item.title}</Td>
-                <Td fontSize="xs" isTruncated maxW="200px">{item.location}</Td>
-                <Td>
-                  <HStack spacing={2}>
-                    <IconButton size="sm" icon={<FaEdit />} onClick={() => handleEdit(item)} />
-                    <IconButton size="sm" icon={<FaTrash />} colorScheme="red" onClick={() => handleDelete(item.id)} />
-                  </HStack>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 800 }}>Manajemen Wisata</Typography>
+        <Button startIcon={<PlusIcon />} variant="contained" onClick={handleAddNew} sx={{ borderRadius: '100px' }}>
+          Tambah Wisata
+        </Button>
+      </Stack>
 
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
-        <ModalOverlay />
-        <ModalContent>
-          <form onSubmit={handleSubmit}>
-            <ModalHeader>{editingItem ? 'Edit' : 'Tambah'} Wisata</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <VStack spacing={4}>
-                <FormControl isRequired><FormLabel>Nama Destinasi</FormLabel><Input value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} /></FormControl>
-                <FormControl isRequired><FormLabel>URL Gambar</FormLabel><Input value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} /></FormControl>
-                <FormControl isRequired><FormLabel>URL Lokasi (Google Maps)</FormLabel><Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} /></FormControl>
-                <FormControl><FormLabel>Deskripsi Singkat</FormLabel><Textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} /></FormControl>
-              </VStack>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="ghost" mr={3} onClick={onClose}>Batal</Button>
-              <Button colorScheme="brand" type="submit">Simpan</Button>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
+      <TableContainer component={Paper} sx={{ borderRadius: '24px', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+        <Table>
+          <TableHead sx={{ bgcolor: 'grey.50' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 700 }}>Gambar</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Nama</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Lokasi</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Aksi</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {items.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>
+                  <Box
+                    component="img"
+                    src={item.image}
+                    sx={{ height: 40, width: 60, objectFit: 'cover', borderRadius: 1 }}
+                  />
+                </TableCell>
+                <TableCell sx={{ fontWeight: 600 }}>{item.title}</TableCell>
+                <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {item.location}
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <IconButton size="small" onClick={() => handleEdit(item)}><EditIcon fontSize="small" /></IconButton>
+                    <IconButton size="small" color="error" onClick={() => handleDelete(item.id)}><TrashIcon fontSize="small" /></IconButton>
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth sx={{ '& .MuiDialog-paper': { borderRadius: '24px' } }}>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle sx={{ fontWeight: 800 }}>{editingItem ? 'Edit' : 'Tambah'} Wisata</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ mt: 1 }}>
+              <TextField required fullWidth label="Nama Destinasi" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
+              <TextField required fullWidth label="URL Gambar" value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} />
+              <TextField required fullWidth label="URL Lokasi (Google Maps)" value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
+              <TextField fullWidth multiline rows={3} label="Deskripsi Singkat" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={handleClose}>Batal</Button>
+            <Button variant="contained" type="submit">Simpan</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </Box>
   );
 };

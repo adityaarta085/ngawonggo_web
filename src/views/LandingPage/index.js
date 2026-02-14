@@ -1,5 +1,5 @@
-
-import { Box } from '@chakra-ui/react';
+import React from 'react';
+import { Box } from '@mui/material';
 import Hero from './components/Hero.js';
 import QuickLinks from './components/QuickLinks.js';
 import LatestNews from './components/LatestNews.js';

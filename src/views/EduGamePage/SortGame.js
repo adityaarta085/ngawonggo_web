@@ -1,41 +1,47 @@
-
 import React, { useState } from 'react';
 import {
   Box,
-  VStack,
-  HStack,
-  Heading,
-  Text,
+  Stack,
+  Typography,
   Button,
-  SimpleGrid,
-  Icon,
-  useToast,
-} from '@chakra-ui/react';
-import { FaMicrophone, FaEnvelope, FaKeyboard, FaMobileAlt, FaDesktop, FaBook, FaWifi } from 'react-icons/fa';
+  Grid,
+  Snackbar,
+  Alert,
+  Paper,
+} from '@mui/material';
+import {
+  Email as EnvelopeIcon,
+  PhoneAndroid as MobileAltIcon,
+  Keyboard as KeyboardIcon,
+  Laptop as DesktopIcon,
+  MenuBook as BookIcon,
+  Wifi as WifiIcon,
+  Mic as MicrophoneIcon
+} from '@mui/icons-material';
 
 const items = [
-  { name: "Surat Kertas", type: "analog", icon: FaEnvelope },
-  { name: "WhatsApp", type: "digital", icon: FaMobileAlt },
-  { name: "Mesin Ketik", type: "analog", icon: FaKeyboard },
-  { name: "Laptop", type: "digital", icon: FaDesktop },
-  { name: "Buku Cetak", type: "analog", icon: FaBook },
-  { name: "E-Book", type: "digital", icon: FaWifi },
-  { name: "Kentongan", type: "analog", icon: FaMicrophone },
-  { name: "E-Mail", type: "digital", icon: FaEnvelope },
+  { name: "Surat Kertas", type: "analog", icon: EnvelopeIcon },
+  { name: "WhatsApp", type: "digital", icon: MobileAltIcon },
+  { name: "Mesin Ketik", type: "analog", icon: KeyboardIcon },
+  { name: "Laptop", type: "digital", icon: DesktopIcon },
+  { name: "Buku Cetak", type: "analog", icon: BookIcon },
+  { name: "E-Book", type: "digital", icon: WifiIcon },
+  { name: "Kentongan", type: "analog", icon: MicrophoneIcon },
+  { name: "E-Mail", type: "digital", icon: EnvelopeIcon },
 ];
 
 const SortGame = ({ onBack }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
-  const toast = useToast();
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
 
   const handleChoice = (choice) => {
     if (choice === items[currentIndex].type) {
       setScore(score + 1);
-      toast({ title: "Benar!", status: "success", duration: 1000, position: "top" });
+      setToast({ open: true, message: 'Benar!', severity: 'success' });
     } else {
-      toast({ title: "Kurang Tepat", status: "error", duration: 1000, position: "top" });
+      setToast({ open: true, message: 'Kurang Tepat', severity: 'error' });
     }
 
     if (currentIndex < items.length - 1) {
@@ -47,71 +53,85 @@ const SortGame = ({ onBack }) => {
 
   if (isFinished) {
     return (
-      <VStack spacing={6} p={8} bg="white" borderRadius="2xl" textAlign="center" boxShadow="xl">
-        <Heading color="brand.500">Permainan Selesai!</Heading>
-        <Text fontSize="xl">Kamu berhasil menyortir {score} dari {items.length} teknologi.</Text>
-        <Button colorScheme="brand" onClick={() => {
-          setCurrentIndex(0);
-          setScore(0);
-          setIsFinished(false);
-        }}>Main Lagi</Button>
-        <Button variant="ghost" onClick={onBack}>Kembali ke Menu</Button>
-      </VStack>
+      <Paper sx={{ p: 6, borderRadius: '32px', textAlign: 'center', width: '100%', maxWidth: '500px' }}>
+        <Stack spacing={4}>
+          <Typography variant="h4" color="primary" sx={{ fontWeight: 800 }}>Permainan Selesai!</Typography>
+          <Typography variant="h5">Kamu berhasil menyortir {score} dari {items.length} teknologi.</Typography>
+          <Stack spacing={2}>
+            <Button variant="contained" size="large" fullWidth onClick={() => {
+              setCurrentIndex(0);
+              setScore(0);
+              setIsFinished(false);
+            }} sx={{ borderRadius: '100px' }}>Main Lagi</Button>
+            <Button variant="text" onClick={onBack}>Kembali ke Menu</Button>
+          </Stack>
+        </Stack>
+      </Paper>
     );
   }
 
   const currentItem = items[currentIndex];
+  const IconComponent = currentItem.icon;
 
   return (
-    <Box p={6} bg="white" borderRadius="2xl" boxShadow="xl" w="full" maxW="500px">
-      <VStack spacing={8}>
-        <VStack spacing={2}>
-          <Heading size="md" color="brand.500">Sortir Digital vs Analog</Heading>
-          <Text fontSize="sm" color="gray.500">Tentukan kategori teknologi di bawah ini</Text>
-        </VStack>
-
-        <Box
-          p={10}
-          bg="gray.50"
-          borderRadius="2xl"
-          w="full"
-          textAlign="center"
-          border="4px dashed"
-          borderColor="brand.200"
-        >
-          <Icon as={currentItem.icon} w={20} h={20} color="brand.500" mb={4} />
-          <Heading size="lg">{currentItem.name}</Heading>
+    <Paper sx={{ p: 4, borderRadius: '32px', width: '100%', maxWidth: '500px' }}>
+      <Stack spacing={6} alignItems="stretch">
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>Sortir Digital vs Analog</Typography>
+          <Typography variant="body2" color="text.secondary">Tentukan kategori teknologi di bawah ini</Typography>
         </Box>
 
-        <SimpleGrid columns={2} spacing={4} w="full">
-          <Button
-            h="80px"
-            colorScheme="orange"
-            borderRadius="xl"
-            fontSize="xl"
-            onClick={() => handleChoice('analog')}
-          >
-            ANALOG
-          </Button>
-          <Button
-            h="80px"
-            colorScheme="blue"
-            borderRadius="xl"
-            fontSize="xl"
-            onClick={() => handleChoice('digital')}
-          >
-            DIGITAL
-          </Button>
-        </SimpleGrid>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 6,
+            bgcolor: 'grey.50',
+            borderRadius: '24px',
+            textAlign: 'center',
+            border: '2px dashed',
+            borderColor: 'primary.light',
+          }}
+        >
+          <IconComponent sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
+          <Typography variant="h4" sx={{ fontWeight: 800 }}>{currentItem.name}</Typography>
+        </Paper>
 
-        <HStack w="full" justify="space-between">
-          <Text fontWeight="bold">Skor: {score}</Text>
-          <Text fontWeight="bold">Progres: {currentIndex + 1} / {items.length}</Text>
-        </HStack>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <Button
+              fullWidth
+              variant="contained"
+              color="warning"
+              sx={{ height: 80, borderRadius: '20px', fontSize: '1.25rem', fontWeight: 800 }}
+              onClick={() => handleChoice('analog')}
+            >
+              ANALOG
+            </Button>
+          </Grid>
+          <Grid item xs={6}>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ height: 80, borderRadius: '20px', fontSize: '1.25rem', fontWeight: 800 }}
+              onClick={() => handleChoice('digital')}
+            >
+              DIGITAL
+            </Button>
+          </Grid>
+        </Grid>
 
-        <Button variant="ghost" onClick={onBack} size="sm">Kembali</Button>
-      </VStack>
-    </Box>
+        <Stack direction="row" justifyContent="space-between" sx={{ px: 1 }}>
+          <Typography variant="body2" sx={{ fontWeight: 800 }}>Skor: {score}</Typography>
+          <Typography variant="body2" sx={{ fontWeight: 800 }}>Progres: {currentIndex + 1} / {items.length}</Typography>
+        </Stack>
+
+        <Button variant="text" size="small" onClick={onBack}>Kembali</Button>
+      </Stack>
+      <Snackbar open={toast.open} autoHideDuration={1000} onClose={() => setToast({ ...toast, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+        <Alert severity={toast.severity}>{toast.message}</Alert>
+      </Snackbar>
+    </Paper>
   );
 };
 

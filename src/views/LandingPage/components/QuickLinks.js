@@ -1,21 +1,22 @@
-
+import React from 'react';
 import {
-  SimpleGrid,
+  Grid,
   Box,
-  Text,
-  Icon,
-  Flex,
-  Link,
+  Typography,
   Container,
-  Heading,
-} from '@chakra-ui/react';
+  Card,
+  CardContent,
+  CardActionArea,
+
+} from '@mui/material';
 import {
-  FaInfoCircle,
-  FaHandHoldingHeart,
-  FaGavel,
-  FaBullhorn,
-} from 'react-icons/fa';
+  Info as InfoIcon,
+  VolunteerActivism as HeartIcon,
+  Gavel as GavelIcon,
+  Campaign as BullhornIcon,
+} from '@mui/icons-material';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { Link as RouterLink } from 'react-router-dom';
 
 const QuickLinks = () => {
   const { language } = useLanguage();
@@ -23,87 +24,94 @@ const QuickLinks = () => {
   const links = [
     {
       label: language === 'id' ? 'Profil Desa' : 'Village Profile',
-      icon: FaInfoCircle,
+      icon: InfoIcon,
       href: '/profil',
-      color: 'brand.500',
+      color: '#137fec',
       description: language === 'id' ? 'Kenali sejarah dan visi kami' : 'Get to know our history'
     },
     {
       label: language === 'id' ? 'Layanan Publik' : 'Public Services',
-      icon: FaHandHoldingHeart,
+      icon: HeartIcon,
       href: '/layanan',
-      color: 'green.500',
+      color: '#2D5A27',
       description: language === 'id' ? 'Urus dokumen & administrasi' : 'Manage documents'
     },
     {
       label: language === 'id' ? 'Pemerintahan' : 'Government',
-      icon: FaGavel,
+      icon: GavelIcon,
       href: '/pemerintahan',
-      color: 'orange.500',
+      color: '#ed8936',
       description: language === 'id' ? 'Struktur organisasi desa' : 'Village organization'
     },
     {
       label: language === 'id' ? 'Pengaduan' : 'Complaints',
-      icon: FaBullhorn,
+      icon: BullhornIcon,
       href: '#pengaduan',
-      color: 'red.500',
+      color: '#e53e3e',
       description: language === 'id' ? 'Sampaikan aspirasi Anda' : 'Submit your feedback'
     },
   ];
 
   return (
-    <Box py={20} bg="white">
-      <Container maxW="container.xl">
-        <Box textAlign="center" mb={12}>
-          <Heading as="h2" size="xl" fontWeight="800">
-            {language === 'id' ? 'Akses Cepat Layanan' : 'Quick Service Access'}
-          </Heading>
-        </Box>
-        <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={8}>
+    <Box sx={{ py: 10, bgcolor: 'background.paper' }}>
+      <Container maxWidth="lg">
+        <Typography variant="h4" align="center" sx={{ fontWeight: 800, mb: 6 }}>
+          {language === 'id' ? 'Akses Cepat Layanan' : 'Quick Service Access'}
+        </Typography>
+        <Grid container spacing={3}>
           {links.map((link, index) => (
-            <Link
-              key={index}
-              href={link.href}
-              _hover={{ textDecoration: 'none' }}
-            >
-              <Box
-                p={8}
-                bg="white"
-                borderRadius="2xl"
-                boxShadow="sm"
-                border="1px solid"
-                borderColor="gray.100"
-                transition="all 0.3s"
-                textAlign="center"
-                _hover={{
-                  transform: 'translateY(-10px)',
-                  boxShadow: 'xl',
-                  borderColor: link.color,
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <Card
+                sx={{
+                  borderRadius: '28px',
+                  height: '100%',
+                  bgcolor: 'transparent',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  boxShadow: 'none',
+                  transition: 'all 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-10px)',
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.05)',
+                    borderColor: link.color,
+                  },
                 }}
               >
-                <Flex
-                  w={16}
-                  h={16}
-                  bg={`${link.color.split('.')[0]}.50`}
-                  color={link.color}
-                  borderRadius="2xl"
-                  align="center"
-                  justify="center"
-                  mb={6}
-                  mx="auto"
+                <CardActionArea
+                  component={link.href.startsWith('#') ? 'a' : RouterLink}
+                  to={link.href.startsWith('#') ? undefined : link.href}
+                  href={link.href.startsWith('#') ? link.href : undefined}
+                  sx={{ height: '100%', p: 3 }}
                 >
-                  <Icon as={link.icon} w={8} h={8} />
-                </Flex>
-                <Text fontWeight="800" fontSize="lg" mb={2}>
-                  {link.label}
-                </Text>
-                <Text fontSize="sm" color="gray.500">
-                  {link.description}
-                </Text>
-              </Box>
-            </Link>
+                  <CardContent sx={{ textAlign: 'center', p: 0 }}>
+                    <Box
+                      sx={{
+                        width: 64,
+                        height: 64,
+                        bgcolor: `${link.color}15`, // Transparent background
+                        color: link.color,
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 3,
+                        mx: 'auto',
+                      }}
+                    >
+                      <link.icon sx={{ fontSize: 32 }} />
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
+                      {link.label}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                      {link.description}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Grid>
           ))}
-        </SimpleGrid>
+        </Grid>
       </Container>
     </Box>
   );

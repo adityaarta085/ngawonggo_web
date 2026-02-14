@@ -1,43 +1,44 @@
+import React from 'react';
 import {
   Box,
-  Flex,
-  Text,
+  Typography,
+  Stack,
   Divider,
-} from '@chakra-ui/react';
+} from '@mui/material';
 import NgawonggoLogo from '../../../components/NgawonggoLogo';
 import DownloadSection from './DownloadSection';
 
 const LogoDesa = () => {
   return (
-    <Flex fontFamily="heading" flexDirection="column" gap={4}>
-      <Text fontWeight="600" fontSize="35px">
+    <Stack spacing={4}>
+      <Typography variant="h4" sx={{ fontWeight: 800 }}>
         Logo Desa
-      </Text>
-      <Box display="flex" justifyContent="center" p={10}>
+      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
         <NgawonggoLogo
-          fontSize={{ base: "40px", md: "60px", lg: "80px" }}
-          iconSize={{ base: 20, md: 40, lg: 60 }}
-          color="green.500"
+          fontSize="4rem"
+          iconSize={120}
+          color="primary.main"
           flexDirection="column"
         />
       </Box>
       <Box>
-        <Text fontSize="25px">Makna Logo Desa Ngawonggo</Text>
-        <Text mt={2}>
+        <Typography variant="h5" sx={{ fontWeight: 700, mb: 1.5 }}>Makna Logo Desa Ngawonggo</Typography>
+        <Typography variant="body1" sx={{ mb: 1, lineHeight: 1.7 }}>
           Logo menampilkan siluet Gunung Sumbing yang melambangkan identitas geografis desa di lereng gunung yang megah.
-        </Text>
-        <Text mt={2}>
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 1, lineHeight: 1.7 }}>
           Warna Hijau melambangkan kesuburan tanah dan potensi pertanian sayuran organik yang menjadi tumpuan ekonomi warga.
-        </Text>
-        <Text mt={2}>
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 1, lineHeight: 1.7 }}>
           Warna Biru melambangkan kejernihan sumber mata air pegunungan dan langit yang cerah di lereng Sumbing.
-        </Text>
+        </Typography>
       </Box>
 
-      <Divider my={10} />
+      <Divider sx={{ my: 4 }} />
 
       <DownloadSection />
-    </Flex>
+    </Stack>
   );
 };
 

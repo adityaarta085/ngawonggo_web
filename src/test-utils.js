@@ -1,15 +1,16 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { ChakraProvider, theme } from '@chakra-ui/react';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme';
 import { BrowserRouter } from 'react-router-dom';
 import { LanguageProvider } from './contexts/LanguageContext';
 
 const AllProviders = ({ children }) => (
-  <ChakraProvider theme={theme}>
+  <ThemeProvider theme={theme}>
     <LanguageProvider>
       <BrowserRouter>{children}</BrowserRouter>
     </LanguageProvider>
-  </ChakraProvider>
+  </ThemeProvider>
 );
 
 const customRender = (ui, options) =>
