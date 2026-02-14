@@ -1,21 +1,21 @@
+
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
-  Typography,
-  Grid,
-  Stack,
+  Heading,
+  Text,
+  SimpleGrid,
+  VStack,
+  HStack,
+  Icon,
   Button,
-  Chip,
-  Paper,
-} from '@mui/material';
-import {
-  LocationOn as MapMarkerIcon,
-  Group as UsersIcon,
-  ArrowBack as ArrowLeftIcon,
-  Info as InfoIcon
-} from '@mui/icons-material';
+  Image,
+  Badge,
+  Flex,
+} from '@chakra-ui/react';
+import { FaMapMarkerAlt, FaUsers, FaArrowLeft, FaInfoCircle } from 'react-icons/fa';
 import Map3D from './Map3D';
 
 const DUSUN_DATA = {
@@ -24,7 +24,7 @@ const DUSUN_DATA = {
     desc: 'Dusun yang asri dengan pemandangan alam yang memukau.',
     stats: { population: '750', area: '1.5 km²', houses: '180' },
     coords: [110.121, -7.452],
-    color: '#38a169',
+    color: 'green.500',
     image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&q=80&w=1000'
   },
   'gemuh': {
@@ -32,7 +32,7 @@ const DUSUN_DATA = {
     desc: 'Wilayah yang dikenal dengan keramahan warganya.',
     stats: { population: '820', area: '1.2 km²', houses: '205' },
     coords: [110.128, -7.459],
-    color: '#3182ce',
+    color: 'blue.500',
     image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=1000'
   },
   'krajan-ngawonggo': {
@@ -40,7 +40,7 @@ const DUSUN_DATA = {
     desc: 'Pusat administrasi dan detak jantung perekonomian desa.',
     stats: { population: '1.240', area: '0.8 km²', houses: '310' },
     coords: [110.123, -7.456],
-    color: '#ed8936',
+    color: 'orange.500',
     image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000'
   }
 };
@@ -49,6 +49,7 @@ const DusunPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
 
+  // Format slug to name for fallback
   const fallbackName = slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
   const data = DUSUN_DATA[slug] || {
@@ -56,82 +57,81 @@ const DusunPage = () => {
     desc: `Wilayah Dusun ${fallbackName} yang merupakan bagian integral dari Desa Ngawonggo.`,
     stats: { population: '-', area: '-', houses: '-' },
     coords: [110.123, -7.456],
-    color: '#137fec',
+    color: 'brand.500',
     image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000'
   };
 
   return (
-    <Box sx={{ pb: 10 }}>
-      <Box sx={{ height: { xs: '40vh', md: '60vh' }, position: 'relative', overflow: 'hidden' }}>
-        <Box
-          component="img"
-          src={data.image}
-          sx={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.6)' }}
-        />
-        <Container maxWidth="lg" sx={{ height: '100%', position: 'relative' }}>
-          <Stack sx={{ position: 'absolute', bottom: 48, left: 16 }} spacing={2} alignItems="flex-start">
+    <Box pb={20}>
+      <Box h={{ base: "40vh", md: "60vh" }} position="relative" overflow="hidden">
+        <Image src={data.image} w="full" h="full" objectFit="cover" filter="brightness(0.6)" />
+        <Container maxW="container.xl" h="full" position="relative">
+          <VStack position="absolute" bottom={12} left={0} align="start" spacing={4}>
             <Button
-              startIcon={<ArrowLeftIcon />}
-              variant="text"
-              sx={{ color: 'white', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}
+              leftIcon={<FaArrowLeft />}
+              variant="ghost"
+              color="white"
+              _hover={{ bg: 'whiteAlpha.300' }}
               onClick={() => navigate('/')}
             >
               Kembali
             </Button>
-            <Typography variant="h2" sx={{ color: 'white', fontWeight: 800 }}>
+            <Heading as="h1" size="4xl" color="white" fontWeight="800">
               Dusun {data.name}
-            </Typography>
-            <Chip label="Wilayah Administratif" color="primary" sx={{ fontWeight: 600 }} />
-          </Stack>
+            </Heading>
+            <Badge colorScheme="blue" fontSize="md" px={3} py={1} borderRadius="full">
+              Wilayah Administratif
+            </Badge>
+          </VStack>
         </Container>
       </Box>
 
-      <Container maxWidth="lg" sx={{ mt: -5, position: 'relative' }}>
-        <Grid container spacing={4}>
-          <Grid item xs={12} lg={8}>
-            <Stack spacing={4}>
-              <Paper sx={{ p: 4, borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.05)' }}>
-                <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>Profil Wilayah</Typography>
-                <Typography variant="body1" sx={{ color: 'text.secondary', lineHeight: 1.7 }}>
+      <Container maxW="container.xl" mt={-10} position="relative">
+        <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={8}>
+          <Box gridColumn={{ lg: "span 2" }}>
+            <VStack spacing={8} align="stretch">
+              <Box layerStyle="glassCard" p={8}>
+                <Heading size="lg" mb={4} color="gray.800">Profil Wilayah</Heading>
+                <Text fontSize="lg" color="gray.600" lineHeight="relaxed">
                   {data.desc} Dusun {data.name} terus berkontribusi pada kemajuan Desa Ngawonggo.
-                </Typography>
-              </Paper>
+                </Text>
+              </Box>
 
-              <Paper sx={{ p: 4, borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.05)' }}>
-                <Typography variant="h5" sx={{ fontWeight: 800, mb: 3 }}>Peta 3D Wilayah</Typography>
-                <Box sx={{ height: '500px', borderRadius: '20px', overflow: 'hidden', position: 'relative' }}>
+              <Box layerStyle="glassCard" p={8}>
+                <Heading size="lg" mb={6} color="gray.800">Peta 3D Wilayah</Heading>
+                <Box h="500px" borderRadius="xl" overflow="hidden" position="relative">
                   <Map3D center={data.coords} color={data.color} />
                 </Box>
-              </Paper>
-            </Stack>
-          </Grid>
+              </Box>
+            </VStack>
+          </Box>
 
-          <Grid item xs={12} lg={4}>
-            <Box sx={{ position: { lg: 'sticky' }, top: '100px' }}>
-              <Paper sx={{ p: 3, borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.05)' }}>
-                <Typography variant="h6" sx={{ fontWeight: 800, mb: 3 }}>Statistik</Typography>
-                <Stack spacing={2.5}>
-                  <StatRow icon={UsersIcon} label="Penduduk" value={data.stats.population} />
-                  <StatRow icon={MapMarkerIcon} label="Luas" value={data.stats.area} />
-                  <StatRow icon={InfoIcon} label="Rumah" value={data.stats.houses} />
-                </Stack>
-              </Paper>
-            </Box>
-          </Grid>
-        </Grid>
+          <Box>
+            <VStack spacing={6} position="sticky" top="100px">
+              <Box layerStyle="glassCard" p={6} w="full">
+                <Heading size="md" mb={6} color="gray.800">Statistik</Heading>
+                <VStack spacing={4} align="stretch">
+                  <StatRow icon={FaUsers} label="Penduduk" value={data.stats.population} />
+                  <StatRow icon={FaMapMarkerAlt} label="Luas" value={data.stats.area} />
+                  <StatRow icon={FaInfoCircle} label="Rumah" value={data.stats.houses} />
+                </VStack>
+              </Box>
+            </VStack>
+          </Box>
+        </SimpleGrid>
       </Container>
     </Box>
   );
 };
 
-const StatRow = ({ icon: IconComponent, label, value }) => (
-  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-    <Stack direction="row" spacing={1.5} alignItems="center">
-      <IconComponent sx={{ color: 'primary.main', fontSize: 20 }} />
-      <Typography variant="body2" sx={{ color: 'text.secondary' }}>{label}</Typography>
-    </Stack>
-    <Typography sx={{ fontWeight: 700 }}>{value}</Typography>
-  </Box>
+const StatRow = ({ icon, label, value }) => (
+  <Flex justify="space-between" align="center">
+    <HStack spacing={3}>
+      <Icon as={icon} color="brand.500" />
+      <Text fontSize="sm" color="gray.600">{label}</Text>
+    </HStack>
+    <Text fontWeight="bold" color="gray.800">{value}</Text>
+  </Flex>
 );
 
 export default DusunPage;

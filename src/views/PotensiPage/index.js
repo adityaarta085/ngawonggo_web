@@ -1,16 +1,14 @@
-import React from 'react';
 import {
   Box,
-  Typography,
-  Grid,
-  Card,
-  CardMedia,
-  CardContent,
-  Chip,
-  Container,
+  Heading,
+  Text,
+  SimpleGrid,
+  Image,
   Stack,
-  Paper,
-} from '@mui/material';
+  Badge,
+  Container,
+  VStack,
+} from '@chakra-ui/react';
 
 export default function PotensiPage() {
   const potentials = [
@@ -35,46 +33,36 @@ export default function PotensiPage() {
   ];
 
   return (
-    <Box sx={{ py: 6, bgcolor: 'grey.50', minHeight: '100vh' }}>
-      <Container maxWidth="lg">
-        <Stack spacing={6}>
-          <Paper
-            sx={{
-              p: { xs: 4, md: 6 },
-              bgcolor: 'primary.main',
-              color: 'white',
-              borderRadius: '32px',
-              backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)',
-            }}
-          >
-            <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>Potensi & Ekonomi Desa</Typography>
-            <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400 }}>
+    <Box py={12} minH="100vh" bg="gray.50">
+      <Container maxW="container.xl">
+        <VStack spacing={12} align="stretch">
+          <Box layerStyle="glassCard" p={10} bgGradient="linear(to-br, brand.600, blue.600)" color="white">
+            <Heading mb={4} size="2xl">Potensi & Ekonomi Desa</Heading>
+            <Text fontSize="lg" opacity={0.9}>
               Ngawonggo memiliki kekayaan alam dan budaya yang melimpah, menjadi penggerak utama ekonomi masyarakat menuju kemandirian.
-            </Typography>
-          </Paper>
+            </Text>
+          </Box>
 
-          <Grid container spacing={4}>
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
             {potentials.map((item, index) => (
-              <Grid item xs={12} md={4} key={index}>
-                <Card sx={{ borderRadius: '28px', height: '100%', boxShadow: 'none', border: '1px solid', borderColor: 'divider', transition: 'all 0.3s', '&:hover': { transform: 'translateY(-10px)', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', borderColor: 'primary.main' } }}>
-                  <CardMedia component="img" image={item.image} alt={item.title} sx={{ height: 240 }} />
-                  <CardContent sx={{ p: 3 }}>
-                    <Chip label={item.category} color="primary" size="small" sx={{ mb: 2, fontWeight: 700, borderRadius: '8px' }} />
-                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 1.5 }}>{item.title}</Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>{item.desc}</Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
+              <Box key={index} layerStyle="glassCard" overflow="hidden" transition="all 0.3s" _hover={{ transform: 'translateY(-10px)', boxShadow: '2xl' }}>
+                <Image src={item.image} alt={item.title} h="240px" w="100%" objectFit="cover" />
+                <Stack p={6} spacing={4}>
+                  <Badge colorScheme="brand" alignSelf="start" variant="solid" borderRadius="full" px={3}>{item.category}</Badge>
+                  <Heading size="md" color="gray.800">{item.title}</Heading>
+                  <Text fontSize="md" color="gray.600">{item.desc}</Text>
+                </Stack>
+              </Box>
             ))}
-          </Grid>
+          </SimpleGrid>
 
-          <Paper sx={{ p: 4, borderRadius: '24px', borderLeft: '8px solid', borderColor: 'primary.main' }} elevation={0}>
-            <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>UMKM Desa</Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
+          <Box layerStyle="glassCard" p={8} borderLeft="4px solid" borderColor="brand.500">
+            <Heading size="lg" mb={4} color="gray.800">UMKM Desa</Heading>
+            <Text color="gray.600" fontSize="lg">
               Pemerintah Desa terus mendukung pelaku UMKM lokal, khususnya pengolah kopi dan kerajinan tangan, untuk menembus pasar digital melalui program pemberdayaan ekonomi kreatif. Kami percaya produk lokal adalah masa depan Ngawonggo.
-            </Typography>
-          </Paper>
-        </Stack>
+            </Text>
+          </Box>
+        </VStack>
       </Container>
     </Box>
   );

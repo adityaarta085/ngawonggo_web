@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  Checkbox,
-  CircularProgress,
-  Paper,
-  Stack,
-  Fade,
-  FormControlLabel,
-} from '@mui/material';
+import { Box, VStack, Heading, Text, Button, Checkbox, Spinner, ScaleFade, Image } from '@chakra-ui/react';
 
 const HumanVerification = ({ onVerified }) => {
   const [isVerifying, setIsVerifying] = useState(false);
@@ -17,6 +7,7 @@ const HumanVerification = ({ onVerified }) => {
   const [verificationType, setVerificationType] = useState(0);
 
   useEffect(() => {
+     // Randomize verification slightly so it's not always the same prompt text
      setVerificationType(Math.floor(Math.random() * 3));
   }, []);
 
@@ -37,121 +28,97 @@ const HumanVerification = ({ onVerified }) => {
 
   return (
     <Box
-      sx={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        bgcolor: 'rgba(15, 23, 42, 0.9)',
-        backdropFilter: 'blur(15px)',
-        zIndex: 10000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 2,
-      }}
+      position="fixed"
+      top={0}
+      left={0}
+      right={0}
+      bottom={0}
+      bg="rgba(15, 23, 42, 0.9)"
+      backdropFilter="blur(15px)"
+      zIndex={10000}
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      p={4}
     >
-      <Fade in={true} timeout={500}>
-        <Paper
-          sx={{
-            p: { xs: 3, md: 4 },
-            borderRadius: '24px',
-            maxWidth: '420px',
-            width: '100%',
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-          elevation={24}
+      <ScaleFade initialScale={0.9} in={true}>
+        <VStack
+          bg="white"
+          p={{ base: 6, md: 8 }}
+          borderRadius="2xl"
+          spacing={6}
+          boxShadow="dark-lg"
+          maxW="420px"
+          textAlign="center"
+          position="relative"
+          overflow="hidden"
         >
-          <Box sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '4px', bgcolor: 'primary.main' }} />
+          {/* Subtle decoration */}
+          <Box position="absolute" top={0} left={0} w="full" h="4px" bg="brand.500" />
 
-          <Stack spacing={3} alignItems="center">
-            <Box sx={{ width: 80, height: 80, borderRadius: '50%', bgcolor: 'primary.container', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-               <Box
-                component="img"
-                src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
-                sx={{ height: '50px' }}
-               />
-            </Box>
+          <Box boxSize="80px" borderRadius="full" bg="brand.50" display="flex" alignItems="center" justifyContent="center">
+             <Image src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png" h="50px" />
+          </Box>
 
-            <Stack spacing={1}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: 'text.primary' }}>
-                Verifikasi Keamanan
-              </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {prompts[verificationType]}
-              </Typography>
-            </Stack>
+          <VStack spacing={2}>
+            <Heading size="md" color="gray.800">Verifikasi Keamanan</Heading>
+            <Text color="gray.600" fontSize="sm">
+              {prompts[verificationType]}
+            </Text>
+          </VStack>
 
-            <Box
-              sx={{
-                border: '1px solid',
-                borderColor: 'divider',
-                p: 2,
-                borderRadius: '16px',
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                bgcolor: 'grey.50',
-                transition: 'all 0.2s',
-                '&:hover': { borderColor: 'primary.main' },
-              }}
-            >
-               <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={isChecked}
-                    onChange={(e) => setIsChecked(e.target.checked)}
-                    color="primary"
-                  />
-                }
-                label={
-                  <Typography sx={{ fontWeight: 600, color: 'text.primary' }}>
-                    Saya bukan robot
-                  </Typography>
-                }
-               />
-               {isVerifying ? (
-                 <CircularProgress size={24} />
-               ) : (
-                 <Box
-                   component="img"
-                   src="https://www.gstatic.com/recaptcha/api2/logo_48.png"
-                   sx={{ height: '24px', opacity: 0.6 }}
-                 />
-               )}
-            </Box>
+          <Box
+            border="1px solid"
+            borderColor="gray.200"
+            p={4}
+            borderRadius="xl"
+            w="full"
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            bg="gray.50"
+            _hover={{ borderColor: 'brand.300' }}
+            transition="all 0.2s"
+          >
+             <Checkbox
+                colorScheme="brand"
+                size="lg"
+                isChecked={isChecked}
+                onChange={(e) => setIsChecked(e.target.checked)}
+                sx={{
+                    '.chakra-checkbox__control': {
+                        borderRadius: 'md',
+                    }
+                }}
+             >
+                <Text fontWeight="600" ml={2} color="gray.700">Saya bukan robot</Text>
+             </Checkbox>
+             {isVerifying ? <Spinner size="sm" color="brand.500" /> : <Image src="https://www.gstatic.com/recaptcha/api2/logo_48.png" h="24px" opacity={0.6} />}
+          </Box>
 
-            <Button
-              variant="contained"
-              fullWidth
-              size="large"
-              disabled={!isChecked || isVerifying}
-              onClick={handleVerify}
-              sx={{
-                height: '56px',
-                borderRadius: '100px',
-                fontSize: '1rem',
-                fontWeight: 600,
-                boxShadow: '0 8px 16px rgba(19, 127, 236, 0.2)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 12px 20px rgba(19, 127, 236, 0.3)',
-                },
-              }}
-            >
-              {isVerifying ? 'Memproses...' : 'Lanjutkan ke Portal'}
-            </Button>
+          <Button
+            colorScheme="brand"
+            w="full"
+            size="lg"
+            h="56px"
+            isDisabled={!isChecked || isVerifying}
+            isLoading={isVerifying}
+            onClick={handleVerify}
+            boxShadow="0 4px 14px 0 rgba(0, 86, 179, 0.39)"
+            _hover={{
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 20px rgba(0, 86, 179, 0.23)',
+            }}
+            transition="all 0.2s"
+          >
+            Lanjutkan ke Portal
+          </Button>
 
-            <Typography variant="caption" sx={{ color: 'grey.400' }}>
-              Powered by Desa Digital Ngawonggo Security Stack
-            </Typography>
-          </Stack>
-        </Paper>
-      </Fade>
+          <Text fontSize="xs" color="gray.400">
+            Powered by Desa Digital Ngawonggo Security Stack
+          </Text>
+        </VStack>
+      </ScaleFade>
     </Box>
   );
 };

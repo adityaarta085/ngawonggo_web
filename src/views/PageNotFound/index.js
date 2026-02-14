@@ -1,29 +1,34 @@
-import React from 'react';
-import { Box, Typography, Container, Stack } from '@mui/material';
+import { Flex, Heading, Text, Image, Box } from '@chakra-ui/react';
 import img404 from '../../assets/Image404.png';
 
 export default function PageNotFound() {
   return (
-    <Container maxWidth="md" sx={{ py: 10, textAlign: 'center' }}>
-      <Stack spacing={4} alignItems="center">
-        <Box
-          component="img"
+    <Flex
+      flexDirection="column"
+      fontFamily="heading"
+      justifyContent="center"
+      alignItems="center"
+    my={10}
+      textAlign="center"
+    >
+      <Box>
+        <Image
           src={img404}
           alt="page_not_found"
-          sx={{ width: '100%', maxWidth: { xs: '300px', lg: '500px' }, height: 'auto', borderRadius: '32px' }}
+          boxSize={{ base: '300px', lg: '500px' }}
+          fit="cover"
         />
-        <Box>
-          <Typography variant="h1" sx={{ fontWeight: 800, color: 'text.primary' }}>
-            404
-          </Typography>
-          <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
-            Page Not Found
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Halaman ini tidak ditemukan atau dalam tahap pengembangan
-          </Typography>
-        </Box>
-      </Stack>
-    </Container>
+      </Box>
+      <Heading fontFamily="heading" color="gray.700" size="3xl">
+        404
+      </Heading>
+
+      <Text fontSize="lg" color="gray.700" fontWeight="700">
+        Page Not Found
+      </Text>
+      <Text fontSize="md" color="gray.700">
+        Halaman ini tidak ditemukan atau dalam tahap pengembangan
+      </Text>
+    </Flex>
   );
 }

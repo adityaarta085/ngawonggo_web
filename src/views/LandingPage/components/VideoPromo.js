@@ -1,25 +1,26 @@
-import React from 'react';
-import { Box, Container } from '@mui/material';
+import { Flex, Box } from '@chakra-ui/react';
 
 const VideoPromo = () => {
   return (
-    <Container maxWidth="lg" sx={{ py: 10 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Box
-          component="iframe"
-          src="https://www.youtube.com/embed/Wc7lxuRx0LI"
-          sx={{
-            width: '100%',
-            maxWidth: { md: "700px", lg: '1000px' },
-            aspectRatio: '16/9',
-            borderRadius: '24px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-            border: 'none'
-          }}
-          allowFullScreen
-        />
-      </Box>
-    </Container>
+    <Flex
+      flexDirection="column"
+      fontFamily="heading"
+      alignItems="center"
+      justifyContent="center"
+      m={{ base: 10, md: 20 }}
+    >
+      <Box
+        as="iframe"
+        src="https://www.youtube.com/embed/Wc7lxuRx0LI"
+        width={{ base: '100%', md: "700px", lg: '1000px' }}
+        sx={{
+          aspectRatio: '16/9',
+          borderRadius: 'xl',
+          boxShadow: '2xl',
+        }}
+        allowFullScreen
+      />
+    </Flex>
   );
 };
 

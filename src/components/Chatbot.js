@@ -1,30 +1,25 @@
+
 import React, { useState } from 'react';
 import {
   Box,
   IconButton,
   Collapse,
-  Stack,
-  Typography,
-  TextField,
+  useDisclosure,
+  VStack,
+  HStack,
+  Text,
+  Input,
   Avatar,
-  Paper,
-  Fab,
-} from '@mui/material';
-import {
-  Chat as ChatIcon,
-  Send as SendIcon,
-  Close as CloseIcon,
-  SmartToy as RobotIcon,
-} from '@mui/icons-material';
+  useColorModeValue,
+} from '@chakra-ui/react';
+import { FaComments, FaPaperPlane, FaTimes, FaRobot } from 'react-icons/fa';
 
 const Chatbot = () => {
-  const [open, setOpen] = useState(false);
+  const { isOpen, onToggle } = useDisclosure();
   const [messages, setMessages] = useState([
     { text: "Halo! Saya Asisten Digital Desa Ngawonggo. Ada yang bisa saya bantu?", isBot: true }
   ]);
   const [input, setInput] = useState("");
-
-  const handleToggle = () => setOpen(!open);
 
   const handleSend = () => {
     if (!input.trim()) return;
@@ -33,6 +28,7 @@ const Chatbot = () => {
     setMessages([...messages, userMsg]);
     setInput("");
 
+    // Simple bot response logic
     setTimeout(() => {
       let botText = "Maaf, saya belum memahami pertanyaan tersebut. Silakan hubungi kantor desa untuk informasi lebih lanjut.";
       const lowInput = input.toLowerCase();
@@ -50,87 +46,96 @@ const Chatbot = () => {
   };
 
   return (
-    <Box sx={{ position: 'fixed', bottom: { xs: 80, md: 32 }, right: { xs: 16, md: 32 }, zIndex: 2000 }}>
-      <Collapse in={open}>
-        <Paper
-          elevation={24}
-          sx={{
-            width: { xs: '300px', md: '350px' },
-            height: '450px',
-            borderRadius: '24px',
-            mb: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
+    <Box position="fixed" bottom={{ base: 20, md: 8 }} right={{ base: 4, md: 8 }} zIndex={2000}>
+      <Collapse in={isOpen} animateOpacity>
+        <Box
+          bg={useColorModeValue('white', 'gray.800')}
+          w={{ base: "300px", md: "350px" }}
+          h="450px"
+          borderRadius="2xl"
+          boxShadow="2xl"
+          mb={4}
+          display="flex"
+          flexDirection="column"
+          overflow="hidden"
+          border="1px solid"
+          borderColor="gray.100"
         >
           {/* Header */}
-          <Box sx={{ bgcolor: 'primary.main', p: 2, color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Avatar sx={{ bgcolor: 'white', color: 'primary.main', width: 32, height: 32 }}>
-                <RobotIcon fontSize="small" />
-              </Avatar>
-              <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1 }}>Asisten Desa</Typography>
-                <Typography variant="caption" sx={{ opacity: 0.8 }}>Online</Typography>
-              </Box>
-            </Stack>
-            <IconButton size="small" sx={{ color: 'white' }} onClick={handleToggle}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
+          <HStack bg="brand.500" p={4} color="white" justify="space-between">
+            <HStack>
+              <Avatar size="sm" icon={<FaRobot />} bg="white" color="brand.500" />
+              <VStack align="start" spacing={0}>
+                <Text fontWeight="bold" fontSize="sm">Asisten Desa</Text>
+                <Text fontSize="xs" opacity={0.8}>Online</Text>
+              </VStack>
+            </HStack>
+            <IconButton
+              size="sm"
+              icon={<FaTimes />}
+              variant="ghost"
+              color="white"
+              onClick={onToggle}
+              aria-label="Close chat"
+            />
+          </HStack>
 
           {/* Messages */}
-          <Box sx={{ flex: 1, p: 2, overflowY: 'auto', bgcolor: 'grey.50', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <VStack flex={1} p={4} overflowY="auto" align="stretch" spacing={4} bg="gray.50">
             {messages.map((msg, i) => (
               <Box
                 key={i}
-                sx={{
-                  alignSelf: msg.isBot ? 'flex-start' : 'flex-end',
-                  bgcolor: msg.isBot ? 'white' : 'primary.main',
-                  color: msg.isBot ? 'text.primary' : 'white',
-                  px: 2,
-                  py: 1,
-                  borderRadius: '16px',
-                  borderTopLeftRadius: msg.isBot ? 0 : '16px',
-                  borderTopRightRadius: msg.isBot ? '16px' : 0,
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                  maxWidth: '85%',
-                }}
+                alignSelf={msg.isBot ? "flex-start" : "flex-end"}
+                bg={msg.isBot ? "white" : "brand.500"}
+                color={msg.isBot ? "gray.800" : "white"}
+                px={4}
+                py={2}
+                borderRadius="2xl"
+                borderTopLeftRadius={msg.isBot ? "0" : "2xl"}
+                borderTopRightRadius={msg.isBot ? "2xl" : "0"}
+                boxShadow="sm"
+                maxW="80%"
               >
-                <Typography variant="body2">{msg.text}</Typography>
+                <Text fontSize="sm">{msg.text}</Text>
               </Box>
             ))}
-          </Box>
+          </VStack>
 
           {/* Input */}
-          <Box sx={{ p: 1.5, display: 'flex', gap: 1, alignItems: 'center', borderTop: '1px solid', borderColor: 'divider' }}>
-            <TextField
+          <HStack p={4} bg="white" borderTop="1px solid" borderColor="gray.100">
+            <Input
               placeholder="Ketik pesan..."
-              variant="outlined"
-              size="small"
-              fullWidth
+              size="sm"
+              borderRadius="full"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '100px' } }}
             />
-            <IconButton color="primary" onClick={handleSend} disabled={!input.trim()}>
-              <SendIcon />
-            </IconButton>
-          </Box>
-        </Paper>
+            <IconButton
+              icon={<FaPaperPlane />}
+              colorScheme="brand"
+              borderRadius="full"
+              size="sm"
+              onClick={handleSend}
+              aria-label="Send message"
+            />
+          </HStack>
+        </Box>
       </Collapse>
 
-      {!open && (
-        <Fab
-          color="primary"
-          aria-label="chat"
-          onClick={handleToggle}
-          sx={{ width: 64, height: 64 }}
-        >
-          <ChatIcon />
-        </Fab>
+      {!isOpen && (
+        <IconButton
+          icon={<FaComments />}
+          colorScheme="brand"
+          size="lg"
+          borderRadius="full"
+          boxShadow="2xl"
+          w={16}
+          h={16}
+          fontSize="2xl"
+          onClick={onToggle}
+          aria-label="Open chat"
+        />
       )}
     </Box>
   );

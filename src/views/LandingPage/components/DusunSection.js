@@ -1,15 +1,18 @@
+
 import React from 'react';
 import {
   Box,
   Container,
-  Typography,
-  Grid,
-  Stack,
-  Card,
-  CardMedia,
-  CardActionArea,
-} from '@mui/material';
-import { ChevronRight as ChevronRightIcon } from '@mui/icons-material';
+  Heading,
+  Text,
+  SimpleGrid,
+  VStack,
+  Flex,
+  Icon,
+  Image,
+  Link,
+} from '@chakra-ui/react';
+import { FaChevronRight } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 
 const DUSUNS = [
@@ -27,87 +30,77 @@ const DUSUNS = [
 
 const DusunSection = () => {
   return (
-    <Box sx={{ py: 10, bgcolor: 'background.paper' }}>
-      <Container maxWidth="lg">
-        <Stack spacing={6} alignItems="center" sx={{ mb: 6 }}>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography
-              variant="caption"
-              sx={{
-                fontWeight: 'bold',
-                color: 'primary.main',
-                textTransform: 'uppercase',
-                letterSpacing: '0.15em',
-                display: 'block',
-                mb: 1
-              }}
+    <Box py={24} bg="white" position="relative">
+      <Container maxW="container.xl">
+        <VStack spacing={12} align="center">
+          <Box textAlign="center">
+            <Text
+              fontSize="sm"
+              fontWeight="bold"
+              color="brand.500"
+              textTransform="uppercase"
+              letterSpacing="widest"
+              mb={2}
             >
               Jelajahi Wilayah Kami
-            </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 800 }}>
+            </Text>
+            <Heading as="h2" size="2xl" fontWeight="800">
               Sepuluh Dusun Ngawonggo
-            </Typography>
+            </Heading>
           </Box>
-        </Stack>
 
-        <Grid container spacing={3}>
-          {DUSUNS.map((dusun) => (
-            <Grid item xs={6} sm={4} md={2.4} key={dusun.slug}>
-              <Card
-                sx={{
-                  position: 'relative',
-                  height: '200px',
-                  borderRadius: '24px',
-                  overflow: 'hidden',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                  transition: 'all 0.4s',
-                  '&:hover': { transform: 'translateY(-8px)', boxShadow: '0 12px 24px rgba(0,0,0,0.15)' },
-                  '&:hover .bg-image': { transform: 'scale(1.1)' }
-                }}
+          <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={6} w="full">
+            {DUSUNS.map((dusun) => (
+              <Link
+                key={dusun.slug}
+                as={RouterLink}
+                to={`/dusun/${dusun.slug}`}
+                _hover={{ textDecoration: 'none' }}
+                role="group"
               >
-                <CardActionArea component={RouterLink} to={`/dusun/${dusun.slug}`} sx={{ height: '100%' }}>
-                  <CardMedia
-                    component="img"
-                    image={dusun.image}
+                <Box
+                  position="relative"
+                  h="200px"
+                  borderRadius="2xl"
+                  overflow="hidden"
+                  boxShadow="md"
+                  transition="all 0.4s"
+                  _hover={{ transform: 'translateY(-8px)', boxShadow: '2xl' }}
+                >
+                  <Image
+                    src={dusun.image}
                     alt={dusun.name}
-                    className="bg-image"
-                    sx={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'all 0.5s' }}
+                    w="full"
+                    h="full"
+                    objectFit="cover"
+                    transition="all 0.5s"
+                    _groupHover={{ transform: 'scale(1.1)' }}
                   />
                   <Box
-                    sx={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
-                    }}
+                    position="absolute"
+                    inset={0}
+                    bgGradient="linear(to-t, rgba(0,0,0,0.8), transparent)"
                   />
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      p: 2,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-end',
-                      color: 'white'
-                    }}
+                  <Flex
+                    position="absolute"
+                    bottom={0}
+                    left={0}
+                    right={0}
+                    p={4}
+                    justify="space-between"
+                    align="end"
                   >
-                    <Box>
-                      <Typography variant="caption" sx={{ opacity: 0.8, display: 'block', lineHeight: 1 }}>
-                        Dusun
-                      </Typography>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                        {dusun.name}
-                      </Typography>
-                    </Box>
-                    <ChevronRightIcon sx={{ fontSize: 20 }} />
-                  </Box>
-                </CardActionArea>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                    <VStack align="start" spacing={0}>
+                      <Text color="whiteAlpha.800" fontSize="xs">Dusun</Text>
+                      <Text color="white" fontWeight="bold" fontSize="lg">{dusun.name}</Text>
+                    </VStack>
+                    <Icon as={FaChevronRight} color="white" />
+                  </Flex>
+                </Box>
+              </Link>
+            ))}
+          </SimpleGrid>
+        </VStack>
       </Container>
     </Box>
   );

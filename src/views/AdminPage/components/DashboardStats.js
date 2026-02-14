@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Grid,
+  SimpleGrid,
   Box,
-  Typography,
-  Stack,
+  Stat,
+  StatLabel,
+  StatNumber,
+  Heading,
+  VStack,
+  HStack,
+  Icon,
   Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableContainer,
-  Paper,
-} from '@mui/material';
-import {
-  Visibility as EyeIcon,
-  CalendarToday as CalendarAltIcon,
-  Description as FileAltIcon
-} from '@mui/icons-material';
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+} from '@chakra-ui/react';
+import { FaEye, FaCalendarAlt, FaFileAlt } from 'react-icons/fa';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../../../lib/supabase';
 
@@ -27,12 +27,14 @@ const DashboardStats = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
+      // Fetch total views
       const { count, error: countError } = await supabase
         .from('page_views')
         .select('*', { count: 'exact', head: true });
 
       if (!countError) setTotalViews(count);
 
+      // Fetch views per day (last 7 days)
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -51,6 +53,7 @@ const DashboardStats = () => {
         setDailyViews(chartData);
       }
 
+      // Fetch top pages
       const { data: pagesData, error: pagesError } = await supabase
         .from('page_views')
         .select('page_path');
@@ -72,75 +75,65 @@ const DashboardStats = () => {
   }, []);
 
   return (
-    <Stack spacing={4}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={4}>
-          <StatCard label="Total Kunjungan" number={totalViews} icon={EyeIcon} color="primary.main" />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <StatCard label="Kunjungan Hari Ini" number={dailyViews[dailyViews.length - 1]?.views || 0} icon={CalendarAltIcon} color="success.main" />
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <StatCard label="Halaman Aktif" number={topPages.length} icon={FileAltIcon} color="secondary.main" />
-        </Grid>
-      </Grid>
+    <VStack spacing={8} align="stretch">
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+        <StatCard label="Total Kunjungan" number={totalViews} icon={FaEye} color="blue.500" />
+        <StatCard label="Kunjungan Hari Ini" number={dailyViews[dailyViews.length - 1]?.views || 0} icon={FaCalendarAlt} color="green.500" />
+        <StatCard label="Halaman Aktif" number={topPages.length} icon={FaFileAlt} color="purple.500" />
+      </SimpleGrid>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} lg={7}>
-          <Paper sx={{ p: 3, borderRadius: '24px', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 3 }}>Statistik Pengunjung (7 Hari Terakhir)</Typography>
-            <Box sx={{ height: 300 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dailyViews}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="views" stroke="#137fec" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </Box>
-          </Paper>
-        </Grid>
+      <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8}>
+        <Box bg="white" p={6} borderRadius="2xl" boxShadow="sm">
+          <Heading size="sm" mb={6}>Statistik Pengunjung (7 Hari Terakhir)</Heading>
+          <Box h="300px">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={dailyViews}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="views" stroke="#3182ce" strokeWidth={3} dot={{ r: 6 }} activeDot={{ r: 8 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </Box>
+        </Box>
 
-        <Grid item xs={12} lg={5}>
-          <Paper sx={{ p: 3, borderRadius: '24px', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, mb: 3 }}>Halaman Populer</Typography>
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ fontWeight: 700 }}>Path</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 700 }}>Kunjungan</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {topPages.map((page, index) => (
-                    <TableRow key={index}>
-                      <TableCell sx={{ fontWeight: 600, maxWidth: 150, overflow: 'hidden', textOverflow: 'ellipsis' }}>{page.path}</TableCell>
-                      <TableCell align="right">{page.count}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Stack>
+        <Box bg="white" p={6} borderRadius="2xl" boxShadow="sm">
+          <Heading size="sm" mb={6}>Halaman Paling Banyak Dikunjungi</Heading>
+          <Table variant="simple" size="sm">
+            <Thead>
+              <Tr>
+                <Th>Path Halaman</Th>
+                <Th isNumeric>Kunjungan</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {topPages.map((page, index) => (
+                <Tr key={index}>
+                  <Td fontWeight="600">{page.path}</Td>
+                  <Td isNumeric>{page.count}</Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      </SimpleGrid>
+    </VStack>
   );
 };
 
-const StatCard = ({ label, number, icon: IconComponent, color }) => (
-  <Paper sx={{ p: 3, borderRadius: '24px', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
-    <Stack direction="row" justifyContent="space-between" alignItems="center">
-      <Box>
-        <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>{label}</Typography>
-        <Typography variant="h4" sx={{ fontWeight: 800 }}>{number}</Typography>
-      </Box>
-      <IconComponent sx={{ fontSize: 40, color: color, opacity: 0.3 }} />
-    </Stack>
-  </Paper>
+const StatCard = ({ label, number, icon, color }) => (
+  <Box bg="white" p={6} borderRadius="2xl" boxShadow="sm">
+    <Stat>
+      <HStack justify="space-between">
+        <Box>
+          <StatLabel color="gray.500" fontWeight="bold">{label}</StatLabel>
+          <StatNumber fontSize="3xl" fontWeight="extrabold">{number}</StatNumber>
+        </Box>
+        <Icon as={icon} w={10} h={10} color={color} opacity={0.3} />
+      </HStack>
+    </Stat>
+  </Box>
 );
 
 export default DashboardStats;

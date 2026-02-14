@@ -1,38 +1,45 @@
-import React from 'react';
-import { Box, Typography, Stack } from '@mui/material';
+import {
+  Flex,
+  ListItem,
+  Text,
+  OrderedList,
+  Box,
+} from '@chakra-ui/react';
 
 const VisiMisi = () => {
   return (
-    <Stack spacing={4}>
-      <Box>
-        <Typography variant="h4" sx={{ fontWeight: 800, mb: 2 }}>
+    <Flex flexDirection="column">
+      <Box my={5}>
+        <Text fontFamily="heading" fontWeight="600" fontSize="35px">
           Visi Misi
-        </Typography>
-        <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+        </Text>
+        <Text fontFamily="heading" fontSize="25px">
           Visi
-        </Typography>
-        <Typography variant="body1" sx={{ fontStyle: 'italic', color: 'primary.main', fontWeight: 600 }}>
+        </Text>
+        <Text fontFamily="heading">
           “Mewujudkan Desa Ngawonggo yang Mandiri, Religius, dan Berbudaya Berbasis Potensi Lokal Menuju Era Digital 2045.”
-        </Typography>
+        </Text>
       </Box>
       <Box>
-        <Typography variant="h5" sx={{ fontWeight: 700, mb: 1 }}>
+        <Text fontFamily="heading" fontSize="25px">
           Misi
-        </Typography>
-        <Box component="ol" sx={{ pl: 3, m: 0 }}>
-          {[
-            'Meningkatkan kualitas pelayanan publik melalui transformasi digital.',
-            'Mengoptimalkan potensi pertanian kopi dan hortikultura sebagai penggerak ekonomi desa.',
-            'Melestarikan nilai-nilai budaya lokal dan memperkuat identitas desa religius.',
-            'Membangun infrastruktur desa yang berkelanjutan dan ramah lingkungan.',
-          ].map((item, index) => (
-            <Typography component="li" key={index} variant="body1" sx={{ mb: 1, lineHeight: 1.6 }}>
-              {item}
-            </Typography>
-          ))}
-        </Box>
+        </Text>
+        <OrderedList fontFamily="heading">
+          <ListItem>
+            Meningkatkan kualitas pelayanan publik melalui transformasi digital.
+          </ListItem>
+          <ListItem>
+            Mengoptimalkan potensi pertanian kopi dan hortikultura sebagai penggerak ekonomi desa.
+          </ListItem>
+          <ListItem>
+            Melestarikan nilai-nilai budaya lokal dan memperkuat identitas desa religius.
+          </ListItem>
+          <ListItem>
+            Membangun infrastruktur desa yang berkelanjutan dan ramah lingkungan.
+          </ListItem>
+        </OrderedList>
       </Box>
-    </Stack>
+    </Flex>
   );
 };
 

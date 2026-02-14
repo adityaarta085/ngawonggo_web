@@ -1,67 +1,66 @@
 import React from 'react';
-import { Box, Container, Typography, Stack, Breadcrumbs, Link } from '@mui/material';
-import { NavigateNext as NavigateNextIcon } from '@mui/icons-material';
+import { Box, Container, Heading, Text, VStack, Breadcrumb, BreadcrumbItem, BreadcrumbLink } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
   return (
-    <Box sx={{ py: 6 }}>
-      <Container maxWidth="md">
-        <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} sx={{ mb: 4 }}>
-          <Link component={RouterLink} to="/" sx={{ textDecoration: 'none', color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-            Beranda
-          </Link>
-          <Typography color="text.primary" sx={{ fontWeight: 600 }}>Kebijakan Privasi</Typography>
-        </Breadcrumbs>
+    <Box py={10}>
+      <Container maxW="container.lg">
+        <Breadcrumb mb={8}>
+          <BreadcrumbItem>
+            <BreadcrumbLink as={RouterLink} to="/">Beranda</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem isCurrentPage>
+            <BreadcrumbLink>Kebijakan Privasi</BreadcrumbLink>
+          </BreadcrumbItem>
+        </Breadcrumb>
 
-        <Stack spacing={4}>
-          <Box>
-            <Typography variant="h3" color="primary" sx={{ fontWeight: 800, mb: 1 }}>Kebijakan Privasi</Typography>
-            <Typography variant="body2" color="text.secondary">Terakhir Diperbarui: 1 Mei 2024</Typography>
-          </Box>
+        <VStack align="start" spacing={6}>
+          <Heading as="h1" size="xl" color="brand.500">Kebijakan Privasi</Heading>
+          <Text color="gray.500">Terakhir Diperbarui: 1 Mei 2024</Text>
 
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>1. Pendahuluan</Typography>
-            <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.7 }}>
+            <Heading size="md" mb={3}>1. Pendahuluan</Heading>
+            <Text mb={4}>
               Pemerintah Desa Ngawonggo ("Kami") berkomitmen untuk melindungi dan menghormati privasi Anda. Kebijakan ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda saat menggunakan website resmi Desa Ngawonggo, sesuai dengan Undang-Undang Nomor 27 Tahun 2022 tentang Perlindungan Data Pribadi (UU PDP).
-            </Typography>
+            </Text>
 
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>2. Data yang Kami Kumpulkan</Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>Kami mengumpulkan informasi yang Anda berikan secara langsung kepada kami melalui:</Typography>
-            <Box component="ul" sx={{ pl: 3, mb: 3 }}>
-              <li><Typography variant="body1">Formulir Pengaduan (Nama dan isi pesan).</Typography></li>
-              <li><Typography variant="body1">Kolom Komentar Berita (Nama dan Email).</Typography></li>
-              <li><Typography variant="body1">Interaksi dengan Chatbot AI.</Typography></li>
+            <Heading size="md" mb={3}>2. Data yang Kami Kumpulkan</Heading>
+            <Text mb={2}>Kami mengumpulkan informasi yang Anda berikan secara langsung kepada kami melalui:</Text>
+            <Box as="ul" ml={8} mb={4}>
+              <li>Formulir Pengaduan (Nama dan isi pesan).</li>
+              <li>Kolom Komentar Berita (Nama dan Email).</li>
+              <li>Interaksi dengan Chatbot AI.</li>
             </Box>
 
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>3. Penggunaan Informasi</Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>Informasi yang dikumpulkan digunakan untuk:</Typography>
-            <Box component="ul" sx={{ pl: 3, mb: 3 }}>
-              <li><Typography variant="body1">Menanggapi pengaduan dan aspirasi warga.</Typography></li>
-              <li><Typography variant="body1">Menampilkan komentar yang telah disetujui pada artikel berita.</Typography></li>
-              <li><Typography variant="body1">Meningkatkan layanan digital Desa Ngawonggo.</Typography></li>
-              <li><Typography variant="body1">Keperluan administrasi pemerintahan desa.</Typography></li>
+            <Heading size="md" mb={3}>3. Penggunaan Informasi</Heading>
+            <Text mb={2}>Informasi yang dikumpulkan digunakan untuk:</Text>
+            <Box as="ul" ml={8} mb={4}>
+              <li>Menanggapi pengaduan dan aspirasi warga.</li>
+              <li>Menampilkan komentar yang telah disetujui pada artikel berita.</li>
+              <li>Meningkatkan layanan digital Desa Ngawonggo.</li>
+              <li>Keperluan administrasi pemerintahan desa.</li>
             </Box>
 
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>4. Keamanan Data</Typography>
-            <Typography variant="body1" sx={{ mb: 3, lineHeight: 1.7 }}>
+            <Heading size="md" mb={3}>4. Keamanan Data</Heading>
+            <Text mb={4}>
               Kami menerapkan langkah-langkah keamanan teknis dan organisasi yang wajar untuk melindungi data pribadi Anda dari akses yang tidak sah, pengungkapan, atau penghancuran. Data disimpan secara aman menggunakan enkripsi dan infrastruktur backend Supabase yang terpercaya.
-            </Typography>
+            </Text>
 
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>5. Hak Anda</Typography>
-            <Typography variant="body1" sx={{ mb: 1 }}>Sesuai UU PDP, Anda memiliki hak untuk:</Typography>
-            <Box component="ul" sx={{ pl: 3, mb: 3 }}>
-              <li><Typography variant="body1">Mengakses data pribadi Anda.</Typography></li>
-              <li><Typography variant="body1">Memperbarui atau memperbaiki data yang tidak akurat.</Typography></li>
-              <li><Typography variant="body1">Meminta penghapusan data pribadi Anda dari sistem kami.</Typography></li>
+            <Heading size="md" mb={3}>5. Hak Anda</Heading>
+            <Text mb={2}>Sesuai UU PDP, Anda memiliki hak untuk:</Text>
+            <Box as="ul" ml={8} mb={4}>
+              <li>Mengakses data pribadi Anda.</li>
+              <li>Memperbarui atau memperbaiki data yang tidak akurat.</li>
+              <li>Meminta penghapusan data pribadi Anda dari sistem kami.</li>
             </Box>
 
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 1.5 }}>6. Kontak Kami</Typography>
-            <Typography variant="body1">
+            <Heading size="md" mb={3}>6. Kontak Kami</Heading>
+            <Text>
               Jika Anda memiliki pertanyaan tentang Kebijakan Privasi ini, silakan hubungi kami melalui email: <strong>ngawonggodesa@gmail.com</strong> atau kunjungi kantor Desa Ngawonggo.
-            </Typography>
+            </Text>
           </Box>
-        </Stack>
+        </VStack>
       </Container>
     </Box>
   );

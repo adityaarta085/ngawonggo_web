@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, keyframes } from '@mui/material';
+import { Image, keyframes, usePrefersReducedMotion } from '@chakra-ui/react';
 import logo from './logo.svg';
 
 const spin = keyframes`
@@ -7,17 +7,12 @@ const spin = keyframes`
   to { transform: rotate(360deg); }
 `;
 
-export const Logo = (props) => {
-  return (
-    <Box
-      component="img"
-      src={logo}
-      sx={{
-        animation: `${spin} infinite 20s linear`,
-        pointerEvents: 'none',
-        ...props.sx
-      }}
-      alt="logo"
-    />
-  );
+export const Logo = props => {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const animation = prefersReducedMotion
+    ? undefined
+    : `${spin} infinite 20s linear`;
+
+  return <Image animation={animation} src={logo} {...props} />;
 };

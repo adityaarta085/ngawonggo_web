@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  Typography,
-  Container,
-  Stack,
+  Flex,
+  Image,
   Link,
-  Paper,
-} from '@mui/material';
+  Text,
+  Heading,
+  Container,
+  VStack,
+} from '@chakra-ui/react';
 import { supabase } from '../../../lib/supabase';
 
 const Supports = () => {
@@ -21,75 +23,58 @@ const Supports = () => {
   }, []);
 
   return (
-    <Box sx={{ py: 10, bgcolor: 'background.default' }}>
-      <Container maxWidth="lg">
-        <Stack spacing={6} alignItems="center" sx={{ mb: 6 }}>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography
-              variant="caption"
-              sx={{
-                fontWeight: 'bold',
-                color: 'primary.main',
-                textTransform: 'uppercase',
-                letterSpacing: '0.15em',
-                display: 'block',
-                mb: 1
-              }}
+    <Box py={24} bg="gray.50">
+      <Container maxW="container.xl">
+        <VStack spacing={12}>
+          <Box textAlign="center">
+            <Text
+              fontSize="sm"
+              fontWeight="bold"
+              color="brand.500"
+              textTransform="uppercase"
+              letterSpacing="widest"
+              mb={2}
             >
               Kemitraan Strategis
-            </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 800 }}>
+            </Text>
+            <Heading as="h2" size="2xl" fontWeight="800" color="gray.800">
               Lembaga & Program Desa
-            </Typography>
+            </Heading>
           </Box>
-        </Stack>
 
-        <Box sx={{ display: 'flex', gap: 3, justifyContent: 'center', flexWrap: 'wrap' }}>
-          {institutions.map((e) => (
-            <Link key={e.id} href="#" sx={{ textDecoration: 'none' }}>
-              <Paper
-                elevation={0}
-                sx={{
-                  width: { xs: '140px', md: '200px', lg: '250px' },
-                  height: { xs: '80px', md: '100px', lg: '120px' },
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  p: 3,
-                  borderRadius: '24px',
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  bgcolor: 'rgba(255, 255, 255, 0.7)',
-                  backdropFilter: 'blur(10px)',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    transform: 'scale(1.05)',
-                    boxShadow: '0 10px 40px rgba(0,0,0,0.05)',
-                    borderColor: 'primary.main',
-                    '& img': { filter: 'grayscale(0%)', opacity: 1 }
-                  }
-                }}
-              >
+          <Flex gap={8} justify="center" wrap="wrap">
+            {institutions.map((e) => (
+              <Link key={e.id} href="#" _hover={{ textDecoration: 'none' }}>
                 <Box
-                  component="img"
-                  src={e.image}
-                  alt={e.title}
-                  sx={{
-                    maxHeight: '80%',
-                    maxWidth: '80%',
-                    objectFit: 'contain',
-                    filter: 'grayscale(100%)',
-                    opacity: 0.6,
-                    transition: 'all 0.3s'
-                  }}
-                />
-              </Paper>
-            </Link>
-          ))}
-          {institutions.length === 0 && [1, 2, 3, 4].map(i => (
-             <Paper key={i} sx={{ width: '200px', height: '100px', opacity: 0.5, borderRadius: '24px' }} variant="outlined" />
-          ))}
-        </Box>
+                  layerStyle="glassCard"
+                  w={{ base: "140px", md: "200px", lg: "280px" }}
+                  h={{ base: "80px", md: "100px", lg: "140px" }}
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  p={6}
+                  transition="all 0.3s cubic-bezier(.4,0,.2,1)"
+                  _hover={{ transform: 'scale(1.05)', boxShadow: 'xl', borderColor: 'brand.200' }}
+                >
+                  <Image
+                    src={e.image}
+                    alt={e.title}
+                    objectFit="contain"
+                    maxH="80%"
+                    filter="grayscale(100%)"
+                    opacity={0.6}
+                    transition="all 0.3s"
+                    _groupHover={{ filter: 'grayscale(0%)', opacity: 1 }}
+                    fallback={<Text fontWeight="bold" fontSize={{ base: "xs", lg: "md" }} color="gray.400">{e.title}</Text>}
+                  />
+                </Box>
+              </Link>
+            ))}
+            {institutions.length === 0 && [1, 2, 3, 4].map(i => (
+               <Box key={i} layerStyle="glassCard" w="200px" h="100px" opacity={0.5} />
+            ))}
+          </Flex>
+        </VStack>
       </Container>
     </Box>
   );

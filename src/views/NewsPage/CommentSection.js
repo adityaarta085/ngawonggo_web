@@ -1,23 +1,26 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
-  Stack,
-  Typography,
-  TextField,
+  VStack,
+  HStack,
+  Text,
+  Input,
   Button,
+  FormControl,
+  FormLabel,
+  useToast,
   Avatar,
-  Paper,
-  Alert,
-  Snackbar,
-} from '@mui/material';
-import { Reply as ReplyIcon } from '@mui/icons-material';
+  Textarea,
+  Heading,
+} from '@chakra-ui/react';
+import { FaReply } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 
 const CommentItem = ({ comment, allComments, newsId, onCommentAdded }) => {
   const [showReply, setShowReply] = useState(false);
   const [replyData, setReplyData] = useState({ name: '', email: '', content: '' });
   const [submitting, setSubmitting] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const toast = useToast();
 
   const replies = allComments.filter(c => c.parent_id === comment.id);
 
@@ -33,80 +36,78 @@ const CommentItem = ({ comment, allComments, newsId, onCommentAdded }) => {
           name: replyData.name,
           email: replyData.email,
           content: replyData.content,
-          is_approved: false
+          is_approved: false // Need admin approval
         }]);
 
       if (error) throw error;
-      setSnackbar({ open: true, message: 'Balasan terkirim, menunggu persetujuan admin', severity: 'success' });
+      toast({ title: 'Balasan terkirim', description: 'Menunggu persetujuan admin', status: 'success' });
       setShowReply(false);
       setReplyData({ name: '', email: '', content: '' });
       if (onCommentAdded) onCommentAdded();
     } catch (err) {
-      setSnackbar({ open: true, message: `Gagal mengirim balasan: ${err.message}`, severity: 'error' });
+      toast({ title: 'Gagal mengirim balasan', description: err.message, status: 'error' });
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Box sx={{ mt: 2, pl: comment.parent_id ? 4 : 0, borderLeft: comment.parent_id ? "2px solid" : "none", borderColor: 'divider' }}>
-      <Stack direction="row" spacing={2} alignItems="flex-start">
-        <Avatar sx={{ width: 32, height: 32 }} src={null}>{comment.name[0]}</Avatar>
-        <Stack spacing={0.5} sx={{ flexGrow: 1 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{comment.name}</Typography>
-            <Typography variant="caption" sx={{ color: 'text.secondary' }}>{new Date(comment.created_at).toLocaleDateString()}</Typography>
-          </Stack>
-          <Typography variant="body2">{comment.content}</Typography>
+    <Box mt={4} pl={comment.parent_id ? 8 : 0} borderLeft={comment.parent_id ? "2px solid" : "none"} borderColor="gray.100">
+      <HStack align="start" spacing={3}>
+        <Avatar size="sm" name={comment.name} />
+        <VStack align="start" spacing={1} flex={1}>
+          <HStack justify="space-between" w="full">
+            <Text fontWeight="bold" fontSize="sm">{comment.name}</Text>
+            <Text fontSize="xs" color="gray.500">{new Date(comment.created_at).toLocaleDateString()}</Text>
+          </HStack>
+          <Text fontSize="sm">{comment.content}</Text>
           <Button
-            size="small"
-            startIcon={<ReplyIcon />}
+            size="xs"
+            variant="ghost"
+            leftIcon={<FaReply />}
             onClick={() => setShowReply(!showReply)}
-            sx={{ alignSelf: 'flex-start', textTransform: 'none', py: 0 }}
+            colorScheme="brand"
           >
             Balas
           </Button>
 
           {showReply && (
-            <Paper variant="outlined" sx={{ p: 2, mt: 1, borderRadius: '16px', bgcolor: 'grey.50' }}>
+            <Box w="full" mt={2} p={3} bg="gray.50" borderRadius="md">
               <form onSubmit={handleReply}>
-                <Stack spacing={2}>
-                  <Stack direction="row" spacing={2}>
-                    <TextField
-                      required
-                      size="small"
-                      label="Nama"
-                      fullWidth
-                      value={replyData.name}
-                      onChange={(e) => setReplyData({...replyData, name: e.target.value})}
-                      sx={{ bgcolor: 'white' }}
+                <VStack spacing={3}>
+                  <HStack w="full">
+                    <FormControl isRequired>
+                      <Input
+                        size="xs"
+                        placeholder="Nama"
+                        value={replyData.name}
+                        onChange={(e) => setReplyData({...replyData, name: e.target.value})}
+                        bg="white"
+                      />
+                    </FormControl>
+                    <FormControl>
+                      <Input
+                        size="xs"
+                        placeholder="Email (Opsional)"
+                        value={replyData.email}
+                        onChange={(e) => setReplyData({...replyData, email: e.target.value})}
+                        bg="white"
+                      />
+                    </FormControl>
+                  </HStack>
+                  <FormControl isRequired>
+                    <Textarea
+                      size="xs"
+                      placeholder="Tulis balasan..."
+                      value={replyData.content}
+                      onChange={(e) => setReplyData({...replyData, content: e.target.value})}
+                      bg="white"
                     />
-                    <TextField
-                      size="small"
-                      label="Email (Opsional)"
-                      fullWidth
-                      value={replyData.email}
-                      onChange={(e) => setReplyData({...replyData, email: e.target.value})}
-                      sx={{ bgcolor: 'white' }}
-                    />
-                  </Stack>
-                  <TextField
-                    required
-                    multiline
-                    rows={2}
-                    size="small"
-                    label="Tulis balasan..."
-                    fullWidth
-                    value={replyData.content}
-                    onChange={(e) => setReplyData({...replyData, content: e.target.value})}
-                    sx={{ bgcolor: 'white' }}
-                  />
-                  <Button size="small" variant="contained" type="submit" disabled={submitting}>
-                    {submitting ? 'Mengirim...' : 'Kirim Balasan'}
-                  </Button>
-                </Stack>
+                  </FormControl>
+                  <Button size="xs" colorScheme="brand" type="submit" isLoading={submitting}>Kirim Balasan</Button>
+                </VStack>
               </form>
-            </Paper>
+            </Box>
           )}
 
           {replies.map(reply => (
@@ -118,11 +119,8 @@ const CommentItem = ({ comment, allComments, newsId, onCommentAdded }) => {
               onCommentAdded={onCommentAdded}
             />
           ))}
-        </Stack>
-      </Stack>
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>{snackbar.message}</Alert>
-      </Snackbar>
+        </VStack>
+      </HStack>
     </Box>
   );
 };
@@ -131,14 +129,14 @@ const CommentSection = ({ newsId }) => {
   const [comments, setComments] = useState([]);
   const [formData, setFormData] = useState({ name: '', email: '', content: '' });
   const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const toast = useToast();
 
   const fetchComments = useCallback(async () => {
     const { data, error } = await supabase
       .from('comments')
       .select('*')
       .eq('news_id', newsId)
-      .eq('is_approved', true)
+      .eq('is_approved', true) // Only approved comments
       .order('created_at', { ascending: true });
 
     if (!error && data) {
@@ -165,10 +163,10 @@ const CommentSection = ({ newsId }) => {
         }]);
 
       if (error) throw error;
-      setSnackbar({ open: true, message: 'Komentar terkirim, menunggu persetujuan admin', severity: 'success' });
+      toast({ title: 'Komentar terkirim', description: 'Komentar Anda sedang menunggu persetujuan admin', status: 'success' });
       setFormData({ name: '', email: '', content: '' });
     } catch (err) {
-      setSnackbar({ open: true, message: `Gagal mengirim komentar: ${err.message}`, severity: 'error' });
+      toast({ title: 'Gagal mengirim komentar', description: err.message, status: 'error' });
     } finally {
       setLoading(false);
     }
@@ -177,47 +175,34 @@ const CommentSection = ({ newsId }) => {
   const rootComments = comments.filter(c => !c.parent_id);
 
   return (
-    <Box sx={{ mt: 6, pt: 4, borderTop: '1px solid', borderColor: 'divider' }}>
-      <Typography variant="h5" sx={{ mb: 3, fontWeight: 800 }}>
-        Komentar ({comments.length})
-      </Typography>
+    <Box mt={12} pt={8} borderTop="1px solid" borderColor="gray.100">
+      <Heading size="md" mb={6}>Komentar ({comments.length})</Heading>
 
-      <Paper variant="outlined" sx={{ p: 3, mb: 4, borderRadius: '24px', borderStyle: 'dashed' }}>
+      {/* Form Komentar */}
+      <Box mb={10} p={6} bg="white" borderRadius="xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
         <form onSubmit={handleSubmit}>
-          <Stack spacing={3}>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <TextField
-                required
-                label="Nama"
-                fullWidth
-                value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
-              />
-              <TextField
-                label="Email (Opsional)"
-                fullWidth
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-              />
-            </Stack>
-            <TextField
-              required
-              multiline
-              rows={3}
-              label="Komentar"
-              fullWidth
-              value={formData.content}
-              onChange={(e) => setFormData({...formData, content: e.target.value})}
-              placeholder="Tulis komentar Anda..."
-            />
-            <Button variant="contained" type="submit" size="large" disabled={loading} sx={{ borderRadius: '100px' }}>
-              {loading ? 'Mengirim...' : 'Kirim Komentar'}
-            </Button>
-          </Stack>
+          <VStack spacing={4} align="stretch">
+            <HStack>
+              <FormControl isRequired>
+                <FormLabel fontSize="sm">Nama</FormLabel>
+                <Input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} placeholder="Nama Anda" />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="sm">Email (Opsional)</FormLabel>
+                <Input value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="email@contoh.com" />
+              </FormControl>
+            </HStack>
+            <FormControl isRequired>
+              <FormLabel fontSize="sm">Komentar</FormLabel>
+              <Textarea value={formData.content} onChange={(e) => setFormData({...formData, content: e.target.value})} placeholder="Tulis komentar Anda..." />
+            </FormControl>
+            <Button colorScheme="brand" type="submit" isLoading={loading}>Kirim Komentar</Button>
+          </VStack>
         </form>
-      </Paper>
+      </Box>
 
-      <Stack spacing={3}>
+      {/* List Komentar */}
+      <VStack align="stretch" spacing={6}>
         {rootComments.length > 0 ? (
           rootComments.map(comment => (
             <CommentItem
@@ -229,15 +214,9 @@ const CommentSection = ({ newsId }) => {
             />
           ))
         ) : (
-          <Typography variant="body2" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-            Belum ada komentar yang disetujui.
-          </Typography>
+          <Text color="gray.500" fontStyle="italic">Belum ada komentar yang disetujui.</Text>
         )}
-      </Stack>
-
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
+      </VStack>
     </Box>
   );
 };

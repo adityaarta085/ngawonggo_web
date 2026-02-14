@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Typography,
+  Flex,
+  Text,
   Table,
-  TableBody,
-  TableCell,
+  Tbody,
+  Tr,
+  Td,
   TableContainer,
-  TableRow,
-  Paper,
-  Stack,
-} from '@mui/material';
+} from '@chakra-ui/react';
 import { supabase } from '../../../lib/supabase';
 
 const Demografi = () => {
@@ -23,26 +22,26 @@ const Demografi = () => {
   }, []);
 
   return (
-    <Stack spacing={3}>
-      <Typography variant="h4" sx={{ fontWeight: 800 }}>
+    <Flex flexDirection="column" fontFamily="heading" gap={4}>
+      <Text fontWeight="600" fontSize="35px">
         Demografi Penduduk
-      </Typography>
-      <Typography variant="body1">
+      </Text>
+      <Text>
         Berdasarkan data statistik terbaru, profil kependudukan Desa Ngawonggo adalah sebagai berikut:
-      </Typography>
-      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: '24px', overflow: 'hidden' }}>
-        <Table>
-          <TableBody>
+      </Text>
+      <TableContainer border="1px solid" borderColor="gray.200" borderRadius="md">
+        <Table variant="simple">
+          <Tbody>
             {stats.map(stat => (
-              <TableRow key={stat.id}>
-                <TableCell sx={{ fontWeight: 700, bgcolor: 'grey.50', width: '40%' }}>{stat.label}</TableCell>
-                <TableCell>{stat.value}</TableCell>
-              </TableRow>
+              <Tr key={stat.id}>
+                <Td fontWeight="bold">{stat.label}</Td>
+                <Td>{stat.value}</Td>
+              </Tr>
             ))}
-          </TableBody>
+          </Tbody>
         </Table>
       </TableContainer>
-    </Stack>
+    </Flex>
   );
 };
 

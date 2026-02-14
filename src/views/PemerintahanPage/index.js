@@ -1,57 +1,57 @@
-import React from 'react';
 import {
   Box,
-  Typography,
+  Heading,
+  Text,
   Table,
-  TableBody,
-  TableCell,
+  Tbody,
+  Tr,
+  Td,
   TableContainer,
-  TableRow,
-  Paper,
   Divider,
-  Container,
-} from '@mui/material';
+} from '@chakra-ui/react';
 
 export default function PemerintahanPage() {
-  const staff = [
-    { role: 'Kepala Desa', name: 'Khoirur Faidah' },
-    { role: 'Sekertariat Desa', name: 'Bambang Dwi Hendriyono' },
-    { role: 'Kaur Pemerintahan', name: 'Yasin Sulthoni' },
-    { role: 'Ketua BPD', name: 'Perlu Konfirmasi Desa' },
-    { role: 'Ketua P3A', name: 'Rohmatul Faizin' },
-  ];
-
   return (
-    <Box sx={{ py: 6 }}>
-      <Container maxWidth="md">
-        <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, color: 'primary.main' }}>
-          Pemerintahan Desa
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 6, color: 'text.secondary' }}>
-          Struktur Organisasi Pemerintah Desa Ngawonggo periode saat ini dirancang untuk memberikan pelayanan terbaik bagi seluruh masyarakat.
-        </Typography>
+    <Box p={10} fontFamily="heading">
+      <Heading mb={5} color="ngawonggo.green">Pemerintahan Desa</Heading>
+      <Text mb={8}>
+        Struktur Organisasi Pemerintah Desa Ngawonggo periode saat ini dirancang untuk memberikan pelayanan terbaik bagi seluruh masyarakat.
+      </Text>
 
-        <Typography variant="h6" sx={{ fontWeight: 800, mb: 3 }}>Struktur Organisasi</Typography>
-        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: '24px', overflow: 'hidden', mb: 6 }}>
-          <Table>
-            <TableBody>
-              {staff.map((item) => (
-                <TableRow key={item.role}>
-                  <TableCell sx={{ fontWeight: 700, bgcolor: 'grey.50', width: '40%' }}>{item.role}</TableCell>
-                  <TableCell>{item.name}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+      <Heading size="md" mb={4}>Struktur Organisasi</Heading>
+      <TableContainer border="1px solid" borderColor="gray.200" borderRadius="md" mb={10}>
+        <Table variant="simple">
+          <Tbody>
+            <Tr>
+              <Td fontWeight="bold">Kepala Desa</Td>
+              <Td>Khoirur Faidah</Td>
+            </Tr>
+            <Tr>
+              <Td fontWeight="bold">Sekertariat Desa</Td>
+              <Td>Bambang Dwi Hendriyono</Td>
+            </Tr>
+            <Tr>
+              <Td fontWeight="bold">Kaur Pemerintahan</Td>
+              <Td>Yasin Sulthoni</Td>
+            </Tr>
+            <Tr>
+              <Td fontWeight="bold">Ketua BPD</Td>
+              <Td>Perlu Konfirmasi Desa</Td>
+            </Tr>
+            <Tr>
+              <Td fontWeight="bold">Ketua P3A</Td>
+              <Td>Rohmatul Faizin</Td>
+            </Tr>
+          </Tbody>
+        </Table>
+      </TableContainer>
 
-        <Divider sx={{ my: 6 }} />
+      <Divider mb={10} />
 
-        <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>Visi Pelayanan</Typography>
-        <Typography variant="body1">
-          Meningkatkan kualitas pelayanan publik melalui transformasi digital dan transparansi tata kelola pemerintahan desa.
-        </Typography>
-      </Container>
+      <Heading size="md" mb={4}>Visi Pelayanan</Heading>
+      <Text>
+        Meningkatkan kualitas pelayanan publik melalui transformasi digital dan transparansi tata kelola pemerintahan desa.
+      </Text>
     </Box>
   );
 }
