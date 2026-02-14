@@ -1,34 +1,35 @@
-
 import React, { useState } from 'react';
 import {
   Box,
   Container,
-  Heading,
-  Text,
-  SimpleGrid,
-  VStack,
-  Icon,
+  Typography,
+  Stack,
+  Grid,
   Button,
-  useColorModeValue,
-  Flex,
-  Badge,
-} from '@chakra-ui/react';
-import { FaGamepad, FaPuzzlePiece, FaQuestionCircle, FaNetworkWired } from 'react-icons/fa';
+  Chip,
+  Paper,
+  Avatar,
+} from '@mui/material';
+import {
+  SportsEsports as GamepadIcon,
+  Extension as PuzzlePieceIcon,
+  HelpOutline as QuestionCircleIcon,
+  Hub as NetworkWiredIcon
+} from '@mui/icons-material';
 import QuizGame from './QuizGame';
 import SortGame from './SortGame';
 import NetworkGame from './NetworkGame';
 
 const EduGamePage = () => {
   const [activeGame, setActiveGame] = useState(null);
-  const bg = useColorModeValue('gray.50', 'gray.900');
 
   const games = [
     {
       id: 'network',
       title: 'Ngawonggo 2045: Jaringan Digital',
       desc: 'Misi menghubungkan infrastruktur digital desa untuk masa depan.',
-      icon: FaNetworkWired,
-      color: 'purple',
+      icon: NetworkWiredIcon,
+      color: 'secondary',
       highlight: true,
       component: <NetworkGame onBack={() => setActiveGame(null)} />,
     },
@@ -36,97 +37,94 @@ const EduGamePage = () => {
       id: 'quiz',
       title: 'Kuis Tekno-Sains',
       desc: 'Uji wawasanmu tentang dunia teknologi dan sains populer.',
-      icon: FaQuestionCircle,
-      color: 'blue',
+      icon: QuestionCircleIcon,
+      color: 'primary',
       component: <QuizGame onBack={() => setActiveGame(null)} />,
     },
     {
       id: 'sort',
       title: 'Sortir Digital',
       desc: 'Bedakan mana teknologi analog dan mana yang sudah digital.',
-      icon: FaPuzzlePiece,
-      color: 'orange',
+      icon: PuzzlePieceIcon,
+      color: 'warning',
       component: <SortGame onBack={() => setActiveGame(null)} />,
     },
   ];
 
   if (activeGame) {
     return (
-      <Box minH="100vh" bg={bg} py={10}>
-        <Container maxW="container.md">
-          <Flex justify="center">
-            {games.find(g => g.id === activeGame).component}
-          </Flex>
+      <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50', py: 6 }}>
+        <Container maxWidth="md">
+          {games.find(g => g.id === activeGame).component}
         </Container>
       </Box>
     );
   }
 
   return (
-    <Box minH="100vh" bg={bg} py={16}>
-      <Container maxW="container.xl">
-        <VStack spacing={4} mb={12} textAlign="center">
-          <Badge colorScheme="brand" p={2} borderRadius="full" px={4}>
-            TEKNOLOGI & SAINS
-          </Badge>
-          <Heading as="h1" size="2xl" color="brand.500">
-            Game Edukasi Desa
-          </Heading>
-          <Text fontSize="xl" color="gray.600" maxW="2xl">
-            Mari belajar teknologi dengan cara yang seru! Pilih permainan di bawah ini untuk memulai petualangan digitalmu.
-          </Text>
-        </VStack>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50', py: 6 }}>
+      <Container maxWidth="lg">
+        <Stack spacing={6} sx={{ mb: 6, textAlign: 'center' }}>
+          <Box>
+            <Chip label="TEKNOLOGI & SAINS" color="primary" sx={{ fontWeight: 800, mb: 2 }} />
+            <Typography variant="h3" color="primary" sx={{ fontWeight: 800 }}>
+              Game Edukasi Desa
+            </Typography>
+            <Typography variant="h6" color="text.secondary" sx={{ maxWidth: '800px', mx: 'auto', fontWeight: 400 }}>
+              Mari belajar teknologi dengan cara yang seru! Pilih permainan di bawah ini untuk memulai petualangan digitalmu.
+            </Typography>
+          </Box>
+        </Stack>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
+        <Grid container spacing={4}>
           {games.map((game) => (
-            <Box
-              key={game.id}
-              bg="white"
-              p={8}
-              borderRadius="3xl"
-              boxShadow="xl"
-              transition="all 0.3s"
-              _hover={{ transform: 'translateY(-10px)', boxShadow: '2xl' }}
-              position="relative"
-              overflow="hidden"
-              border="1px solid"
-              borderColor={game.highlight ? "purple.200" : "gray.100"}
-            >
-              {game.highlight && (
-                <Badge
-                  position="absolute"
-                  top={4}
-                  right={4}
-                  colorScheme="purple"
-                  variant="solid"
-                  borderRadius="full"
-                  px={3}
-                >
-                  Pilihan Utama
-                </Badge>
-              )}
-              <VStack align="start" spacing={6}>
-                <Box p={4} bg={`${game.color}.50`} borderRadius="2xl">
-                  <Icon as={game.icon} w={10} h={10} color={`${game.color}.500`} />
-                </Box>
-                <VStack align="start" spacing={2}>
-                  <Heading size="md">{game.title}</Heading>
-                  <Text color="gray.600">{game.desc}</Text>
-                </VStack>
-                <Button
-                  w="full"
-                  colorScheme={game.color}
-                  size="lg"
-                  borderRadius="xl"
-                  onClick={() => setActiveGame(game.id)}
-                  leftIcon={<FaGamepad />}
-                >
-                  Main Sekarang
-                </Button>
-              </VStack>
-            </Box>
+            <Grid item xs={12} md={4} key={game.id}>
+              <Paper
+                sx={{
+                  p: 4,
+                  borderRadius: '32px',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  transition: 'all 0.3s',
+                  '&:hover': { transform: 'translateY(-10px)', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }
+                }}
+                elevation={0}
+              >
+                {game.highlight && (
+                  <Chip
+                    label="Pilihan Utama"
+                    color="secondary"
+                    size="small"
+                    sx={{ position: 'absolute', top: 16, right: 16, fontWeight: 700 }}
+                  />
+                )}
+                <Stack spacing={4} sx={{ height: '100%' }}>
+                  <Avatar sx={{ bgcolor: `${game.color}.lighter`, color: `${game.color}.main`, width: 64, height: 64, borderRadius: '20px' }}>
+                    <game.icon sx={{ fontSize: 32 }} />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>{game.title}</Typography>
+                    <Typography variant="body2" color="text.secondary">{game.desc}</Typography>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    color={game.color}
+                    fullWidth
+                    size="large"
+                    onClick={() => setActiveGame(game.id)}
+                    startIcon={<GamepadIcon />}
+                    sx={{ mt: 'auto', borderRadius: '100px' }}
+                  >
+                    Main Sekarang
+                  </Button>
+                </Stack>
+              </Paper>
+            </Grid>
           ))}
-        </SimpleGrid>
+        </Grid>
       </Container>
     </Box>
   );

@@ -3,38 +3,36 @@ import {
   Box,
   Button,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
   IconButton,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  FormControl,
-  FormLabel,
-  Input,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
   Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
   Switch,
-  useToast,
-  HStack,
-  Text,
+  FormControlLabel,
+  Stack,
+  Typography,
+  Paper,
+  Snackbar,
+  Alert,
   Divider,
-  VStack,
-  Image,
-} from '@chakra-ui/react';
-import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+} from '@mui/material';
+import { Edit as EditIcon, Delete as TrashIcon, Add as PlusIcon } from '@mui/icons-material';
 import { supabase } from '../../../lib/supabase';
 
 const PopupManager = () => {
   const [popups, setPopups] = useState([]);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -44,7 +42,7 @@ const PopupManager = () => {
     button_label: '',
     button_link: '',
   });
-  const toast = useToast();
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const fetchPopups = useCallback(async () => {
     const { data, error } = await supabase
@@ -52,21 +50,24 @@ const PopupManager = () => {
       .select('*')
       .order('id', { ascending: false });
 
-    if (error) {
-      toast({ title: 'Error fetching', description: error.message, status: 'error' });
-    } else {
-      setPopups(data);
-    }
-  }, [toast]);
+    if (error) setSnackbar({ open: true, message: 'Error: ' + error.message, severity: 'error' });
+    else setPopups(data);
+  }, []);
 
   useEffect(() => {
     fetchPopups();
   }, [fetchPopups]);
 
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => {
+    setOpen(false);
+    setEditingItem(null);
+  };
+
   const handleEdit = (item) => {
     setEditingItem(item);
     setFormData(item);
-    onOpen();
+    handleOpen();
   };
 
   const handleAddNew = () => {
@@ -79,140 +80,119 @@ const PopupManager = () => {
       button_label: '',
       button_link: '',
     });
-    onOpen();
+    handleOpen();
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Hapus popup ini?')) {
       const { error } = await supabase.from('popups').delete().eq('id', id);
-      if (error) {
-        toast({ title: 'Error deleting', description: error.message, status: 'error' });
-      } else {
-        toast({ title: 'Berhasil dihapus', status: 'success' });
-        fetchPopups();
-      }
+      if (error) setSnackbar({ open: true, message: 'Gagal menghapus', severity: 'error' });
+      else { fetchPopups(); setSnackbar({ open: true, message: 'Dihapus', severity: 'success' }); }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (editingItem) {
-      const { error } = await supabase
-        .from('popups')
-        .update(formData)
-        .eq('id', editingItem.id);
-      if (error) {
-        toast({ title: 'Error updating', description: error.message, status: 'error' });
-      } else {
-        toast({ title: 'Berhasil diupdate', status: 'success' });
-        onClose();
-        fetchPopups();
-      }
+      const { error } = await supabase.from('popups').update(formData).eq('id', editingItem.id);
+      if (error) setSnackbar({ open: true, message: 'Gagal update', severity: 'error' });
+      else { handleClose(); fetchPopups(); setSnackbar({ open: true, message: 'Berhasil diupdate', severity: 'success' }); }
     } else {
       const { error } = await supabase.from('popups').insert([formData]);
-      if (error) {
-        toast({ title: 'Error adding', description: error.message, status: 'error' });
-      } else {
-        toast({ title: 'Berhasil ditambah', status: 'success' });
-        onClose();
-        fetchPopups();
-      }
+      if (error) setSnackbar({ open: true, message: 'Gagal tambah', severity: 'error' });
+      else { handleClose(); fetchPopups(); setSnackbar({ open: true, message: 'Berhasil ditambah', severity: 'success' }); }
     }
   };
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <Text fontSize="xl" fontWeight="bold">Manajemen Popup Notifikasi</Text>
-        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={handleAddNew}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 800 }}>Manajemen Popup Notifikasi</Typography>
+        <Button startIcon={<PlusIcon />} variant="contained" onClick={handleAddNew} sx={{ borderRadius: '100px' }}>
           Tambah Popup
         </Button>
-      </HStack>
+      </Stack>
 
-      <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
-        <Table variant="simple">
-          <Thead bg="gray.50">
-            <Tr>
-              <Th>Judul</Th>
-              <Th>Tipe</Th>
-              <Th>Status</Th>
-              <Th>Aksi</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
+      <TableContainer component={Paper} sx={{ borderRadius: '24px', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+        <Table>
+          <TableHead sx={{ bgcolor: 'grey.50' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 700 }}>Judul</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Tipe</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Aksi</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {popups.map((item) => (
-              <Tr key={item.id}>
-                <Td fontWeight="bold">{item.title}</Td>
-                <Td>{item.type === 'image' ? 'Gambar' : 'Teks'}</Td>
-                <Td>
-                  {item.is_active ? (
-                    <Text color="green.500" fontWeight="bold">Aktif</Text>
-                  ) : (
-                    <Text color="red.500" fontWeight="bold">Non-aktif</Text>
-                  )}
-                </Td>
-                <Td>
-                  <HStack spacing={2}>
-                    <IconButton size="sm" icon={<FaEdit />} onClick={() => handleEdit(item)} />
-                    <IconButton size="sm" icon={<FaTrash />} colorScheme="red" onClick={() => handleDelete(item.id)} />
-                  </HStack>
-                </Td>
-              </Tr>
+              <TableRow key={item.id}>
+                <TableCell sx={{ fontWeight: 600 }}>{item.title}</TableCell>
+                <TableCell>{item.type === 'image' ? 'Gambar' : 'Teks'}</TableCell>
+                <TableCell>
+                  <Typography sx={{ color: item.is_active ? 'success.main' : 'error.main', fontWeight: 800, fontSize: '0.875rem' }}>
+                    {item.is_active ? 'Aktif' : 'Non-aktif'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <IconButton size="small" onClick={() => handleEdit(item)}><EditIcon fontSize="small" /></IconButton>
+                    <IconButton size="small" color="error" onClick={() => handleDelete(item.id)}><TrashIcon fontSize="small" /></IconButton>
+                  </Stack>
+                </TableCell>
+              </TableRow>
             ))}
-          </Tbody>
+          </TableBody>
         </Table>
-      </Box>
+      </TableContainer>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <form onSubmit={handleSubmit}>
-            <ModalHeader>{editingItem ? 'Edit Popup' : 'Tambah Popup'}</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <VStack spacing={4}>
-                <FormControl isRequired>
-                  <FormLabel>Judul</FormLabel>
-                  <Input value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
-                </FormControl>
-                <FormControl isRequired>
-                  <FormLabel>Tipe</FormLabel>
-                  <Select value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})}>
-                    <option value="text">Teks</option>
-                    <option value="image">Gambar (URL)</option>
-                  </Select>
-                </FormControl>
-                <FormControl isRequired>
-                  <FormLabel>{formData.type === 'image' ? 'URL Gambar' : 'Isi Teks'}</FormLabel>
-                  <Input value={formData.content} onChange={(e) => setFormData({...formData, content: e.target.value})} />
-                  {formData.type === 'image' && formData.content && (
-                    <Image src={formData.content} mt={2} h="100px" objectFit="contain" />
-                  )}
-                </FormControl>
-                <Divider />
-                <Text fontWeight="bold" fontSize="sm">Aksi Tombol (Opsional)</Text>
-                <FormControl>
-                  <FormLabel>Label Tombol</FormLabel>
-                  <Input placeholder="Misal: Kunjungi Website" value={formData.button_label} onChange={(e) => setFormData({...formData, button_label: e.target.value})} />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Link Tombol</FormLabel>
-                  <Input placeholder="https://..." value={formData.button_link} onChange={(e) => setFormData({...formData, button_link: e.target.value})} />
-                </FormControl>
-                <Divider />
-                <FormControl display="flex" align="center">
-                  <FormLabel mb="0">Aktifkan?</FormLabel>
-                  <Switch isChecked={formData.is_active} onChange={(e) => setFormData({...formData, is_active: e.target.checked})} />
-                </FormControl>
-              </VStack>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="ghost" mr={3} onClick={onClose}>Batal</Button>
-              <Button colorScheme="brand" type="submit">Simpan</Button>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
+      <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth sx={{ '& .MuiDialog-paper': { borderRadius: '24px' } }}>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle sx={{ fontWeight: 800 }}>{editingItem ? 'Edit' : 'Tambah'} Popup</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ mt: 1 }}>
+              <TextField required fullWidth label="Judul" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
+              <FormControl fullWidth>
+                <InputLabel>Tipe</InputLabel>
+                <Select
+                  value={formData.type}
+                  label="Tipe"
+                  onChange={(e) => setFormData({...formData, type: e.target.value})}
+                >
+                  <MenuItem value="text">Teks</MenuItem>
+                  <MenuItem value="image">Gambar (URL)</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                required
+                fullWidth
+                multiline={formData.type === 'text'}
+                rows={formData.type === 'text' ? 3 : 1}
+                label={formData.type === 'image' ? 'URL Gambar' : 'Isi Teks'}
+                value={formData.content}
+                onChange={(e) => setFormData({...formData, content: e.target.value})}
+              />
+              {formData.type === 'image' && formData.content && (
+                <Box component="img" src={formData.content} sx={{ width: '100%', height: 100, objectFit: 'contain', borderRadius: 2, bgcolor: 'grey.50' }} />
+              )}
+              <Divider />
+              <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Aksi Tombol (Opsional)</Typography>
+              <TextField fullWidth label="Label Tombol" value={formData.button_label} onChange={(e) => setFormData({...formData, button_label: e.target.value})} />
+              <TextField fullWidth label="Link Tombol" value={formData.button_link} onChange={(e) => setFormData({...formData, button_link: e.target.value})} />
+              <FormControlLabel
+                control={<Switch checked={formData.is_active} onChange={(e) => setFormData({...formData, is_active: e.target.checked})} />}
+                label="Aktifkan?"
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={handleClose}>Batal</Button>
+            <Button variant="contained" type="submit">Simpan</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </Box>
   );
 };

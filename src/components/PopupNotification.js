@@ -1,22 +1,20 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Button,
-  Image,
-  Text,
-  HStack,
-  useDisclosure,
-} from '@chakra-ui/react';
+  Box,
+  Typography,
+  IconButton,
+  Stack,
+} from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 import { supabase } from '../lib/supabase';
 
 const PopupNotification = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [open, setOpen] = useState(false);
   const [popups, setPopups] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -29,18 +27,17 @@ const PopupNotification = () => {
         .order('created_at', { ascending: false });
 
       if (!error && data && data.length > 0) {
-        // Check session storage to see if popups already shown
         const sessionShown = sessionStorage.getItem('popups_shown');
         if (!sessionShown) {
           setPopups(data);
           setCurrentIndex(0);
-          onOpen();
+          setOpen(true);
         }
       }
     } catch (err) {
       console.error('Error fetching popups:', err);
     }
-  }, [onOpen]);
+  }, []);
 
   useEffect(() => {
     fetchPopups();
@@ -51,7 +48,7 @@ const PopupNotification = () => {
       setCurrentIndex(prev => prev + 1);
     } else {
       sessionStorage.setItem('popups_shown', 'true');
-      onClose();
+      setOpen(false);
     }
   };
 
@@ -60,46 +57,65 @@ const PopupNotification = () => {
   const currentPopup = popups[currentIndex];
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
-      <ModalOverlay bg="blackAlpha.700" backdropFilter="blur(5px)" />
-      <ModalContent borderRadius="xl" overflow="hidden">
-        <ModalHeader borderBottomWidth="1px" borderColor="gray.100">
-          {currentPopup.title || 'Pengumuman Penting'}
-        </ModalHeader>
-        <ModalCloseButton />
-        <ModalBody p={0}>
-          {currentPopup.type === 'image' ? (
-            <Image
-              src={currentPopup.content}
-              alt={currentPopup.title}
-              w="100%"
-              objectFit="cover"
-            />
-          ) : (
-            <Text p={6} fontSize="md">
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      slotProps={{
+        paper: {
+          sx: { borderRadius: '24px' }
+        }
+      }}
+    >
+      <DialogTitle sx={{ m: 0, p: 2, fontWeight: 700 }}>
+        {currentPopup.title || 'Pengumuman Penting'}
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent sx={{ p: 0 }}>
+        {currentPopup.type === 'image' ? (
+          <Box
+            component="img"
+            src={currentPopup.content}
+            alt={currentPopup.title}
+            sx={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+        ) : (
+          <Box sx={{ p: 3 }}>
+            <Typography variant="body1">
               {currentPopup.content}
-            </Text>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <HStack spacing={3}>
-            {currentPopup.button_link && (
-              <Button
-                as="a"
-                href={currentPopup.button_link}
-                target="_blank"
-                colorScheme="blue"
-              >
-                {currentPopup.button_label || 'Kunjungi'}
-              </Button>
-            )}
-            <Button colorScheme="brand" onClick={handleClose}>
-              {currentIndex < popups.length - 1 ? 'Berikutnya' : 'Tutup'}
+            </Typography>
+          </Box>
+        )}
+      </DialogContent>
+      <DialogActions sx={{ p: 2 }}>
+        <Stack direction="row" spacing={1.5}>
+          {currentPopup.button_link && (
+            <Button
+              href={currentPopup.button_link}
+              target="_blank"
+              variant="outlined"
+            >
+              {currentPopup.button_label || 'Kunjungi'}
             </Button>
-          </HStack>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+          )}
+          <Button variant="contained" onClick={handleClose}>
+            {currentIndex < popups.length - 1 ? 'Berikutnya' : 'Tutup'}
+          </Button>
+        </Stack>
+      </DialogActions>
+    </Dialog>
   );
 };
 

@@ -1,33 +1,34 @@
 import React from 'react';
-import { Flex, Icon, Text } from '@chakra-ui/react';
+import { Box, Typography, SvgIcon } from '@mui/material';
 
 const MountainIcon = (props) => (
-  <Icon viewBox="0 0 24 24" {...props}>
+  <SvgIcon {...props} viewBox="0 0 24 24">
     <path
-      fill="currentColor"
       d="M14,6L10.25,11L13.1,14.8L11.5,16C9.81,13.75 7,10 7,10L1,18H23L14,6Z"
     />
-  </Icon>
+  </SvgIcon>
 );
 
-const NgawonggoLogo = ({ color = "ngawonggo.green", fontSize = "xl", iconSize = 8, showText = true, flexDirection = "row" }) => {
+const NgawonggoLogo = ({ color = "primary.main", fontSize = "1.25rem", iconSize = 32, showText = true, flexDirection = "row" }) => {
   return (
-    <Flex align="center" direction={flexDirection}>
-      <MountainIcon boxSize={iconSize} color={color} />
+    <Box sx={{ display: 'flex', alignItems: 'center', flexDirection }}>
+      <MountainIcon sx={{ fontSize: iconSize, color: color }} />
       {showText && (
-        <Text
-          ml={flexDirection === "row" ? 2 : 0}
-          mt={flexDirection === "column" ? 4 : 0}
-          fontSize={fontSize}
-          fontWeight="bold"
-          fontFamily="heading"
-          color={color}
-          letterSpacing="tight"
+        <Typography
+          variant="h6"
+          sx={{
+            ml: flexDirection === "row" ? 1 : 0,
+            mt: flexDirection === "column" ? 2 : 0,
+            fontSize: fontSize,
+            fontWeight: 700,
+            color: color,
+            letterSpacing: '-0.02em',
+          }}
         >
           Desa Ngawonggo
-        </Text>
+        </Typography>
       )}
-    </Flex>
+    </Box>
   );
 };
 

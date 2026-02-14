@@ -1,39 +1,36 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
-  VStack,
-  HStack,
-  Text,
+  Stack,
+  Typography,
   Button,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
   IconButton,
-  useToast,
-  Badge,
+  Chip,
+  Paper,
+  Snackbar,
+  Alert,
   Avatar,
-  Textarea,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { FaCheck, FaTrash, FaReply } from 'react-icons/fa';
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+} from '@mui/material';
+import { Check as CheckIcon, Delete as TrashIcon, Reply as ReplyIcon } from '@mui/icons-material';
 import { supabase } from '../../../lib/supabase';
 
 const CommentManager = () => {
   const [comments, setComments] = useState([]);
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyContent, setReplyContent] = useState('');
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
+  const [open, setOpen] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const fetchComments = useCallback(async () => {
     const { data, error } = await supabase
@@ -50,7 +47,7 @@ const CommentManager = () => {
   const approveComment = async (id) => {
     const { error } = await supabase.from('comments').update({ is_approved: true }).eq('id', id);
     if (!error) {
-      toast({ title: 'Komentar disetujui', status: 'success' });
+      setSnackbar({ open: true, message: 'Komentar disetujui', severity: 'success' });
       fetchComments();
     }
   };
@@ -59,7 +56,7 @@ const CommentManager = () => {
     if (window.confirm('Hapus komentar ini?')) {
       const { error } = await supabase.from('comments').delete().eq('id', id);
       if (!error) {
-        toast({ title: 'Komentar dihapus', status: 'success' });
+        setSnackbar({ open: true, message: 'Komentar dihapus', severity: 'success' });
         fetchComments();
       }
     }
@@ -73,87 +70,97 @@ const CommentManager = () => {
       name: 'Admin Desa Ngawonggo',
       email: 'admin@ngawonggo.desa.id',
       content: replyContent,
-      is_approved: true // Admin reply auto-approved
+      is_approved: true
     }]);
     if (!error) {
-      toast({ title: 'Balasan terkirim', status: 'success' });
-      onClose();
+      setSnackbar({ open: true, message: 'Balasan terkirim', severity: 'success' });
+      setOpen(false);
       setReplyContent('');
       fetchComments();
     }
   };
 
   return (
-    <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
-      <Table variant="simple">
-        <Thead bg="gray.50">
-          <Tr>
-            <Th>User</Th>
-            <Th>Komentar</Th>
-            <Th>Berita</Th>
-            <Th>Status</Th>
-            <Th>Aksi</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {comments.map(c => (
-            <Tr key={c.id}>
-              <Td>
-                <HStack>
-                  <Avatar size="xs" name={c.name} />
-                  <VStack align="start" spacing={0}>
-                    <Text fontWeight="bold" fontSize="xs">{c.name}</Text>
-                    <Text fontSize="10px" color="gray.500">{c.email}</Text>
-                  </VStack>
-                </HStack>
-              </Td>
-              <Td maxW="300px">
-                <Text fontSize="sm" noOfLines={2}>{c.content}</Text>
-                <Text fontSize="10px" color="gray.400">{new Date(c.created_at).toLocaleString()}</Text>
-              </Td>
-              <Td maxW="200px">
-                <Text fontSize="xs" isTruncated>{c.news?.title || 'Unknown'}</Text>
-              </Td>
-              <Td>
-                <Badge colorScheme={c.is_approved ? 'green' : 'orange'}>
-                  {c.is_approved ? 'Approved' : 'Pending'}
-                </Badge>
-              </Td>
-              <Td>
-                <HStack>
-                  {!c.is_approved && (
-                    <IconButton size="sm" icon={<FaCheck />} colorScheme="green" onClick={() => approveComment(c.id)} />
-                  )}
-                  <IconButton size="sm" icon={<FaReply />} onClick={() => { setReplyingTo(c); onOpen(); }} />
-                  <IconButton size="sm" icon={<FaTrash />} colorScheme="red" onClick={() => deleteComment(c.id)} />
-                </HStack>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
+    <Box>
+      <TableContainer component={Paper} sx={{ borderRadius: '24px', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+        <Table>
+          <TableHead sx={{ bgcolor: 'grey.50' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 700 }}>User</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Komentar</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Berita</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Aksi</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {comments.map(c => (
+              <TableRow key={c.id}>
+                <TableCell>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Avatar sx={{ width: 32, height: 32 }}>{c.name[0]}</Avatar>
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{c.name}</Typography>
+                      <Typography variant="caption" color="text.secondary">{c.email}</Typography>
+                    </Box>
+                  </Stack>
+                </TableCell>
+                <TableCell sx={{ maxWidth: 300 }}>
+                  <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                    {c.content}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">{new Date(c.created_at).toLocaleString()}</Typography>
+                </TableCell>
+                <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <Typography variant="caption">{c.news?.title || 'Unknown'}</Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={c.is_approved ? 'Approved' : 'Pending'}
+                    size="small"
+                    color={c.is_approved ? 'success' : 'warning'}
+                    sx={{ fontWeight: 700 }}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1}>
+                    {!c.is_approved && (
+                      <IconButton size="small" color="success" onClick={() => approveComment(c.id)}><CheckIcon fontSize="small" /></IconButton>
+                    )}
+                    <IconButton size="small" onClick={() => { setReplyingTo(c); setOpen(true); }}><ReplyIcon fontSize="small" /></IconButton>
+                    <IconButton size="small" color="error" onClick={() => deleteComment(c.id)}><TrashIcon fontSize="small" /></IconButton>
+                  </Stack>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Balas Komentar</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text fontSize="sm" mb={4} p={3} bg="gray.50" borderRadius="md">
-              <strong>{replyingTo?.name}:</strong> {replyingTo?.content}
-            </Text>
-            <Textarea
-              placeholder="Tulis balasan admin..."
-              value={replyContent}
-              onChange={e => setReplyContent(e.target.value)}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>Batal</Button>
-            <Button colorScheme="brand" onClick={handleReply}>Kirim Balasan</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth sx={{ '& .MuiDialog-paper': { borderRadius: '24px' } }}>
+        <DialogTitle sx={{ fontWeight: 800 }}>Balas Komentar</DialogTitle>
+        <DialogContent>
+          <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: 'grey.50', borderRadius: '16px' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{replyingTo?.name}</Typography>
+            <Typography variant="body2">{replyingTo?.content}</Typography>
+          </Paper>
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            label="Tulis balasan admin..."
+            value={replyContent}
+            onChange={e => setReplyContent(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setOpen(false)}>Batal</Button>
+          <Button variant="contained" onClick={handleReply}>Kirim Balasan</Button>
+        </DialogActions>
+      </Dialog>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </Box>
   );
 };

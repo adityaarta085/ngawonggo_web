@@ -3,41 +3,37 @@ import {
   Box,
   Button,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
   IconButton,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  FormControl,
-  FormLabel,
-  Input,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
   Switch,
-  useToast,
-  HStack,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+  FormControlLabel,
+  Stack,
+  Typography,
+  Paper,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import { Edit as EditIcon, Delete as TrashIcon, Add as PlusIcon } from '@mui/icons-material';
 import { supabase } from '../../../lib/supabase';
 
 const AnnouncementManager = () => {
   const [announcements, setAnnouncements] = useState([]);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [open, setOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
     content: '',
     is_active: true,
   });
-  const toast = useToast();
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   const fetchAnnouncements = useCallback(async () => {
     const { data, error } = await supabase
@@ -45,136 +41,115 @@ const AnnouncementManager = () => {
       .select('*')
       .order('id', { ascending: false });
 
-    if (error) {
-      toast({ title: 'Error fetching', description: error.message, status: 'error' });
-    } else {
-      setAnnouncements(data);
-    }
-  }, [toast]);
+    if (error) setSnackbar({ open: true, message: 'Error: ' + error.message, severity: 'error' });
+    else setAnnouncements(data);
+  }, []);
 
   useEffect(() => {
     fetchAnnouncements();
   }, [fetchAnnouncements]);
 
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => {
+    setOpen(false);
+    setEditingItem(null);
+  };
+
   const handleEdit = (item) => {
     setEditingItem(item);
     setFormData(item);
-    onOpen();
+    handleOpen();
   };
 
   const handleAddNew = () => {
     setEditingItem(null);
-    setFormData({
-      content: '',
-      is_active: true,
-    });
-    onOpen();
+    setFormData({ content: '', is_active: true });
+    handleOpen();
   };
 
   const handleDelete = async (id) => {
     if (window.confirm('Hapus pengumuman ini?')) {
       const { error } = await supabase.from('announcements').delete().eq('id', id);
-      if (error) {
-        toast({ title: 'Error deleting', description: error.message, status: 'error' });
-      } else {
-        toast({ title: 'Berhasil dihapus', status: 'success' });
-        fetchAnnouncements();
-      }
+      if (error) setSnackbar({ open: true, message: 'Gagal menghapus', severity: 'error' });
+      else { fetchAnnouncements(); setSnackbar({ open: true, message: 'Dihapus', severity: 'success' }); }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (editingItem) {
-      const { error } = await supabase
-        .from('announcements')
-        .update(formData)
-        .eq('id', editingItem.id);
-      if (error) {
-        toast({ title: 'Error updating', description: error.message, status: 'error' });
-      } else {
-        toast({ title: 'Berhasil diupdate', status: 'success' });
-        onClose();
-        fetchAnnouncements();
-      }
+      const { error } = await supabase.from('announcements').update(formData).eq('id', editingItem.id);
+      if (error) setSnackbar({ open: true, message: 'Gagal update', severity: 'error' });
+      else { handleClose(); fetchAnnouncements(); setSnackbar({ open: true, message: 'Berhasil diupdate', severity: 'success' }); }
     } else {
       const { error } = await supabase.from('announcements').insert([formData]);
-      if (error) {
-        toast({ title: 'Error adding', description: error.message, status: 'error' });
-      } else {
-        toast({ title: 'Berhasil ditambah', status: 'success' });
-        onClose();
-        fetchAnnouncements();
-      }
+      if (error) setSnackbar({ open: true, message: 'Gagal tambah', severity: 'error' });
+      else { handleClose(); fetchAnnouncements(); setSnackbar({ open: true, message: 'Berhasil ditambah', severity: 'success' }); }
     }
   };
 
   return (
     <Box>
-      <HStack justify="space-between" mb={6}>
-        <Text fontSize="xl" fontWeight="bold">Manajemen Running Text</Text>
-        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={handleAddNew}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Typography variant="h6" sx={{ fontWeight: 800 }}>Manajemen Running Text</Typography>
+        <Button startIcon={<PlusIcon />} variant="contained" onClick={handleAddNew} sx={{ borderRadius: '100px' }}>
           Tambah Pengumuman
         </Button>
-      </HStack>
+      </Stack>
 
-      <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
-        <Table variant="simple">
-          <Thead bg="gray.50">
-            <Tr>
-              <Th>Isi Pengumuman</Th>
-              <Th>Status</Th>
-              <Th>Aksi</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
+      <TableContainer component={Paper} sx={{ borderRadius: '24px', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
+        <Table>
+          <TableHead sx={{ bgcolor: 'grey.50' }}>
+            <TableRow>
+              <TableCell sx={{ fontWeight: 700 }}>Isi Pengumuman</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Aksi</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {announcements.map((item) => (
-              <Tr key={item.id}>
-                <Td maxW="400px" isTruncated>{item.content}</Td>
-                <Td>
-                  {item.is_active ? (
-                    <Text color="green.500" fontWeight="bold">Aktif</Text>
-                  ) : (
-                    <Text color="red.500" fontWeight="bold">Non-aktif</Text>
-                  )}
-                </Td>
-                <Td>
-                  <HStack spacing={2}>
-                    <IconButton size="sm" icon={<FaEdit />} onClick={() => handleEdit(item)} />
-                    <IconButton size="sm" icon={<FaTrash />} colorScheme="red" onClick={() => handleDelete(item.id)} />
-                  </HStack>
-                </Td>
-              </Tr>
+              <TableRow key={item.id}>
+                <TableCell sx={{ maxWidth: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {item.content}
+                </TableCell>
+                <TableCell>
+                  <Typography sx={{ color: item.is_active ? 'success.main' : 'error.main', fontWeight: 800, fontSize: '0.875rem' }}>
+                    {item.is_active ? 'Aktif' : 'Non-aktif'}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Stack direction="row" spacing={1}>
+                    <IconButton size="small" onClick={() => handleEdit(item)}><EditIcon fontSize="small" /></IconButton>
+                    <IconButton size="small" color="error" onClick={() => handleDelete(item.id)}><TrashIcon fontSize="small" /></IconButton>
+                  </Stack>
+                </TableCell>
+              </TableRow>
             ))}
-          </Tbody>
+          </TableBody>
         </Table>
-      </Box>
+      </TableContainer>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <form onSubmit={handleSubmit}>
-            <ModalHeader>{editingItem ? 'Edit Pengumuman' : 'Tambah Pengumuman'}</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <VStack spacing={4}>
-                <FormControl isRequired>
-                  <FormLabel>Isi Pengumuman</FormLabel>
-                  <Input value={formData.content} onChange={(e) => setFormData({...formData, content: e.target.value})} />
-                </FormControl>
-                <FormControl display="flex" align="center">
-                  <FormLabel mb="0">Aktifkan?</FormLabel>
-                  <Switch isChecked={formData.is_active} onChange={(e) => setFormData({...formData, is_active: e.target.checked})} />
-                </FormControl>
-              </VStack>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="ghost" mr={3} onClick={onClose}>Batal</Button>
-              <Button colorScheme="brand" type="submit">Simpan</Button>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
+      <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth sx={{ '& .MuiDialog-paper': { borderRadius: '24px' } }}>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle sx={{ fontWeight: 800 }}>{editingItem ? 'Edit' : 'Tambah'} Pengumuman</DialogTitle>
+          <DialogContent>
+            <Stack spacing={3} sx={{ mt: 1 }}>
+              <TextField required fullWidth label="Isi Pengumuman" value={formData.content} onChange={(e) => setFormData({...formData, content: e.target.value})} />
+              <FormControlLabel
+                control={<Switch checked={formData.is_active} onChange={(e) => setFormData({...formData, is_active: e.target.checked})} />}
+                label="Aktifkan?"
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ p: 3 }}>
+            <Button onClick={handleClose}>Batal</Button>
+            <Button variant="contained" type="submit">Simpan</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
     </Box>
   );
 };

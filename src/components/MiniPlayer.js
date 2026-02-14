@@ -1,43 +1,33 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   IconButton,
-  HStack,
-  VStack,
-  Text,
-  useColorModeValue,
+  Stack,
+  Typography,
   Collapse,
-  useDisclosure,
-  Icon,
   Button,
   Tabs,
-  TabList,
-  TabPanels,
   Tab,
-  TabPanel,
   Slider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
   Tooltip,
-} from '@chakra-ui/react';
+  Paper,
+} from '@mui/material';
 import {
-  FaBroadcastTower,
-  FaTv,
-  FaPlay,
-  FaPause,
-  FaVolumeUp,
-  FaVolumeMute,
-  FaChevronDown,
-  FaTimes
-} from 'react-icons/fa';
+  Radio as BroadcastTowerIcon,
+  Tv as TvIcon,
+  PlayArrow as PlayIcon,
+  Pause as PauseIcon,
+  VolumeUp as VolumeUpIcon,
+  VolumeOff as VolumeMuteIcon,
+  KeyboardArrowDown as ChevronDownIcon,
+  Close as CloseIcon
+} from '@mui/icons-material';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 
 const MiniPlayer = () => {
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
-  const [activeMedia, setActiveMedia] = useState('radio');
+  const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(70);
   const [isMuted, setIsMuted] = useState(false);
@@ -46,7 +36,8 @@ const MiniPlayer = () => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
 
-  // Radio Logic
+  const handleToggle = () => setOpen(!open);
+
   const toggleRadio = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -69,9 +60,8 @@ const MiniPlayer = () => {
     }
   }, [volume, isMuted]);
 
-  // Video JS Init
   useEffect(() => {
-    if (activeMedia === 'tv' && !playerRef.current && videoRef.current) {
+    if (activeTab === 1 && !playerRef.current && videoRef.current) {
       const player = videojs(videoRef.current, {
         autoplay: false,
         controls: true,
@@ -91,13 +81,12 @@ const MiniPlayer = () => {
         playerRef.current = null;
       }
     };
-  }, [activeMedia]);
+  }, [activeTab]);
 
-  const handleTabChange = (index) => {
-    const media = index === 0 ? 'radio' : 'tv';
-    setActiveMedia(media);
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
     if (isPlaying) {
-      if (media === 'tv') {
+      if (newValue === 1) {
         audioRef.current?.pause();
       } else {
         playerRef.current?.pause();
@@ -107,93 +96,112 @@ const MiniPlayer = () => {
   };
 
   return (
-    <Box
-      position="fixed"
-      bottom={{ base: 4, md: 8 }}
-      right={{ base: 4, md: 8 }}
-      zIndex={2000}
-    >
-      <Collapse in={isOpen} animateOpacity>
-        <Box
-          bg={useColorModeValue('white', 'gray.800')}
-          p={4}
-          borderRadius="2xl"
-          boxShadow="2xl"
-          width={{ base: "300px", md: "350px" }}
-          mb={4}
-          border="1px solid"
-          borderColor="gray.100"
+    <Box sx={{ position: 'fixed', bottom: { xs: 16, md: 32 }, right: { xs: 16, md: 32 }, zIndex: 2000 }}>
+      <Collapse in={open}>
+        <Paper
+          elevation={24}
+          sx={{
+            p: 2,
+            borderRadius: '24px',
+            width: { xs: '300px', md: '350px' },
+            mb: 2,
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
         >
-          <HStack justify="space-between" mb={4}>
-            <Text fontWeight="800" fontSize="sm" color="brand.500">MEDIA PLAYER</Text>
-            <IconButton
-              size="xs"
-              icon={<FaTimes />}
-              onClick={onToggle}
-              variant="ghost"
-              aria-label="Close player"
-            />
-          </HStack>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: 'primary.main', letterSpacing: '0.1em' }}>
+              MEDIA PLAYER
+            </Typography>
+            <IconButton size="small" onClick={handleToggle}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Stack>
 
-          <Tabs variant="soft-rounded" colorScheme="brand" size="sm" onChange={handleTabChange}>
-            <TabList mb={4}>
-              <Tab><Icon as={FaBroadcastTower} mr={2} /> Radio</Tab>
-              <Tab><Icon as={FaTv} mr={2} /> TVRI</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel p={0}>
-                <VStack spacing={4} align="stretch">
-                  <Box bg="gray.50" p={4} borderRadius="xl" textAlign="center">
-                    <Text fontWeight="700" fontSize="sm">Gemilang FM 98.6</Text>
-                    <Text fontSize="xs" color="gray.500">Live Streaming</Text>
-                  </Box>
-                  <HStack spacing={4} justify="center">
-                    <IconButton
-                      icon={isPlaying ? <FaPause /> : <FaPlay />}
-                      onClick={toggleRadio}
-                      colorScheme="brand"
-                      borderRadius="full"
-                      size="lg"
-                      aria-label="Play/Pause"
-                    />
-                  </HStack>
-                </VStack>
-              </TabPanel>
-              <TabPanel p={0}>
-                <Box borderRadius="xl" overflow="hidden" bg="black">
-                  <div data-vjs-player>
-                    <video ref={videoRef} className="video-js vjs-big-play-centered" />
-                  </div>
-                </Box>
-              </TabPanel>
-            </TabPanels>
+          <Tabs
+            value={activeTab}
+            onChange={handleTabChange}
+            variant="fullWidth"
+            sx={{
+              minHeight: 'auto',
+              mb: 2,
+              '& .MuiTabs-indicator': { height: 0 },
+              '& .MuiTab-root': {
+                minHeight: 'auto',
+                py: 1,
+                borderRadius: '100px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                textTransform: 'none',
+              },
+              '& .Mui-selected': { bgcolor: 'primary.main', color: 'white !important' },
+            }}
+          >
+            <Tab icon={<BroadcastTowerIcon sx={{ fontSize: '1rem', mr: 0.5 }} />} label="Radio" iconPosition="start" />
+            <Tab icon={<TvIcon sx={{ fontSize: '1rem', mr: 0.5 }} />} label="TVRI" iconPosition="start" />
           </Tabs>
 
-          <Box mt={6}>
-            <HStack spacing={3}>
-              <Icon as={isMuted ? FaVolumeMute : FaVolumeUp} color="gray.400" cursor="pointer" onClick={() => setIsMuted(!isMuted)} />
-              <Slider value={volume} onChange={(v) => setVolume(v)} min={0} max={100} colorScheme="brand">
-                <SliderTrack>
-                  <SliderFilledTrack />
-                </SliderTrack>
-                <SliderThumb />
-              </Slider>
-            </HStack>
-          </Box>
-        </Box>
+          {activeTab === 0 ? (
+            <Stack spacing={2} sx={{ p: 2, bgcolor: 'grey.50', borderRadius: '16px', textAlign: 'center' }}>
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Gemilang FM 98.6</Typography>
+                <Typography variant="caption" sx={{ color: 'text.secondary' }}>Live Streaming</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <IconButton
+                  onClick={toggleRadio}
+                  color="primary"
+                  sx={{
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    width: 56,
+                    height: 56,
+                    '&:hover': { bgcolor: 'primary.dark' }
+                  }}
+                >
+                  {isPlaying ? <PauseIcon fontSize="large" /> : <PlayIcon fontSize="large" />}
+                </IconButton>
+              </Box>
+            </Stack>
+          ) : (
+            <Box sx={{ borderRadius: '16px', overflow: 'hidden', bgcolor: 'black' }}>
+              <div data-vjs-player>
+                <video ref={videoRef} className="video-js vjs-big-play-centered" />
+              </div>
+            </Box>
+          )}
+
+          <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 3, px: 1 }}>
+            <IconButton size="small" onClick={() => setIsMuted(!isMuted)}>
+              {isMuted ? <VolumeMuteIcon fontSize="small" /> : <VolumeUpIcon fontSize="small" />}
+            </IconButton>
+            <Slider
+              value={volume}
+              onChange={(e, v) => setVolume(v)}
+              min={0}
+              max={100}
+              size="small"
+              sx={{ flexGrow: 1 }}
+            />
+          </Stack>
+        </Paper>
       </Collapse>
 
-      <Tooltip label={isOpen ? "Minimize" : "Live Radio & TV"} placement="left">
+      <Tooltip title={open ? "Minimize" : "Live Radio & TV"} placement="left">
         <Button
-          onClick={onToggle}
-          colorScheme="brand"
-          size="lg"
-          borderRadius="full"
-          boxShadow="xl"
-          leftIcon={<Icon as={isOpen ? FaChevronDown : FaBroadcastTower} />}
-          px={6}
+          onClick={handleToggle}
+          variant="contained"
+          size="large"
+          startIcon={open ? <ChevronDownIcon /> : <BroadcastTowerIcon />}
+          sx={{
+            borderRadius: '100px',
+            px: 4,
+            height: 56,
+            fontWeight: 800,
+            boxShadow: '0 8px 16px rgba(19, 127, 236, 0.3)',
+          }}
         >
-          {isOpen ? "Tutup" : "Live Media"}
+          {open ? "Tutup" : "Live Media"}
         </Button>
       </Tooltip>
 

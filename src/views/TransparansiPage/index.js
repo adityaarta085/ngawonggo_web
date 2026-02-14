@@ -1,55 +1,68 @@
+import React from 'react';
 import {
   Box,
-  Heading,
-  Text,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatHelpText,
-  SimpleGrid,
+  Typography,
+  Grid,
   Container,
-  VStack,
-  Badge,
-} from '@chakra-ui/react';
+  Stack,
+  Paper,
+  Chip,
+} from '@mui/material';
 
 export default function TransparansiPage() {
+  const stats = [
+    { label: 'Total Pendapatan 2024', value: 'Rp 1.250.000.000', help: 'Estimasi APBDes', color: 'primary.main' },
+    { label: 'Realisasi Belanja', value: '85%', help: 'Update per Juni 2024', color: 'info.main' },
+    { label: 'Indeks Stunting', value: 'Turun 12%', help: 'Capaian Kesehatan Desa', color: 'success.main' },
+  ];
+
   return (
-    <Box py={12} minH="100vh" bg="gray.50">
-      <Container maxW="container.xl">
-        <VStack spacing={12} align="stretch">
-          <Box layerStyle="glassCard" p={10} bgGradient="linear(to-br, brand.500, blue.600)" color="white">
-            <Badge colorScheme="whiteAlpha" variant="solid" mb={4} borderRadius="full" px={4} py={1}>KETERBUKAAN INFORMASI</Badge>
-            <Heading mb={4} size="2xl">Transparansi Dana Desa</Heading>
-            <Text fontSize="lg" opacity={0.9}>
+    <Box sx={{ py: 6, bgcolor: 'grey.50', minHeight: '100vh' }}>
+      <Container maxWidth="lg">
+        <Stack spacing={6}>
+          <Paper
+            sx={{
+              p: { xs: 4, md: 6 },
+              bgcolor: 'primary.main',
+              color: 'white',
+              borderRadius: '32px',
+              backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)',
+            }}
+          >
+            <Chip label="KETERBUKAAN INFORMASI" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 800, mb: 2 }} />
+            <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>Transparansi Dana Desa</Typography>
+            <Typography variant="h6" sx={{ opacity: 0.9, fontWeight: 400 }}>
               Wujud keterbukaan informasi publik mengenai pengelolaan Anggaran Pendapatan dan Belanja Desa (APBDes) untuk mewujudkan pemerintahan yang bersih dan akuntabel.
-            </Text>
-          </Box>
+            </Typography>
+          </Paper>
 
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
-            <Stat layerStyle="glassCard" p={8} transition="0.3s" _hover={{ transform: 'translateY(-5px)', boxShadow: '2xl' }}>
-              <StatLabel color="gray.500" fontWeight="bold">Total Pendapatan 2024</StatLabel>
-              <StatNumber fontSize="3xl" color="brand.600" my={2}>Rp 1.250.000.000</StatNumber>
-              <StatHelpText fontWeight="600">Estimasi APBDes</StatHelpText>
-            </Stat>
-            <Stat layerStyle="glassCard" p={8} transition="0.3s" _hover={{ transform: 'translateY(-5px)', boxShadow: '2xl' }}>
-              <StatLabel color="gray.500" fontWeight="bold">Realisasi Belanja</StatLabel>
-              <StatNumber fontSize="3xl" color="blue.600" my={2}>85%</StatNumber>
-              <StatHelpText fontWeight="600">Update per Juni 2024</StatHelpText>
-            </Stat>
-            <Stat layerStyle="glassCard" p={8} transition="0.3s" _hover={{ transform: 'translateY(-5px)', boxShadow: '2xl' }}>
-              <StatLabel color="gray.500" fontWeight="bold">Indeks Stunting</StatLabel>
-              <StatNumber fontSize="3xl" color="green.600" my={2}>Turun 12%</StatNumber>
-              <StatHelpText fontWeight="600">Capaian Kesehatan Desa</StatHelpText>
-            </Stat>
-          </SimpleGrid>
+          <Grid container spacing={4}>
+            {stats.map((stat, index) => (
+              <Grid item xs={12} md={4} key={index}>
+                <Paper
+                  sx={{
+                    p: 4,
+                    borderRadius: '28px',
+                    transition: 'all 0.3s',
+                    '&:hover': { transform: 'translateY(-5px)', boxShadow: '0 20px 40px rgba(0,0,0,0.05)' }
+                  }}
+                  elevation={0}
+                >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'text.secondary', mb: 1 }}>{stat.label}</Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 800, color: stat.color, mb: 0.5 }}>{stat.value}</Typography>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: 'text.secondary' }}>{stat.help}</Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
 
-          <Box layerStyle="glassCard" p={10} borderLeft="4px solid" borderColor="brand.500">
-            <Heading size="lg" mb={4} color="gray.800">Laporan Realisasi Anggaran</Heading>
-            <Text fontSize="lg" color="gray.600" lineHeight="relaxed">
+          <Paper sx={{ p: 4, borderRadius: '24px', borderLeft: '8px solid', borderColor: 'primary.main' }} elevation={0}>
+            <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>Laporan Realisasi Anggaran</Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
               Grafik dan rincian realisasi anggaran secara mendetail sedang dipersiapkan oleh tim keuangan desa untuk publikasi digital sesuai dengan standar keterbukaan informasi nasional (UU KIP). Kami berkomitmen untuk menyajikan data yang akurat dan mudah dipahami oleh seluruh warga.
-            </Text>
-          </Box>
-        </VStack>
+            </Typography>
+          </Paper>
+        </Stack>
       </Container>
     </Box>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Image } from '@chakra-ui/react';
+import { Box } from '@mui/material';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -31,17 +31,27 @@ import { supabase } from './lib/supabase';
 
 const TopBar = () => {
   return (
-    <Box bg="white" py={2} px={8} borderBottom="1px solid" borderColor="gray.100">
-      <Flex justify="space-between" align="center">
-        <Box flex={1} mr={4} maxW="70%">
-          <RunningText isEmbedded={true} />
-        </Box>
-        <Image
-          src="https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png"
-          h="30px"
-          alt="Berakhlak - Bangga Melayani Bangsa"
-        />
-      </Flex>
+    <Box
+      sx={{
+        bgcolor: 'background.paper',
+        py: 1,
+        px: { xs: 2, md: 8 },
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}
+    >
+      <Box sx={{ flex: 1, mr: 2, maxWidth: '70%' }}>
+        <RunningText isEmbedded={true} />
+      </Box>
+      <Box
+        component="img"
+        src="https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png"
+        sx={{ height: '30px' }}
+        alt="Berakhlak - Bangga Melayani Bangsa"
+      />
     </Box>
   );
 };
@@ -61,7 +71,6 @@ function App() {
   usePageTracking();
 
   useEffect(() => {
-    // Tetap dengarkan sesi Supabase jika ada fitur lain yang membutuhkannya
     supabase.auth.getSession().then(({ data: { session: authSession } }) => {
       if (authSession) setSession(authSession);
     });
@@ -80,8 +89,7 @@ function App() {
   }, []);
 
   return (
-    <Box>
-      {/* Integration Gate untuk interaksi video */}
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {!showSplash && !isVerified && !isAdmin && (
         <HumanVerification onVerified={() => {
           setIsVerified(true);
@@ -94,30 +102,34 @@ function App() {
       {!isAdmin && <TopBar />}
       {!isAdmin && <Navbar />}
       {!isAdmin && <PopupNotification />}
-      <Routes>
-        <Route path="/" element={<LandingPage isReady={!showSplash && isVerified} />} />
-        <Route path="/news" element={<NewsPage />} />
-        <Route path="/news/:id" element={<NewsDetail />} />
-        <Route path="/profil" element={<ProfilPage />} />
-        <Route path="/pemerintahan" element={<PemerintahanPage />} />
-        <Route path="/layanan" element={<LayananPage />} />
-        <Route path="/potensi" element={<PotensiPage />} />
-        <Route path="/transparansi" element={<TransparansiPage />} />
-        <Route path="/kontak" element={<KontakPage />} />
-        <Route path="/media" element={<MediaPage />} />
-        <Route path="/game-edukasi" element={<EduGamePage />} />
-        <Route path="/dusun/:slug" element={<DusunPage />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms-conditions" element={<TermsConditions />} />
-        <Route
-          path="/admin"
-          element={
-            session ? <AdminPage setSession={setSession} /> : <Navigate to="/admin/login" replace />
-          }
-        />
-        <Route path="/admin/login" element={<Login setSession={setSession} />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
+
+      <Box component="main" sx={{ flexGrow: 1 }}>
+        <Routes>
+          <Route path="/" element={<LandingPage isReady={!showSplash && isVerified} />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/news/:id" element={<NewsDetail />} />
+          <Route path="/profil" element={<ProfilPage />} />
+          <Route path="/pemerintahan" element={<PemerintahanPage />} />
+          <Route path="/layanan" element={<LayananPage />} />
+          <Route path="/potensi" element={<PotensiPage />} />
+          <Route path="/transparansi" element={<TransparansiPage />} />
+          <Route path="/kontak" element={<KontakPage />} />
+          <Route path="/media" element={<MediaPage />} />
+          <Route path="/game-edukasi" element={<EduGamePage />} />
+          <Route path="/dusun/:slug" element={<DusunPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route
+            path="/admin"
+            element={
+              session ? <AdminPage setSession={setSession} /> : <Navigate to="/admin/login" replace />
+            }
+          />
+          <Route path="/admin/login" element={<Login setSession={setSession} />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </Box>
+
       {!isAdmin && <MiniPlayer />}
       {!isAdmin && <Chatbot />}
       {!isAdmin && <Footer />}

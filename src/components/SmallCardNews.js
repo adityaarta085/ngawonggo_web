@@ -1,60 +1,69 @@
+import React from 'react';
 import {
-  Box,
+
   Card,
-  Image,
-  Text,
+  CardMedia,
+  Typography,
   Stack,
-  CardBody,
-  // CardHeader,
-  Heading,
-  Badge,
-  Button
-} from '@chakra-ui/react';
+  CardContent,
+  Chip,
+  Button,
+  CardActionArea
+} from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
 const SmallCardNews = ({ id, image, title, date }) => {
   return (
-    <Box>
-      <Card
-        direction={{ base: 'column', sm: 'row' }}
-        overflow="hidden"
-        variant="outline"
-        _hover={{
+    <Card
+      sx={{
+        display: 'flex',
+        flexDirection: { xs: 'column', sm: 'row' },
+        borderRadius: '24px',
+        overflow: 'hidden',
+        boxShadow: 'none',
+        border: '1px solid',
+        borderColor: 'divider',
+        transition: 'transform 0.3s',
+        '&:hover': {
           transform: 'translateY(-5px)',
-          transition: 'transform 0.3s',
-        }}
-        size={{ base: "sm" }}
+          borderColor: 'primary.main',
+        },
+      }}
+    >
+      <CardActionArea
+        component={RouterLink}
+        to={`/news/${id}`}
+        sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: 'stretch' }}
       >
-        <Image
-          objectFit="cover"
-          maxW={{ base: '100%', sm: '200px', lg : "250px" }}
-          src={image}
-          alt="Image News"
+        <CardMedia
+          component="img"
+          sx={{ width: { xs: '100%', sm: 200, lg: 250 }, height: { xs: 200, sm: 'auto' }, objectFit: 'cover' }}
+          image={image}
+          alt={title}
         />
-
-        <Stack>
-          <CardBody>
-            <Heading size={{ base: "sm",lg : "md" }}>{title}</Heading>
-
-            <Badge fontFamily="default" size={{ base: "sm" }} my={2}>
-              <Text py="2">{date}</Text>
-            </Badge>
-            <Box mt={2}>
-              <Button
-                as={RouterLink}
-                to={`/news/${id}`}
-                size="xs"
-                variant="link"
-                color="brand.500"
-                _hover={{ textDecoration: 'none', color: 'brand.600' }}
-              >
-                Selengkapnya →
-              </Button>
-            </Box>
-          </CardBody>
-        </Stack>
-      </Card>
-    </Box>
+        <CardContent sx={{ flexGrow: 1, p: 2 }}>
+          <Stack spacing={1}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1.3 }}>
+              {title}
+            </Typography>
+            <Chip
+              label={date}
+              size="small"
+              sx={{ alignSelf: 'flex-start', fontSize: '0.75rem', borderRadius: '8px' }}
+            />
+            <Button
+              component={RouterLink}
+              to={`/news/${id}`}
+              variant="text"
+              size="small"
+              sx={{ alignSelf: 'flex-start', px: 0, mt: 1, textTransform: 'none', fontWeight: 700 }}
+            >
+              Selengkapnya →
+            </Button>
+          </Stack>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 };
 

@@ -2,87 +2,103 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
-  Heading,
-  Text,
-  SimpleGrid,
-  Image,
-  Badge,
-  Link,
-  VStack,
-  HStack,
+  Typography,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  Chip,
   Button,
-  Icon,
-  Flex,
-} from '@chakra-ui/react';
+  Stack,
+  CardActionArea,
+} from '@mui/material';
+import { PlayArrow as PlayIcon } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { supabase } from '../../../lib/supabase';
-import { FaPlay } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
-
-const MotionBox = motion(Box);
 
 const NewsCard = ({ id, title, date, category, image, video_url, delay }) => {
   return (
-    <MotionBox
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      bg="white"
-      borderRadius="2xl"
-      overflow="hidden"
-      boxShadow="sm"
-      border="1px solid"
-      borderColor="gray.100"
-      _hover={{ transform: 'translateY(-10px)', boxShadow: 'xl' }}
+      style={{ height: '100%' }}
     >
-      <Box position="relative">
-        <Image src={image} alt={title} h="240px" w="100%" objectFit="cover" />
-        {video_url && (
-          <Flex
-            position="absolute"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            bg="whiteAlpha.800"
-            borderRadius="full"
-            p={4}
-          >
-            <Icon as={FaPlay} color="brand.500" />
-          </Flex>
-        )}
-        <Badge
-          position="absolute"
-          top={4}
-          left={4}
-          colorScheme="brand"
-          px={3}
-          py={1}
-          borderRadius="full"
-        >
-          {category}
-        </Badge>
-      </Box>
-      <VStack p={6} align="start" spacing={3}>
-        <Text fontSize="sm" color="gray.500" fontWeight="600">
-          {date}
-        </Text>
-        <Heading size="md" lineHeight="tall" noOfLines={2}>
-          {title}
-        </Heading>
-        <Link
-          as={RouterLink}
-          to={`/news/${id}`}
-          color="brand.500"
-          fontWeight="700"
-          fontSize="sm"
-          _hover={{ textDecoration: 'none', color: 'brand.600' }}
-        >
-          Selengkapnya →
-        </Link>
-      </VStack>
-    </MotionBox>
+      <Card
+        sx={{
+          borderRadius: '28px',
+          overflow: 'hidden',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: 'none',
+          border: '1px solid',
+          borderColor: 'divider',
+          transition: 'transform 0.3s, border-color 0.3s',
+          '&:hover': {
+            transform: 'translateY(-10px)',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.05)',
+            borderColor: 'primary.main'
+          },
+        }}
+      >
+        <CardActionArea component={RouterLink} to={`/news/${id}`} sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'stretch' }}>
+          <Box sx={{ position: 'relative' }}>
+            <CardMedia
+              component="img"
+              image={image}
+              alt={title}
+              sx={{ height: 240, objectFit: 'cover' }}
+            />
+            {video_url && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  bgcolor: 'rgba(255, 255, 255, 0.8)',
+                  borderRadius: '50%',
+                  p: 1.5,
+                  display: 'flex'
+                }}
+              >
+                <PlayIcon color="primary" />
+              </Box>
+            )}
+            <Chip
+              label={category}
+              size="small"
+              color="primary"
+              sx={{
+                position: 'absolute',
+                top: 16,
+                left: 16,
+                fontWeight: 700,
+                borderRadius: '8px'
+              }}
+            />
+          </Box>
+          <CardContent sx={{ flexGrow: 1, p: 3 }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, display: 'block', mb: 1 }}>
+              {date}
+            </Typography>
+            <Typography variant="h6" sx={{ fontWeight: 800, lineHeight: 1.4, mb: 2 }}>
+              {title}
+            </Typography>
+            <Typography
+              variant="subtitle2"
+              sx={{ color: 'primary.main', fontWeight: 700, display: 'flex', alignItems: 'center' }}
+            >
+              Selengkapnya →
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -103,40 +119,51 @@ const LatestNews = () => {
   }, []);
 
   return (
-    <Box py={20}>
-      <Container maxW="container.xl">
-        <HStack justify="space-between" mb={12} align="flex-end">
+    <Box sx={{ py: 10 }}>
+      <Container maxWidth="lg">
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          justifyContent="space-between"
+          alignItems={{ xs: 'flex-start', md: 'flex-end' }}
+          sx={{ mb: 6 }}
+          spacing={2}
+        >
           <Box>
-            <Text
-              fontSize="sm"
-              fontWeight="bold"
-              color="brand.500"
-              textTransform="uppercase"
-              letterSpacing="widest"
-              mb={2}
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 'bold',
+                color: 'primary.main',
+                textTransform: 'uppercase',
+                letterSpacing: '0.15em',
+                display: 'block',
+                mb: 1
+              }}
             >
               {language === 'id' ? 'Kabar Terbaru' : 'Latest Updates'}
-            </Text>
-            <Heading as="h2" size="xl" fontWeight="800">
+            </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 800 }}>
               {language === 'id' ? 'Berita Desa Ngawonggo' : 'Ngawonggo Village News'}
-            </Heading>
+            </Typography>
           </Box>
           <Button
-            as={RouterLink}
+            component={RouterLink}
             to="/news"
-            variant="ghost"
-            colorScheme="brand"
-            rightIcon={<span>→</span>}
+            variant="text"
+            sx={{ fontWeight: 700, fontSize: '1rem', textTransform: 'none' }}
+            endIcon={<span>→</span>}
           >
             {language === 'id' ? 'Lihat Semua' : 'View All'}
           </Button>
-        </HStack>
+        </Stack>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
+        <Grid container spacing={4}>
           {newsItems.map((news, index) => (
-            <NewsCard key={news.id} id={news.id} {...news} delay={index * 0.1} />
+            <Grid item xs={12} md={4} key={news.id}>
+              <NewsCard id={news.id} {...news} delay={index * 0.1} />
+            </Grid>
           ))}
-        </SimpleGrid>
+        </Grid>
       </Container>
     </Box>
   );

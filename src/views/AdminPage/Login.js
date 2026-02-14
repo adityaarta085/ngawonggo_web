@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import {
   Button,
-  FormControl,
-  FormLabel,
-  Input,
-  VStack,
-  Heading,
-  Text,
-  useToast,
+  TextField,
+  Stack,
+  Typography,
   Container,
-} from '@chakra-ui/react';
+  Paper,
+  Box,
+  Snackbar,
+  Alert,
+} from '@mui/material';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +17,7 @@ const Login = ({ setSession }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const toast = useToast();
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -25,7 +25,6 @@ const Login = ({ setSession }) => {
     setLoading(true);
 
     try {
-      // Menggunakan RPC untuk keamanan (password dicek di sisi database)
       const { data, error } = await supabase
         .rpc('check_admin_credentials', {
           p_username: username,
@@ -33,78 +32,72 @@ const Login = ({ setSession }) => {
         });
 
       if (error || !data || data.length === 0) {
-        toast({
-          title: 'Login Gagal',
-          description: 'Username atau password salah',
-          status: 'error',
-          duration: 3000,
-          isClosable: true,
-        });
+        setSnackbar({ open: true, message: 'Username atau password salah', severity: 'error' });
       } else {
-        // Simpan sesi ke localStorage (data[0] karena rpc mengembalikan array)
         const user = data[0];
         localStorage.setItem('adminSession', JSON.stringify(user));
         if (setSession) {
           setSession(user);
         }
-        toast({
-          title: 'Login Berhasil',
-          status: 'success',
-          duration: 2000,
-          isClosable: true,
-        });
-        navigate('/admin');
+        setSnackbar({ open: true, message: 'Login Berhasil', severity: 'success' });
+        setTimeout(() => navigate('/admin'), 1000);
       }
     } catch (err) {
-      toast({
-        title: 'Error',
-        description: 'Terjadi kesalahan sistem',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
+      setSnackbar({ open: true, message: 'Terjadi kesalahan sistem', severity: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Container maxW="md" py={20}>
-      <VStack spacing={8} align="stretch" bg="white" p={8} borderRadius="xl" boxShadow="lg">
-        <VStack spacing={2} align="center">
-          <Heading size="lg">Admin Login</Heading>
-          <Text color="gray.500">Desa Ngawonggo</Text>
-        </VStack>
-        <form onSubmit={handleLogin}>
-          <VStack spacing={4}>
-            <FormControl isRequired>
-              <FormLabel>Username</FormLabel>
-              <Input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </FormControl>
-            <FormControl isRequired>
-              <FormLabel>Password</FormLabel>
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </FormControl>
-            <Button
-              type="submit"
-              colorScheme="brand"
-              width="full"
-              isLoading={loading}
-            >
-              Masuk
-            </Button>
-          </VStack>
-        </form>
-      </VStack>
-    </Container>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', bgcolor: 'grey.50' }}>
+      <Container maxWidth="xs">
+        <Paper elevation={24} sx={{ p: 4, borderRadius: '32px' }}>
+          <Stack spacing={4}>
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="h4" sx={{ fontWeight: 800 }}>Admin Login</Typography>
+              <Typography variant="body2" color="text.secondary">Desa Ngawonggo</Typography>
+            </Box>
+            <form onSubmit={handleLogin}>
+              <Stack spacing={3}>
+                <TextField
+                  required
+                  fullWidth
+                  label="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  variant="outlined"
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
+                />
+                <TextField
+                  required
+                  fullWidth
+                  type="password"
+                  label="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  variant="outlined"
+                  sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  fullWidth
+                  disabled={loading}
+                  size="large"
+                  sx={{ borderRadius: '100px', height: 56, fontWeight: 700 }}
+                >
+                  {loading ? 'Masuk...' : 'Masuk'}
+                </Button>
+              </Stack>
+            </form>
+          </Stack>
+        </Paper>
+      </Container>
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      </Snackbar>
+    </Box>
   );
 };
 
