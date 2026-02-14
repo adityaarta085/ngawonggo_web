@@ -9,15 +9,15 @@ const MotionHeading = motion(Heading);
 const MotionText = motion(Text);
 const MotionStack = motion(Stack);
 
-const Hero = () => {
+const Hero = ({ isReady }) => {
   const { language } = useLanguage();
   const t = translations[language].hero;
   const videoRef = useRef(null);
 
   useEffect(() => {
-    // Attempt to play video on mount and on any user interaction
+    // Attempt to play video when isReady is true and on any user interaction
     const playVideo = () => {
-      if (videoRef.current) {
+      if (videoRef.current && isReady) {
         const playPromise = videoRef.current.play();
         if (playPromise !== undefined) {
           playPromise.catch(error => {
@@ -27,7 +27,10 @@ const Hero = () => {
       }
     };
 
-    playVideo();
+    if (isReady) {
+        playVideo();
+    }
+
     window.addEventListener('click', playVideo);
     window.addEventListener('touchstart', playVideo);
 
@@ -35,7 +38,7 @@ const Hero = () => {
       window.removeEventListener('click', playVideo);
       window.removeEventListener('touchstart', playVideo);
     };
-  }, []);
+  }, [isReady]);
 
   return (
     <Box
@@ -47,23 +50,25 @@ const Hero = () => {
       bg="black"
     >
       {/* Video Background */}
-      <Box
-        as="video"
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        src="https://api.deline.web.id/nKT00jDXVR.mp4"
-        position="absolute"
-        top="0"
-        left="0"
-        width="100%"
-        height="100%"
-        objectFit="cover"
-        zIndex={0}
-        opacity={0.8}
-      />
+      {isReady && (
+        <Box
+          as="video"
+          ref={videoRef}
+          autoPlay
+          loop
+          muted
+          playsInline
+          src="https://api.deline.web.id/nKT00jDXVR.mp4"
+          position="absolute"
+          top="0"
+          left="0"
+          width="100%"
+          height="100%"
+          objectFit="cover"
+          zIndex={0}
+          opacity={0.8}
+        />
+      )}
 
       {/* Gradient Overlay (IKN Inspired) */}
       <Box

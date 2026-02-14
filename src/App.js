@@ -95,7 +95,7 @@ function App() {
       {!isAdmin && <Navbar />}
       {!isAdmin && <PopupNotification />}
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<LandingPage isReady={!showSplash && isVerified} />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetail />} />
         <Route path="/profil" element={<ProfilPage />} />

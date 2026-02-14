@@ -113,21 +113,32 @@ function Navbar() {
     { label: t.admin, href: '/admin', isSpecial: true },
   ];
 
+  const navBg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)');
+  const navColor = useColorModeValue('gray.700', 'white');
+
   return (
-    <Box position="sticky" top={0} zIndex={1000}>
+    <Box
+      position="sticky"
+      top={0}
+      zIndex={1000}
+      p={{ base: 2, md: 3 }}
+      transition="all 0.3s ease"
+    >
       <Flex
-        bg={useColorModeValue('white', 'accent.blue')}
-        color={useColorModeValue('gray.600', 'white')}
+        layerStyle="liquidGlass"
+        bg={navBg}
+        color={navColor}
         minH={'70px'}
         py={{ base: 2 }}
-        px={{ base: 4 }}
-        borderBottom={1}
-        borderStyle={'solid'}
-        borderColor={useColorModeValue('gray.100', 'whiteAlpha.100')}
+        px={{ base: 4, md: 8 }}
         align={'center'}
-        boxShadow="sm"
+        borderRadius={{ base: '2xl', md: 'full' }}
+        maxW="container.xl"
+        mx="auto"
+        transition="all 0.3s ease"
+        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.1)"
       >
-        <Container maxW="container.xl" display="flex" alignItems="center">
+        <Container maxW="full" display="flex" alignItems="center" px={0}>
           <Flex
             flex={{ base: 1, md: 'auto' }}
             ml={{ base: -2 }}
@@ -290,9 +301,14 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
 const MobileNav = ({ navItems }) => {
   return (
     <Stack
-      bg={useColorModeValue('white', 'gray.800')}
+      layerStyle="liquidGlass"
       p={4}
       display={{ md: 'none' }}
+      borderRadius="2xl"
+      mt={2}
+      mx={2}
+      boxShadow="xl"
+      bg={useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)')}
     >
       {navItems.map((navItem) => (
         <MobileNavItem key={navItem.label} {...navItem} />
