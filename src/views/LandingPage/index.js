@@ -10,10 +10,10 @@ import Supports from './components/Supports.js';
 import StatsSection from './components/StatsSection.js';
 import PengaduanSection from './components/PengaduanSection.js';
 
-export default function LandingPage() {
+export default function LandingPage({ isReady }) {
   return (
     <Box>
-      <Hero />
+      <Hero isReady={isReady} />
       <StatsSection />
       <QuickLinks />
       <DusunSection />
