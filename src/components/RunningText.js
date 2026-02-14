@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Typography, SvgIcon } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Campaign as CampaignIcon } from '@mui/icons-material';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
