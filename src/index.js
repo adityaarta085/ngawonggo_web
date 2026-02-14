@@ -3,8 +3,7 @@ import * as ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import * as serviceWorker from './serviceWorker';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
+import { ChakraProvider } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
 import theme from './theme';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -14,14 +13,13 @@ const root = ReactDOM.createRoot(container);
 
 root.render(
   <StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <ChakraProvider theme={theme}>
       <LanguageProvider>
         <BrowserRouter>
           <App />
         </BrowserRouter>
       </LanguageProvider>
-    </ThemeProvider>
+    </ChakraProvider>
   </StrictMode>
 );
 

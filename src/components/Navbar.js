@@ -1,36 +1,41 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-
+  Flex,
+  Text,
   IconButton,
   Button,
   Stack,
   Collapse,
-  Container,
-  Link,
+  Icon,
   Popover,
-  Typography,
-  useTheme,
-  useMediaQuery,
-} from '@mui/material';
+  PopoverTrigger,
+  PopoverContent,
+  useColorModeValue,
+  useBreakpointValue,
+  useDisclosure,
+  Link,
+  Container,
+  HStack,
+} from '@chakra-ui/react';
 import {
-  Menu as HamburgerIcon,
-  Close as CloseIcon,
-
-  KeyboardArrowDown as ChevronDownIcon,
-} from '@mui/icons-material';
+  HamburgerIcon,
+  CloseIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+} from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
+import { Image } from '@chakra-ui/react';
 import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { translations } from '../translations';
 
 function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, onToggle } = useDisclosure();
   const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const t = translations[language].nav;
 
   useEffect(() => {
@@ -40,31 +45,28 @@ function Navbar() {
     return () => clearInterval(timer);
   }, []);
 
-  const onToggle = () => setIsOpen(!isOpen);
-
   const logos = [
     {
       id: 'desa',
       content: (
-        <Link component={RouterLink} to="/" sx={{ textDecoration: 'none', display: 'flex' }}>
-          <NgawonggoLogo fontSize={isMobile ? '1rem' : '1.25rem'} />
+        <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
+          <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'lg' })} />
         </Link>
       ),
     },
     {
       id: 'kab',
       content: (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box
-            component="img"
+        <HStack spacing={3}>
+          <Image
             src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
-            sx={{ height: '35px' }}
+            h="35px"
             alt="Logo Kab Magelang"
           />
-          <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '0.75rem', md: '0.875rem' }, whiteSpace: 'nowrap' }}>
+          <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
             Kabupaten Magelang
-          </Typography>
-        </Box>
+          </Text>
+        </HStack>
       ),
     },
     {
@@ -72,21 +74,18 @@ function Navbar() {
       content: (
         <Link
           href="https://menpan.go.id/site/tentang-kami/kedeputian/transformasi-digital-pemerintah/sistem-pemerintahan-berbasis-elektronik-spbe-2"
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={{ textDecoration: 'none', color: 'inherit' }}
+          isExternal
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Box
-              component="img"
+          <HStack spacing={3}>
+            <Image
               src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png"
-              sx={{ height: '35px' }}
+              h="35px"
               alt="Logo SPBE"
             />
-            <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '0.75rem', md: '0.875rem' }, whiteSpace: 'nowrap' }}>
+            <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
               SPBE Digital
-            </Typography>
-          </Box>
+            </Text>
+          </HStack>
         </Link>
       ),
     },
@@ -114,44 +113,49 @@ function Navbar() {
     { label: t.admin, href: '/admin', isSpecial: true },
   ];
 
-  const glassStyle = {
-    bgcolor: 'rgba(255, 255, 255, 0.7)',
-    backdropFilter: 'blur(25px) saturate(200%)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
-  };
+  const navBg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)');
+  const navColor = useColorModeValue('gray.700', 'white');
 
   return (
     <Box
-      sx={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 1100,
-        p: { xs: 1, md: 1.5 },
-        transition: 'all 0.3s ease',
-      }}
+      position="sticky"
+      top={0}
+      zIndex={1000}
+      p={{ base: 2, md: 3 }}
+      transition="all 0.3s ease"
     >
-      <Container maxWidth="lg" sx={{ p: 0 }}>
-        <Box
-          sx={{
-            ...glassStyle,
-            minHeight: '70px',
-            display: 'flex',
-            alignItems: 'center',
-            py: 1,
-            px: { xs: 2, md: 4 },
-            borderRadius: { xs: '24px', md: '100px' },
-            mx: 'auto',
-          }}
-        >
-          <Box sx={{ flex: 1, display: { md: 'none' }, ml: -1 }}>
-            <IconButton onClick={onToggle} aria-label="Toggle Navigation">
-              {isOpen ? <CloseIcon /> : <HamburgerIcon />}
-            </IconButton>
-          </Box>
+      <Flex
+        layerStyle="liquidGlass"
+        bg={navBg}
+        color={navColor}
+        minH={'70px'}
+        py={{ base: 2 }}
+        px={{ base: 4, md: 8 }}
+        align={'center'}
+        borderRadius={{ base: '2xl', md: 'full' }}
+        maxW="container.xl"
+        mx="auto"
+        transition="all 0.3s ease"
+        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.1)"
+      >
+        <Container maxW="full" display="flex" alignItems="center" px={0}>
+          <Flex
+            flex={{ base: 1, md: 'auto' }}
+            ml={{ base: -2 }}
+            display={{ base: 'flex', md: 'none' }}
+          >
+            <IconButton
+              onClick={onToggle}
+              icon={
+                isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
+              }
+              variant={'ghost'}
+              aria-label={'Toggle Navigation'}
+            />
+          </Flex>
 
-          <Box sx={{ flex: 1, display: 'flex', justifyContent: { xs: 'center', md: 'start' }, alignItems: 'center' }}>
-            <Box sx={{ height: '45px', display: 'flex', alignItems: 'center', overflow: 'hidden', width: { xs: '180px', md: '300px' }, flexShrink: 0 }}>
+          <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }} alignItems="center">
+            <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "200px", md: "320px" }} flexShrink={0}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={logoIndex}
@@ -166,33 +170,40 @@ function Navbar() {
               </AnimatePresence>
             </Box>
 
-            <Box sx={{ display: { xs: 'none', lg: 'flex' }, ml: 4 }}>
+            <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
               <DesktopNav navItems={NAV_ITEMS} />
-            </Box>
-          </Box>
+            </Flex>
+          </Flex>
 
-          <Stack direction="row" spacing={1} sx={{ flex: { xs: 1, md: 0 }, justifyContent: 'flex-end' }}>
-            <Button
-              size="small"
-              variant={language === 'id' ? 'contained' : 'text'}
-              onClick={() => setLanguage('id')}
-              sx={{ minWidth: '40px', borderRadius: '100px' }}
-            >
-              ID
-            </Button>
-            <Button
-              size="small"
-              variant={language === 'en' ? 'contained' : 'text'}
-              onClick={() => setLanguage('en')}
-              sx={{ minWidth: '40px', borderRadius: '100px' }}
-            >
-              EN
-            </Button>
+          <Stack
+            flex={{ base: 1, md: 0 }}
+            justify={'flex-end'}
+            direction={'row'}
+            spacing={4}
+          >
+            <HStack spacing={1}>
+              <Button
+                size="xs"
+                variant={language === 'id' ? 'solid' : 'ghost'}
+                colorScheme="brand"
+                onClick={() => setLanguage('id')}
+              >
+                ID
+              </Button>
+              <Button
+                size="xs"
+                variant={language === 'en' ? 'solid' : 'ghost'}
+                colorScheme="brand"
+                onClick={() => setLanguage('en')}
+              >
+                EN
+              </Button>
+            </HStack>
           </Stack>
-        </Box>
-      </Container>
+        </Container>
+      </Flex>
 
-      <Collapse in={isOpen}>
+      <Collapse in={isOpen} animateOpacity>
         <MobileNav navItems={NAV_ITEMS} />
       </Collapse>
     </Box>
@@ -200,195 +211,163 @@ function Navbar() {
 }
 
 const DesktopNav = ({ navItems }) => {
+  const linkColor = useColorModeValue('gray.600', 'gray.200');
+  const linkHoverColor = useColorModeValue('brand.500', 'brand.300');
+  const popoverContentBgColor = useColorModeValue('white', 'gray.800');
+
   return (
-    <Stack direction="row" spacing={2}>
+    <Stack direction={'row'} spacing={4}>
       {navItems.map((navItem) => (
         <Box key={navItem.label}>
-          <NavItem navItem={navItem} />
+          <Popover trigger={'hover'} placement={'bottom-start'}>
+            <PopoverTrigger>
+              <Box
+                as={RouterLink}
+                p={2}
+                to={navItem.href ?? '#'}
+                fontSize={'sm'}
+                fontWeight={600}
+                color={navItem.isSpecial ? 'brand.500' : linkColor}
+                _hover={{
+                  textDecoration: 'none',
+                  color: linkHoverColor,
+                }}
+              >
+                {navItem.label}
+              </Box>
+            </PopoverTrigger>
+
+            {navItem.children && (
+              <PopoverContent
+                border={0}
+                boxShadow={'xl'}
+                bg={popoverContentBgColor}
+                p={4}
+                rounded={'xl'}
+                minW={'sm'}
+              >
+                <Stack>
+                  {navItem.children.map((child) => (
+                    <DesktopSubNav key={child.label} {...child} />
+                  ))}
+                </Stack>
+              </PopoverContent>
+            )}
+          </Popover>
         </Box>
       ))}
     </Stack>
   );
 };
 
-const NavItem = ({ navItem }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleOpen = (event) => {
-    if (navItem.children) {
-      setAnchorEl(event.currentTarget);
-    }
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const open = Boolean(anchorEl);
-
+const DesktopSubNav = ({ label, href, subLabel }) => {
   return (
-    <Box onMouseEnter={handleOpen} onMouseLeave={handleClose}>
-      <Button
-        component={RouterLink}
-        to={navItem.href ?? '#'}
-        sx={{
-          fontSize: '0.875rem',
-          fontWeight: 600,
-          color: navItem.isSpecial ? 'primary.main' : 'text.primary',
-          '&:hover': {
-            bgcolor: 'rgba(0,0,0,0.04)',
-            color: 'primary.main',
-          },
-          px: 1.5,
-        }}
-        endIcon={navItem.children ? <ChevronDownIcon /> : null}
-      >
-        {navItem.label}
-      </Button>
-      {navItem.children && (
-        <Popover
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'left',
-          }}
-          sx={{
-            pointerEvents: 'none',
-          }}
-          slotProps={{
-            paper: {
-              onMouseEnter: handleOpen,
-              onMouseLeave: handleClose,
-              sx: {
-                pointerEvents: 'auto',
-                mt: 1,
-                p: 1.5,
-                borderRadius: '16px',
-                minWidth: '200px',
-                boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-              }
-            }
-          }}
+    <Box
+      as={RouterLink}
+      to={href}
+      role={'group'}
+      display={'block'}
+      p={2}
+      rounded={'md'}
+      _hover={{ bg: useColorModeValue('brand.50', 'gray.900') }}
+    >
+      <Stack direction={'row'} align={'center'}>
+        <Box>
+          <Text
+            transition={'all .3s ease'}
+            _groupHover={{ color: 'brand.500' }}
+            fontWeight={500}
+          >
+            {label}
+          </Text>
+          <Text fontSize={'sm'}>{subLabel}</Text>
+        </Box>
+        <Flex
+          transition={'all .3s ease'}
+          transform={'translateX(-10px)'}
+          opacity={0}
+          _groupHover={{ opacity: '100%', transform: 'translateX(0)' }}
+          justify={'flex-end'}
+          align={'center'}
+          flex={1}
         >
-          <Stack spacing={0.5}>
-            {navItem.children.map((child) => (
-              <Button
-                key={child.label}
-                component={RouterLink}
-                to={child.href}
-                fullWidth
-                sx={{
-                  justifyContent: 'flex-start',
-                  textAlign: 'left',
-                  color: 'text.secondary',
-                  '&:hover': {
-                    bgcolor: 'primary.container',
-                    color: 'primary.onContainer',
-                  },
-                  borderRadius: '12px',
-                  py: 1,
-                }}
-              >
-                {child.label}
-              </Button>
-            ))}
-          </Stack>
-        </Popover>
-      )}
+          <Icon color={'brand.500'} w={5} h={5} as={ChevronRightIcon} />
+        </Flex>
+      </Stack>
     </Box>
   );
 };
 
 const MobileNav = ({ navItems }) => {
   return (
-    <Box
-      sx={{
-        bgcolor: 'background.paper',
-        borderRadius: '24px',
-        mt: 1,
-        mx: 2,
-        p: 2,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-        display: { md: 'none' },
-      }}
+    <Stack
+      layerStyle="liquidGlass"
+      p={4}
+      display={{ md: 'none' }}
+      borderRadius="2xl"
+      mt={2}
+      mx={2}
+      boxShadow="xl"
+      bg={useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)')}
     >
-      <Stack spacing={1}>
-        {navItems.map((navItem) => (
-          <MobileNavItem key={navItem.label} {...navItem} />
-        ))}
-      </Stack>
-    </Box>
+      {navItems.map((navItem) => (
+        <MobileNavItem key={navItem.label} {...navItem} />
+      ))}
+    </Stack>
   );
 };
 
 const MobileNavItem = ({ label, children, href }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, onToggle } = useDisclosure();
 
   return (
-    <Box>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          py: 1.5,
-          px: 2,
-          borderRadius: '12px',
-          cursor: 'pointer',
-          '&:hover': { bgcolor: 'rgba(0,0,0,0.04)' },
+    <Stack spacing={4} onClick={children && onToggle}>
+      <Flex
+        py={2}
+        as={RouterLink}
+        to={href ?? '#'}
+        justify={'space-between'}
+        align={'center'}
+        _hover={{
+          textDecoration: 'none',
         }}
-        onClick={() => children ? setIsOpen(!isOpen) : null}
       >
-        <Typography
-          component={href ? RouterLink : 'div'}
-          to={href ?? '#'}
-          sx={{
-            fontWeight: 600,
-            textDecoration: 'none',
-            color: 'inherit',
-            flexGrow: 1,
-          }}
+        <Text
+          fontWeight={600}
+          color={useColorModeValue('gray.600', 'gray.200')}
         >
           {label}
-        </Typography>
+        </Text>
         {children && (
-          <ChevronDownIcon
-            sx={{
-              transform: isOpen ? 'rotate(180deg)' : 'none',
-              transition: 'transform 0.2s',
-            }}
+          <Icon
+            as={ChevronDownIcon}
+            transition={'all .25s ease-in-out'}
+            transform={isOpen ? 'rotate(180deg)' : ''}
+            w={6}
+            h={6}
           />
         )}
-      </Box>
+      </Flex>
 
-      {children && (
-        <Collapse in={isOpen}>
-          <Stack sx={{ pl: 3, mt: 0.5, borderLeft: '1px solid', borderColor: 'divider' }}>
-            {children.map((child) => (
-              <Button
-                key={child.label}
-                component={RouterLink}
-                to={child.href}
-                sx={{
-                  justifyContent: 'flex-start',
-                  color: 'text.secondary',
-                  py: 1,
-                }}
-              >
+      <Collapse in={isOpen} animateOpacity style={{ marginTop: '0!important' }}>
+        <Stack
+          mt={2}
+          pl={4}
+          borderLeft={1}
+          borderStyle={'solid'}
+          borderColor={useColorModeValue('gray.200', 'gray.700')}
+          align={'start'}
+        >
+          {children &&
+            children.map((child) => (
+              <Box as={RouterLink} key={child.label} py={2} to={child.href}>
                 {child.label}
-              </Button>
+              </Box>
             ))}
-          </Stack>
-        </Collapse>
-      )}
-    </Box>
+        </Stack>
+      </Collapse>
+    </Stack>
   );
-}
+};
 
 export default Navbar;

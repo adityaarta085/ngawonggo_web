@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
-  Typography,
-  Stack,
-  Breadcrumbs,
-  Link,
-  CircularProgress,
-  Chip,
-  Paper,
-} from '@mui/material';
-import { NavigateNext as NavigateNextIcon } from '@mui/icons-material';
+  Heading,
+  Text,
+  Image,
+  VStack,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  Spinner,
+  Center,
+  Badge,
+} from '@chakra-ui/react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import CommentSection from './CommentSection';
@@ -39,84 +41,82 @@ const NewsDetail = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
-        <CircularProgress size={60} />
-      </Box>
+      <Center h="60vh">
+        <Spinner size="xl" color="brand.500" thickness="4px" />
+      </Center>
     );
   }
 
   if (!news) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '60vh', gap: 2 }}>
-        <Typography variant="h5">Berita tidak ditemukan.</Typography>
-        <Link component={RouterLink} to="/news">Kembali ke Berita</Link>
-      </Box>
+      <Center h="60vh">
+        <VStack spacing={4}>
+          <Text fontSize="xl">Berita tidak ditemukan.</Text>
+          <Breadcrumb>
+            <BreadcrumbItem>
+              <BreadcrumbLink as={RouterLink} to="/news">Kembali ke Berita</BreadcrumbLink>
+            </BreadcrumbItem>
+          </Breadcrumb>
+        </VStack>
+      </Center>
     );
   }
 
   return (
-    <Box sx={{ py: 6 }}>
-      <Container maxWidth="md">
-        <Breadcrumbs
-          separator={<NavigateNextIcon fontSize="small" />}
-          sx={{ mb: 4 }}
-        >
-          <Link component={RouterLink} to="/" sx={{ textDecoration: 'none', color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-            Beranda
-          </Link>
-          <Link component={RouterLink} to="/news" sx={{ textDecoration: 'none', color: 'text.secondary', '&:hover': { color: 'primary.main' } }}>
-            Berita
-          </Link>
-          <Typography color="text.primary" sx={{ fontWeight: 600 }}>Detail Berita</Typography>
-        </Breadcrumbs>
+    <Box py={10}>
+      <Container maxW="container.lg">
+        <Breadcrumb mb={8}>
+          <BreadcrumbItem>
+            <BreadcrumbLink as={RouterLink} to="/">Beranda</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem>
+            <BreadcrumbLink as={RouterLink} to="/news">Berita</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbItem isCurrentPage>
+            <BreadcrumbLink>Detail Berita</BreadcrumbLink>
+          </BreadcrumbItem>
+        </Breadcrumb>
 
-        <Stack spacing={4}>
-          <Box>
-            <Chip
-              label={news.category}
-              color="primary"
-              size="small"
-              sx={{ mb: 2, fontWeight: 700, textTransform: 'capitalize', borderRadius: '8px' }}
-            />
-            <Typography variant="h3" sx={{ fontWeight: 800, lineHeight: 1.2, mb: 1 }}>
-              {news.title}
-            </Typography>
-            <Typography variant="subtitle2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-              {news.date}
-            </Typography>
-          </Box>
+        <VStack align="start" spacing={6}>
+          <Badge colorScheme="brand" px={3} py={1} borderRadius="full" textTransform="capitalize">
+            {news.category}
+          </Badge>
+          <Heading as="h1" size="2xl" lineHeight="tight">
+            {news.title}
+          </Heading>
+          <Text color="gray.500" fontWeight="600">
+            {news.date}
+          </Text>
 
           {news.image && (
-            <Box
-              component="img"
+            <Image
               src={news.image}
               alt={news.title}
-              sx={{
-                width: '100%',
-                maxHeight: '600px',
-                objectFit: 'cover',
-                borderRadius: '32px',
-                boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
-              }}
+              borderRadius="2xl"
+              w="100%"
+              maxH="600px"
+              objectFit="cover"
+              boxShadow="lg"
             />
           )}
 
-          <Paper elevation={0} sx={{ p: { xs: 0, md: 2 } }}>
-            <Box
-              sx={{
-                '& p': { mb: 3, fontSize: '1.125rem', lineHeight: 1.7 },
-                '& img': { borderRadius: '24px', my: 3, maxWidth: '100%', height: 'auto' },
-                '& ul, ol': { ml: 4, mb: 3 },
-                '& h1, h2, h3, h4': { mt: 4, mb: 2, fontWeight: 700 }
-              }}
-              dangerouslySetInnerHTML={{ __html: news.content }}
-            />
-          </Paper>
+          <Box
+            w="100%"
+            fontSize="lg"
+            lineHeight="tall"
+            sx={{
+              'p': { mb: 4 },
+              'img': { borderRadius: 'xl', my: 4 },
+              'ul, ol': { ml: 8, mb: 4 },
+              'h1, h2, h3, h4': { mt: 6, mb: 4 }
+            }}
+            dangerouslySetInnerHTML={{ __html: news.content }}
+          />
 
-          <Box sx={{ mt: 6 }}>
+          <Box w="100%">
             <CommentSection newsId={id} />
           </Box>
-        </Stack>
+        </VStack>
       </Container>
     </Box>
   );

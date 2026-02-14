@@ -1,25 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, Grid, Typography, Stack } from '@mui/material';
-import {
-  People as PeopleIcon,
-  Map as MapIcon,
-  Grass as GrassIcon,
-  Terrain as TerrainIcon,
-  Male as MaleIcon,
-  Female as FemaleIcon,
-  Explore as ExploreIcon
-} from '@mui/icons-material';
+import { Box, Container, SimpleGrid, Text, Heading, Icon, VStack } from '@chakra-ui/react';
+import { FaUsers, FaMapMarkedAlt, FaSeedling, FaMountain, FaMars, FaVenus, FaMap } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { supabase } from '../../../lib/supabase';
 
+const MotionBox = motion(Box);
+
 const iconMap = {
-  FaUsers: PeopleIcon,
-  FaMapMarkedAlt: MapIcon,
-  FaSeedling: GrassIcon,
-  FaMountain: TerrainIcon,
-  FaMars: MaleIcon,
-  FaVenus: FemaleIcon,
-  FaMap: ExploreIcon,
+  FaUsers,
+  FaMapMarkedAlt,
+  FaSeedling,
+  FaMountain,
+  FaMars,
+  FaVenus,
+  FaMap,
 };
 
 const StatsSection = () => {
@@ -34,46 +28,32 @@ const StatsSection = () => {
   }, []);
 
   return (
-    <Box sx={{ py: 10, bgcolor: 'background.default' }}>
-      <Container maxWidth="lg">
-        <Grid container spacing={4}>
-          {stats.length > 0 ? stats.map((stat, index) => {
-            const IconComponent = iconMap[stat.icon] || PeopleIcon;
-            return (
-              <Grid item xs={6} md={3} key={stat.id}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  style={{ textAlign: 'center' }}
-                >
-                  <Stack spacing={1.5} alignItems="center">
-                    <IconComponent sx={{ fontSize: 40, color: stat.color || 'primary.main' }} />
-                    <Typography variant="h4" sx={{ fontWeight: 800 }}>
-                      {stat.value}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: 'text.secondary',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.1em'
-                      }}
-                    >
-                      {stat.label}
-                    </Typography>
-                  </Stack>
-                </motion.div>
-              </Grid>
-            );
-          }) : (
-            <Grid item xs={12}>
-              <Typography align="center">Loading stats...</Typography>
-            </Grid>
+    <Box py={20} bg="gray.50">
+      <Container maxW="container.xl">
+        <SimpleGrid columns={{ base: 2, md: 4 }} spacing={10}>
+          {stats.length > 0 ? stats.map((stat, index) => (
+            <MotionBox
+              key={stat.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              textAlign="center"
+            >
+              <VStack spacing={3}>
+                <Icon as={iconMap[stat.icon] || FaUsers} w={10} h={10} color={stat.color} />
+                <Heading size="xl" fontWeight="800">
+                  {stat.value}
+                </Heading>
+                <Text color="gray.600" fontWeight="600" textTransform="uppercase" fontSize="xs" letterSpacing="widest">
+                  {stat.label}
+                </Text>
+              </VStack>
+            </MotionBox>
+          )) : (
+            <Text>Loading stats...</Text>
           )}
-        </Grid>
+        </SimpleGrid>
       </Container>
     </Box>
   );

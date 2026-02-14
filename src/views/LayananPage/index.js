@@ -1,21 +1,18 @@
-import React from 'react';
 import {
   Box,
-  Typography,
-  Grid,
+  Heading,
+  Text,
+  SimpleGrid,
   Card,
-  CardContent,
+  CardHeader,
+  CardBody,
   Stack,
+  StackDivider,
+  Icon,
   Link,
-  Container,
-  Paper,
-} from '@mui/material';
-import {
-  Info as InfoIcon,
-  Edit as EditIcon,
-  Email as EmailIcon,
-  CloudUpload as UploadIcon
-} from '@mui/icons-material';
+  Image,
+} from '@chakra-ui/react';
+import { EmailIcon, InfoIcon, EditIcon } from '@chakra-ui/icons';
 import ComplaintSystem from './ComplaintSystem';
 
 export default function LayananPage() {
@@ -38,71 +35,61 @@ export default function LayananPage() {
   ];
 
   return (
-    <Box sx={{ py: 6 }}>
-      <Container maxWidth="lg">
-        <Typography variant="h3" sx={{ fontWeight: 800, mb: 2, color: 'primary.main' }}>
-          Layanan Publik
-        </Typography>
-        <Typography variant="body1" sx={{ mb: 6, color: 'text.secondary', maxWidth: '800px' }}>
-          Pemerintah Desa Ngawonggo berkomitmen memudahkan warga dalam mengurus administrasi kependudukan.
-        </Typography>
+    <Box p={10} fontFamily="heading">
+      <Heading mb={5} color="ngawonggo.green">Layanan Publik</Heading>
+      <Text mb={8}>
+        Pemerintah Desa Ngawonggo berkomitmen memudahkan warga dalam mengurus administrasi kependudukan.
+      </Text>
 
-        <Grid container spacing={4}>
-          {services.map((service, index) => (
-            <Grid item xs={12} md={4} key={index}>
-              <Card sx={{ borderRadius: '28px', height: '100%', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
-                <CardContent sx={{ p: 4 }}>
-                  <service.icon sx={{ fontSize: 32, color: 'primary.main', mb: 2 }} />
-                  <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>{service.title}</Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
+        {services.map((service, index) => (
+          <Card key={index} variant="outline">
+            <CardHeader pb={0}>
+              <Icon as={service.icon} w={6} h={6} color="blue.500" mb={2} />
+              <Heading size="md">{service.title}</Heading>
+            </CardHeader>
+            <CardBody>
+              <Stack divider={<StackDivider />} spacing="4">
+                <Box>
+                  <Text pt="2" fontSize="sm">
                     {service.desc}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-
-        <Grid container spacing={4} sx={{ mt: 2 }}>
-          <Grid item xs={12} md={6}>
-            <Paper variant="outlined" sx={{ p: 4, borderRadius: '24px', borderStyle: 'dashed', bgcolor: 'grey.50', height: '100%' }}>
-              <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
-                <UploadIcon color="primary" />
-                <Typography variant="h6" sx={{ fontWeight: 700 }}>Digitalisasi Layanan</Typography>
+                  </Text>
+                </Box>
               </Stack>
-              <Typography variant="body2">
-                Sesuai Misi Desa, kami sedang mengembangkan sistem form pengajuan online untuk mempercepat proses administrasi warga.
-              </Typography>
-            </Paper>
-          </Grid>
+            </CardBody>
+          </Card>
+        ))}
+      </SimpleGrid>
 
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 4, borderRadius: '24px', bgcolor: 'primary.container', color: 'primary.onContainer', height: '100%' }} elevation={0}>
-              <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>Aspirasi & Pengaduan (LAPOR!)</Typography>
-              <Typography variant="body2" sx={{ mb: 3 }}>
-                Pemerintah Desa Ngawonggo terintegrasi dengan SP4N-LAPOR! Sampaikan keluhan atau saran Anda melalui kanal resmi nasional.
-              </Typography>
-              <Link href="https://prod.lapor.go.id" target="_blank" rel="noopener noreferrer">
-                <Box
-                  component="img"
-                  src="https://web.komdigi.go.id/resource/dXBsb2Fkcy8yMDI1LzIvMjEvOTFhZGU2OGEtY2JlNS00YjhmLTgzOTEtZDcxNmQ3ZDRmYWVkLnBuZw=="
-                  alt="Logo LAPOR"
-                  sx={{
-                    height: '40px',
-                    bgcolor: 'white',
-                    p: 1,
-                    borderRadius: '8px',
-                  }}
-                />
-              </Link>
-            </Paper>
-          </Grid>
-        </Grid>
-
-        <Box sx={{ mt: 10 }}>
-          <ComplaintSystem />
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10} mt={10}>
+        <Box p={5} bg="gray.50" borderRadius="xl" border="1px dashed" borderColor="gray.300">
+          <Heading size="sm" mb={2}>Digitalisasi Layanan</Heading>
+          <Text fontSize="sm">
+            Sesuai Misi Desa, kami sedang mengembangkan sistem form pengajuan online untuk mempercepat proses administrasi warga.
+          </Text>
         </Box>
-      </Container>
+
+        <Box p={5} bg="blue.50" borderRadius="xl" border="1px solid" borderColor="blue.100">
+          <Heading size="sm" mb={3}>Aspirasi & Pengaduan (LAPOR!)</Heading>
+          <Text fontSize="sm" mb={4}>
+            Pemerintah Desa Ngawonggo terintegrasi dengan SP4N-LAPOR! Sampaikan keluhan atau saran Anda melalui kanal resmi nasional.
+          </Text>
+          <Link href="https://prod.lapor.go.id" isExternal>
+            <Image
+              src="https://web.komdigi.go.id/resource/dXBsb2Fkcy8yMDI1LzIvMjEvOTFhZGU2OGEtY2JlNS00YjhmLTgzOTEtZDcxNmQ3ZDRmYWVkLnBuZw=="
+              alt="Logo LAPOR"
+              h="40px"
+              bg="white"
+              p={1}
+              borderRadius="md"
+            />
+          </Link>
+        </Box>
+      </SimpleGrid>
+
+      <Box mt={16}>
+        <ComplaintSystem />
+      </Box>
     </Box>
   );
 }

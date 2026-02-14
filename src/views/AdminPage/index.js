@@ -1,31 +1,28 @@
 import React, { useState } from 'react';
 import {
   Box,
-  Typography,
-  Stack,
+  Flex,
+  Text,
+  Icon,
+  VStack,
+  HStack,
   Avatar,
-  Chip,
-  Paper,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-
-  Divider,
-} from '@mui/material';
+  Badge,
+  useColorModeValue,
+  Heading,
+} from '@chakra-ui/react';
 import {
-  Home as HomeIcon,
-  Newspaper as NewspaperIcon,
-  BarChart as ChartBarIcon,
-  Image as ImageIcon,
-  Map as MapIcon,
-  Logout as SignOutAltIcon,
-  Campaign as BullhornIcon,
-  Fullscreen as WindowMaximizeIcon,
-  Comment as CommentsIcon,
-  ErrorOutline as ExclamationCircleIcon,
-} from '@mui/icons-material';
+  FaHome,
+  FaNewspaper,
+  FaChartBar,
+  FaImage,
+  FaMap,
+  FaSignOutAlt,
+  FaBullhorn,
+  FaWindowMaximize,
+  FaComments,
+  FaExclamationCircle,
+} from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import NewsManager from './components/NewsManager';
@@ -41,17 +38,19 @@ import CommentManager from './components/CommentManager';
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Dashboard');
+  const sidebarColor = useColorModeValue('white', 'gray.800');
+  const mainBg = useColorModeValue('gray.50', 'gray.900');
 
   const menuItems = [
-    { name: 'Dashboard', icon: HomeIcon },
-    { name: 'Berita', icon: NewspaperIcon },
-    { name: 'Lembaga', icon: ImageIcon },
-    { name: 'Statistik', icon: ChartBarIcon },
-    { name: 'Wisata', icon: MapIcon },
-    { name: 'Running Text', icon: BullhornIcon },
-    { name: 'Popup', icon: WindowMaximizeIcon },
-    { name: 'Pengaduan', icon: ExclamationCircleIcon },
-    { name: 'Komentar', icon: CommentsIcon },
+    { name: 'Dashboard', icon: FaHome },
+    { name: 'Berita', icon: FaNewspaper },
+    { name: 'Lembaga', icon: FaImage },
+    { name: 'Statistik', icon: FaChartBar },
+    { name: 'Wisata', icon: FaMap },
+    { name: 'Running Text', icon: FaBullhorn },
+    { name: 'Popup', icon: FaWindowMaximize },
+    { name: 'Pengaduan', icon: FaExclamationCircle },
+    { name: 'Komentar', icon: FaComments },
   ];
 
   const handleLogout = async () => {
@@ -62,88 +61,71 @@ const AdminPage = ({ setSession }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'grey.50' }}>
+    <Box minH="100vh" display="flex" bg={mainBg}>
       {/* Sidebar */}
-      <Paper
-        elevation={0}
-        sx={{
-          width: 280,
-          display: { xs: 'none', md: 'block' },
-          borderRight: '1px solid',
-          borderColor: 'divider',
-          p: 3,
-          bgcolor: 'white'
-        }}
+      <Box
+        w={{ base: 'full', md: '280px' }}
+        bg={sidebarColor}
+        borderRight="1px solid"
+        borderColor="gray.100"
+        display={{ base: 'none', md: 'block' }}
+        p={6}
       >
-        <Stack spacing={4}>
-          <Typography variant="h6" sx={{ color: 'primary.main', fontWeight: 800 }}>ADMIN DESA</Typography>
-          <List sx={{ px: 0 }}>
+        <VStack align="stretch" spacing={8}>
+          <Heading size="md" color="brand.500">ADMIN DESA</Heading>
+          <VStack align="stretch" spacing={2}>
             {menuItems.map((item) => (
-              <ListItem key={item.name} disablePadding sx={{ mb: 0.5 }}>
-                <ListItemButton
-                  selected={activeTab === item.name}
-                  onClick={() => setActiveTab(item.name)}
-                  sx={{
-                    borderRadius: '12px',
-                    '&.Mui-selected': {
-                      bgcolor: 'primary.container',
-                      color: 'primary.onContainer',
-                      '& .MuiListItemIcon-root': { color: 'primary.main' }
-                    },
-                    '&:hover': { bgcolor: 'grey.100' }
-                  }}
-                >
-                  <ListItemIcon sx={{ minWidth: 40 }}>
-                    <item.icon />
-                  </ListItemIcon>
-                  <ListItemText primary={item.name} primaryTypographyProps={{ fontWeight: 700 }} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-            <Divider sx={{ my: 2 }} />
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={handleLogout}
-                sx={{
-                  borderRadius: '12px',
-                  color: 'error.main',
-                  '&:hover': { bgcolor: 'error.lighter' }
-                }}
+              <HStack
+                key={item.name}
+                p={3}
+                borderRadius="xl"
+                cursor="pointer"
+                bg={activeTab === item.name ? 'brand.50' : 'transparent'}
+                color={activeTab === item.name ? 'brand.500' : 'gray.500'}
+                onClick={() => setActiveTab(item.name)}
+                _hover={{ bg: 'brand.50', color: 'brand.500' }}
               >
-                <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
-                  <SignOutAltIcon />
-                </ListItemIcon>
-                <ListItemText primary="Keluar" primaryTypographyProps={{ fontWeight: 700 }} />
-              </ListItemButton>
-            </ListItem>
-          </List>
-        </Stack>
-      </Paper>
+                <Icon as={item.icon} />
+                <Text fontWeight="bold">{item.name}</Text>
+              </HStack>
+            ))}
+            <HStack
+              p={3}
+              borderRadius="xl"
+              cursor="pointer"
+              color="red.500"
+              onClick={handleLogout}
+              _hover={{ bg: 'red.50' }}
+            >
+              <Icon as={FaSignOutAlt} />
+              <Text fontWeight="bold">Keluar</Text>
+            </HStack>
+          </VStack>
+        </VStack>
+      </Box>
 
       {/* Main Content */}
-      <Box sx={{ flexGrow: 1, p: { xs: 2, md: 4 } }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
-          <Typography variant="h4" sx={{ fontWeight: 800 }}>{activeTab}</Typography>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
-            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1 }}>Administrator</Typography>
-              <Chip label="Online" color="success" size="small" sx={{ height: 16, fontSize: '10px' }} />
-            </Box>
-          </Stack>
-        </Stack>
+      <Box flex={1} p={8}>
+        <Flex justify="space-between" align="center" mb={10}>
+          <Heading size="lg">{activeTab}</Heading>
+          <HStack spacing={4}>
+            <Avatar size="sm" name="Admin" />
+            <VStack align="start" spacing={0} display={{ base: 'none', md: 'flex' }}>
+              <Text fontWeight="bold" fontSize="xs">Administrator</Text>
+              <Badge colorScheme="green" fontSize="10px">Online</Badge>
+            </VStack>
+          </HStack>
+        </Flex>
 
-        <Box sx={{ mt: 2 }}>
-          {activeTab === 'Dashboard' && <DashboardStats />}
-          {activeTab === 'Berita' && <NewsManager />}
-          {activeTab === 'Lembaga' && <InstitutionManager />}
-          {activeTab === 'Wisata' && <TravelManager />}
-          {activeTab === 'Statistik' && <StatsManager />}
-          {activeTab === 'Running Text' && <AnnouncementManager />}
-          {activeTab === 'Popup' && <PopupManager />}
-          {activeTab === 'Pengaduan' && <ComplaintManager />}
-          {activeTab === 'Komentar' && <CommentManager />}
-        </Box>
+        {activeTab === 'Dashboard' && <DashboardStats />}
+        {activeTab === 'Berita' && <NewsManager />}
+        {activeTab === 'Lembaga' && <InstitutionManager />}
+        {activeTab === 'Wisata' && <TravelManager />}
+        {activeTab === 'Statistik' && <StatsManager />}
+        {activeTab === 'Running Text' && <AnnouncementManager />}
+        {activeTab === 'Popup' && <PopupManager />}
+        {activeTab === 'Pengaduan' && <ComplaintManager />}
+        {activeTab === 'Komentar' && <CommentManager />}
       </Box>
     </Box>
   );

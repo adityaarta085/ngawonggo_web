@@ -1,30 +1,27 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
-  Stack,
-  Typography,
-  TextField,
+  VStack,
+  HStack,
+  Text,
+  Input,
   Button,
+  FormControl,
+  FormLabel,
+  useToast,
   Divider,
   Avatar,
   IconButton,
-  Chip,
-  Paper,
+  Image,
+  Flex,
+  Badge,
+  Textarea,
+  Heading,
   Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Grid,
-  Snackbar,
-  Alert,
-} from '@mui/material';
-import {
-  Send as PaperPlaneIcon,
-  Image as ImageIcon,
-  Sync as SyncIcon,
-  Logout as SignOutAltIcon,
-  CheckCircle as CheckCircleIcon
-} from '@mui/icons-material';
+  SimpleGrid,
+  Icon,
+} from '@chakra-ui/react';
+import { FaPaperPlane, FaImage, FaSync, FaSignOutAlt, FaCheckCircle } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { uploadDeline } from '../../lib/uploader';
 
@@ -43,7 +40,7 @@ const ComplaintSystem = () => {
   const [trackId, setTrackId] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const toast = useToast();
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -51,38 +48,55 @@ const ComplaintSystem = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const fetchComplaint = useCallback(async (id) => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('complaints')
-      .select('*')
-      .eq('id', id)
-      .single();
+    try {
+      const { data: complaint, error: cError } = await supabase
+        .from('complaints')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    if (!error && data) {
-      setComplaintData(data);
-      const { data: msgData, error: msgError } = await supabase
+      if (cError || !complaint) {
+        throw new Error('Pengaduan tidak ditemukan');
+      }
+
+      setComplaintData(complaint);
+
+      const { data: msgs, error: mError } = await supabase
         .from('complaint_messages')
         .select('*')
         .eq('complaint_id', id)
         .order('created_at', { ascending: true });
 
-      if (!msgError && msgData) {
-        setMessages(msgData);
-      }
-    } else {
+      if (mError) throw mError;
+      setMessages(msgs);
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Gagal memuat pengaduan', description: err.message, status: 'error' });
       setComplaintId('');
       localStorage.removeItem('complaint_id');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (complaintId) {
       fetchComplaint(complaintId);
+      // Subscribe to new messages
       const subscription = supabase
-        .channel('complaint_messages')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'complaint_messages', filter: `complaint_id=eq.${complaintId}` }, payload => {
+        .channel(`complaint_${complaintId}`)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'complaint_messages',
+          filter: `complaint_id=eq.${complaintId}`
+        }, payload => {
           setMessages(prev => [...prev, payload.new]);
         })
         .subscribe();
@@ -92,10 +106,6 @@ const ComplaintSystem = () => {
       };
     }
   }, [complaintId, fetchComplaint]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   const handleStartComplaint = async (e) => {
     e.preventDefault();
@@ -130,7 +140,7 @@ const ComplaintSystem = () => {
       localStorage.setItem('complaint_id', newId);
       setNewMessage('');
     } catch (err) {
-      setSnackbar({ open: true, message: `Gagal membuat pengaduan: ${err.message}`, severity: 'error' });
+      toast({ title: 'Gagal membuat pengaduan', description: err.message, status: 'error' });
     } finally {
       setLoading(false);
     }
@@ -152,7 +162,7 @@ const ComplaintSystem = () => {
       if (error) throw error;
       setNewMessage('');
     } catch (err) {
-      setSnackbar({ open: true, message: `Gagal mengirim pesan: ${err.message}`, severity: 'error' });
+      toast({ title: 'Gagal mengirim pesan', description: err.message, status: 'error' });
     }
   };
 
@@ -161,7 +171,7 @@ const ComplaintSystem = () => {
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      setSnackbar({ open: true, message: 'File terlalu besar, maksimal 2MB', severity: 'warning' });
+      toast({ title: 'File terlalu besar', description: 'Maksimal 2MB', status: 'warning' });
       return;
     }
 
@@ -170,7 +180,7 @@ const ComplaintSystem = () => {
       const link = await uploadDeline(file);
       await handleSendMessage(link);
     } catch (err) {
-      setSnackbar({ open: true, message: `Gagal upload gambar: ${err.message}`, severity: 'error' });
+      toast({ title: 'Gagal upload gambar', description: err.message, status: 'error' });
     } finally {
       setUploading(false);
     }
@@ -185,226 +195,177 @@ const ComplaintSystem = () => {
 
   if (!complaintId) {
     return (
-      <Paper sx={{ p: { xs: 3, md: 6 }, borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.05)', maxWidth: '800px', mx: 'auto', border: '1px solid', borderColor: 'divider' }}>
-        <Stack spacing={4}>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h4" color="primary" sx={{ fontWeight: 800, mb: 1.5 }}>Sampaikan Aspirasi & Keluhan Anda</Typography>
-            <Typography variant="body1" color="text.secondary">
+      <Box p={{ base: 4, md: 8 }} bg="white" borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" border="1px solid" borderColor="gray.100">
+        <VStack spacing={8} align="stretch">
+          <Box textAlign="center">
+            <Heading size="lg" color="brand.500" mb={3}>Sampaikan Aspirasi & Keluhan Anda</Heading>
+            <Text fontSize="md" color="gray.600">
               Pemerintah Desa Ngawonggo berkomitmen untuk selalu mendengarkan warga. Sampaikan pengaduan atau saran Anda melalui formulir ini.
-            </Typography>
+            </Text>
           </Box>
 
-          <Grid container spacing={2}>
-            {['Proses Cepat', 'Langsung Diterima', 'Kerahasiaan Terjamin'].map((text, idx) => (
-              <Grid item xs={12} md={4} key={text}>
-                <Box sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1.5,
-                  p: 1.5,
-                  borderRadius: '12px',
-                  bgcolor: idx === 0 ? '#e6fffa' : idx === 1 ? '#ebf8ff' : '#faf5ff'
-                }}>
-                   <CheckCircleIcon sx={{ fontSize: 16, color: idx === 0 ? '#38a169' : idx === 1 ? '#3182ce' : '#805ad5' }} />
-                   <Typography sx={{ fontSize: '0.75rem', fontWeight: 800 }}>{text}</Typography>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
+          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+            <HStack bg="green.50" p={3} borderRadius="xl">
+               <Icon as={FaCheckCircle} color="green.500" />
+               <Text fontSize="xs" fontWeight="bold">Proses Cepat</Text>
+            </HStack>
+            <HStack bg="blue.50" p={3} borderRadius="xl">
+               <Icon as={FaCheckCircle} color="blue.500" />
+               <Text fontSize="xs" fontWeight="bold">Langsung Diterima</Text>
+            </HStack>
+            <HStack bg="purple.50" p={3} borderRadius="xl">
+               <Icon as={FaCheckCircle} color="purple.500" />
+               <Text fontSize="xs" fontWeight="bold">Kerahasiaan Terjamin</Text>
+            </HStack>
+          </SimpleGrid>
 
           <form onSubmit={handleStartComplaint}>
-            <Stack spacing={3}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    required
-                    fullWidth
-                    label="Nama Lengkap"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    required
-                    fullWidth
-                    label="Kontak (WA/Email)"
-                    value={contact}
-                    onChange={(e) => setContact(e.target.value)}
-                    sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
-                  />
-                </Grid>
-              </Grid>
+            <VStack spacing={5}>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
+                <FormControl isRequired>
+                  <FormLabel fontWeight="bold">Nama Lengkap</FormLabel>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Masukkan nama Anda" borderRadius="xl" />
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel fontWeight="bold">Kontak (WA/Email)</FormLabel>
+                  <Input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Nomor WhatsApp atau Email" borderRadius="xl" />
+                </FormControl>
+              </SimpleGrid>
 
-              <FormControl fullWidth required>
-                <InputLabel>Kategori</InputLabel>
-                <Select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  label="Kategori"
-                  sx={{ borderRadius: '16px' }}
-                >
-                  <MenuItem value="Infrastruktur">Infrastruktur</MenuItem>
-                  <MenuItem value="Pelayanan Publik">Pelayanan Publik</MenuItem>
-                  <MenuItem value="Keamanan & Ketertiban">Keamanan & Ketertiban</MenuItem>
-                  <MenuItem value="Saran & Kritik">Saran & Kritik</MenuItem>
-                  <MenuItem value="Lainnya">Lainnya</MenuItem>
+              <FormControl isRequired>
+                <FormLabel fontWeight="bold">Kategori</FormLabel>
+                <Select value={category} onChange={(e) => setCategory(e.target.value)} borderRadius="xl">
+                  <option value="Infrastruktur">Infrastruktur</option>
+                  <option value="Pelayanan Publik">Pelayanan Publik</option>
+                  <option value="Keamanan & Ketertiban">Keamanan & Ketertiban</option>
+                  <option value="Saran & Kritik">Saran & Kritik</option>
+                  <option value="Lainnya">Lainnya</option>
                 </Select>
               </FormControl>
 
-              <TextField
-                required
-                fullWidth
-                multiline
-                rows={4}
-                label="Isi Pengaduan"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Ceritakan detail pengaduan atau aspirasi Anda..."
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px' } }}
-              />
+              <FormControl isRequired>
+                <FormLabel fontWeight="bold">Isi Pengaduan</FormLabel>
+                <Textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Ceritakan detail pengaduan atau aspirasi Anda..."
+                  borderRadius="xl"
+                  rows={4}
+                />
+              </FormControl>
 
-              <Button
-                variant="contained"
-                fullWidth
-                type="submit"
-                disabled={loading}
-                size="large"
-                sx={{ borderRadius: '100px', height: 56, fontWeight: 800, fontSize: '1rem' }}
-              >
-                {loading ? 'Mengirim...' : 'Kirim Pengaduan Sekarang'}
+              <Button colorScheme="brand" w="full" type="submit" isLoading={loading} size="lg" borderRadius="xl">
+                Kirim Pengaduan Sekarang
               </Button>
-            </Stack>
+            </VStack>
           </form>
-
-          <Divider sx={{ my: 2 }} />
-
+          <Divider />
           <Box>
-            <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: 'block' }}>Sudah punya ID Pengaduan?</Typography>
-            <Stack direction="row" spacing={1}>
-              <TextField
-                size="small"
+            <Text fontSize="xs" fontWeight="bold" mb={2}>Sudah punya ID Pengaduan?</Text>
+            <HStack>
+              <Input
+                size="sm"
                 placeholder="NGA-XXXXX"
-                value={trackId}
                 onChange={(e) => setTrackId(e.target.value.toUpperCase())}
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' }, flexGrow: 1 }}
+                value={trackId}
               />
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  if(trackId.trim()) {
-                    setComplaintId(trackId.trim());
-                    localStorage.setItem('complaint_id', trackId.trim());
-                  }
-                }}
-                sx={{ borderRadius: '12px' }}
-              >
-                Lacak
-              </Button>
-            </Stack>
+              <Button size="sm" colorScheme="blue" onClick={() => {
+                if(trackId.trim()) {
+                   setComplaintId(trackId.trim());
+                   localStorage.setItem('complaint_id', trackId.trim());
+                }
+              }}>Lacak</Button>
+            </HStack>
           </Box>
-        </Stack>
-        <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-          <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-        </Snackbar>
-      </Paper>
+        </VStack>
+      </Box>
     );
   }
 
   return (
-    <Paper sx={{ p: 2, borderRadius: '24px', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', maxWidth: '800px', mx: 'auto', height: '600px', display: 'flex', flexDirection: 'column' }}>
+    <Box p={4} bg="white" borderRadius="xl" boxShadow="lg" maxW="800px" mx="auto" h="600px" display="flex" flexDirection="column">
       {/* Header */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <Avatar sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}>{complaintData?.name?.[0] || 'U'}</Avatar>
+      <Flex justify="space-between" align="center" mb={4} pb={2} borderBottom="1px solid" borderColor="gray.100">
+        <HStack>
+          <Avatar size="sm" bg="brand.500" />
           <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{complaintData?.name || 'User'}</Typography>
-            <Stack direction="row" spacing={1}>
-               <Chip label={complaintId} size="small" sx={{ height: 16, fontSize: '9px', fontWeight: 800, bgcolor: 'secondary.container', color: 'secondary.onContainer' }} />
-               <Chip
-                  label={complaintData?.status === 'resolved' ? 'Selesai' : 'Diproses'}
-                  size="small"
-                  color={complaintData?.status === 'resolved' ? 'success' : 'warning'}
-                  sx={{ height: 16, fontSize: '9px', fontWeight: 800 }}
-               />
-            </Stack>
+            <Text fontWeight="bold" fontSize="sm">{complaintData?.name || 'User'}</Text>
+            <HStack spacing={2}>
+               <Badge colorScheme="purple" fontSize="10px">{complaintId}</Badge>
+               <Badge colorScheme={complaintData?.status === 'resolved' ? 'green' : 'orange'} fontSize="10px">
+                 {complaintData?.status === 'resolved' ? 'Selesai' : 'Diproses'}
+               </Badge>
+            </HStack>
           </Box>
-        </Stack>
-        <Stack direction="row">
-          <IconButton size="small" onClick={() => fetchComplaint(complaintId)} disabled={loading}>
-            <SyncIcon fontSize="small" />
-          </IconButton>
-          <IconButton size="small" onClick={handleLogout} color="error">
-            <SignOutAltIcon fontSize="small" />
-          </IconButton>
-        </Stack>
-      </Stack>
+        </HStack>
+        <HStack>
+          <IconButton size="sm" icon={<FaSync />} onClick={() => fetchComplaint(complaintId)} isLoading={loading} variant="ghost" />
+          <IconButton size="sm" icon={<FaSignOutAlt />} onClick={handleLogout} variant="ghost" colorScheme="red" />
+        </HStack>
+      </Flex>
 
       {/* Messages */}
-      <Box sx={{ flex: 1, overflowY: 'auto', p: 1, mb: 2, '&::-webkit-scrollbar': { width: '4px' } }}>
-        <Stack spacing={2}>
+      <Box flex={1} overflowY="auto" p={2} mb={4} css={{
+        '&::-webkit-scrollbar': { width: '4px' },
+        '&::-webkit-scrollbar-track': { background: '#f1f1f1' },
+        '&::-webkit-scrollbar-thumb': { background: '#888', borderRadius: '4px' },
+      }}>
+        <VStack spacing={4} align="stretch">
           {messages.map((msg) => (
-            <Box key={msg.id} sx={{ alignSelf: msg.sender_type === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 1.5,
-                  borderRadius: '16px',
-                  bgcolor: msg.sender_type === 'user' ? 'primary.main' : 'grey.100',
-                  color: msg.sender_type === 'user' ? 'white' : 'text.primary',
-                  borderBottomRightRadius: msg.sender_type === 'user' ? 0 : '16px',
-                  borderBottomLeftRadius: msg.sender_type === 'user' ? '16px' : 0,
-                }}
+            <Flex key={msg.id} justify={msg.sender_type === 'user' ? 'flex-end' : 'flex-start'}>
+              <Box
+                maxW="80%"
+                bg={msg.sender_type === 'user' ? 'brand.500' : 'gray.100'}
+                color={msg.sender_type === 'user' ? 'white' : 'black'}
+                p={3}
+                borderRadius="lg"
+                borderBottomRightRadius={msg.sender_type === 'user' ? '0' : 'lg'}
+                borderBottomLeftRadius={msg.sender_type === 'user' ? 'lg' : '0'}
+                boxShadow="sm"
               >
-                {msg.message && <Typography variant="body2">{msg.message}</Typography>}
+                {msg.message && <Text fontSize="sm">{msg.message}</Text>}
                 {msg.image_url && (
-                  <Box
-                    component="img"
-                    src={msg.image_url}
-                    sx={{ mt: 1, borderRadius: '12px', maxHeight: '200px', width: '100%', objectFit: 'cover', cursor: 'pointer' }}
-                    onClick={() => window.open(msg.image_url)}
-                  />
+                  <Image src={msg.image_url} mt={2} borderRadius="md" maxH="200px" cursor="pointer" onClick={() => window.open(msg.image_url)} />
                 )}
-                <Typography variant="caption" sx={{ display: 'block', mt: 0.5, opacity: 0.7, textAlign: 'right', fontSize: '10px' }}>
+                <Text fontSize="10px" mt={1} opacity={0.7} textAlign="right">
                   {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Typography>
-              </Paper>
-            </Box>
+                </Text>
+              </Box>
+            </Flex>
           ))}
           <div ref={chatEndRef} />
-        </Stack>
+        </VStack>
       </Box>
 
       {/* Input */}
       {complaintData?.status !== 'resolved' ? (
-        <Stack direction="row" spacing={1} alignItems="center">
-          <TextField
-            fullWidth
-            size="small"
+        <HStack spacing={2}>
+          <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Ketik pesan..."
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '100px' } }}
           />
           <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileUpload} />
-          <IconButton onClick={() => fileInputRef.current.click()} disabled={uploading}>
-            <ImageIcon />
-          </IconButton>
-          <IconButton color="primary" onClick={() => handleSendMessage()} disabled={!newMessage && !uploading}>
-            <PaperPlaneIcon />
-          </IconButton>
-        </Stack>
+          <IconButton
+            icon={<FaImage />}
+            onClick={() => fileInputRef.current.click()}
+            isLoading={uploading}
+            colorScheme="gray"
+          />
+          <IconButton
+            icon={<FaPaperPlane />}
+            colorScheme="brand"
+            onClick={() => handleSendMessage()}
+            isDisabled={!newMessage && !uploading}
+          />
+        </HStack>
       ) : (
-        <Alert severity="success" sx={{ borderRadius: '12px' }}>
-          Pengaduan ini telah ditandai sebagai Selesai oleh Admin.
-        </Alert>
+        <Box p={3} bg="green.50" borderRadius="md" textAlign="center">
+          <Text fontSize="sm" color="green.700" fontWeight="bold">Pengaduan ini telah ditandai sebagai Selesai oleh Admin.</Text>
+        </Box>
       )}
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
-    </Paper>
+    </Box>
   );
 };
 

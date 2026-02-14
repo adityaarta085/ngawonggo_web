@@ -1,18 +1,19 @@
+
 import React, { useState } from 'react';
 import {
   Box,
-  Stack,
-  Typography,
+  VStack,
+  HStack,
+  Heading,
+  Text,
   Button,
   Radio,
   RadioGroup,
-  FormControlLabel,
-  LinearProgress,
-  Chip,
-  Paper,
-  Snackbar,
-  Alert,
-} from '@mui/material';
+  Stack,
+  useToast,
+  Progress,
+  Badge,
+} from '@chakra-ui/react';
 
 const questions = [
   {
@@ -50,13 +51,13 @@ const questions = [
 const QuizGame = ({ onBack }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [score, setScore] = useState(0);
-  const [selected, setSelected] = useState('');
+  const [selected, setSelected] = useState(null);
   const [isFinished, setIsFinished] = useState(false);
-  const [snackbar, setSnackbar] = useState(false);
+  const toast = useToast();
 
   const handleNext = () => {
-    if (selected === '') {
-      setSnackbar(true);
+    if (selected === null) {
+      toast({ title: "Pilih jawaban dulu ya!", status: "warning", duration: 2000 });
       return;
     }
 
@@ -66,7 +67,7 @@ const QuizGame = ({ onBack }) => {
 
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
-      setSelected('');
+      setSelected(null);
     } else {
       setIsFinished(true);
     }
@@ -74,85 +75,60 @@ const QuizGame = ({ onBack }) => {
 
   if (isFinished) {
     return (
-      <Paper sx={{ p: 6, borderRadius: '32px', textAlign: 'center' }}>
-        <Stack spacing={4}>
-          <Typography variant="h4" color="primary" sx={{ fontWeight: 800 }}>Kuis Selesai!</Typography>
-          <Typography variant="h5">Skor Kamu: {score} / {questions.length}</Typography>
-          <Chip
-            label={score === questions.length ? "Luar Biasa! Ahli Teknologi!" : "Bagus! Terus Belajar!"}
-            color={score === questions.length ? "success" : "primary"}
-            sx={{ fontWeight: 800, py: 3, height: 'auto', borderRadius: '12px' }}
-          />
-          <Stack spacing={2}>
-            <Button variant="contained" size="large" fullWidth onClick={() => {
-              setCurrentStep(0);
-              setScore(0);
-              setIsFinished(false);
-              setSelected('');
-            }} sx={{ borderRadius: '100px' }}>Main Lagi</Button>
-            <Button variant="text" onClick={onBack}>Kembali ke Menu</Button>
-          </Stack>
-        </Stack>
-      </Paper>
+      <VStack spacing={6} p={8} bg="white" borderRadius="2xl" textAlign="center" boxShadow="xl">
+        <Heading color="brand.500">Kuis Selesai!</Heading>
+        <Text fontSize="xl">Skor Kamu: {score} / {questions.length}</Text>
+        <Badge colorScheme={score === questions.length ? "green" : "blue"} fontSize="lg" p={2}>
+          {score === questions.length ? "Luar Biasa! Ahli Teknologi!" : "Bagus! Terus Belajar!"}
+        </Badge>
+        <Button colorScheme="brand" onClick={() => {
+          setCurrentStep(0);
+          setScore(0);
+          setIsFinished(false);
+          setSelected(null);
+        }}>Main Lagi</Button>
+        <Button variant="ghost" onClick={onBack}>Kembali ke Menu</Button>
+      </VStack>
     );
   }
 
   return (
-    <Paper sx={{ p: 4, borderRadius: '32px', width: '100%', maxWidth: '600px' }}>
-      <Stack spacing={3}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>Kuis Tekno-Sains</Typography>
-          <Typography variant="body2" sx={{ fontWeight: 800 }}>{currentStep + 1} / {questions.length}</Typography>
-        </Stack>
-        <LinearProgress
-          variant="determinate"
-          value={((currentStep + 1) / questions.length) * 100}
-          sx={{ height: 10, borderRadius: 5 }}
-        />
+    <Box p={6} bg="white" borderRadius="2xl" boxShadow="xl" w="full" maxW="600px">
+      <VStack spacing={6} align="stretch">
+        <HStack justify="space-between">
+          <Heading size="md" color="brand.500">Kuis Tekno-Sains</Heading>
+          <Text fontWeight="bold">{currentStep + 1} / {questions.length}</Text>
+        </HStack>
+        <Progress value={((currentStep + 1) / questions.length) * 100} borderRadius="full" colorScheme="brand" />
 
-        <Box sx={{ py: 2 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, mb: 3 }}>{questions[currentStep].question}</Typography>
-          <RadioGroup value={selected} onChange={(e) => setSelected(e.target.value)}>
-            <Stack spacing={1.5}>
+        <Box py={4}>
+          <Text fontSize="lg" fontWeight="bold" mb={4}>{questions[currentStep].question}</Text>
+          <RadioGroup onChange={setSelected} value={selected}>
+            <Stack spacing={3}>
               {questions[currentStep].options.map((opt, idx) => (
-                <Paper
+                <Box
                   key={idx}
-                  variant="outlined"
-                  sx={{
-                    p: 0.5,
-                    px: 2,
-                    borderRadius: '16px',
-                    borderColor: selected === idx.toString() ? 'primary.main' : 'divider',
-                    bgcolor: selected === idx.toString() ? 'primary.lighter' : 'transparent',
-                    '&:hover': { bgcolor: 'grey.50' }
-                  }}
+                  p={4}
+                  border="2px solid"
+                  borderColor={selected === idx.toString() ? "brand.500" : "gray.100"}
+                  borderRadius="xl"
+                  cursor="pointer"
+                  onClick={() => setSelected(idx.toString())}
+                  _hover={{ bg: "brand.50" }}
                 >
-                  <FormControlLabel
-                    value={idx.toString()}
-                    control={<Radio />}
-                    label={<Typography variant="body1">{opt}</Typography>}
-                    sx={{ width: '100%', m: 0 }}
-                  />
-                </Paper>
+                  <Radio value={idx.toString()} colorScheme="brand">{opt}</Radio>
+                </Box>
               ))}
             </Stack>
           </RadioGroup>
         </Box>
 
-        <Button
-          variant="contained"
-          size="large"
-          onClick={handleNext}
-          sx={{ borderRadius: '100px', height: 56, fontWeight: 700 }}
-        >
+        <Button colorScheme="brand" size="lg" onClick={handleNext} borderRadius="xl">
           {currentStep === questions.length - 1 ? "Lihat Hasil" : "Lanjut"}
         </Button>
-        <Button variant="text" onClick={onBack}>Menyerah</Button>
-      </Stack>
-      <Snackbar open={snackbar} autoHideDuration={3000} onClose={() => setSnackbar(false)}>
-        <Alert severity="warning">Pilih jawaban dulu ya!</Alert>
-      </Snackbar>
-    </Paper>
+        <Button variant="ghost" onClick={onBack}>Menyerah</Button>
+      </VStack>
+    </Box>
   );
 };
 

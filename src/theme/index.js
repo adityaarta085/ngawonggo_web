@@ -1,132 +1,81 @@
-import { createTheme } from '@mui/material/styles';
 
-const theme = createTheme({
-  cssVariables: true,
-  colorSchemes: {
-    light: {
-      palette: {
-        primary: {
-          main: '#137fec', // Village Primary Blue
-          container: '#d7e3ff',
-          onContainer: '#001b3e',
-        },
-        secondary: {
-          main: '#2D5A27', // Village Green
-          container: '#aff3a4',
-          onContainer: '#002204',
-        },
-        tertiary: {
-          main: '#C5A96F', // IKN Gold
-          container: '#ffddb3',
-          onContainer: '#291800',
-        },
-        background: {
-          default: '#fdfbff',
-          paper: '#fdfbff',
-        },
-        surfaceVariant: {
-          main: '#e0e2ec',
-          onMain: '#44474e',
-        },
-        outline: {
-          main: '#74777f',
-        },
-      },
+import { extendTheme } from '@chakra-ui/react';
+
+const theme = extendTheme({
+  fonts: {
+    heading: '"Plus Jakarta Sans", sans-serif',
+    body: '"Inter", sans-serif',
+  },
+  layerStyles: {
+    glass: {
+      bg: 'rgba(255, 255, 255, 0.7)',
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      border: '1px solid rgba(255, 255, 255, 0.3)',
+      boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
     },
-    dark: {
-      palette: {
-        primary: {
-          main: '#adc6ff',
-          container: '#004494',
-          onContainer: '#d7e3ff',
-        },
-        secondary: {
-          main: '#94d78a',
-          container: '#005315',
-          onContainer: '#aff3a4',
-        },
-        tertiary: {
-          main: '#efbe7b',
-          container: '#5b431e',
-          onContainer: '#ffddb3',
-        },
-        background: {
-          default: '#1a1b1f',
-          paper: '#1a1b1f',
-        },
-        surfaceVariant: {
-          main: '#44474e',
-          onMain: '#c4c6d0',
-        },
-        outline: {
-          main: '#8e9099',
-        },
-      },
+    glassCard: {
+      bg: 'rgba(255, 255, 255, 0.8)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      border: '1px solid rgba(255, 255, 255, 0.5)',
+      borderRadius: '2xl',
+      boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)',
+      transition: 'all 0.3s cubic-bezier(.4,0,.2,1)',
+    },
+    darkGlass: {
+      bg: 'rgba(15, 23, 42, 0.7)',
+      backdropFilter: 'blur(20px) saturate(160%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+    },
+    liquidGlass: {
+      bg: 'rgba(255, 255, 255, 0.4)',
+      backdropFilter: 'blur(25px) saturate(200%)',
+      WebkitBackdropFilter: 'blur(25px) saturate(200%)',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+    }
+  },
+  colors: {
+    brand: {
+      50: '#e6f0ff',
+      100: '#b3d1ff',
+      200: '#80b3ff',
+      300: '#4d94ff',
+      400: '#1a75ff',
+      500: '#0056b3', // Main Blue
+      600: '#004494',
+      700: '#00336e',
+      800: '#00224a',
+      900: '#001125',
+    },
+    accent: {
+      green: '#2D5A27', // Village Green
+      lightGreen: '#4c9e43',
+      blue: '#0F172A', // Very Dark Blue for footer/hero
     },
   },
-  typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontFamily: '"Plus Jakarta Sans", sans-serif',
-      fontWeight: 800,
+  styles: {
+    global: {
+      body: {
+        bg: 'white',
+        color: 'gray.800',
+      },
     },
-    h2: {
-      fontFamily: '"Plus Jakarta Sans", sans-serif',
-      fontWeight: 800,
-    },
-    h3: {
-      fontFamily: '"Plus Jakarta Sans", sans-serif',
-      fontWeight: 700,
-    },
-    h4: {
-      fontFamily: '"Plus Jakarta Sans", sans-serif',
-      fontWeight: 700,
-    },
-    h5: {
-      fontFamily: '"Plus Jakarta Sans", sans-serif',
-      fontWeight: 600,
-    },
-    h6: {
-      fontFamily: '"Plus Jakarta Sans", sans-serif',
-      fontWeight: 600,
-    },
-    button: {
-      fontWeight: 600,
-      textTransform: 'none',
-    },
-  },
-  shape: {
-    borderRadius: 16, // MD3 Medium Radius
   },
   components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 100, // MD3 Pill Buttons
-          padding: '10px 24px',
-        },
-        contained: {
-          boxShadow: 'none',
-          '&:hover': {
-            boxShadow: '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px rgba(0, 0, 0, 0.3)',
-          },
-        },
+    Button: {
+      baseStyle: {
+        borderRadius: 'full',
+        fontWeight: '600',
       },
     },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 28, // MD3 Card Radius
-          boxShadow: 'none',
-          backgroundColor: 'var(--mui-palette-surfaceVariant-main)', // MD3 Surface Variant for un-elevated cards
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backgroundImage: 'none',
-        },
+    Heading: {
+      baseStyle: {
+        fontWeight: '800',
+        letterSpacing: '-0.02em',
       },
     },
   },

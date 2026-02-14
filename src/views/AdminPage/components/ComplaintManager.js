@@ -1,32 +1,24 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
-  Stack,
-  Typography,
-  TextField,
+  VStack,
+  HStack,
+  Text,
+  Input,
   Button,
   Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableContainer,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
   IconButton,
-  Chip,
-  Paper,
-  Snackbar,
-  Alert,
-
-  Divider,
-} from '@mui/material';
-import {
-  Reply as ReplyIcon,
-  Delete as TrashIcon,
-  Check as CheckIcon,
-  Send as PaperPlaneIcon,
-  Image as ImageIcon,
-  ArrowBack as ArrowLeftIcon,
-} from '@mui/icons-material';
+  useToast,
+  Badge,
+  Flex,
+  Image,
+} from '@chakra-ui/react';
+import { FaReply, FaTrash, FaCheck, FaPaperPlane, FaImage, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import { uploadDeline } from '../../../lib/uploader';
 
@@ -36,7 +28,7 @@ const ComplaintManager = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const toast = useToast();
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -105,7 +97,7 @@ const ComplaintManager = () => {
   const markResolved = async (id) => {
     const { error } = await supabase.from('complaints').update({ status: 'resolved' }).eq('id', id);
     if (!error) {
-      setSnackbar({ open: true, message: 'Selesai', severity: 'success' });
+      toast({ title: 'Selesai', status: 'success' });
       fetchComplaints();
       if(selectedComplaint?.id === id) setSelectedComplaint({...selectedComplaint, status: 'resolved'});
     }
@@ -115,7 +107,7 @@ const ComplaintManager = () => {
     if (window.confirm('Hapus pengaduan ini?')) {
       const { error } = await supabase.from('complaints').delete().eq('id', id);
       if (!error) {
-        setSnackbar({ open: true, message: 'Dihapus', severity: 'success' });
+        toast({ title: 'Dihapus', status: 'success' });
         fetchComplaints();
         if(selectedComplaint?.id === id) setSelectedComplaint(null);
       }
@@ -124,120 +116,94 @@ const ComplaintManager = () => {
 
   if (selectedComplaint) {
     return (
-      <Paper sx={{ p: 3, borderRadius: '24px', height: '600px', display: 'flex', flexDirection: 'column' }} elevation={0}>
-        <Stack direction="row" spacing={2} justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2 }}>
-          <Stack spacing={0.5}>
-            <Button startIcon={<ArrowLeftIcon />} size="small" variant="text" onClick={() => setSelectedComplaint(null)} sx={{ alignSelf: 'flex-start' }}>Kembali</Button>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Typography variant="h6" sx={{ fontWeight: 800 }}>{selectedComplaint.name}</Typography>
-              <Chip label={selectedComplaint.id} size="small" sx={{ fontWeight: 700 }} />
-            </Stack>
-            <Typography variant="caption" color="text.secondary">
-              <b>Kontak:</b> {selectedComplaint.contact} • <b>Kategori:</b> {selectedComplaint.category}
-            </Typography>
-          </Stack>
-          <Chip
-            label={selectedComplaint.status === 'resolved' ? 'Selesai' : 'Terbuka'}
-            color={selectedComplaint.status === 'resolved' ? 'success' : 'warning'}
-            sx={{ fontWeight: 800 }}
-          />
-        </Stack>
+      <Box bg="white" p={6} borderRadius="xl" boxShadow="sm" h="700px" display="flex" flexDirection="column">
+        <HStack mb={4} justify="space-between" align="start">
+          <VStack align="start" spacing={1}>
+            <Button leftIcon={<FaArrowLeft />} variant="ghost" size="sm" onClick={() => setSelectedComplaint(null)}>Kembali</Button>
+            <HStack>
+              <Text fontWeight="bold" fontSize="lg">{selectedComplaint.name}</Text>
+              <Badge colorScheme="purple">{selectedComplaint.id}</Badge>
+            </HStack>
+            <HStack fontSize="sm" color="gray.600">
+               <Text><b>Kontak:</b> {selectedComplaint.contact || '-'}</Text>
+               <Text>•</Text>
+               <Text><b>Kategori:</b> {selectedComplaint.category || '-'}</Text>
+            </HStack>
+          </VStack>
+          <Badge colorScheme={selectedComplaint.status === 'resolved' ? 'green' : 'orange'} p={2} borderRadius="md">
+            {selectedComplaint.status === 'resolved' ? 'Selesai' : 'Terbuka'}
+          </Badge>
+        </HStack>
 
-        <Divider sx={{ mb: 2 }} />
-
-        <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 1, mb: 2, bgcolor: 'grey.50', borderRadius: '16px', '&::-webkit-scrollbar': { width: '4px' } }}>
-           <Stack spacing={2}>
+        <Box flex={1} overflowY="auto" mb={4} p={2} border="1px solid" borderColor="gray.100" borderRadius="md">
+           <VStack spacing={4} align="stretch">
              {messages.map(msg => (
-               <Box key={msg.id} sx={{ alignSelf: msg.sender_type === 'admin' ? 'flex-end' : 'flex-start', maxWidth: '75%' }}>
-                 <Paper
-                   elevation={0}
-                   sx={{
-                     p: 1.5,
-                     borderRadius: '16px',
-                     bgcolor: msg.sender_type === 'admin' ? 'primary.main' : 'white',
-                     color: msg.sender_type === 'admin' ? 'white' : 'text.primary',
-                     borderBottomRightRadius: msg.sender_type === 'admin' ? 0 : '16px',
-                     borderBottomLeftRadius: msg.sender_type === 'admin' ? '16px' : 0,
-                     boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                   }}
-                 >
-                    {msg.message && <Typography variant="body2">{msg.message}</Typography>}
-                    {msg.image_url && <Box component="img" src={msg.image_url} sx={{ mt: 1, borderRadius: '12px', maxHeight: 200, width: '100%', objectFit: 'cover' }} />}
-                    <Typography variant="caption" sx={{ display: 'block', mt: 0.5, opacity: 0.7, textAlign: 'right', fontSize: '9px' }}>
-                      {new Date(msg.created_at).toLocaleString()}
-                    </Typography>
-                 </Paper>
-               </Box>
+               <Flex key={msg.id} justify={msg.sender_type === 'admin' ? 'flex-end' : 'flex-start'}>
+                 <Box maxW="70%" bg={msg.sender_type === 'admin' ? 'blue.500' : 'gray.100'} color={msg.sender_type === 'admin' ? 'white' : 'black'} p={3} borderRadius="lg">
+                    {msg.message && <Text fontSize="sm">{msg.message}</Text>}
+                    {msg.image_url && <Image src={msg.image_url} mt={2} borderRadius="md" maxH="200px" />}
+                    <Text fontSize="10px" mt={1} opacity={0.7}>{new Date(msg.created_at).toLocaleString()}</Text>
+                 </Box>
+               </Flex>
              ))}
              <div ref={chatEndRef} />
-           </Stack>
+           </VStack>
         </Box>
 
-        <Stack direction="row" spacing={1} alignItems="center">
-          <TextField
-            fullWidth
-            size="small"
-            value={newMessage}
-            onChange={e => setNewMessage(e.target.value)}
-            placeholder="Ketik balasan admin..."
-            sx={{ '& .MuiOutlinedInput-root': { borderRadius: '100px' } }}
-          />
+        <HStack>
+          <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Ketik balasan admin..." />
           <input type="file" hidden ref={fileInputRef} onChange={handleFileUpload} />
-          <IconButton onClick={() => fileInputRef.current.click()} disabled={uploading}><ImageIcon /></IconButton>
-          <IconButton color="primary" onClick={() => handleSendMessage()} disabled={!newMessage && !uploading}><PaperPlaneIcon /></IconButton>
+          <IconButton icon={<FaImage />} onClick={() => fileInputRef.current.click()} isLoading={uploading} />
+          <IconButton icon={<FaPaperPlane />} colorScheme="blue" onClick={() => handleSendMessage()} />
           {selectedComplaint.status !== 'resolved' && (
-            <Button variant="contained" color="success" startIcon={<CheckIcon />} onClick={() => markResolved(selectedComplaint.id)} sx={{ borderRadius: '100px', whiteSpace: 'nowrap' }}>Selesaikan</Button>
+            <Button colorScheme="green" leftIcon={<FaCheck />} onClick={() => markResolved(selectedComplaint.id)}>Selesaikan</Button>
           )}
-        </Stack>
-      </Paper>
+        </HStack>
+      </Box>
     );
   }
 
   return (
-    <Box>
-      <TableContainer component={Paper} sx={{ borderRadius: '24px', boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}>
-        <Table>
-          <TableHead sx={{ bgcolor: 'grey.50' }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>ID</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Nama & Kontak</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Kategori</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>Aksi</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {complaints.map(c => (
-              <TableRow key={c.id}>
-                <TableCell><Chip label={c.id} size="small" sx={{ fontWeight: 800 }} /></TableCell>
-                <TableCell>
-                  <Typography variant="body2" sx={{ fontWeight: 700 }}>{c.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">{c.contact}</Typography>
-                </TableCell>
-                <TableCell><Chip label={c.category} size="small" variant="outlined" sx={{ fontWeight: 700 }} /></TableCell>
-                <TableCell>
-                  <Chip
-                    label={c.status === 'resolved' ? 'Selesai' : 'Terbuka'}
-                    size="small"
-                    color={c.status === 'resolved' ? 'success' : 'warning'}
-                    sx={{ fontWeight: 800 }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={1}>
-                    <IconButton size="small" onClick={() => setSelectedComplaint(c)}><ReplyIcon fontSize="small" /></IconButton>
-                    <IconButton size="small" color="success" onClick={() => markResolved(c.id)} disabled={c.status === 'resolved'}><CheckIcon fontSize="small" /></IconButton>
-                    <IconButton size="small" color="error" onClick={() => deleteComplaint(c.id)}><TrashIcon fontSize="small" /></IconButton>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
-      </Snackbar>
+    <Box bg="white" borderRadius="xl" boxShadow="sm" overflow="hidden">
+      <Table variant="simple">
+        <Thead bg="gray.50">
+          <Tr>
+            <Th>ID</Th>
+            <Th>Nama & Kontak</Th>
+            <Th>Kategori</Th>
+            <Th>Status</Th>
+            <Th>Tanggal</Th>
+            <Th>Aksi</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {complaints.map(c => (
+            <Tr key={c.id}>
+              <Td><Badge>{c.id}</Badge></Td>
+              <Td>
+                <VStack align="start" spacing={0}>
+                  <Text fontWeight="bold">{c.name}</Text>
+                  <Text fontSize="xs" color="gray.500">{c.contact}</Text>
+                </VStack>
+              </Td>
+              <Td>
+                <Badge variant="outline" colorScheme="blue">{c.category}</Badge>
+              </Td>
+              <Td>
+                <Badge colorScheme={c.status === 'resolved' ? 'green' : 'orange'}>{c.status}</Badge>
+              </Td>
+              <Td fontSize="xs">{new Date(c.created_at).toLocaleDateString()}</Td>
+              <Td>
+                <HStack>
+                  <IconButton size="sm" icon={<FaReply />} onClick={() => setSelectedComplaint(c)} />
+                  <IconButton size="sm" icon={<FaCheck />} colorScheme="green" onClick={() => markResolved(c.id)} isDisabled={c.status === 'resolved'} />
+                  <IconButton size="sm" icon={<FaTrash />} colorScheme="red" onClick={() => deleteComplaint(c.id)} />
+                </HStack>
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
     </Box>
   );
 };

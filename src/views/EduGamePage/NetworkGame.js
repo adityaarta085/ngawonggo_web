@@ -1,19 +1,17 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
-  Stack,
-  Typography,
+  VStack,
+  HStack,
+  Heading,
+  Text,
   Button,
-  Grid,
-  Snackbar,
-  Alert,
-  Paper,
-} from '@mui/material';
-import {
-  Dns as ServerIcon,
-  Home as HomeIcon,
-  Bolt as BoltIcon
-} from '@mui/icons-material';
+  SimpleGrid,
+  Icon,
+  useToast,
+} from '@chakra-ui/react';
+import { FaServer, FaHome, FaBolt } from 'react-icons/fa';
 
 const GRID_SIZE = 5;
 const START_NODE = { r: 0, c: 0 };
@@ -28,7 +26,7 @@ const NetworkGame = ({ onBack }) => {
   const [moves, setMoves] = useState(12);
   const [isWon, setIsWon] = useState(false);
   const [connectedTargets, setConnectedTargets] = useState([]);
-  const [snackbar, setSnackbar] = useState(false);
+  const toast = useToast();
 
   const checkConnectivity = useCallback(() => {
     const visited = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(false));
@@ -40,12 +38,14 @@ const NetworkGame = ({ onBack }) => {
     while (queue.length > 0) {
       const { r, c } = queue.shift();
 
+      // Check if current node is a target
       TARGET_NODES.forEach((target, idx) => {
         if (target.r === r && target.c === c && !reachable.includes(idx)) {
           reachable.push(idx);
         }
       });
 
+      // Neighbors
       const dirs = [[0,1], [0,-1], [1,0], [-1,0]];
       for (const [dr, dc] of dirs) {
         const nr = r + dr;
@@ -71,7 +71,7 @@ const NetworkGame = ({ onBack }) => {
     if (isWon || (r === START_NODE.r && c === START_NODE.c)) return;
 
     if (!grid[r][c] && moves <= 0) {
-      setSnackbar(true);
+      toast({ title: "Kabel Habis!", status: "warning", duration: 2000 });
       return;
     }
 
@@ -91,34 +91,40 @@ const NetworkGame = ({ onBack }) => {
   };
 
   useEffect(() => {
+    // Set start node as active initially
     const initialGrid = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(false));
     initialGrid[START_NODE.r][START_NODE.c] = true;
     setGrid(initialGrid);
   }, []);
 
   return (
-    <Paper sx={{ p: 4, borderRadius: '32px', width: '100%', maxWidth: '600px' }}>
-      <Stack spacing={4}>
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="h6" color="primary" sx={{ fontWeight: 800 }}>Ngawonggo 2045: Jaringan Digital</Typography>
-          <Typography variant="body2" color="text.secondary">
+    <Box p={6} bg="white" borderRadius="2xl" boxShadow="2xl" w="full" maxW="600px">
+      <VStack spacing={6}>
+        <VStack spacing={1}>
+          <Heading size="md" color="brand.500">Ngawonggo 2045: Jaringan Digital</Heading>
+          <Text fontSize="sm" textAlign="center" color="gray.600">
             Hubungkan <b>Pusat Data</b> ke semua <b>Dusun</b> dengan kabel fiber optik!
-          </Typography>
-        </Box>
+          </Text>
+        </VStack>
 
-        <Stack direction="row" spacing={2} justifyContent="space-around" sx={{ bgcolor: 'grey.50', p: 2, borderRadius: '20px' }}>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', display: 'block' }}>KABEL</Typography>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: moves < 3 ? 'error.main' : 'primary.main' }}>{moves}</Typography>
-          </Box>
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="caption" sx={{ fontWeight: 800, color: 'text.secondary', display: 'block' }}>TERHUBUNG</Typography>
-            <Typography variant="h5" sx={{ fontWeight: 800, color: 'primary.main' }}>{connectedTargets.length} / {TARGET_NODES.length}</Typography>
-          </Box>
-        </Stack>
+        <HStack w="full" justify="space-around" bg="gray.50" p={3} borderRadius="xl">
+          <VStack spacing={0}>
+            <Text fontSize="xs" fontWeight="bold" color="gray.500">KABEL TERSEDIA</Text>
+            <Text fontSize="xl" fontWeight="800" color={moves < 3 ? "red.500" : "brand.500"}>{moves}</Text>
+          </VStack>
+          <VStack spacing={0}>
+            <Text fontSize="xs" fontWeight="bold" color="gray.500">DUSUN TERHUBUNG</Text>
+            <Text fontSize="xl" fontWeight="800" color="brand.500">{connectedTargets.length} / {TARGET_NODES.length}</Text>
+          </VStack>
+        </HStack>
 
-        <Box sx={{ p: 1.5, bgcolor: 'grey.200', borderRadius: '16px', alignSelf: 'center' }}>
-          <Grid container spacing={1} sx={{ width: { xs: 260, md: 360 } }}>
+        <Box
+          p={2}
+          bg="gray.200"
+          borderRadius="lg"
+          boxShadow="inner"
+        >
+          <SimpleGrid columns={GRID_SIZE} spacing={2}>
             {grid.map((row, r) => row.map((isActive, c) => {
               const isStart = r === START_NODE.r && c === START_NODE.c;
               const targetIdx = TARGET_NODES.findIndex(t => t.r === r && t.c === c);
@@ -126,55 +132,50 @@ const NetworkGame = ({ onBack }) => {
               const isConnectedTarget = connectedTargets.includes(targetIdx);
 
               return (
-                <Grid item xs={12/GRID_SIZE} key={`${r}-${c}`}>
-                  <Paper
-                    elevation={0}
-                    onClick={() => toggleCell(r, c)}
-                    sx={{
-                      width: { xs: 45, md: 65 },
-                      height: { xs: 45, md: 65 },
-                      bgcolor: isActive ? (isStart || isConnectedTarget ? 'primary.main' : 'primary.light') : 'white',
-                      borderRadius: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: isStart ? 'default' : 'pointer',
-                      position: 'relative',
-                      transition: 'all 0.2s',
-                      '&:hover': !isStart ? { transform: 'scale(1.05)', bgcolor: isActive ? 'primary.dark' : 'grey.100' } : {}
-                    }}
-                  >
-                    {isStart && <ServerIcon sx={{ color: 'white', fontSize: { xs: 24, md: 32 } }} />}
-                    {isTarget && <HomeIcon sx={{ color: isConnectedTarget ? 'white' : 'grey.400', fontSize: { xs: 24, md: 32 } }} />}
-                    {isActive && !isStart && !isTarget && <BoltIcon sx={{ color: 'white', opacity: 0.6, fontSize: { xs: 16, md: 24 } }} />}
-                    {isTarget && isConnectedTarget && (
-                      <Box sx={{ position: 'absolute', top: 2, right: 2, bgcolor: 'success.main', width: 8, height: 8, borderRadius: '50%', border: '1px solid white' }} />
-                    )}
-                  </Paper>
-                </Grid>
+                <Box
+                  key={`${r}-${c}`}
+                  w={{ base: "50px", md: "70px" }}
+                  h={{ base: "50px", md: "70px" }}
+                  bg={isActive ? (isStart || isConnectedTarget ? "brand.500" : "brand.200") : "white"}
+                  borderRadius="md"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  cursor={isStart ? "default" : "pointer"}
+                  onClick={() => toggleCell(r, c)}
+                  transition="all 0.2s"
+                  _hover={!isStart ? { transform: "scale(1.05)", bg: isActive ? "brand.300" : "gray.100" } : {}}
+                  position="relative"
+                >
+                  {isStart && <Icon as={FaServer} color="white" w={6} h={6} />}
+                  {isTarget && <Icon as={FaHome} color={isConnectedTarget ? "white" : "gray.400"} w={6} h={6} />}
+                  {isActive && !isStart && !isTarget && <Icon as={FaBolt} color="white" w={4} h={4} opacity={0.6} />}
+                  {isTarget && isConnectedTarget && (
+                    <Box position="absolute" top={0} right={0} bg="green.400" w={3} h={3} borderRadius="full" border="2px solid white" />
+                  )}
+                </Box>
               );
             }))}
-          </Grid>
+          </SimpleGrid>
         </Box>
 
         {isWon ? (
-          <Paper sx={{ p: 2, bgcolor: 'success.lighter', borderRadius: '16px', border: '1px solid', borderColor: 'success.light', textAlign: 'center' }} elevation={0}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: 'success.dark' }}>Misi Berhasil!</Typography>
-            <Typography variant="caption" sx={{ display: 'block', mb: 1.5 }}>Selamat! Kamu telah membangun infrastruktur digital.</Typography>
-            <Button variant="contained" color="success" size="small" onClick={resetGame} sx={{ borderRadius: '100px' }}>Main Lagi</Button>
-          </Paper>
+          <VStack w="full" spacing={4} p={4} bg="green.50" borderRadius="xl" border="2px solid" borderColor="green.200">
+            <Heading size="sm" color="green.700">Misi Berhasil!</Heading>
+            <Text fontSize="xs" textAlign="center" color="green.600">
+              Selamat! Kamu telah membangun infrastruktur digital untuk Desa Ngawonggo 2045.
+            </Text>
+            <Button colorScheme="green" size="sm" onClick={resetGame}>Main Lagi</Button>
+          </VStack>
         ) : (
           moves === 0 && connectedTargets.length < TARGET_NODES.length && (
-            <Button variant="outlined" color="error" fullWidth onClick={resetGame} sx={{ borderRadius: '100px' }}>Ulangi Misi</Button>
+            <Button colorScheme="red" variant="outline" size="sm" onClick={resetGame}>Ulangi Misi</Button>
           )
         )}
 
-        <Button variant="text" size="small" onClick={onBack}>Kembali ke Menu</Button>
-      </Stack>
-      <Snackbar open={snackbar} autoHideDuration={3000} onClose={() => setSnackbar(false)}>
-        <Alert severity="warning">Kabel Habis!</Alert>
-      </Snackbar>
-    </Paper>
+        <Button variant="ghost" size="sm" onClick={onBack}>Kembali ke Menu</Button>
+      </VStack>
+    </Box>
   );
 };
 
