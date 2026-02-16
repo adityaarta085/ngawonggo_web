@@ -1,208 +1,149 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   IconButton,
-  HStack,
-  VStack,
+  Flex,
   Text,
   useColorModeValue,
   Collapse,
-  useDisclosure,
-  Icon,
-  Button,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  Slider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
   Tooltip,
+  Portal,
+  chakra,
 } from '@chakra-ui/react';
-import {
-  FaBroadcastTower,
-  FaTv,
-  FaPlay,
-  FaPause,
-  FaVolumeUp,
-  FaVolumeMute,
-  FaChevronDown,
-  FaTimes
-} from 'react-icons/fa';
-import videojs from 'video.js';
-import 'video.js/dist/video-js.css';
+import { FaYoutube, FaTimes, FaMinus, FaExpand, FaChevronLeft } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const MotionBox = chakra(motion.div);
 
 const MiniPlayer = () => {
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
-  const [activeMedia, setActiveMedia] = useState('radio');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(70);
-  const [isMuted, setIsMuted] = useState(false);
-
-  const audioRef = useRef(null);
-  const videoRef = useRef(null);
-  const playerRef = useRef(null);
-
-  // Radio Logic
-  const toggleRadio = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play().catch(e => console.error(e));
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
+  const [isOpen, setIsOpen] = useState(true);
+  const [isDocked, setIsDocked] = useState(false);
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-      audioRef.current.muted = isMuted;
-    }
-    if (playerRef.current) {
-      playerRef.current.volume(volume / 100);
-      playerRef.current.muted(isMuted);
-    }
-  }, [volume, isMuted]);
+    // Auto-dock after 10 seconds
+    const timer = setTimeout(() => {
+      setIsDocked(true);
+    }, 10000);
 
-  // Video JS Init
-  useEffect(() => {
-    if (activeMedia === 'tv' && !playerRef.current && videoRef.current) {
-      const player = videojs(videoRef.current, {
-        autoplay: false,
-        controls: true,
-        responsive: true,
-        fluid: true,
-        sources: [{
-          src: 'https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8',
-          type: 'application/x-mpegURL'
-        }]
-      });
-      playerRef.current = player;
-    }
+    return () => clearTimeout(timer);
+  }, []);
 
-    return () => {
-      if (playerRef.current) {
-        playerRef.current.dispose();
-        playerRef.current = null;
-      }
-    };
-  }, [activeMedia]);
-
-  const handleTabChange = (index) => {
-    const media = index === 0 ? 'radio' : 'tv';
-    setActiveMedia(media);
-    if (isPlaying) {
-      if (media === 'tv') {
-        audioRef.current?.pause();
-      } else {
-        playerRef.current?.pause();
-      }
-      setIsPlaying(false);
-    }
-  };
+  if (!isOpen) return null;
 
   return (
-    <Box
-      position="fixed"
-      bottom={{ base: 4, md: 8 }}
-      right={{ base: 4, md: 8 }}
-      zIndex={2000}
-    >
-      <Collapse in={isOpen} animateOpacity>
-        <Box
-          bg={useColorModeValue('white', 'gray.800')}
-          p={4}
-          borderRadius="2xl"
-          boxShadow="2xl"
-          width={{ base: "300px", md: "350px" }}
-          mb={4}
-          border="1px solid"
-          borderColor="gray.100"
-        >
-          <HStack justify="space-between" mb={4}>
-            <Text fontWeight="800" fontSize="sm" color="brand.500">MEDIA PLAYER</Text>
-            <IconButton
-              size="xs"
-              icon={<FaTimes />}
-              onClick={onToggle}
-              variant="ghost"
-              aria-label="Close player"
-            />
-          </HStack>
+    <Portal>
+      <Box
+        position="fixed"
+        bottom={{ base: 4, md: 8 }}
+        right={0}
+        zIndex={1000}
+        pointerEvents="none"
+      >
+        <AnimatePresence mode="wait">
+          {isDocked ? (
+            <MotionBox
+              key="docked"
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: -10, opacity: 1 }}
+              exit={{ x: 100, opacity: 0 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+              pointerEvents="auto"
+            >
+              <Tooltip label="Show Live Media" placement="left">
+                <IconButton
+                  aria-label="Show player"
+                  icon={<FaYoutube />}
+                  colorScheme="red"
+                  onClick={() => setIsDocked(false)}
+                  size="lg"
+                  isRound
+                  boxShadow="2xl"
+                  border="2px solid"
+                  borderColor="white"
+                  _hover={{ transform: 'scale(1.1)', x: -5 }}
+                  transition="all 0.2s"
+                />
+              </Tooltip>
+            </MotionBox>
+          ) : (
+            <MotionBox
+              key="expanded"
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: -20, opacity: 1 }}
+              exit={{ x: 300, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              pointerEvents="auto"
+              w={{ base: '280px', md: '320px' }}
+              bg={bgColor}
+              borderRadius="xl"
+              boxShadow="2xl"
+              border="1px solid"
+              borderColor={borderColor}
+              overflow="hidden"
+            >
+              {/* Header */}
+              <Flex
+                align="center"
+                justify="space-between"
+                px={4}
+                py={2}
+                bg="red.600"
+                color="white"
+              >
+                <Flex align="center" gap={2}>
+                  <FaYoutube />
+                  <Text fontSize="xs" fontWeight="bold">LIVE MEDIA</Text>
+                </Flex>
+                <Flex gap={1}>
+                  <IconButton
+                    size="xs"
+                    icon={<FaMinus />}
+                    variant="ghost"
+                    color="white"
+                    _hover={{ bg: 'red.500' }}
+                    onClick={() => setIsDocked(true)}
+                    aria-label="Dock player"
+                  />
+                  <IconButton
+                    size="xs"
+                    icon={<FaTimes />}
+                    variant="ghost"
+                    color="white"
+                    _hover={{ bg: 'red.500' }}
+                    onClick={() => setIsOpen(false)}
+                    aria-label="Close player"
+                  />
+                </Flex>
+              </Flex>
 
-          <Tabs variant="soft-rounded" colorScheme="brand" size="sm" onChange={handleTabChange}>
-            <TabList mb={4}>
-              <Tab><Icon as={FaBroadcastTower} mr={2} /> Radio</Tab>
-              <Tab><Icon as={FaTv} mr={2} /> TVRI</Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel p={0}>
-                <VStack spacing={4} align="stretch">
-                  <Box bg="gray.50" p={4} borderRadius="xl" textAlign="center">
-                    <Text fontWeight="700" fontSize="sm">Gemilang FM 98.6</Text>
-                    <Text fontSize="xs" color="gray.500">Live Streaming</Text>
-                  </Box>
-                  <HStack spacing={4} justify="center">
-                    <IconButton
-                      icon={isPlaying ? <FaPause /> : <FaPlay />}
-                      onClick={toggleRadio}
-                      colorScheme="brand"
-                      borderRadius="full"
-                      size="lg"
-                      aria-label="Play/Pause"
-                    />
-                  </HStack>
-                </VStack>
-              </TabPanel>
-              <TabPanel p={0}>
-                <Box borderRadius="xl" overflow="hidden" bg="black">
-                  <div data-vjs-player>
-                    <video ref={videoRef} className="video-js vjs-big-play-centered" />
-                  </div>
-                </Box>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+              {/* Video Content */}
+              <Box position="relative" pb="56.25%" h={0}>
+                <chakra.iframe
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  w="100%"
+                  h="100%"
+                  src="https://www.youtube.com/embed/Wc7lxuRx0LI?autoplay=0&mute=1"
+                  title="Desa Ngawonggo Profile"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </Box>
 
-          <Box mt={6}>
-            <HStack spacing={3}>
-              <Icon as={isMuted ? FaVolumeMute : FaVolumeUp} color="gray.400" cursor="pointer" onClick={() => setIsMuted(!isMuted)} />
-              <Slider value={volume} onChange={(v) => setVolume(v)} min={0} max={100} colorScheme="brand">
-                <SliderTrack>
-                  <SliderFilledTrack />
-                </SliderTrack>
-                <SliderThumb />
-              </Slider>
-            </HStack>
-          </Box>
-        </Box>
-      </Collapse>
-
-      <Tooltip label={isOpen ? "Minimize" : "Live Radio & TV"} placement="left">
-        <Button
-          onClick={onToggle}
-          colorScheme="brand"
-          size="lg"
-          borderRadius="full"
-          boxShadow="xl"
-          leftIcon={<Icon as={isOpen ? FaChevronDown : FaBroadcastTower} />}
-          px={6}
-        >
-          {isOpen ? "Tutup" : "Live Media"}
-        </Button>
-      </Tooltip>
-
-      <audio
-        ref={audioRef}
-        src="https://streaming-radio.magelangkab.go.id/studio"
-        preload="none"
-      />
-    </Box>
+              <Box p={3}>
+                <Text fontSize="xs" color="gray.500" noOfLines={1}>
+                  Sedang Tayang: Profil Desa Ngawonggo 2024
+                </Text>
+              </Box>
+            </MotionBox>
+          )}
+        </AnimatePresence>
+      </Box>
+    </Portal>
   );
 };
 

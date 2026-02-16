@@ -1,143 +1,155 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   IconButton,
-  Collapse,
-  useDisclosure,
-  VStack,
-  HStack,
+  Flex,
   Text,
-  Input,
-  Avatar,
   useColorModeValue,
+  Portal,
+  chakra,
+  Tooltip,
 } from '@chakra-ui/react';
-import { FaComments, FaPaperPlane, FaTimes, FaRobot } from 'react-icons/fa';
+import { FaRobot, FaTimes, FaMinus, FaPaperPlane, FaChevronLeft } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const MotionBox = chakra(motion.div);
 
 const Chatbot = () => {
-  const { isOpen, onToggle } = useDisclosure();
-  const [messages, setMessages] = useState([
-    { text: "Halo! Saya Asisten Digital Desa Ngawonggo. Ada yang bisa saya bantu?", isBot: true }
-  ]);
-  const [input, setInput] = useState("");
+  const [isOpen, setIsOpen] = useState(true);
+  const [isDocked, setIsDocked] = useState(false);
+  const bgColor = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  useEffect(() => {
+    // Auto-dock after 10 seconds
+    const timer = setTimeout(() => {
+      setIsDocked(true);
+    }, 10000);
 
-    const userMsg = { text: input, isBot: false };
-    setMessages([...messages, userMsg]);
-    setInput("");
+    return () => clearTimeout(timer);
+  }, []);
 
-    // Simple bot response logic
-    setTimeout(() => {
-      let botText = "Maaf, saya belum memahami pertanyaan tersebut. Silakan hubungi kantor desa untuk informasi lebih lanjut.";
-      const lowInput = input.toLowerCase();
-
-      if (lowInput.includes("layanan") || lowInput.includes("surat")) {
-        botText = "Untuk layanan surat menyurat, Anda bisa datang ke kantor desa pada jam kerja (Senin-Jumat, 08:00 - 15:00) atau cek menu Layanan Publik.";
-      } else if (lowInput.includes("wisata") || lowInput.includes("jalan")) {
-        botText = "Desa Ngawonggo memiliki wisata alam yang indah. Cek menu Potensi Desa untuk melihat daftar destinasi wisata kami.";
-      } else if (lowInput.includes("halo") || lowInput.includes("pagi") || lowInput.includes("siang")) {
-        botText = "Halo juga! Ada yang bisa saya bantu hari ini?";
-      }
-
-      setMessages(prev => [...prev, { text: botText, isBot: true }]);
-    }, 1000);
-  };
+  if (!isOpen) return null;
 
   return (
-    <Box position="fixed" bottom={{ base: 20, md: 8 }} right={{ base: 4, md: 8 }} zIndex={2000}>
-      <Collapse in={isOpen} animateOpacity>
-        <Box
-          bg={useColorModeValue('white', 'gray.800')}
-          w={{ base: "300px", md: "350px" }}
-          h="450px"
-          borderRadius="2xl"
-          boxShadow="2xl"
-          mb={4}
-          display="flex"
-          flexDirection="column"
-          overflow="hidden"
-          border="1px solid"
-          borderColor="gray.100"
-        >
-          {/* Header */}
-          <HStack bg="brand.500" p={4} color="white" justify="space-between">
-            <HStack>
-              <Avatar size="sm" icon={<FaRobot />} bg="white" color="brand.500" />
-              <VStack align="start" spacing={0}>
-                <Text fontWeight="bold" fontSize="sm">Asisten Desa</Text>
-                <Text fontSize="xs" opacity={0.8}>Online</Text>
-              </VStack>
-            </HStack>
-            <IconButton
-              size="sm"
-              icon={<FaTimes />}
-              variant="ghost"
-              color="white"
-              onClick={onToggle}
-              aria-label="Close chat"
-            />
-          </HStack>
-
-          {/* Messages */}
-          <VStack flex={1} p={4} overflowY="auto" align="stretch" spacing={4} bg="gray.50">
-            {messages.map((msg, i) => (
-              <Box
-                key={i}
-                alignSelf={msg.isBot ? "flex-start" : "flex-end"}
-                bg={msg.isBot ? "white" : "brand.500"}
-                color={msg.isBot ? "gray.800" : "white"}
+    <Portal>
+      <Box
+        position="fixed"
+        bottom={{ base: 20, md: 24 }}
+        right={0}
+        zIndex={1001}
+        pointerEvents="none"
+      >
+        <AnimatePresence mode="wait">
+          {isDocked ? (
+            <MotionBox
+              key="docked"
+              initial={{ x: 100, opacity: 0 }}
+              animate={{ x: -10, opacity: 1 }}
+              exit={{ x: 100, opacity: 0 }}
+              transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+              pointerEvents="auto"
+            >
+              <Tooltip label="Tanya AI Desa" placement="left">
+                <IconButton
+                  aria-label="Show chat"
+                  icon={<FaRobot />}
+                  colorScheme="blue"
+                  onClick={() => setIsDocked(false)}
+                  size="lg"
+                  isRound
+                  boxShadow="2xl"
+                  border="2px solid"
+                  borderColor="white"
+                  _hover={{ transform: 'scale(1.1)', x: -5 }}
+                  transition="all 0.2s"
+                />
+              </Tooltip>
+            </MotionBox>
+          ) : (
+            <MotionBox
+              key="expanded"
+              initial={{ x: 300, opacity: 0 }}
+              animate={{ x: -20, opacity: 1 }}
+              exit={{ x: 300, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              pointerEvents="auto"
+              w={{ base: '280px', md: '320px' }}
+              bg={bgColor}
+              borderRadius="xl"
+              boxShadow="2xl"
+              border="1px solid"
+              borderColor={borderColor}
+              overflow="hidden"
+            >
+              {/* Header */}
+              <Flex
+                align="center"
+                justify="space-between"
                 px={4}
                 py={2}
-                borderRadius="2xl"
-                borderTopLeftRadius={msg.isBot ? "0" : "2xl"}
-                borderTopRightRadius={msg.isBot ? "2xl" : "0"}
-                boxShadow="sm"
-                maxW="80%"
+                bg="blue.600"
+                color="white"
               >
-                <Text fontSize="sm">{msg.text}</Text>
+                <Flex align="center" gap={2}>
+                  <FaRobot />
+                  <Text fontSize="xs" fontWeight="bold">ASISTEN AI DESA</Text>
+                </Flex>
+                <Flex gap={1}>
+                  <IconButton
+                    size="xs"
+                    icon={<FaMinus />}
+                    variant="ghost"
+                    color="white"
+                    _hover={{ bg: 'blue.500' }}
+                    onClick={() => setIsDocked(true)}
+                    aria-label="Dock chat"
+                  />
+                  <IconButton
+                    size="xs"
+                    icon={<FaTimes />}
+                    variant="ghost"
+                    color="white"
+                    _hover={{ bg: 'blue.500' }}
+                    onClick={() => setIsOpen(false)}
+                    aria-label="Close chat"
+                  />
+                </Flex>
+              </Flex>
+
+              {/* Chat Content */}
+              <Box h="200px" p={4} overflowY="auto">
+                <Box bg="gray.100" p={2} borderRadius="md" mb={2} fontSize="sm">
+                  <Text color="gray.800">Halo! Ada yang bisa saya bantu terkait layanan Desa Ngawonggo?</Text>
+                </Box>
               </Box>
-            ))}
-          </VStack>
 
-          {/* Input */}
-          <HStack p={4} bg="white" borderTop="1px solid" borderColor="gray.100">
-            <Input
-              placeholder="Ketik pesan..."
-              size="sm"
-              borderRadius="full"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            />
-            <IconButton
-              icon={<FaPaperPlane />}
-              colorScheme="brand"
-              borderRadius="full"
-              size="sm"
-              onClick={handleSend}
-              aria-label="Send message"
-            />
-          </HStack>
-        </Box>
-      </Collapse>
-
-      {!isOpen && (
-        <IconButton
-          icon={<FaComments />}
-          colorScheme="brand"
-          size="lg"
-          borderRadius="full"
-          boxShadow="2xl"
-          w={16}
-          h={16}
-          fontSize="2xl"
-          onClick={onToggle}
-          aria-label="Open chat"
-        />
-      )}
-    </Box>
+              {/* Input Area */}
+              <Flex p={2} borderTop="1px solid" borderColor={borderColor}>
+                <chakra.input
+                  flex={1}
+                  px={2}
+                  py={1}
+                  fontSize="sm"
+                  placeholder="Ketik pesan..."
+                  border="1px solid"
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  _focus={{ outline: 'none', borderColor: 'blue.400' }}
+                />
+                <IconButton
+                  ml={2}
+                  size="sm"
+                  icon={<FaPaperPlane />}
+                  colorScheme="blue"
+                  aria-label="Send message"
+                />
+              </Flex>
+            </MotionBox>
+          )}
+        </AnimatePresence>
+      </Box>
+    </Portal>
   );
 };
 
