@@ -40,43 +40,55 @@ const BMKGSection = () => {
   const fetchBMKGData = async () => {
     setLoading(true);
     try {
-      // Fetch Earthquake
+      // Fetch Earthquake (JSON usually has CORS enabled)
       const eqRes = await fetch('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json');
       const eqJson = await eqRes.json();
       setEarthquake(eqJson.Infogempa.gempa);
 
-      // Fetch Weather (Jawa Tengah)
-      const wRes = await fetch('https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-JawaTengah.xml');
-      const wText = await wRes.text();
+      // Fetch Weather (Using allorigins proxy to bypass CORS for XML)
+      const weatherUrl = 'https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-JawaTengah.xml';
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(weatherUrl)}`;
+
+      const wRes = await fetch(proxyUrl);
+      const wData = await wRes.json();
+      const wText = wData.contents;
+
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(wText, "text/xml");
 
       const areas = xmlDoc.getElementsByTagName("area");
-      let magelangArea = null;
+      let targetArea = null;
+
+      // Try to find Magelang or Mungkid (Kab. Magelang capital)
       for (let i = 0; i < areas.length; i++) {
           const name = areas[i].getAttribute("description");
-          if (name === "Magelang" || name === "Mungkid") {
-              magelangArea = areas[i];
+          if (name === "Magelang" || name === "Mungkid" || name.includes("Magelang")) {
+              targetArea = areas[i];
               break;
           }
       }
 
-      if (magelangArea) {
-          const params = magelangArea.getElementsByTagName("parameter");
-          const getVal = (id) => {
+      if (targetArea) {
+          const params = targetArea.getElementsByTagName("parameter");
+
+          const getLatestVal = (id) => {
               for(let j=0; j<params.length; j++) {
                   if(params[j].getAttribute("id") === id) {
-                      return params[j].getElementsByTagName("value")[0].textContent;
+                      // Get values and find one that matches current time or just the first one if not sure
+                      const values = params[j].getElementsByTagName("value");
+                      // BMKG usually provides 3-hourly or 6-hourly data.
+                      // For now, let's take the first one or try to guess the most relevant
+                      return values[0]?.textContent;
                   }
               }
               return null;
           };
 
           setWeather({
-              temp: getVal("t"),
-              hu: getVal("hu"),
-              ws: getVal("ws"),
-              desc: getVal("weather"),
+              temp: getLatestVal("t"),
+              hu: getLatestVal("hu"),
+              ws: getLatestVal("ws"),
+              desc: getLatestVal("weather"),
           });
       }
     } catch (error) {
@@ -89,8 +101,9 @@ const BMKGSection = () => {
     const c = parseInt(code);
     if (c === 0) return FaSun;
     if (c >= 1 && c <= 4) return FaCloud;
-    if (c >= 5 && c <= 10) return FaCloudRain;
-    if (c >= 11) return FaBolt;
+    if (c >= 5 && c <= 10 || c === 45) return FaCloud; // 45 is Fog/Kabut
+    if (c >= 60 && c <= 80) return FaCloudRain;
+    if (c >= 95) return FaBolt;
     return FaCloud;
   };
 
@@ -149,7 +162,7 @@ const BMKGSection = () => {
                 <HStack justify="space-between" mb={8}>
                   <VStack align="start" spacing={0}>
                     <Heading size="md">Cuaca Magelang</Heading>
-                    <Text fontSize="sm" color="gray.500">Update berkala BMKG</Text>
+                    <Text fontSize="sm" color="gray.500">Kec. Kaliangkrik & Sekitarnya</Text>
                   </VStack>
                   <Icon as={getWeatherIcon(weather?.desc)} w={12} h={12} color="orange.400" />
                 </HStack>
@@ -162,7 +175,7 @@ const BMKGSection = () => {
                     <Text fontSize="2xl" fontWeight="semibold">
                         {getWeatherDesc(weather?.desc)}
                     </Text>
-                    <Text color="gray.500">Kec. Kaliangkrik</Text>
+                    <Text color="gray.500">Update BMKG Terkini</Text>
                   </VStack>
                 </Flex>
 
@@ -224,14 +237,14 @@ const BMKGSection = () => {
                 <VStack align="stretch" spacing={6}>
                   <Flex align="center" gap={6}>
                     <Box textAlign="center">
-                        <Text fontSize="4xl" fontWeight="black" color="red.500">{earthquake?.Magnitude}</Text>
+                        <Text fontSize="4xl" fontWeight="black" color="red.500">{earthquake?.Magnitude || '--'}</Text>
                         <Text fontSize="xs" fontWeight="bold">MAGNITUDO</Text>
                     </Box>
                     <Divider orientation="vertical" h="50px" />
                     <VStack align="start" spacing={1}>
                         <HStack spacing={2}>
                             <Icon as={RiMapPin2Line} color="gray.400" />
-                            <Text fontSize="sm" fontWeight="bold">{earthquake?.Wilayah}</Text>
+                            <Text fontSize="sm" fontWeight="bold">{earthquake?.Wilayah || 'Tidak ada data'}</Text>
                         </HStack>
                         <HStack spacing={2}>
                             <Icon as={RiTimeLine} color="gray.400" />
@@ -242,7 +255,7 @@ const BMKGSection = () => {
 
                   <Box p={4} bg={alertBg} borderRadius="xl" borderLeft="4px solid" borderColor="red.500">
                     <Text fontSize="sm" fontWeight="semibold" color="red.600">
-                        Potensi: {earthquake?.Potensi}
+                        Potensi: {earthquake?.Potensi || 'N/A'}
                     </Text>
                     <Text fontSize="xs" color="gray.500" mt={1}>
                         Kedalaman: {earthquake?.Kedalaman} | Koordinat: {earthquake?.Coordinates}
