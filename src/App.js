@@ -16,8 +16,6 @@ import MediaPage from './views/MediaPage/index.js';
 import EduGamePage from './views/EduGamePage/index.js';
 import DusunPage from './views/DusunPage/index.js';
 import NewsDetail from './views/NewsPage/NewsDetail.js';
-import BeritaMagelangPage from './views/BeritaMagelang/index.js';
-import BeritaMagelangDetailPage from './views/BeritaMagelang/BeritaMagelangDetail.js';
 import AdminPage from './views/AdminPage/index.js';
 import Login from './views/AdminPage/Login.js';
 import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
@@ -100,8 +98,6 @@ function App() {
         <Route path="/" element={<LandingPage isReady={!showSplash && isVerified} />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetail />} />
-        <Route path="/berita-magelang" element={<BeritaMagelangPage />} />
-        <Route path="/berita-magelang/:slug" element={<BeritaMagelangDetailPage />} />
         <Route path="/profil" element={<ProfilPage />} />
         <Route path="/pemerintahan" element={<PemerintahanPage />} />
         <Route path="/layanan" element={<LayananPage />} />
