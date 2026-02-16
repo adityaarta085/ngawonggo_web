@@ -1,3 +1,4 @@
+import { InstallPWA } from "../../components";
 import { Box } from '@chakra-ui/react';
 import Hero from './components/Hero.js';
 import QuickLinks from './components/QuickLinks.js';
@@ -15,6 +16,7 @@ export default function LandingPage({ isReady }) {
   return (
     <Box>
       <Hero isReady={isReady} />
+      <InstallPWA />
       <StatsSection />
       <BMKGSection />
       <QuickLinks />
