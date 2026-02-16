@@ -2,22 +2,22 @@ import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
+  Grid,
   Heading,
   Text,
-  SimpleGrid,
   VStack,
   HStack,
   Icon,
-  useColorModeValue,
-  Flex,
   Badge,
-  Spinner,
+  Flex,
   Divider,
-  Grid,
+  SimpleGrid,
+  useColorModeValue,
+  Spinner,
 } from '@chakra-ui/react';
-import { FaTint, FaWind, FaCloud, FaSun, FaCloudRain, FaBolt, FaExclamationTriangle } from 'react-icons/fa';
-import { RiPulseLine, RiMapPin2Line, RiTimeLine } from 'react-icons/ri';
 import { motion } from 'framer-motion';
+import { FaSun, FaCloud, FaCloudRain, FaBolt, FaWind, FaTint, FaExclamationTriangle } from 'react-icons/fa';
+import { RiPulseLine, RiMapPin2Line, RiTimeLine } from 'react-icons/ri';
 
 const MotionBox = motion(Box);
 
@@ -45,50 +45,36 @@ const BMKGSection = () => {
       const eqJson = await eqRes.json();
       setEarthquake(eqJson.Infogempa.gempa);
 
-      // Fetch Weather (Using allorigins proxy to bypass CORS for XML)
-      const weatherUrl = 'https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-JawaTengah.xml';
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(weatherUrl)}`;
+      // Fetch Weather (New JSON API - Ngawonggo, Magelang)
+      // Adm4 code: 33.08.13.2002
+      const weatherUrl = 'https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=33.08.13.2002';
+      const wRes = await fetch(weatherUrl);
+      const wJson = await wRes.json();
 
-      const wRes = await fetch(proxyUrl);
-      const wData = await wRes.json();
-      const wText = wData.contents;
+      if (wJson.data && wJson.data.length > 0 && wJson.data[0].cuaca) {
+          const allForecasts = wJson.data[0].cuaca.flat();
+          const now = new Date();
 
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(wText, "text/xml");
+          // Find the forecast closest to current time
+          let closest = allForecasts[0];
+          let minDiff = Math.abs(new Date(allForecasts[0].local_datetime) - now);
 
-      const areas = xmlDoc.getElementsByTagName("area");
-      let targetArea = null;
-
-      // Try to find Magelang or Mungkid (Kab. Magelang capital)
-      for (let i = 0; i < areas.length; i++) {
-          const name = areas[i].getAttribute("description");
-          if (name === "Magelang" || name === "Mungkid" || name.includes("Magelang")) {
-              targetArea = areas[i];
-              break;
-          }
-      }
-
-      if (targetArea) {
-          const params = targetArea.getElementsByTagName("parameter");
-
-          const getLatestVal = (id) => {
-              for(let j=0; j<params.length; j++) {
-                  if(params[j].getAttribute("id") === id) {
-                      // Get values and find one that matches current time or just the first one if not sure
-                      const values = params[j].getElementsByTagName("value");
-                      // BMKG usually provides 3-hourly or 6-hourly data.
-                      // For now, let's take the first one or try to guess the most relevant
-                      return values[0]?.textContent;
-                  }
+          for (const f of allForecasts) {
+              const fDate = new Date(f.local_datetime);
+              const diff = Math.abs(fDate - now);
+              if (diff < minDiff) {
+                  minDiff = diff;
+                  closest = f;
               }
-              return null;
-          };
+          }
 
           setWeather({
-              temp: getLatestVal("t"),
-              hu: getLatestVal("hu"),
-              ws: getLatestVal("ws"),
-              desc: getLatestVal("weather"),
+              temp: closest.t,
+              hu: closest.hu,
+              ws: closest.ws,
+              desc: closest.weather.toString(),
+              descText: closest.weather_desc,
+              icon: closest.image
           });
       }
     } catch (error) {
@@ -105,26 +91,6 @@ const BMKGSection = () => {
     if (c >= 60 && c <= 80) return FaCloudRain;
     if (c >= 95) return FaBolt;
     return FaCloud;
-  };
-
-  const getWeatherDesc = (code) => {
-      const map = {
-          "0": "Cerah",
-          "1": "Cerah Berawan",
-          "2": "Cerah Berawan",
-          "3": "Berawan",
-          "4": "Berawan Tebal",
-          "5": "Udara Kabur",
-          "10": "Asap",
-          "45": "Kabut",
-          "60": "Hujan Ringan",
-          "61": "Hujan Sedang",
-          "63": "Hujan Lebat",
-          "80": "Hujan Lokal",
-          "95": "Hujan Petir",
-          "97": "Hujan Petir"
-      };
-      return map[code] || "Berawan";
   };
 
   return (
@@ -161,8 +127,8 @@ const BMKGSection = () => {
               >
                 <HStack justify="space-between" mb={8}>
                   <VStack align="start" spacing={0}>
-                    <Heading size="md">Cuaca Magelang</Heading>
-                    <Text fontSize="sm" color="gray.500">Kec. Kaliangkrik & Sekitarnya</Text>
+                    <Heading size="md">Cuaca Ngawonggo</Heading>
+                    <Text fontSize="sm" color="gray.500">Kec. Kaliangkrik, Kab. Magelang</Text>
                   </VStack>
                   <Icon as={getWeatherIcon(weather?.desc)} w={12} h={12} color="orange.400" />
                 </HStack>
@@ -173,9 +139,9 @@ const BMKGSection = () => {
                   </Text>
                   <VStack align="start" spacing={0}>
                     <Text fontSize="2xl" fontWeight="semibold">
-                        {getWeatherDesc(weather?.desc)}
+                        {weather?.descText || 'Berawan'}
                     </Text>
-                    <Text color="gray.500">Update BMKG Terkini</Text>
+                    <Text color="gray.500">Sumber: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)</Text>
                   </VStack>
                 </Flex>
 
@@ -258,7 +224,7 @@ const BMKGSection = () => {
                         Potensi: {earthquake?.Potensi || 'N/A'}
                     </Text>
                     <Text fontSize="xs" color="gray.500" mt={1}>
-                        Kedalaman: {earthquake?.Kedalaman} | Koordinat: {earthquake?.Coordinates}
+                        Kedalaman: {earthquake?.Kedalaman} | Koordinat: {earthquake?.Coordinates} | Sumber: BMKG
                     </Text>
                   </Box>
                 </VStack>
