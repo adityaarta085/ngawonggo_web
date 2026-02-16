@@ -1,4 +1,3 @@
-
 import { Box } from '@chakra-ui/react';
 import Hero from './components/Hero.js';
 import QuickLinks from './components/QuickLinks.js';
@@ -9,12 +8,15 @@ import VideoPromo from './components/VideoPromo.js';
 import Supports from './components/Supports.js';
 import StatsSection from './components/StatsSection.js';
 import PengaduanSection from './components/PengaduanSection.js';
+import QuranSection from './components/QuranSection.js';
+import BMKGSection from './components/BMKGSection.js';
 
 export default function LandingPage({ isReady }) {
   return (
     <Box>
       <Hero isReady={isReady} />
       <StatsSection />
+      <BMKGSection />
       <QuickLinks />
       <DusunSection />
       <LatestNews />
@@ -22,6 +24,7 @@ export default function LandingPage({ isReady }) {
         <Travel />
       </Box>
       <VideoPromo />
+      <QuranSection />
       <PengaduanSection />
       <Supports />
     </Box>
