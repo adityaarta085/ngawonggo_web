@@ -1,6 +1,7 @@
 {
   "short_name": "Ngawonggo",
-  "name": "Aplikasi Desa Ngawonggo",
+  "name": "Desa Ngawonggo Official",
+  "description": "Aplikasi Resmi Desa Ngawonggo - Kecamatan Kaliangkrik, Kabupaten Magelang",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +11,21 @@
     {
       "src": "EmblemDaerahKabProb.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "EmblemDaerahKabProb.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#137fec",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "scope": "/",
+  "id": "/"
 }
