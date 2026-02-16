@@ -8,7 +8,7 @@ import VideoPromo from './components/VideoPromo.js';
 import Supports from './components/Supports.js';
 import StatsSection from './components/StatsSection.js';
 import PengaduanSection from './components/PengaduanSection.js';
-import QuranSection from './components/QuranSection.js';
+import QuranAccess from './components/QuranAccess.js';
 import BMKGSection from './components/BMKGSection.js';
 
 export default function LandingPage({ isReady }) {
@@ -24,7 +24,7 @@ export default function LandingPage({ isReady }) {
         <Travel />
       </Box>
       <VideoPromo />
-      <QuranSection />
+      <QuranAccess />
       <PengaduanSection />
       <Supports />
     </Box>

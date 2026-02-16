@@ -1,4 +1,3 @@
-
 import {
   SimpleGrid,
   Box,
@@ -14,7 +13,9 @@ import {
   FaHandHoldingHeart,
   FaGavel,
   FaBullhorn,
+  FaBookOpen,
 } from 'react-icons/fa';
+import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 
 const QuickLinks = () => {
@@ -43,6 +44,13 @@ const QuickLinks = () => {
       description: language === 'id' ? 'Struktur organisasi desa' : 'Village organization'
     },
     {
+        label: language === 'id' ? 'Al-Qur\'an Digital' : 'Digital Quran',
+        icon: FaBookOpen,
+        href: '/quran',
+        color: 'teal.500',
+        description: language === 'id' ? 'Akses kitab suci digital' : 'Access digital holy book'
+    },
+    {
       label: language === 'id' ? 'Pengaduan' : 'Complaints',
       icon: FaBullhorn,
       href: '#pengaduan',
@@ -59,11 +67,13 @@ const QuickLinks = () => {
             {language === 'id' ? 'Akses Cepat Layanan' : 'Quick Service Access'}
           </Heading>
         </Box>
-        <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={8}>
+        <SimpleGrid columns={{ base: 1, sm: 2, md: 5 }} spacing={8}>
           {links.map((link, index) => (
             <Link
               key={index}
-              href={link.href}
+              as={link.href.startsWith('/') ? RouterLink : 'a'}
+              to={link.href.startsWith('/') ? link.href : undefined}
+              href={link.href.startsWith('/') ? undefined : link.href}
               _hover={{ textDecoration: 'none' }}
             >
               <Box
@@ -75,6 +85,7 @@ const QuickLinks = () => {
                 borderColor="gray.100"
                 transition="all 0.3s"
                 textAlign="center"
+                height="full"
                 _hover={{
                   transform: 'translateY(-10px)',
                   boxShadow: 'xl',
