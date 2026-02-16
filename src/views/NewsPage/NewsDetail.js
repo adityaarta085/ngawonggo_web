@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Loading } from '../../components';
 import {
   Box,
   Container,
@@ -9,9 +10,8 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
-  Spinner,
-  Center,
   Badge,
+  Center,
 } from '@chakra-ui/react';
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
@@ -40,11 +40,7 @@ const NewsDetail = () => {
   }, [id]);
 
   if (loading) {
-    return (
-      <Center h="60vh">
-        <Spinner size="xl" color="brand.500" thickness="4px" />
-      </Center>
-    );
+    return <Loading fullPage />;
   }
 
   if (!news) {

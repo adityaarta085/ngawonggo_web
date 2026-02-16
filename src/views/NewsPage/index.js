@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Loading } from '../../components';
 import {
   Box,
   Flex,
@@ -31,7 +32,7 @@ export default function NewsPage() {
 
   const categories = ['pemerintahan', 'pendidikan', 'kesehatan', 'ekonomi', 'umum'];
 
-  if (loading) return <Box p={10}><Text>Loading news...</Text></Box>;
+  if (loading) return <Loading fullPage />;
 
   return (
     <Box minH="100vh" bg="gray.50" py={12}>

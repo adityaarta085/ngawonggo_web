@@ -21,7 +21,6 @@ import {
   ModalBody,
   useDisclosure,
   IconButton,
-  Spinner,
   Flex,
   Badge,
   Divider,
@@ -30,6 +29,7 @@ import {
 import { SearchIcon } from '@chakra-ui/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaPlay, FaPause, FaBookOpen, FaList } from 'react-icons/fa';
+import Loading from '../../../components/Loading';
 
 const MotionBox = motion(Box);
 
@@ -171,7 +171,7 @@ const QuranSection = () => {
 
           {loading ? (
             <Flex justify="center" py={20}>
-              <Spinner size="xl" color="brand.500" thickness="4px" />
+              <Loading />
             </Flex>
           ) : (
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>

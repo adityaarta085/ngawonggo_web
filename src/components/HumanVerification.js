@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Text, Button, Checkbox, Spinner, ScaleFade, Image } from '@chakra-ui/react';
+import { Box, VStack, Heading, Text, Button, Checkbox, ScaleFade, Image } from '@chakra-ui/react';
+import Loading from './Loading';
 
 const HumanVerification = ({ onVerified }) => {
   const [isVerifying, setIsVerifying] = useState(false);
@@ -93,7 +94,7 @@ const HumanVerification = ({ onVerified }) => {
              >
                 <Text fontWeight="600" ml={2} color="gray.700">Saya bukan robot</Text>
              </Checkbox>
-             {isVerifying ? <Spinner size="sm" color="brand.500" /> : <Image src="https://www.gstatic.com/recaptcha/api2/logo_48.png" h="24px" opacity={0.6} />}
+             {isVerifying ? <Loading size={30} /> : <Image src="https://www.gstatic.com/recaptcha/api2/logo_48.png" h="24px" opacity={0.6} />}
           </Box>
 
           <Button

@@ -1,3 +1,4 @@
+import Loading from "../../../components/Loading";
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -13,7 +14,7 @@ import {
   Divider,
   SimpleGrid,
   useColorModeValue,
-  Spinner,
+
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FaSun, FaCloud, FaCloudRain, FaBolt, FaWind, FaTint, FaExclamationTriangle } from 'react-icons/fa';
@@ -109,7 +110,7 @@ const BMKGSection = () => {
 
           {loading ? (
             <Flex justify="center" py={20}>
-              <Spinner size="xl" color="orange.500" thickness="4px" />
+              <Loading />
             </Flex>
           ) : (
             <Grid templateColumns={{ base: '1fr', lg: 'repeat(2, 1fr)' }} gap={8}>

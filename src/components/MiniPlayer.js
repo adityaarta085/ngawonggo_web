@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   IconButton,
@@ -14,22 +14,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionBox = chakra(motion.div);
 
-const MiniPlayer = () => {
+const MiniPlayer = ({ isHidden = false }) => {
   const [isOpen, setIsOpen] = useState(true);
-  const [isDocked, setIsDocked] = useState(false);
+  const [isDocked, setIsDocked] = useState(true); // Default to docked
   const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const borderColor = useColorModeValue('blue.200', 'blue.700');
 
-  useEffect(() => {
-    // Auto-dock after 10 seconds
-    const timer = setTimeout(() => {
-      setIsDocked(true);
-    }, 10000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!isOpen) return null;
+  if (!isOpen || isHidden) return null;
 
   return (
     <Portal>
@@ -54,7 +45,7 @@ const MiniPlayer = () => {
                 <IconButton
                   aria-label="Show player"
                   icon={<FaYoutube />}
-                  colorScheme="red"
+                  colorScheme="blue"
                   onClick={() => setIsDocked(false)}
                   size="lg"
                   isRound
@@ -88,7 +79,7 @@ const MiniPlayer = () => {
                 justify="space-between"
                 px={4}
                 py={2}
-                bg="red.600"
+                bg="blue.600"
                 color="white"
               >
                 <Flex align="center" gap={2}>
@@ -101,7 +92,7 @@ const MiniPlayer = () => {
                     icon={<FaMinus />}
                     variant="ghost"
                     color="white"
-                    _hover={{ bg: 'red.500' }}
+                    _hover={{ bg: 'blue.500' }}
                     onClick={() => setIsDocked(true)}
                     aria-label="Dock player"
                   />
@@ -110,7 +101,7 @@ const MiniPlayer = () => {
                     icon={<FaTimes />}
                     variant="ghost"
                     color="white"
-                    _hover={{ bg: 'red.500' }}
+                    _hover={{ bg: 'blue.500' }}
                     onClick={() => setIsOpen(false)}
                     aria-label="Close player"
                   />
