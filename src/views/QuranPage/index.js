@@ -1,3 +1,4 @@
+import { Loading } from "../../components";
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
@@ -12,7 +13,6 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  Spinner,
   Flex,
   Badge,
   IconButton,
@@ -185,13 +185,7 @@ const QuranPage = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <Flex justify="center" align="center" minH="100vh">
-        <Spinner size="xl" color="brand.500" thickness="4px" />
-      </Flex>
-    );
-  }
+  if (loading) return <Loading fullPage />;
 
   return (
     <Box pb={selectedSurah ? "120px" : 0} minH="100vh" bg={pageBg}>
@@ -284,11 +278,7 @@ const QuranPage = () => {
               Kembali
             </Button>
 
-            {detailLoading ? (
-              <Flex justify="center" py={20}>
-                <Spinner size="xl" color="brand.500" />
-              </Flex>
-            ) : (
+            {detailLoading ? <Loading /> : (
               <VStack spacing={4} align="stretch">
                 <Box
                   bg="brand.500"

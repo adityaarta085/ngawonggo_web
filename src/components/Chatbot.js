@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   IconButton,
@@ -14,22 +14,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionBox = chakra(motion.div);
 
-const Chatbot = () => {
+const Chatbot = ({ isHidden = false }) => {
   const [isOpen, setIsOpen] = useState(true);
-  const [isDocked, setIsDocked] = useState(false);
+  const [isDocked, setIsDocked] = useState(true); // Default to docked
   const bgColor = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const borderColor = useColorModeValue('blue.200', 'blue.700');
 
-  useEffect(() => {
-    // Auto-dock after 10 seconds
-    const timer = setTimeout(() => {
-      setIsDocked(true);
-    }, 10000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (!isOpen) return null;
+  if (!isOpen || isHidden) return null;
 
   return (
     <Portal>

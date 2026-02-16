@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Flex, Image } from '@chakra-ui/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Box, Flex, Image, Tooltip } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -60,10 +60,44 @@ function App() {
     return sessionStorage.getItem('isVerified') === 'true';
   });
 
+  // Floating windows hide logic
+  const [isFloatingHidden, setIsFloatingHidden] = useState(false);
+  const lastActivityRef = useRef(Date.now());
+  const hideTimerRef = useRef(null);
+
   usePageTracking();
 
   useEffect(() => {
-    // Tetap dengarkan sesi Supabase jika ada fitur lain yang membutuhkannya
+    const handleInteraction = () => {
+      lastActivityRef.current = Date.now();
+    };
+
+    window.addEventListener('mousemove', handleInteraction);
+    window.addEventListener('keydown', handleInteraction);
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('scroll', handleInteraction);
+
+    // Only track inactivity if not already hidden
+    if (!isFloatingHidden) {
+      hideTimerRef.current = setInterval(() => {
+        const now = Date.now();
+        // Hide after 10 seconds of inactivity
+        if (now - lastActivityRef.current > 10000) {
+          setIsFloatingHidden(true);
+        }
+      }, 1000);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('scroll', handleInteraction);
+      if (hideTimerRef.current) clearInterval(hideTimerRef.current);
+    };
+  }, [isFloatingHidden]);
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: authSession } }) => {
       if (authSession) setSession(authSession);
     });
@@ -83,7 +117,6 @@ function App() {
 
   return (
     <Box>
-      {/* Integration Gate untuk interaksi video */}
       {!showSplash && !isVerified && !isAdmin && (
         <HumanVerification onVerified={() => {
           setIsVerified(true);
@@ -122,8 +155,38 @@ function App() {
         <Route path="/admin/login" element={<Login setSession={setSession} />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
-      {!isAdmin && <MiniPlayer />}
-      {!isAdmin && <Chatbot />}
+
+      {!isAdmin && !showSplash && isVerified && (
+        <>
+          <MiniPlayer isHidden={isFloatingHidden} />
+          <Chatbot isHidden={isFloatingHidden} />
+
+          {/* Restore Handle */}
+          {isFloatingHidden && (
+            <Tooltip label="Tampilkan Panel" placement="left" aria-label="Restore Panels">
+              <Box
+                position="fixed"
+                right={0}
+                top="50%"
+                transform="translateY(-50%)"
+                w="6px"
+                h="100px"
+                bg="blue.500"
+                cursor="pointer"
+                zIndex={2000}
+                borderLeftRadius="full"
+                onClick={() => {
+                  setIsFloatingHidden(false);
+                  lastActivityRef.current = Date.now();
+                }}
+                _hover={{ w: '10px', bg: 'blue.400' }}
+                transition="all 0.2s"
+              />
+            </Tooltip>
+          )}
+        </>
+      )}
+
       {!isAdmin && <Footer />}
     </Box>
   );
