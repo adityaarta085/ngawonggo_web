@@ -101,7 +101,7 @@ const BMKGSection = () => {
     const c = parseInt(code);
     if (c === 0) return FaSun;
     if (c >= 1 && c <= 4) return FaCloud;
-    if (c >= 5 && c <= 10 || c === 45) return FaCloud; // 45 is Fog/Kabut
+    if ((c >= 5 && c <= 10) || c === 45) return FaCloud; // 45 is Fog/Kabut
     if (c >= 60 && c <= 80) return FaCloudRain;
     if (c >= 95) return FaBolt;
     return FaCloud;

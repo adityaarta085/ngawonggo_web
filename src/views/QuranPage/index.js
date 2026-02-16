@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Container,
@@ -21,7 +21,6 @@ import {
   useToast,
   Select,
   Checkbox,
-  Tooltip,
   Menu,
   MenuButton,
   MenuList,
@@ -66,21 +65,9 @@ const QuranPage = () => {
   const translationColor = useColorModeValue('gray.600', 'gray.400');
   const tafsirBg = useColorModeValue('orange.50', 'rgba(251, 146, 60, 0.1)');
   const bottomNavBg = useColorModeValue('rgba(255, 255, 255, 0.98)', 'rgba(15, 23, 42, 0.98)');
+  const pageBg = useColorModeValue('gray.50', 'gray.900');
 
-  useEffect(() => {
-    fetchSurahs();
-  }, []);
-
-  useEffect(() => {
-    if (isAutoScroll && currentAyahIndex !== -1 && ayahRefs.current[currentAyahIndex]) {
-      ayahRefs.current[currentAyahIndex].scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
-    }
-  }, [currentAyahIndex, isAutoScroll]);
-
-  const fetchSurahs = async () => {
+  const fetchSurahs = useCallback(async () => {
     try {
       const response = await fetch('https://api.quran.gading.dev/surah');
       const data = await response.json();
@@ -95,7 +82,21 @@ const QuranPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchSurahs();
+  }, [fetchSurahs]);
+
+  useEffect(() => {
+    if (isAutoScroll && currentAyahIndex !== -1 && ayahRefs.current[currentAyahIndex]) {
+      ayahRefs.current[currentAyahIndex].scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [currentAyahIndex, isAutoScroll]);
+
 
   const fetchSurahDetail = async (number) => {
     setDetailLoading(true);
@@ -193,7 +194,7 @@ const QuranPage = () => {
   }
 
   return (
-    <Box pb={selectedSurah ? "120px" : 0} minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')}>
+    <Box pb={selectedSurah ? "120px" : 0} minH="100vh" bg={pageBg}>
       <Container maxW="container.xl" pt={4}>
         {!selectedSurah ? (
           <VStack spacing={6} align="stretch">
