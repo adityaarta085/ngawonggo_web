@@ -5,12 +5,11 @@ import {
   Flex,
   Text,
   useColorModeValue,
-  Collapse,
   Tooltip,
   Portal,
   chakra,
 } from '@chakra-ui/react';
-import { FaYoutube, FaTimes, FaMinus, FaExpand, FaChevronLeft } from 'react-icons/fa';
+import { FaYoutube, FaTimes, FaMinus } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionBox = chakra(motion.div);

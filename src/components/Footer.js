@@ -126,7 +126,7 @@ export default function Footer() {
 
         <VStack spacing={4} align="center" mb={6}>
           <Text fontSize="xs" color="gray.500" fontStyle="italic">
-            Made With SMK Muhammadiyah Bandongan 2026 TJKT A
+            <Link as={RouterLink} to="/credits" _hover={{ color: "white" }}>Made With SMK Muhammadiyah Bandongan 2026 TJKT A</Link>
           </Text>
         </VStack>
 

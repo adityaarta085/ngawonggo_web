@@ -9,7 +9,7 @@ import {
   chakra,
   Tooltip,
 } from '@chakra-ui/react';
-import { FaRobot, FaTimes, FaMinus, FaPaperPlane, FaChevronLeft } from 'react-icons/fa';
+import { FaRobot, FaTimes, FaMinus, FaPaperPlane } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionBox = chakra(motion.div);

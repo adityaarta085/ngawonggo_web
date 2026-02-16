@@ -21,6 +21,7 @@ import AdminPage from './views/AdminPage/index.js';
 import Login from './views/AdminPage/Login.js';
 import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
 import TermsConditions from './views/Legal/TermsConditions.js';
+import CreditsPage from './views/CreditsPage/index.js';
 import MiniPlayer from './components/MiniPlayer.js';
 import SplashScreen from './components/SplashScreen.js';
 import HumanVerification from './components/HumanVerification.js';
@@ -111,6 +112,7 @@ function App() {
         <Route path="/quran" element={<QuranPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<TermsConditions />} />
+        <Route path="/credits" element={<CreditsPage />} />
         <Route
           path="/admin"
           element={
