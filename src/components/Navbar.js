@@ -107,6 +107,7 @@ function Navbar() {
     { label: t.services, href: '/layanan' },
     { label: 'Potensi', href: '/potensi' },
     { label: t.news, href: '/news' },
+    { label: t.beritaMagelang, href: '/berita-magelang' },
     { label: t.media, href: '/media' },
     { label: t.games, href: '/game-edukasi' },
     { label: t.contact, href: '/kontak' },
