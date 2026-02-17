@@ -28,7 +28,7 @@ const teamMembers = [
     name: "ADITYA ARTA PUTRA",
     role: "Project Leader & Lead Developer",
     isLeader: true,
-    description: "Koordinator utama kelompok sekaligus pengembang utama yang membangun sekitar 80% dari keseluruhan website ini. Bertanggung jawab atas arsitektur kode, integrasi API, dan desain UI/UX.",
+    description: "Koordinator utama kelompok sekaligus pengembang utama yang membangun sekitar 40% dari keseluruhan website ini. Bertanggung jawab atas arsitektur kode, integrasi API, dan desain UI/UX.",
     photo: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifh-gSAUfCfZSZASMU_3xe-LtUUl94TKvEuX7_xF7MSlkiEwWKIyOUExxYxLxHIXBSAVNfDw6pwsA1w9Mlwf3UDBQb4Z4sK7HbVHihuTkmg-8qgjpDQT2nmdwxnWsFj7fUCYAaDDslfbKe9grVOsCCeQ4R1EUVsAUySd7BGzK-i5l1eZPSOvhlq1IfGpw/s320/10%20TJKT%20A%20ADITYA%20ARTA%20PUTRA.JPG",
     certificate: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilVHKf4rAAnNsXQ9rCmDp1wDaHGD-54HwjNQkUSLzUwhCY3csZ9AeRpBkCL1tulzAg_BRcOgm4rremf6CxK-CKiqocFpf5s-9x_qeDnfquLIyRkPte3dzxKA-sOiLmVt97BGWFtGLc7DTE70AfiebK2KnrT8m9j5DSXTdBGCvOdXT9IaTtB4IKxJYbBg0/s320/1.png"
   },
@@ -121,7 +121,7 @@ const MemberCard = ({ member }) => {
                 </Text>
                 <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={4} w="full">
                    <Box p={4} borderRadius="2xl" bg="gray.50" _dark={{ bg: 'whiteAlpha.50' }}>
-                      <Text fontWeight="bold" color="brand.500">80% Contribution</Text>
+                      <Text fontWeight="bold" color="brand.500">40% Contribution</Text>
                       <Text fontSize="xs" color="gray.500">Core Architecture & Development</Text>
                    </Box>
                    <Box p={4} borderRadius="2xl" bg="gray.50" _dark={{ bg: 'whiteAlpha.50' }}>
