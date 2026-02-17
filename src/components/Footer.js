@@ -40,8 +40,61 @@ const SocialLink = ({ icon, href }) => (
 export default function Footer() {
 
 
+
   return (
-    <Box bg="gray.900" color="white" pt={20} pb={8} position="relative" overflow="hidden">
+    <>
+      <Box position="relative" w="full" h={{ base: '300px', md: '600px' }} overflow="hidden" bg="gray.900">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            opacity: 0.8
+          }}
+        >
+          <source src="https://lf9-static.bytednsdoc.com/obj/eden-cn/uhbfnupkbps/video/earth_v6.mp4" type="video/mp4" />
+        </video>
+        {/* Cinematic Overlay */}
+        <Box
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          bgGradient="linear(to-b, transparent 0%, transparent 60%, gray.900 100%)"
+        />
+        <Box
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          textAlign="center"
+          w="full"
+          px={4}
+        >
+          <VStack spacing={2}>
+            <Text
+              fontSize={{ base: "xl", md: "4xl" }}
+              fontWeight="900"
+              color="white"
+              textShadow="0 4px 20px rgba(0,0,0,0.5)"
+              letterSpacing="widest"
+              textTransform="uppercase"
+            >
+              Membangun Masa Depan
+            </Text>
+            <Text color="whiteAlpha.800" fontSize={{ base: "xs", md: "md" }} fontWeight="600">
+              Desa Ngawonggo Menuju Indonesia Digital 2045
+            </Text>
+          </VStack>
+        </Box>
+      </Box>
+
+      <Box bg="gray.900" color="white" pt={20} pb={8} position="relative" overflow="hidden">
       {/* Footer background accent */}
       <Box position="absolute" top="-10%" left="50%" transform="translateX(-50%)" w="80%" h="200px" bgGradient="radial(brand.500 0%, transparent 70%)" opacity={0.1} />
 
@@ -139,5 +192,6 @@ export default function Footer() {
         </Flex>
       </Container>
     </Box>
+    </>
   );
 }
