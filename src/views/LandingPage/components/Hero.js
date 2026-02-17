@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { FaPlay, FaPause } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { translations } from '../../../translations';
+
 
 const MotionHeading = motion(Heading);
 const MotionText = motion(Text);
@@ -12,7 +12,7 @@ const MotionStack = motion(Stack);
 
 const Hero = ({ isReady }) => {
   const { language } = useLanguage();
-  const t = translations[language].hero;
+
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -153,7 +153,7 @@ const Hero = ({ isReady }) => {
             transition={{ duration: 0.8, delay: 0.2 }}
             textShadow="2px 2px 8px rgba(0,0,0,0.5)"
           >
-            {t.title}
+            {'Mewujudkan Desa Ngawonggo yang Mandiri & Digital'}
           </MotionHeading>
 
           <MotionText
@@ -165,7 +165,7 @@ const Hero = ({ isReady }) => {
             transition={{ duration: 0.8, delay: 0.4 }}
             textShadow="1px 1px 4px rgba(0,0,0,0.5)"
           >
-            {t.subtitle}
+            {'Menuju Era Digital 2045 dengan kearifan lokal dan potensi alam yang asri.'}
           </MotionText>
 
           <MotionStack
@@ -185,7 +185,7 @@ const Hero = ({ isReady }) => {
               fontSize="md"
               boxShadow="xl"
             >
-              {t.cta}
+              {'Jelajahi Desa'}
             </Button>
             <Button
               as={RouterLink}

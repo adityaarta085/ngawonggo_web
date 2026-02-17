@@ -8,17 +8,18 @@ import { BrowserRouter } from 'react-router-dom';
 import theme from './theme';
 import { LanguageProvider } from './contexts/LanguageContext';
 
+
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
 
 root.render(
   <StrictMode>
     <ChakraProvider theme={theme}>
-      <LanguageProvider>
-        <BrowserRouter>
+
+        <LanguageProvider><BrowserRouter>
           <App />
-        </BrowserRouter>
-      </LanguageProvider>
+        </BrowserRouter></LanguageProvider>
+
     </ChakraProvider>
   </StrictMode>
 );
