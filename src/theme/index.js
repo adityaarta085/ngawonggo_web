@@ -1,4 +1,3 @@
-
 import { extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
@@ -55,6 +54,10 @@ const theme = extendTheme({
       green: '#2D5A27', // Village Green
       lightGreen: '#4c9e43',
       blue: '#0F172A', // Very Dark Blue for footer/hero
+    },
+    ramadan: {
+      gold: '#C5A96F',
+      green: '#0F2F24',
     },
   },
   styles: {

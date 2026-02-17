@@ -11,6 +11,7 @@ import StatsSection from './components/StatsSection.js';
 import PengaduanSection from './components/PengaduanSection.js';
 import QuranAccess from './components/QuranAccess.js';
 import BMKGSection from './components/BMKGSection.js';
+import RamadanSection from './components/RamadanSection.js';
 
 export default function LandingPage({ isReady }) {
   return (
@@ -18,6 +19,7 @@ export default function LandingPage({ isReady }) {
       <Hero isReady={isReady} />
       <InstallPWA />
       <StatsSection />
+      <RamadanSection />
       <BMKGSection />
       <QuickLinks />
       <DusunSection />
