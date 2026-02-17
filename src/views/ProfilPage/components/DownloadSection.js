@@ -101,6 +101,10 @@ const DownloadSection = () => {
     });
 
     try {
+      const logoImg = new window.Image();
+      logoImg.src = '/logo_desa.png';
+      await new Promise(resolve => { logoImg.onload = resolve; });
+
       const canvas = document.createElement('canvas');
       canvas.width = 1280;
       canvas.height = 720;
@@ -152,11 +156,8 @@ const DownloadSection = () => {
         const scale = 5 + Math.sin(elapsed * 3) * 0.3; // Pulsing effect
         ctx.scale(scale, scale);
 
-        // Mountain icon path (from NgawonggoLogo)
-        ctx.fillStyle = '#2D5A27';
-        const p = new Path2D('M14,6L10.25,11L13.1,14.8L11.5,16C9.81,13.75 7,10 7,10L1,18H23L14,6Z');
-        ctx.translate(-12, -12);
-        ctx.fill(p);
+        // Draw logo image
+        ctx.drawImage(logoImg, -40, -40, 80, 80);
         ctx.restore();
 
         // Draw Text

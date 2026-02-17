@@ -24,13 +24,16 @@ const LogoDesa = () => {
       <Box>
         <Text fontSize="25px">Makna Logo Desa Ngawonggo</Text>
         <Text mt={2}>
-          Logo menampilkan siluet Gunung Sumbing yang melambangkan identitas geografis desa di lereng gunung yang megah.
+          Logo resmi Desa Ngawonggo melambangkan identitas budaya, sejarah, dan kekayaan alam desa yang luhur.
         </Text>
         <Text mt={2}>
-          Warna Hijau melambangkan kesuburan tanah dan potensi pertanian sayuran organik yang menjadi tumpuan ekonomi warga.
+          <b>Simbol Candi/Petirtaan:</b> Melambangkan Situs Ngawonggo sebagai warisan sejarah dan budaya peninggalan masa lalu yang menjadi identitas desa.
         </Text>
         <Text mt={2}>
-          Warna Biru melambangkan kejernihan sumber mata air pegunungan dan langit yang cerah di lereng Sumbing.
+          <b>Tetesan Air:</b> Melambangkan kelimpahan sumber mata air (petirtaan) pegunungan yang jernih, suci, dan memberikan kehidupan bagi masyarakat.
+        </Text>
+        <Text mt={2}>
+          <b>Padi dan Lingkaran:</b> Melambangkan kemakmuran dalam sektor pertanian serta kesatuan dan semangat gotong royong warga Desa Ngawonggo.
         </Text>
       </Box>
 
