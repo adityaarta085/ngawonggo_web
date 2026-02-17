@@ -23,6 +23,15 @@ root.render(
   </StrictMode>
 );
 
+// PWA Update handling
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    // This fires when the service worker controlling this page changes,
+    // eg a new worker has skipped waiting and become the new active worker.
+    window.location.reload();
+  });
+}
+
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://cra.link/PWA
