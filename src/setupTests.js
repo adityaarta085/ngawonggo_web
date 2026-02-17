@@ -29,3 +29,6 @@ window.ResizeObserver = ResizeObserver;
 if (typeof window.URL.createObjectURL === 'undefined') {
   window.URL.createObjectURL = jest.fn();
 }
+
+// Mock window.scrollTo
+window.scrollTo = jest.fn();

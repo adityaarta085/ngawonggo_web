@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Flex, Image, Tooltip } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
@@ -22,7 +22,7 @@ import Login from './views/AdminPage/Login.js';
 import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
 import TermsConditions from './views/Legal/TermsConditions.js';
 import CreditsPage from './views/CreditsPage/index.js';
-import MiniPlayer from './components/MiniPlayer.js';
+import ScrollToTop from './components/ScrollToTop.js';
 import SplashScreen from './components/SplashScreen.js';
 import HumanVerification from './components/HumanVerification.js';
 import Chatbot from './components/Chatbot.js';
@@ -60,42 +60,10 @@ function App() {
     return sessionStorage.getItem('isVerified') === 'true';
   });
 
-  // Floating windows hide logic
+  // Floating windows hide logic (Now manual only as requested)
   const [isFloatingHidden, setIsFloatingHidden] = useState(false);
-  const lastActivityRef = useRef(Date.now());
-  const hideTimerRef = useRef(null);
 
   usePageTracking();
-
-  useEffect(() => {
-    const handleInteraction = () => {
-      lastActivityRef.current = Date.now();
-    };
-
-    window.addEventListener('mousemove', handleInteraction);
-    window.addEventListener('keydown', handleInteraction);
-    window.addEventListener('click', handleInteraction);
-    window.addEventListener('scroll', handleInteraction);
-
-    // Only track inactivity if not already hidden
-    if (!isFloatingHidden) {
-      hideTimerRef.current = setInterval(() => {
-        const now = Date.now();
-        // Hide after 10 seconds of inactivity
-        if (now - lastActivityRef.current > 10000) {
-          setIsFloatingHidden(true);
-        }
-      }, 1000);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleInteraction);
-      window.removeEventListener('keydown', handleInteraction);
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('scroll', handleInteraction);
-      if (hideTimerRef.current) clearInterval(hideTimerRef.current);
-    };
-  }, [isFloatingHidden]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: authSession } }) => {
@@ -129,6 +97,9 @@ function App() {
       {!isAdmin && <TopBar />}
       {!isAdmin && <Navbar />}
       {!isAdmin && <PopupNotification />}
+
+      <ScrollToTop />
+
       <Routes>
         <Route path="/" element={<LandingPage isReady={!showSplash && isVerified} />} />
         <Route path="/news" element={<NewsPage />} />
@@ -158,8 +129,10 @@ function App() {
 
       {!isAdmin && !showSplash && isVerified && (
         <>
-          <MiniPlayer isHidden={isFloatingHidden} />
-          <Chatbot isHidden={isFloatingHidden} />
+          <Chatbot
+            isHidden={isFloatingHidden}
+            onHide={() => setIsFloatingHidden(true)}
+          />
 
           {/* Restore Handle */}
           {isFloatingHidden && (
@@ -175,10 +148,7 @@ function App() {
                 cursor="pointer"
                 zIndex={2000}
                 borderLeftRadius="full"
-                onClick={() => {
-                  setIsFloatingHidden(false);
-                  lastActivityRef.current = Date.now();
-                }}
+                onClick={() => setIsFloatingHidden(false)}
                 _hover={{ w: '10px', bg: 'blue.400' }}
                 transition="all 0.2s"
               />
