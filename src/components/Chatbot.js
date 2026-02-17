@@ -14,13 +14,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionBox = chakra(motion.div);
 
-const Chatbot = ({ isHidden = false }) => {
-  const [isOpen, setIsOpen] = useState(true);
+const Chatbot = ({ isHidden = false, onHide }) => {
   const [isDocked, setIsDocked] = useState(true); // Default to docked
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('blue.200', 'blue.700');
 
-  if (!isOpen || isHidden) return null;
+  if (isHidden) return null;
 
   return (
     <Portal>
@@ -41,21 +40,36 @@ const Chatbot = ({ isHidden = false }) => {
               transition={{ type: 'spring', damping: 20, stiffness: 300 }}
               pointerEvents="auto"
             >
-              <Tooltip label="Tanya AI Desa" placement="left">
+              <Box position="relative">
+                <Tooltip label="Tanya AI Desa" placement="left">
+                  <IconButton
+                    aria-label="Show chat"
+                    icon={<FaRobot />}
+                    colorScheme="blue"
+                    onClick={() => setIsDocked(false)}
+                    size="lg"
+                    isRound
+                    boxShadow="2xl"
+                    border="2px solid"
+                    borderColor="white"
+                    _hover={{ transform: 'scale(1.1)', x: -5 }}
+                    transition="all 0.2s"
+                  />
+                </Tooltip>
                 <IconButton
-                  aria-label="Show chat"
-                  icon={<FaRobot />}
-                  colorScheme="blue"
-                  onClick={() => setIsDocked(false)}
-                  size="lg"
+                  size="xs"
+                  icon={<FaTimes />}
+                  position="absolute"
+                  top="-5px"
+                  right="-5px"
+                  colorScheme="red"
+                  variant="solid"
                   isRound
-                  boxShadow="2xl"
-                  border="2px solid"
-                  borderColor="white"
-                  _hover={{ transform: 'scale(1.1)', x: -5 }}
-                  transition="all 0.2s"
+                  onClick={onHide}
+                  aria-label="Hide assistant"
+                  boxShadow="md"
                 />
-              </Tooltip>
+              </Box>
             </MotionBox>
           ) : (
             <MotionBox
@@ -102,7 +116,7 @@ const Chatbot = ({ isHidden = false }) => {
                     variant="ghost"
                     color="white"
                     _hover={{ bg: 'blue.500' }}
-                    onClick={() => setIsOpen(false)}
+                    onClick={onHide}
                     aria-label="Close chat"
                   />
                 </Flex>
