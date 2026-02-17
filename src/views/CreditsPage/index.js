@@ -26,6 +26,9 @@ import { SiTiktok } from 'react-icons/si';
 const teamMembers = [
   {
     name: "ADITYA ARTA PUTRA",
+    role: "Project Leader & Lead Developer",
+    isLeader: true,
+    description: "Koordinator utama kelompok sekaligus pengembang utama yang membangun sekitar 80% dari keseluruhan website ini. Bertanggung jawab atas arsitektur kode, integrasi API, dan desain UI/UX.",
     photo: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifh-gSAUfCfZSZASMU_3xe-LtUUl94TKvEuX7_xF7MSlkiEwWKIyOUExxYxLxHIXBSAVNfDw6pwsA1w9Mlwf3UDBQb4Z4sK7HbVHihuTkmg-8qgjpDQT2nmdwxnWsFj7fUCYAaDDslfbKe9grVOsCCeQ4R1EUVsAUySd7BGzK-i5l1eZPSOvhlq1IfGpw/s320/10%20TJKT%20A%20ADITYA%20ARTA%20PUTRA.JPG",
     certificate: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilVHKf4rAAnNsXQ9rCmDp1wDaHGD-54HwjNQkUSLzUwhCY3csZ9AeRpBkCL1tulzAg_BRcOgm4rremf6CxK-CKiqocFpf5s-9x_qeDnfquLIyRkPte3dzxKA-sOiLmVt97BGWFtGLc7DTE70AfiebK2KnrT8m9j5DSXTdBGCvOdXT9IaTtB4IKxJYbBg0/s320/1.png"
   },
@@ -65,6 +68,105 @@ const MemberCard = ({ member }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const goldColor = '#C5A96F';
+
+  if (member.isLeader) {
+    return (
+      <>
+        <Box
+          gridColumn={{ lg: "span 4", md: "span 3", sm: "span 2" }}
+          mb={10}
+          position="relative"
+          zIndex={1}
+        >
+          <Box
+            bg={cardBg}
+            borderWidth="2px"
+            borderColor={goldColor}
+            borderRadius="3xl"
+            overflow="hidden"
+            boxShadow="2xl"
+            transition="all 0.4s"
+            _hover={{ transform: 'translateY(-5px)', boxShadow: '0 20px 40px rgba(197, 169, 111, 0.2)' }}
+          >
+            <Flex direction={{ base: 'column', md: 'row' }}>
+              <Box position="relative" w={{ base: '100%', md: '350px' }} h={{ base: '300px', md: '450px' }}>
+                <Image
+                  src={member.photo}
+                  alt={member.name}
+                  w="100%"
+                  h="100%"
+                  objectFit="cover"
+                />
+                <Box
+                  position="absolute"
+                  top={0} left={0} right={0} bottom={0}
+                  bgGradient="linear(to-t, blackAlpha.700, transparent)"
+                />
+                <Badge
+                  position="absolute"
+                  top={4} left={4}
+                  bg={goldColor} color="white" px={4} py={1} borderRadius="full"
+                >
+                  THE KING / LEAD
+                </Badge>
+              </Box>
+              <VStack p={{ base: 6, md: 10 }} align="start" justify="center" spacing={6} flex={1}>
+                <VStack align="start" spacing={1}>
+                  <Text color={goldColor} fontWeight="bold" letterSpacing="widest" fontSize="sm">PROJECT LEADER & COORDINATOR</Text>
+                  <Heading size="2xl" fontWeight="900" letterSpacing="tight">{member.name}</Heading>
+                </VStack>
+                <Text fontSize="lg" color="gray.500" lineHeight="tall">
+                  {member.description}
+                </Text>
+                <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={4} w="full">
+                   <Box p={4} borderRadius="2xl" bg="gray.50" _dark={{ bg: 'whiteAlpha.50' }}>
+                      <Text fontWeight="bold" color="brand.500">80% Contribution</Text>
+                      <Text fontSize="xs" color="gray.500">Core Architecture & Development</Text>
+                   </Box>
+                   <Box p={4} borderRadius="2xl" bg="gray.50" _dark={{ bg: 'whiteAlpha.50' }}>
+                      <Text fontWeight="bold" color="brand.500">Tech Maestro</Text>
+                      <Text fontSize="xs" color="gray.500">UI/UX & System Integration</Text>
+                   </Box>
+                </SimpleGrid>
+                <Button
+                  size="lg"
+                  leftIcon={<FaCertificate />}
+                  colorScheme="brand"
+                  bg={goldColor}
+                  _hover={{ bg: '#b39863' }}
+                  onClick={onOpen}
+                  px={10}
+                  borderRadius="full"
+                >
+                  Lihat Sertifikat Utama
+                </Button>
+              </VStack>
+            </Flex>
+          </Box>
+        </Box>
+
+        <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
+          <ModalOverlay backdropFilter="blur(10px)" />
+          <ModalContent borderRadius="2xl" overflow="hidden" mx={4}>
+            <ModalHeader fontSize="lg">Sertifikat Kontribusi Utama</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody pb={6}>
+              <Image
+                src={member.certificate}
+                alt={`Sertifikat ${member.name}`}
+                w="100%"
+                borderRadius="md"
+              />
+              <Text mt={4} fontSize="sm" color="gray.500" textAlign="center">
+                Menyatakan bahwasannya {member.name} adalah Ketua Proyek dan Pengembang Utama website Desa Ngawonggo.
+              </Text>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      </>
+    );
+  }
 
   return (
     <>
