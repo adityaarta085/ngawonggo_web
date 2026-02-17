@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Image, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, Image, Tooltip, HStack, Text, Badge, Icon } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -30,17 +30,33 @@ import RunningText from './components/RunningText.js';
 import PopupNotification from './components/PopupNotification.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
+import { FaMoon } from 'react-icons/fa';
 
 const TopBar = () => {
   return (
-    <Box bg="white" py={2} px={8} borderBottom="1px solid" borderColor="gray.100">
-      <Flex justify="space-between" align="center">
-        <Box flex={1} mr={4} maxW="70%">
-          <RunningText isEmbedded={true} />
-        </Box>
+    <Box bg="white" py={2} px={{ base: 4, md: 8 }} borderBottom="1px solid" borderColor="gray.100">
+      <Flex justify="space-between" align="center" gap={4}>
+        <HStack flex={1} spacing={4} maxW="70%">
+          <Badge
+            display={{ base: "none", md: "flex" }}
+            colorScheme="yellow"
+            variant="subtle"
+            alignItems="center"
+            gap={1}
+            px={3}
+            py={1}
+            borderRadius="full"
+          >
+            <Icon as={FaMoon} />
+            <Text fontSize="xs" fontWeight="bold">RAMADAN 1447H</Text>
+          </Badge>
+          <Box flex={1}>
+            <RunningText isEmbedded={true} />
+          </Box>
+        </HStack>
         <Image
           src="https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png"
-          h="30px"
+          h={{ base: "20px", md: "30px" }}
           alt="Berakhlak - Bangga Melayani Bangsa"
         />
       </Flex>
