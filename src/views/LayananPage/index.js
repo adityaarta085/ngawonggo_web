@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import {
   Box,
   Heading,
@@ -12,82 +11,55 @@ import {
   Icon,
   Link,
   Image,
-  Skeleton,
 } from '@chakra-ui/react';
-import { EmailIcon, InfoIcon, EditIcon, StarIcon, PhoneIcon } from '@chakra-ui/icons';
+import { EmailIcon, InfoIcon, EditIcon } from '@chakra-ui/icons';
 import ComplaintSystem from './ComplaintSystem';
-import { supabase } from '../../lib/supabase';
-
-const iconMap = {
-  'InfoIcon': InfoIcon,
-  'EditIcon': EditIcon,
-  'EmailIcon': EmailIcon,
-  'StarIcon': StarIcon,
-  'PhoneIcon': PhoneIcon,
-};
 
 export default function LayananPage() {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('public_services')
-        .select('*')
-        .order('id', { ascending: true });
-
-      if (error) {
-        console.error('Error fetching services:', error);
-      } else {
-        setServices(data);
-      }
-      setLoading(false);
-    };
-
-    fetchServices();
-  }, []);
+  const services = [
+    {
+      title: 'Kartu Keluarga (KK)',
+      desc: 'Layanan pembuatan KK baru, perubahan data, atau penggantian karena hilang/rusak.',
+      icon: InfoIcon,
+    },
+    {
+      title: 'KTP Elektronik',
+      desc: 'Panduan perekaman KTP-el dan pengurusan KTP yang hilang atau rusak.',
+      icon: EditIcon,
+    },
+    {
+      title: 'Surat Keterangan',
+      desc: 'Pembuatan berbagai surat keterangan (Domisili, Tidak Mampu, Usaha, dll).',
+      icon: EmailIcon,
+    },
+  ];
 
   return (
-    <Box p={{ base: 6, md: 10 }} fontFamily="heading">
-      <Heading mb={5} color="brand.500">Layanan Publik</Heading>
+    <Box p={10} fontFamily="heading">
+      <Heading mb={5} color="ngawonggo.green">Layanan Publik</Heading>
       <Text mb={8}>
         Pemerintah Desa Ngawonggo berkomitmen memudahkan warga dalam mengurus administrasi kependudukan.
       </Text>
 
-      {loading ? (
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
-          {[1, 2, 3].map((i) => (
-            <Skeleton key={i} h="200px" borderRadius="xl" />
-          ))}
-        </SimpleGrid>
-      ) : (
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
-          {services.map((service, index) => (
-            <Card key={index} variant="outline" layerStyle="glassCard">
-              <CardHeader pb={0}>
-                <Icon as={iconMap[service.icon_name] || InfoIcon} w={6} h={6} color="blue.500" mb={2} />
-                <Heading size="md">{service.title}</Heading>
-              </CardHeader>
-              <CardBody>
-                <Stack divider={<StackDivider />} spacing="4">
-                  <Box>
-                    <Text pt="2" fontSize="sm">
-                      {service.description}
-                    </Text>
-                    {service.link && service.link !== '#' && (
-                      <Link href={service.link} color="brand.500" fontSize="sm" fontWeight="bold" mt={2} display="block" isExternal>
-                        Buka Layanan →
-                      </Link>
-                    )}
-                  </Box>
-                </Stack>
-              </CardBody>
-            </Card>
-          ))}
-        </SimpleGrid>
-      )}
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10}>
+        {services.map((service, index) => (
+          <Card key={index} variant="outline">
+            <CardHeader pb={0}>
+              <Icon as={service.icon} w={6} h={6} color="blue.500" mb={2} />
+              <Heading size="md">{service.title}</Heading>
+            </CardHeader>
+            <CardBody>
+              <Stack divider={<StackDivider />} spacing="4">
+                <Box>
+                  <Text pt="2" fontSize="sm">
+                    {service.desc}
+                  </Text>
+                </Box>
+              </Stack>
+            </CardBody>
+          </Card>
+        ))}
+      </SimpleGrid>
 
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10} mt={10}>
         <Box p={5} bg="gray.50" borderRadius="xl" border="1px dashed" borderColor="gray.300">

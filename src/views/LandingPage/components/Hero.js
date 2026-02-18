@@ -3,7 +3,7 @@ import { Box, Container, Heading, Text, Button, Stack, useBreakpointValue } from
 import { motion } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
-
+import { translations } from '../../../translations';
 
 const MotionHeading = motion(Heading);
 const MotionText = motion(Text);
@@ -11,7 +11,7 @@ const MotionStack = motion(Stack);
 
 const Hero = ({ isReady }) => {
   const { language } = useLanguage();
-
+  const t = translations[language].hero;
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -93,7 +93,7 @@ const Hero = ({ isReady }) => {
             transition={{ duration: 0.8, delay: 0.2 }}
             textShadow="2px 2px 8px rgba(0,0,0,0.5)"
           >
-            {'Mewujudkan Desa Ngawonggo yang Mandiri & Digital'}
+            {t.title}
           </MotionHeading>
 
           <MotionText
@@ -105,7 +105,7 @@ const Hero = ({ isReady }) => {
             transition={{ duration: 0.8, delay: 0.4 }}
             textShadow="1px 1px 4px rgba(0,0,0,0.5)"
           >
-            {'Menuju Era Digital 2045 dengan kearifan lokal dan potensi alam yang asri.'}
+            {t.subtitle}
           </MotionText>
 
           <MotionStack
@@ -125,7 +125,7 @@ const Hero = ({ isReady }) => {
               fontSize="md"
               boxShadow="xl"
             >
-              {'Jelajahi Desa'}
+              {t.cta}
             </Button>
             <Button
               as={RouterLink}

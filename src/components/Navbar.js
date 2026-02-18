@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   Box,
   Flex,
   Text,
   IconButton,
+  Button,
   Stack,
   Collapse,
   Icon,
@@ -26,11 +28,15 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import NgawonggoLogo from './NgawonggoLogo';
+import { useLanguage } from '../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { translations } from '../translations';
 
 function Navbar() {
   const { isOpen, onToggle } = useDisclosure();
   const [logoIndex, setLogoIndex] = useState(0);
+  const { language, setLanguage } = useLanguage();
+  const t = translations[language].nav;
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -86,9 +92,9 @@ function Navbar() {
   ];
 
   const NAV_ITEMS = [
-    { label: 'Beranda', href: '/' },
+    { label: t.home, href: '/' },
     {
-      label: 'Profil',
+      label: t.profile,
       parenHref: '/profil',
       children: [
         { label: 'Sejarah', href: '/profil#sejarah' },
@@ -97,14 +103,14 @@ function Navbar() {
         { label: 'Demografi', href: '/profil#demografi' },
       ],
     },
-    { label: 'Pemerintahan', href: '/pemerintahan' },
-    { label: 'Layanan', href: '/layanan' },
+    { label: t.government, href: '/pemerintahan' },
+    { label: t.services, href: '/layanan' },
     { label: 'Potensi', href: '/potensi' },
-    { label: 'Berita', href: '/news' },
-    { label: 'Media', href: '/media' },
-    { label: 'Game Edukasi', href: '/game-edukasi' },
-    { label: 'Kontak', href: '/kontak' },
-    { label: 'Admin', href: '/admin', isSpecial: true },
+    { label: t.news, href: '/news' },
+    { label: t.media, href: '/media' },
+    { label: t.games, href: '/game-edukasi' },
+    { label: t.contact, href: '/kontak' },
+    { label: t.admin, href: '/admin', isSpecial: true },
   ];
 
   const navBg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)');
@@ -168,6 +174,32 @@ function Navbar() {
               <DesktopNav navItems={NAV_ITEMS} />
             </Flex>
           </Flex>
+
+          <Stack
+            flex={{ base: 1, md: 0 }}
+            justify={'flex-end'}
+            direction={'row'}
+            spacing={4}
+          >
+            <HStack spacing={1}>
+              <Button
+                size="xs"
+                variant={language === 'id' ? 'solid' : 'ghost'}
+                colorScheme="brand"
+                onClick={() => setLanguage('id')}
+              >
+                ID
+              </Button>
+              <Button
+                size="xs"
+                variant={language === 'en' ? 'solid' : 'ghost'}
+                colorScheme="brand"
+                onClick={() => setLanguage('en')}
+              >
+                EN
+              </Button>
+            </HStack>
+          </Stack>
         </Container>
       </Flex>
 

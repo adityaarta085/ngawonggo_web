@@ -16,13 +16,13 @@ import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 import NgawonggoLogo from '../../../components/NgawonggoLogo';
 import { useLanguage } from '../../../contexts/LanguageContext';
-
+import { translations } from '../../../translations';
 
 const DownloadSection = () => {
   const { language } = useLanguage();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
-
+  const t = translations[language].profile;
 
   const logoRef = useRef(null);
   const splashRef = useRef(null);
@@ -41,14 +41,14 @@ const DownloadSection = () => {
       link.href = canvas.toDataURL('image/png');
       link.click();
       toast({
-        title: 'Berhasil diunduh',
+        title: t.success,
         status: 'success',
         duration: 3000,
       });
     } catch (err) {
       console.error(err);
       toast({
-        title: 'Gagal mengunduh aset',
+        title: t.error,
         status: 'error',
       });
     } finally {
@@ -76,14 +76,14 @@ const DownloadSection = () => {
       pdf.save(`${filename}.pdf`);
 
       toast({
-        title: 'Berhasil diunduh',
+        title: t.success,
         status: 'success',
         duration: 3000,
       });
     } catch (err) {
       console.error(err);
       toast({
-        title: 'Gagal mengunduh aset',
+        title: t.error,
         status: 'error',
       });
     } finally {
@@ -131,7 +131,7 @@ const DownloadSection = () => {
         link.download = `${filename}.webm`;
         link.click();
         setLoading(false);
-        toast({ title: 'Berhasil diunduh', status: 'success' });
+        toast({ title: t.success, status: 'success' });
       };
 
       recorder.start();
@@ -180,7 +180,7 @@ const DownloadSection = () => {
     } catch (e) {
       console.error(e);
       setLoading(false);
-      toast({ title: 'Gagal mengunduh aset', status: 'error' });
+      toast({ title: t.error, status: 'error' });
     }
   };
 
@@ -188,8 +188,8 @@ const DownloadSection = () => {
     <Box mt={10} p={8} borderRadius="2xl" bg="white" border="1px solid" borderColor="gray.100" boxShadow="xl">
       <VStack align="start" spacing={8}>
         <Box>
-          <Heading size="lg" color="green.600" mb={2}>{'Pusat Unduhan Aset'}</Heading>
-          <Text fontSize="md" color="gray.500">{'Unduh logo resmi dan aset splash screen Desa Ngawonggo.'}</Text>
+          <Heading size="lg" color="green.600" mb={2}>{t.downloadTitle}</Heading>
+          <Text fontSize="md" color="gray.500">{t.downloadSubtitle}</Text>
         </Box>
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} w="full">
@@ -198,13 +198,13 @@ const DownloadSection = () => {
             <Box ref={logoRef} p={4} bg="white" rounded="lg" mb={4}>
               <NgawonggoLogo iconSize={16} fontSize="xl" flexDirection="column" />
             </Box>
-            <Text fontWeight="bold" fontSize="lg" mb={4}>{'Logo Desa'}</Text>
+            <Text fontWeight="bold" fontSize="lg" mb={4}>{t.logo}</Text>
             <Stack direction="column" w="full" spacing={3}>
               <Button leftIcon={<DownloadIcon />} colorScheme="green" onClick={() => downloadPNG(logoRef, 'Logo_Desa_Ngawonggo')} isLoading={loading}>
-                {'Gambar (PNG)'}
+                {t.asImage}
               </Button>
               <Button variant="outline" colorScheme="green" onClick={() => downloadPDF(logoRef, 'Logo_Desa_Ngawonggo')} isLoading={loading}>
-                {'Dokumen (PDF)'}
+                {t.asPDF}
               </Button>
             </Stack>
           </VStack>
@@ -215,13 +215,13 @@ const DownloadSection = () => {
                <NgawonggoLogo iconSize={12} fontSize="sm" flexDirection="column" />
                <Text fontSize="9px" mt={3} color="gray.400" fontWeight="bold">MADE WITH SMK MUHAMMADIYAH BANDONGAN 2026 TJKT A</Text>
             </Box>
-            <Text fontWeight="bold" fontSize="lg" mb={4}>{'Splash Screen'}</Text>
+            <Text fontWeight="bold" fontSize="lg" mb={4}>{t.splash}</Text>
             <Stack direction="column" w="full" spacing={3}>
               <Button leftIcon={<DownloadIcon />} colorScheme="blue" onClick={() => downloadPNG(splashRef, 'Splash_Screen_Ngawonggo')} isLoading={loading}>
-                {'Gambar (PNG)'}
+                {t.asImage}
               </Button>
               <Button variant="solid" colorScheme="red" onClick={() => downloadVideo('Splash_Animation_Ngawonggo')} isLoading={loading}>
-                {'Animasi (Video)'}
+                {t.asVideo}
               </Button>
             </Stack>
           </VStack>
@@ -237,13 +237,13 @@ const DownloadSection = () => {
                  </HStack>
               </VStack>
             </Box>
-            <Text fontWeight="bold" fontSize="lg" mb={4}>{'Bundel 3 Logo'}</Text>
+            <Text fontWeight="bold" fontSize="lg" mb={4}>{t.combined}</Text>
             <Stack direction="column" w="full" spacing={3}>
               <Button leftIcon={<DownloadIcon />} colorScheme="purple" onClick={() => downloadPNG(combinedRef, 'Logo_Bundel_Ngawonggo')} isLoading={loading}>
-                {'Gambar (PNG)'}
+                {t.asImage}
               </Button>
               <Button variant="outline" colorScheme="purple" onClick={() => downloadPDF(combinedRef, 'Logo_Bundel_Ngawonggo')} isLoading={loading}>
-                {'Dokumen (PDF)'}
+                {t.asPDF}
               </Button>
             </Stack>
           </VStack>
