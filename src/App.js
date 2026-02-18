@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Flex, Image, Tooltip, HStack, Text, Badge, Icon, Button } from '@chakra-ui/react';
+import { Box, Flex, Image, Tooltip, HStack, Text, Badge, Icon } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -59,27 +59,6 @@ const TopBar = () => {
           h={{ base: "20px", md: "30px" }}
           alt="Berakhlak - Bangga Melayani Bangsa"
         />
-
-        <HStack spacing={2} display={{ base: "none", md: "flex" }}>
-          <Button
-            size="xs"
-            variant="ghost"
-            onClick={() => window.translate && window.translate.changeLanguage('indonesian')}
-            leftIcon={<Text fontSize="14px">🇮🇩</Text>}
-          >
-            ID
-          </Button>
-          <Button
-            size="xs"
-            variant="ghost"
-            onClick={() => window.translate && window.translate.changeLanguage('english')}
-            leftIcon={<Text fontSize="14px">🇺🇸</Text>}
-          >
-            EN
-          </Button>
-          <Box id="translate" display="none"></Box>
-        </HStack>
-
       </Flex>
     </Box>
   );
@@ -101,16 +80,6 @@ function App() {
   const [isFloatingHidden, setIsFloatingHidden] = useState(false);
 
   usePageTracking();
-
-  useEffect(() => {
-    if (window.translate && window.translate.language) {
-      window.translate.language.setLocal('indonesian');
-      window.translate.service.use('client.edge');
-      window.translate.listener.start();
-      window.translate.execute();
-    }
-  }, []);
-
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session: authSession } }) => {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Box,
@@ -11,7 +12,6 @@ import {
   useColorModeValue,
   Flex,
   Badge,
-  HStack,
 } from '@chakra-ui/react';
 import { FaGamepad, FaPuzzlePiece, FaQuestionCircle, FaNetworkWired } from 'react-icons/fa';
 import QuizGame from './QuizGame';
@@ -69,14 +69,9 @@ const EduGamePage = () => {
           <Badge colorScheme="brand" p={2} borderRadius="full" px={4}>
             TEKNOLOGI & SAINS
           </Badge>
-          <HStack spacing={4} justify="center">
-            <Heading as="h1" size="2xl" color="brand.500">
-              Game Edukasi Desa
-            </Heading>
-            <Badge colorScheme="red" variant="solid" borderRadius="full" px={3} py={1}>
-              BETA / UJI COBA
-            </Badge>
-          </HStack>
+          <Heading as="h1" size="2xl" color="brand.500">
+            Game Edukasi Desa
+          </Heading>
           <Text fontSize="xl" color="gray.600" maxW="2xl">
             Mari belajar teknologi dengan cara yang seru! Pilih permainan di bawah ini untuk memulai petualangan digitalmu.
           </Text>
