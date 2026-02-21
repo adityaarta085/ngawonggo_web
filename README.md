@@ -121,6 +121,14 @@ CREATE TABLE popups (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- TABEL PENGATURAN
+CREATE TABLE site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
+
+INSERT INTO site_settings (key, value) VALUES ('groq_api_key', '');
+
 -- TABEL ADMIN (Untuk login manual)
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
