@@ -9,8 +9,9 @@ import {
   Container,
   VStack,
 } from '@chakra-ui/react';
+import DusunSection from '../LandingPage/components/DusunSection';
 
-export default function PotensiPage() {
+export default function JelajahiPage() {
   const potentials = [
     {
       title: 'Kopi Arabika Ngawonggo',
@@ -33,9 +34,14 @@ export default function PotensiPage() {
   ];
 
   return (
-    <Box py={12} minH="100vh" bg="gray.50">
-      <Container maxW="container.xl">
-        <VStack spacing={12} align="stretch">
+    <Box minH="100vh" bg="gray.50">
+      {/* Dusun Section First */}
+      <Box pt={12}>
+        <DusunSection />
+      </Box>
+
+      <Container maxW="container.xl" pb={24}>
+        <VStack spacing={16} align="stretch">
           <Box layerStyle="glassCard" p={10} bgGradient="linear(to-br, brand.600, blue.600)" color="white">
             <Heading mb={4} size="2xl">Potensi & Ekonomi Desa</Heading>
             <Text fontSize="lg" opacity={0.9}>

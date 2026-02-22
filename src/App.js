@@ -9,7 +9,7 @@ import ProfilPage from './views/ProfilPage/index.js';
 import PageNotFound from './views/PageNotFound/index.js';
 import PemerintahanPage from './views/PemerintahanPage/index.js';
 import LayananPage from './views/LayananPage/index.js';
-import PotensiPage from './views/PotensiPage/index.js';
+import JelajahiPage from './views/JelajahiPage/index.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
@@ -123,7 +123,7 @@ function App() {
         <Route path="/profil" element={<ProfilPage />} />
         <Route path="/pemerintahan" element={<PemerintahanPage />} />
         <Route path="/layanan" element={<LayananPage />} />
-        <Route path="/potensi" element={<PotensiPage />} />
+        <Route path="/jelajahi" element={<JelajahiPage />} />
         <Route path="/transparansi" element={<TransparansiPage />} />
         <Route path="/kontak" element={<KontakPage />} />
         <Route path="/media" element={<MediaPage />} />

@@ -105,7 +105,7 @@ function Navbar() {
     },
     { label: t.government, href: '/pemerintahan' },
     { label: t.services, href: '/layanan' },
-    { label: 'Potensi', href: '/potensi' },
+    { label: t.explore, href: '/jelajahi' },
     { label: t.news, href: '/news' },
     { label: t.media, href: '/media' },
     { label: t.games, href: '/game-edukasi' },

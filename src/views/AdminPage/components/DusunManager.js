@@ -34,8 +34,9 @@ import {
   Icon,
   SimpleGrid,
 } from '@chakra-ui/react';
-import { FaEdit, FaTrash, FaPlus, FaMap, FaMosque } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPlus, FaMap, FaMosque, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
+import ImageUploadInput from './ImageUploadInput';
 
 const DusunManager = () => {
   const [items, setItems] = useState([]);
@@ -53,11 +54,16 @@ const DusunManager = () => {
     masjid_name: '',
     masjid_image: '',
     masjid_location_url: '',
+    sort_order: 0,
   });
   const toast = useToast();
 
   const fetchItems = useCallback(async () => {
-    const { data, error } = await supabase.from('dusuns').select('*').order('id', { ascending: true });
+    const { data, error } = await supabase
+      .from('dusuns')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
     if (error) toast({ title: 'Error', description: error.message, status: 'error' });
     else setItems(data);
   }, [toast]);
@@ -86,6 +92,7 @@ const DusunManager = () => {
       masjid_name: '',
       masjid_image: '',
       masjid_location_url: '',
+      sort_order: items.length > 0 ? Math.max(...items.map(i => i.sort_order || 0)) + 1 : 0,
     });
     onOpen();
   };
@@ -111,16 +118,44 @@ const DusunManager = () => {
     }
   };
 
+  const moveItem = async (index, direction) => {
+    const newItems = [...items];
+    const item = newItems[index];
+    const targetIndex = index + direction;
+
+    if (targetIndex < 0 || targetIndex >= newItems.length) return;
+
+    const targetItem = newItems[targetIndex];
+
+    // Swap sort_order
+    const tempOrder = item.sort_order;
+    item.sort_order = targetItem.sort_order;
+    targetItem.sort_order = tempOrder;
+
+    const { error: err1 } = await supabase.from('dusuns').update({ sort_order: item.sort_order }).eq('id', item.id);
+    const { error: err2 } = await supabase.from('dusuns').update({ sort_order: targetItem.sort_order }).eq('id', targetItem.id);
+
+    if (err1 || err2) {
+      toast({ title: 'Gagal mengatur urutan', status: 'error' });
+    } else {
+      fetchItems();
+    }
+  };
+
   return (
     <Box>
       <HStack justify="space-between" mb={6}>
-        <Text fontSize="xl" fontWeight="bold">Manajemen Wilayah Dusun</Text>
+        <VStack align="start" spacing={0}>
+          <Text fontSize="xl" fontWeight="bold">Manajemen Wilayah Dusun</Text>
+          <Text fontSize="sm" color="gray.500">Atur profil, statistik, dan urutan tampilan sepuluh dusun.</Text>
+        </VStack>
         <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={handleAddNew}>Tambah Dusun</Button>
       </HStack>
       <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
         <Table variant="simple">
           <Thead bg="gray.50">
             <Tr>
+              <Th w="50px">Urutan</Th>
               <Th>Gambar</Th>
               <Th>Nama Dusun</Th>
               <Th>Populasi</Th>
@@ -129,9 +164,27 @@ const DusunManager = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {items.map((item) => (
+            {items.map((item, index) => (
               <Tr key={item.id}>
-                <Td><Image src={item.image_url} h="40px" w="60px" objectFit="cover" borderRadius="md" /></Td>
+                <Td>
+                  <VStack spacing={1}>
+                    <IconButton
+                      size="xs"
+                      icon={<FaArrowUp />}
+                      isDisabled={index === 0}
+                      onClick={() => moveItem(index, -1)}
+                      aria-label="Move Up"
+                    />
+                    <IconButton
+                      size="xs"
+                      icon={<FaArrowDown />}
+                      isDisabled={index === items.length - 1}
+                      onClick={() => moveItem(index, 1)}
+                      aria-label="Move Down"
+                    />
+                  </VStack>
+                </Td>
+                <Td><Image src={item.image_url} h="40px" w="60px" objectFit="cover" borderRadius="md" fallbackSrc="https://via.placeholder.com/60x40?text=No+Img" /></Td>
                 <Td fontWeight="600">{item.name}</Td>
                 <Td>{item.population}</Td>
                 <Td fontSize="sm" color="gray.500">{item.masjid_name}</Td>
@@ -172,14 +225,28 @@ const DusunManager = () => {
                         <FormControl><FormLabel>Luas Wilayah</FormLabel><Input value={formData.area} onChange={(e) => setFormData({...formData, area: e.target.value})} /></FormControl>
                         <FormControl><FormLabel>Jumlah Rumah</FormLabel><Input value={formData.houses} onChange={(e) => setFormData({...formData, houses: e.target.value})} /></FormControl>
                       </SimpleGrid>
-                      <FormControl isRequired><FormLabel>URL Gambar Utama</FormLabel><Input value={formData.image_url} onChange={(e) => setFormData({...formData, image_url: e.target.value})} /></FormControl>
+                      <FormControl isRequired>
+                        <FormLabel>Gambar Utama Dusun</FormLabel>
+                        <ImageUploadInput
+                          value={formData.image_url}
+                          onChange={(val) => setFormData({...formData, image_url: val})}
+                          placeholder="URL Gambar Dusun"
+                        />
+                      </FormControl>
                       <FormControl isRequired><FormLabel>Link Google Maps Embed (Dusun)</FormLabel><Input value={formData.map_link} onChange={(e) => setFormData({...formData, map_link: e.target.value})} /></FormControl>
                     </VStack>
                   </TabPanel>
                   <TabPanel>
                     <VStack spacing={4}>
                       <FormControl isRequired><FormLabel>Nama Masjid</FormLabel><Input value={formData.masjid_name} onChange={(e) => setFormData({...formData, masjid_name: e.target.value})} /></FormControl>
-                      <FormControl isRequired><FormLabel>URL Gambar Masjid</FormLabel><Input value={formData.masjid_image} onChange={(e) => setFormData({...formData, masjid_image: e.target.value})} /></FormControl>
+                      <FormControl isRequired>
+                        <FormLabel>Gambar Masjid</FormLabel>
+                        <ImageUploadInput
+                          value={formData.masjid_image}
+                          onChange={(val) => setFormData({...formData, masjid_image: val})}
+                          placeholder="URL Gambar Masjid"
+                        />
+                      </FormControl>
                       <FormControl isRequired><FormLabel>Link Google Maps Embed (Masjid)</FormLabel><Input value={formData.masjid_location_url} onChange={(e) => setFormData({...formData, masjid_location_url: e.target.value})} /></FormControl>
                     </VStack>
                   </TabPanel>
