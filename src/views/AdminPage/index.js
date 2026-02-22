@@ -32,7 +32,6 @@ import {
   FaCog,
   FaBars,
   FaMapMarkedAlt,
-  FaLightbulb,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -46,7 +45,6 @@ import ComplaintManager from './components/ComplaintManager';
 import CommentManager from './components/CommentManager';
 import SettingsManager from './components/SettingsManager';
 import DusunManager from './components/DusunManager';
-import DesignGoalsManager from './components/DesignGoalsManager';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -59,7 +57,6 @@ const AdminPage = ({ setSession }) => {
     { name: 'Dashboard', icon: FaHome },
     { name: 'Berita', icon: FaNewspaper },
     { name: '10 Dusun', icon: FaMapMarkedAlt },
-    { name: '10 Tujuan', icon: FaLightbulb },
     { name: 'Instansi', icon: FaImage },
     { name: 'Statistik', icon: FaChartBar },
     { name: 'Wisata', icon: FaMap },
@@ -169,7 +166,6 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Dashboard' && <DashboardStats />}
           {activeTab === 'Berita' && <NewsManager />}
           {activeTab === '10 Dusun' && <DusunManager />}
-          {activeTab === '10 Tujuan' && <DesignGoalsManager />}
           {activeTab === 'Instansi' && <InstitutionManager />}
           {activeTab === 'Statistik' && <StatsManager />}
           {activeTab === 'Running Text' && <AnnouncementManager />}

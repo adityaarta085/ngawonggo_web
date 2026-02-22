@@ -11,13 +11,11 @@ import PengaduanSection from './components/PengaduanSection.js';
 import QuranAccess from './components/QuranAccess.js';
 import BMKGSection from './components/BMKGSection.js';
 import RamadanSection from './components/RamadanSection.js';
-import DesignGoals from './components/DesignGoals.js';
 
 export default function LandingPage({ isReady }) {
   return (
     <Box>
       <Hero isReady={isReady} />
-      <DesignGoals />
       <InstallPWA />
       <StatsSection />
       <RamadanSection />
