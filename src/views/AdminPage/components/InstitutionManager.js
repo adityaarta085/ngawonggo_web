@@ -27,6 +27,7 @@ import {
   Text,
   VStack,
   Badge,
+  SimpleGrid,
 } from '@chakra-ui/react';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
@@ -35,11 +36,18 @@ const InstitutionManager = () => {
   const [items, setItems] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [editingItem, setEditingItem] = useState(null);
-  const [formData, setFormData] = useState({ title: '', image: '', category: 'lembaga' });
+  const [formData, setFormData] = useState({
+    title: '',
+    image: '',
+    category: 'pemerintah',
+    website_url: '',
+    location_url: '',
+    address: '',
+  });
   const toast = useToast();
 
   const fetchItems = useCallback(async () => {
-    const { data, error } = await supabase.from('institutions').select('*').order('id', { ascending: false });
+    const { data, error } = await supabase.from('institutions').select('*').order('id', { ascending: true });
     if (error) toast({ title: 'Error', description: error.message, status: 'error' });
     else setItems(data);
   }, [toast]);
@@ -50,18 +58,25 @@ const InstitutionManager = () => {
 
   const handleEdit = (item) => {
     setEditingItem(item);
-    setFormData(item);
+    setFormData({
+        title: item.title || '',
+        image: item.image || '',
+        category: item.category || 'pemerintah',
+        website_url: item.website_url || '',
+        location_url: item.location_url || '',
+        address: item.address || '',
+    });
     onOpen();
   };
 
   const handleAddNew = () => {
     setEditingItem(null);
-    setFormData({ title: '', image: '', category: 'lembaga' });
+    setFormData({ title: '', image: '', category: 'pemerintah', website_url: '', location_url: '', address: '' });
     onOpen();
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Hapus lembaga ini?')) {
+    if (window.confirm('Hapus instansi ini?')) {
       const { error } = await supabase.from('institutions').delete().eq('id', id);
       if (error) toast({ title: 'Error', status: 'error' });
       else { fetchItems(); toast({ title: 'Dihapus', status: 'success' }); }
@@ -84,25 +99,27 @@ const InstitutionManager = () => {
   return (
     <Box>
       <HStack justify="space-between" mb={6}>
-        <Text fontSize="xl" fontWeight="bold">Manajemen Lembaga Desa</Text>
-        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={handleAddNew}>Tambah Lembaga</Button>
+        <Text fontSize="xl" fontWeight="bold">Manajemen Instansi Terkait & Layanan</Text>
+        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={handleAddNew}>Tambah Instansi</Button>
       </HStack>
       <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
         <Table variant="simple">
           <Thead bg="gray.50">
             <Tr>
-              <Th>Logo/Gambar</Th>
+              <Th>Logo</Th>
               <Th>Nama</Th>
               <Th>Kategori</Th>
+              <Th>Tautan/Peta</Th>
               <Th>Aksi</Th>
             </Tr>
           </Thead>
           <Tbody>
             {items.map((item) => (
               <Tr key={item.id}>
-                <Td><Image src={item.image} h="40px" w="60px" objectFit="contain" borderRadius="md" bg="gray.50" /></Td>
+                <Td><Image src={item.image} h="40px" w="40px" objectFit="contain" /></Td>
                 <Td fontWeight="600">{item.title}</Td>
-                <Td><Badge colorScheme="blue">{item.category}</Badge></Td>
+                <Td><Badge colorScheme={item.category === 'pemerintah' ? 'blue' : 'green'}>{item.category}</Badge></Td>
+                <Td fontSize="xs" color="gray.500" maxW="200px" isTruncated>{item.website_url || item.location_url}</Td>
                 <Td>
                   <HStack spacing={2}>
                     <IconButton size="sm" icon={<FaEdit />} onClick={() => handleEdit(item)} />
@@ -115,23 +132,30 @@ const InstitutionManager = () => {
         </Table>
       </Box>
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
         <ModalContent>
           <form onSubmit={handleSubmit}>
-            <ModalHeader>{editingItem ? 'Edit' : 'Tambah'} Lembaga</ModalHeader>
+            <ModalHeader>{editingItem ? 'Edit' : 'Tambah'} Instansi</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <VStack spacing={4}>
-                <FormControl isRequired><FormLabel>Nama Lembaga</FormLabel><Input value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} /></FormControl>
-                <FormControl isRequired><FormLabel>URL Logo/Gambar</FormLabel><Input value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} /></FormControl>
-                <FormControl><FormLabel>Kategori</FormLabel>
+                <FormControl isRequired><FormLabel>Nama Instansi</FormLabel><Input value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} /></FormControl>
+                <FormControl isRequired><FormLabel>Kategori</FormLabel>
                   <Select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
-                    <option value="lembaga">Lembaga Desa</option>
-                    <option value="umkm">UMKM</option>
-                    <option value="organisasi">Organisasi</option>
+                    <option value="pemerintah">Pemerintah Kabupaten (Link Website)</option>
+                    <option value="layanan">Layanan Publik (Peta)</option>
+                    <option value="keamanan">Keamanan (Peta)</option>
                   </Select>
                 </FormControl>
+                <FormControl isRequired><FormLabel>URL Logo/Ikon</FormLabel><Input value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} /></FormControl>
+
+                <SimpleGrid columns={1} spacing={4} w="full">
+                    <FormControl><FormLabel>Tautan Website (Khusus Pemerintah)</FormLabel><Input value={formData.website_url} onChange={(e) => setFormData({...formData, website_url: e.target.value})} placeholder="https://..." /></FormControl>
+                    <FormControl><FormLabel>Link Google Maps Embed (Khusus Layanan/Keamanan)</FormLabel><Input value={formData.location_url} onChange={(e) => setFormData({...formData, location_url: e.target.value})} placeholder="https://www.google.com/maps/embed?..." /></FormControl>
+                </SimpleGrid>
+
+                <FormControl><FormLabel>Alamat Lengkap</FormLabel><Input value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} /></FormControl>
               </VStack>
             </ModalBody>
             <ModalFooter>

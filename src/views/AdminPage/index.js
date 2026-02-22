@@ -31,11 +31,12 @@ import {
   FaExclamationCircle,
   FaCog,
   FaBars,
+  FaMapMarkedAlt,
+  FaLightbulb,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import NewsManager from './components/NewsManager';
-import TravelManager from './components/TravelManager';
 import DashboardStats from './components/DashboardStats';
 import StatsManager from './components/StatsManager';
 import InstitutionManager from './components/InstitutionManager';
@@ -44,6 +45,8 @@ import PopupManager from './components/PopupManager';
 import ComplaintManager from './components/ComplaintManager';
 import CommentManager from './components/CommentManager';
 import SettingsManager from './components/SettingsManager';
+import DusunManager from './components/DusunManager';
+import DesignGoalsManager from './components/DesignGoalsManager';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -55,7 +58,9 @@ const AdminPage = ({ setSession }) => {
   const menuItems = [
     { name: 'Dashboard', icon: FaHome },
     { name: 'Berita', icon: FaNewspaper },
-    { name: 'Lembaga', icon: FaImage },
+    { name: '10 Dusun', icon: FaMapMarkedAlt },
+    { name: '10 Tujuan', icon: FaLightbulb },
+    { name: 'Instansi', icon: FaImage },
     { name: 'Statistik', icon: FaChartBar },
     { name: 'Wisata', icon: FaMap },
     { name: 'Running Text', icon: FaBullhorn },
@@ -91,7 +96,7 @@ const AdminPage = ({ setSession }) => {
             _hover={{ bg: 'brand.50', color: 'brand.500' }}
           >
             <Icon as={item.icon} />
-            <Text fontWeight="bold">{item.name}</Text>
+            <Text fontWeight="bold" fontSize="sm">{item.name}</Text>
           </HStack>
         ))}
         <HStack
@@ -163,8 +168,9 @@ const AdminPage = ({ setSession }) => {
         <Box>
           {activeTab === 'Dashboard' && <DashboardStats />}
           {activeTab === 'Berita' && <NewsManager />}
-          {activeTab === 'Lembaga' && <InstitutionManager />}
-          {activeTab === 'Wisata' && <TravelManager />}
+          {activeTab === '10 Dusun' && <DusunManager />}
+          {activeTab === '10 Tujuan' && <DesignGoalsManager />}
+          {activeTab === 'Instansi' && <InstitutionManager />}
           {activeTab === 'Statistik' && <StatsManager />}
           {activeTab === 'Running Text' && <AnnouncementManager />}
           {activeTab === 'Popup' && <PopupManager />}

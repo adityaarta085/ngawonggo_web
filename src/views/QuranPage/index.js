@@ -135,10 +135,20 @@ const QuranPage = () => {
       return;
     }
 
+    if (currentAyahIndex === index && !isPlaying && mode === playbackMode) {
+        audioRef.current.play().catch(e => console.error("Audio resume error:", e));
+        setIsPlaying(true);
+        return;
+    }
+
     setPlaybackMode(mode);
     setCurrentAyahIndex(index);
     const audioUrl = surahDetail.verses[index].audio.primary;
-    audioRef.current.src = audioUrl;
+
+    if (audioRef.current.src !== audioUrl) {
+        audioRef.current.src = audioUrl;
+    }
+
     audioRef.current.play().catch(e => console.error("Audio play error:", e));
     setIsPlaying(true);
   };
@@ -151,6 +161,9 @@ const QuranPage = () => {
       const endLimit = playbackMode === 'range' ? rangeEnd - 1 : surahDetail.verses.length - 1;
 
       if (nextIndex <= endLimit) {
+        if (playbackMode === "range" || playbackMode === "full") {
+            setRangeStart(nextIndex + 1);
+        }
         playAudio(nextIndex, playbackMode);
       } else {
         setIsPlaying(false);
@@ -332,7 +345,7 @@ const QuranPage = () => {
                           <HStack spacing={1}>
                             <IconButton
                               size="xs"
-                              icon={currentAyahIndex === index && isPlaying && playbackMode === 'single' ? <FaPause /> : <FaPlay />}
+                              icon={currentAyahIndex === index && isPlaying ? <FaPause /> : <FaPlay />}
                               onClick={() => playAudio(index, 'single')}
                               variant="ghost"
                               colorScheme="brand"
@@ -476,11 +489,18 @@ const QuranPage = () => {
                         borderRadius="full"
                         size="lg"
                         onClick={() => {
+                            const targetMode = (rangeStart === 1 && rangeEnd === surahDetail.numberOfVerses) ? 'full' : 'range';
+
                             if (isPlaying && (playbackMode === 'range' || playbackMode === 'full')) {
                                 audioRef.current.pause();
                                 setIsPlaying(false);
                             } else {
-                                playAudio(rangeStart - 1, (rangeStart === 1 && rangeEnd === surahDetail.numberOfVerses) ? 'full' : 'range');
+                                if (currentAyahIndex >= rangeStart - 1 && currentAyahIndex < rangeEnd && playbackMode === targetMode) {
+                                    audioRef.current.play();
+                                    setIsPlaying(true);
+                                } else {
+                                    playAudio(rangeStart - 1, targetMode);
+                                }
                             }
                         }}
                     />
