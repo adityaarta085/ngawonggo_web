@@ -57,7 +57,7 @@ const KontakPage = () => {
                 <ContactInfo
                   icon={FaMapMarkerAlt}
                   label="Alamat"
-                  value="Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang, Jawa Tengah 56153"
+                  value="Dusun Krajan 01/01 Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang, Jawa Tengah 56153"
                 />
                 <ContactInfo
                   icon={FaPhone}
