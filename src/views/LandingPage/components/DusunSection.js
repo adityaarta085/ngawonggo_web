@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -14,21 +13,19 @@ import {
 } from '@chakra-ui/react';
 import { FaChevronRight } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
-
-const DUSUNS = [
-  { name: 'Sedayu', slug: 'sedayu', image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&q=80&w=500' },
-  { name: 'Gemuh', slug: 'gemuh', image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=500' },
-  { name: 'Krajan Ngawonggo', slug: 'krajan-ngawonggo', image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=500' },
-  { name: 'Baturan', slug: 'baturan', image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=500' },
-  { name: 'Bulusari', slug: 'bulusari', image: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&q=80&w=500' },
-  { name: 'Kepering', slug: 'kepering', image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=500' },
-  { name: 'Nglarangan', slug: 'nglarangan', image: 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&q=80&w=500' },
-  { name: 'Maron', slug: 'maron', image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=500' },
-  { name: 'Gunung Malang', slug: 'gunung-malang', image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=500' },
-  { name: 'Pengkol', slug: 'pengkol', image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&q=80&w=500' },
-];
+import { supabase } from '../../../lib/supabase';
 
 const DusunSection = () => {
+  const [dusuns, setDusuns] = useState([]);
+
+  useEffect(() => {
+    const fetchDusuns = async () => {
+      const { data, error } = await supabase.from('dusuns').select('*').order('id', { ascending: true });
+      if (!error && data) setDusuns(data);
+    };
+    fetchDusuns();
+  }, []);
+
   return (
     <Box py={24} bg="white" position="relative">
       <Container maxW="container.xl">
@@ -50,7 +47,7 @@ const DusunSection = () => {
           </Box>
 
           <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={6} w="full">
-            {DUSUNS.map((dusun) => (
+            {dusuns.map((dusun) => (
               <Link
                 key={dusun.slug}
                 as={RouterLink}
@@ -68,7 +65,7 @@ const DusunSection = () => {
                   _hover={{ transform: 'translateY(-8px)', boxShadow: '2xl' }}
                 >
                   <Image
-                    src={dusun.image}
+                    src={dusun.image_url}
                     alt={dusun.name}
                     w="full"
                     h="full"
