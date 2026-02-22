@@ -149,7 +149,7 @@ const InstitutionManager = () => {
                     <option value="keamanan">Keamanan (Peta)</option>
                   </Select>
                 </FormControl>
-                <FormControl isRequired>
+                <FormControl >
                   <FormLabel>Logo/Ikon Instansi</FormLabel>
                   <ImageUploadInput
                     value={formData.image}

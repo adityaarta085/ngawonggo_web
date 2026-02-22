@@ -225,7 +225,7 @@ const DusunManager = () => {
                         <FormControl><FormLabel>Luas Wilayah</FormLabel><Input value={formData.area} onChange={(e) => setFormData({...formData, area: e.target.value})} /></FormControl>
                         <FormControl><FormLabel>Jumlah Rumah</FormLabel><Input value={formData.houses} onChange={(e) => setFormData({...formData, houses: e.target.value})} /></FormControl>
                       </SimpleGrid>
-                      <FormControl isRequired>
+                      <FormControl >
                         <FormLabel>Gambar Utama Dusun</FormLabel>
                         <ImageUploadInput
                           value={formData.image_url}
@@ -239,7 +239,7 @@ const DusunManager = () => {
                   <TabPanel>
                     <VStack spacing={4}>
                       <FormControl isRequired><FormLabel>Nama Masjid</FormLabel><Input value={formData.masjid_name} onChange={(e) => setFormData({...formData, masjid_name: e.target.value})} /></FormControl>
-                      <FormControl isRequired>
+                      <FormControl >
                         <FormLabel>Gambar Masjid</FormLabel>
                         <ImageUploadInput
                           value={formData.masjid_image}

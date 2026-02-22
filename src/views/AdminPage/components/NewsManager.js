@@ -188,7 +188,7 @@ const NewsManager = () => {
                   <Input value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
                 </FormControl>
                 <HStack width="full" align="start">
-                  <FormControl isRequired>
+                  <FormControl >
                     <FormLabel>Gambar Berita</FormLabel>
                     <ImageUploadInput
                       value={formData.image}
