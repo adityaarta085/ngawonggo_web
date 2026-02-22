@@ -184,7 +184,7 @@ const PopupManager = () => {
                 </FormControl>
 
                 {formData.type === 'image' ? (
-                  <FormControl isRequired>
+                  <FormControl >
                     <FormLabel>Gambar Popup</FormLabel>
                     <ImageUploadInput
                       value={formData.content}
@@ -193,7 +193,7 @@ const PopupManager = () => {
                     />
                   </FormControl>
                 ) : (
-                  <FormControl isRequired>
+                  <FormControl >
                     <FormLabel>Isi Teks</FormLabel>
                     <Input value={formData.content} onChange={(e) => setFormData({...formData, content: e.target.value})} />
                   </FormControl>
