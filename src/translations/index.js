@@ -1,4 +1,3 @@
-
 export const translations = {
   id: {
     nav: {
@@ -6,6 +5,7 @@ export const translations = {
       profile: 'Profil',
       government: 'Pemerintahan',
       services: 'Layanan',
+      explore: 'Jelajahi',
       news: 'Berita',
       media: 'Media',
       games: 'Game Edukasi',
@@ -45,6 +45,7 @@ export const translations = {
       profile: 'Profile',
       government: 'Government',
       services: 'Services',
+      explore: 'Explore',
       news: 'News',
       media: 'Media',
       games: 'Edu Games',

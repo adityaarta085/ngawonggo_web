@@ -31,6 +31,7 @@ import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import ImageUploadInput from './ImageUploadInput';
 
 const NewsManager = () => {
   const [news, setNews] = useState([]);
@@ -186,10 +187,14 @@ const NewsManager = () => {
                   <FormLabel>Judul</FormLabel>
                   <Input value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} />
                 </FormControl>
-                <HStack width="full">
+                <HStack width="full" align="start">
                   <FormControl isRequired>
-                    <FormLabel>URL Gambar</FormLabel>
-                    <Input value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} />
+                    <FormLabel>Gambar Berita</FormLabel>
+                    <ImageUploadInput
+                      value={formData.image}
+                      onChange={(val) => setFormData({...formData, image: val})}
+                      placeholder="URL Gambar Berita"
+                    />
                   </FormControl>
                   <FormControl>
                     <FormLabel>URL Video (Opsional)</FormLabel>

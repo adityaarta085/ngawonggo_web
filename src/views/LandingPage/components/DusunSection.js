@@ -20,7 +20,7 @@ const DusunSection = () => {
 
   useEffect(() => {
     const fetchDusuns = async () => {
-      const { data, error } = await supabase.from('dusuns').select('*').order('id', { ascending: true });
+      const { data, error } = await supabase.from('dusuns').select('*').order('sort_order', { ascending: true });
       if (!error && data) setDusuns(data);
     };
     fetchDusuns();

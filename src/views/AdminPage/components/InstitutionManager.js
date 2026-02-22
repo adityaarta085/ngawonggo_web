@@ -31,6 +31,7 @@ import {
 } from '@chakra-ui/react';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
+import ImageUploadInput from './ImageUploadInput';
 
 const InstitutionManager = () => {
   const [items, setItems] = useState([]);
@@ -116,7 +117,7 @@ const InstitutionManager = () => {
           <Tbody>
             {items.map((item) => (
               <Tr key={item.id}>
-                <Td><Image src={item.image} h="40px" w="40px" objectFit="contain" /></Td>
+                <Td><Image src={item.image} h="40px" w="40px" objectFit="contain" fallbackSrc="https://via.placeholder.com/40" /></Td>
                 <Td fontWeight="600">{item.title}</Td>
                 <Td><Badge colorScheme={item.category === 'pemerintah' ? 'blue' : 'green'}>{item.category}</Badge></Td>
                 <Td fontSize="xs" color="gray.500" maxW="200px" isTruncated>{item.website_url || item.location_url}</Td>
@@ -148,7 +149,14 @@ const InstitutionManager = () => {
                     <option value="keamanan">Keamanan (Peta)</option>
                   </Select>
                 </FormControl>
-                <FormControl isRequired><FormLabel>URL Logo/Ikon</FormLabel><Input value={formData.image} onChange={(e) => setFormData({...formData, image: e.target.value})} /></FormControl>
+                <FormControl isRequired>
+                  <FormLabel>Logo/Ikon Instansi</FormLabel>
+                  <ImageUploadInput
+                    value={formData.image}
+                    onChange={(val) => setFormData({...formData, image: val})}
+                    placeholder="URL Logo Instansi"
+                  />
+                </FormControl>
 
                 <SimpleGrid columns={1} spacing={4} w="full">
                     <FormControl><FormLabel>Tautan Website (Khusus Pemerintah)</FormLabel><Input value={formData.website_url} onChange={(e) => setFormData({...formData, website_url: e.target.value})} placeholder="https://..." /></FormControl>

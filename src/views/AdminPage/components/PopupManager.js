@@ -27,10 +27,10 @@ import {
   Text,
   Divider,
   VStack,
-  Image,
 } from '@chakra-ui/react';
 import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
+import ImageUploadInput from './ImageUploadInput';
 
 const PopupManager = () => {
   const [popups, setPopups] = useState([]);
@@ -179,16 +179,26 @@ const PopupManager = () => {
                   <FormLabel>Tipe</FormLabel>
                   <Select value={formData.type} onChange={(e) => setFormData({...formData, type: e.target.value})}>
                     <option value="text">Teks</option>
-                    <option value="image">Gambar (URL)</option>
+                    <option value="image">Gambar</option>
                   </Select>
                 </FormControl>
-                <FormControl isRequired>
-                  <FormLabel>{formData.type === 'image' ? 'URL Gambar' : 'Isi Teks'}</FormLabel>
-                  <Input value={formData.content} onChange={(e) => setFormData({...formData, content: e.target.value})} />
-                  {formData.type === 'image' && formData.content && (
-                    <Image src={formData.content} mt={2} h="100px" objectFit="contain" />
-                  )}
-                </FormControl>
+
+                {formData.type === 'image' ? (
+                  <FormControl isRequired>
+                    <FormLabel>Gambar Popup</FormLabel>
+                    <ImageUploadInput
+                      value={formData.content}
+                      onChange={(val) => setFormData({...formData, content: val})}
+                      placeholder="URL Gambar Popup"
+                    />
+                  </FormControl>
+                ) : (
+                  <FormControl isRequired>
+                    <FormLabel>Isi Teks</FormLabel>
+                    <Input value={formData.content} onChange={(e) => setFormData({...formData, content: e.target.value})} />
+                  </FormControl>
+                )}
+
                 <Divider />
                 <Text fontWeight="bold" fontSize="sm">Aksi Tombol (Opsional)</Text>
                 <FormControl>
