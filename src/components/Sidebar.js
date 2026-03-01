@@ -2,13 +2,11 @@ import React from 'react';
 import {
   Box,
   VStack,
-  Text,
   Icon,
   Link,
   useColorModeValue,
   Tooltip,
   IconButton,
-  Flex,
   Image,
   Divider,
 } from '@chakra-ui/react';
@@ -25,13 +23,9 @@ import {
   FaPhoneAlt,
   FaUserShield,
   FaUserCircle,
-  FaSignOutAlt,
-  FaMoon,
 } from 'react-icons/fa';
-import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
-import { supabase } from '../lib/supabase';
 
 const SidebarItem = ({ icon, label, href, isSpecial }) => {
   const location = useLocation();
