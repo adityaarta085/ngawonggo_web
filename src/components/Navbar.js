@@ -18,7 +18,6 @@ import {
   Container,
   HStack,
   Tooltip,
-
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -35,7 +34,7 @@ import { translations } from '../translations';
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 
 function Navbar({ user }) {
-  const { isOpen, onToggle } = useDisclosure();
+  const { isOpen, onToggle, onClose } = useDisclosure();
   const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
   const t = translations[language].nav;
@@ -51,7 +50,7 @@ function Navbar({ user }) {
     {
       id: 'desa',
       content: (
-        <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
+        <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }} onClick={onClose}>
           <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'lg' })} />
         </Link>
       ),
@@ -125,6 +124,7 @@ function Navbar({ user }) {
       zIndex={1000}
       p={{ base: 2, md: 3 }}
       transition="all 0.3s ease"
+      maxW="100vw"
     >
       <Flex
         layerStyle="liquidGlass"
@@ -142,9 +142,9 @@ function Navbar({ user }) {
       >
         <Container maxW="full" display="flex" alignItems="center" px={0}>
           <Flex
-            flex={{ base: 1, md: 'auto' }}
-            ml={{ base: -2 }}
-            display={{ base: 'flex', md: 'none' }}
+            flex={{ base: '0 0 auto', lg: 'none' }}
+            display={{ base: 'flex', lg: 'none' }}
+            mr={2}
           >
             <IconButton
               onClick={onToggle}
@@ -156,8 +156,8 @@ function Navbar({ user }) {
             />
           </Flex>
 
-          <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }} alignItems="center">
-            <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "200px", md: "320px" }} flexShrink={0}>
+          <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} alignItems="center" overflow="hidden">
+            <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "180px", md: "280px", lg: "320px" }} flexShrink={0}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={logoIndex}
@@ -172,16 +172,16 @@ function Navbar({ user }) {
               </AnimatePresence>
             </Box>
 
-            <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
+            <Flex display={{ base: 'none', lg: 'flex' }} ml={4}>
               <DesktopNav navItems={NAV_ITEMS} />
             </Flex>
           </Flex>
 
           <Stack
-            flex={{ base: 1, md: 0 }}
+            flex={{ base: '0 0 auto', lg: 0 }}
             justify={'flex-end'}
             direction={'row'}
-            spacing={4}
+            spacing={{ base: 2, md: 4 }}
             align="center"
           >
             {/* User Auth Section */}
@@ -243,7 +243,7 @@ function Navbar({ user }) {
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
-        <MobileNav navItems={NAV_ITEMS} user={user} />
+        <MobileNav navItems={NAV_ITEMS} user={user} onClose={onClose} />
       </Collapse>
     </Box>
   );
@@ -255,7 +255,7 @@ const DesktopNav = ({ navItems }) => {
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
 
   return (
-    <Stack direction={'row'} spacing={4}>
+    <Stack direction={'row'} spacing={2} align="center">
       {navItems.map((navItem) => (
         <Box key={navItem.label}>
           <Popover trigger={'hover'} placement={'bottom-start'}>
@@ -264,13 +264,14 @@ const DesktopNav = ({ navItems }) => {
                 as={RouterLink}
                 p={2}
                 to={navItem.href ?? '#'}
-                fontSize={'sm'}
+                fontSize={'xs'}
                 fontWeight={600}
                 color={navItem.isSpecial ? 'brand.500' : linkColor}
                 _hover={{
                   textDecoration: 'none',
                   color: linkHoverColor,
                 }}
+                whiteSpace="nowrap"
               >
                 {navItem.label}
               </Box>
@@ -337,17 +338,19 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
   );
 };
 
-const MobileNav = ({ navItems, user }) => {
+const MobileNav = ({ navItems, user, onClose }) => {
   return (
     <Stack
       layerStyle="liquidGlass"
       p={4}
-      display={{ md: 'none' }}
+      display={{ lg: 'none' }}
       borderRadius="2xl"
       mt={2}
       mx={2}
       boxShadow="xl"
       bg={useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)')}
+      maxH="70vh"
+      overflowY="auto"
     >
       {user ? (
           <Button
@@ -358,6 +361,7 @@ const MobileNav = ({ navItems, user }) => {
             variant="solid"
             mb={4}
             borderRadius="xl"
+            onClick={onClose}
         >
             Portal: {user.email.split('@')[0]}
         </Button>
@@ -370,23 +374,32 @@ const MobileNav = ({ navItems, user }) => {
             variant="outline"
             mb={4}
             borderRadius="xl"
+            onClick={onClose}
         >
             Masuk Portal Warga
         </Button>
       )}
 
       {navItems.map((navItem) => (
-        <MobileNavItem key={navItem.label} {...navItem} />
+        <MobileNavItem key={navItem.label} {...navItem} onClose={onClose} />
       ))}
     </Stack>
   );
 };
 
-const MobileNavItem = ({ label, children, href }) => {
+const MobileNavItem = ({ label, children, href, onClose }) => {
   const { isOpen, onToggle } = useDisclosure();
 
+  const handleLinkClick = () => {
+    if (!children) {
+      onClose();
+    } else {
+      onToggle();
+    }
+  };
+
   return (
-    <Stack spacing={4} onClick={children && onToggle}>
+    <Stack spacing={4}>
       <Flex
         py={2}
         as={RouterLink}
@@ -396,6 +409,7 @@ const MobileNavItem = ({ label, children, href }) => {
         _hover={{
           textDecoration: 'none',
         }}
+        onClick={handleLinkClick}
       >
         <Text
           fontWeight={600}
@@ -425,7 +439,13 @@ const MobileNavItem = ({ label, children, href }) => {
         >
           {children &&
             children.map((child) => (
-              <Box as={RouterLink} key={child.label} py={2} to={child.href}>
+              <Box
+                as={RouterLink}
+                key={child.label}
+                py={2}
+                to={child.href}
+                onClick={onClose}
+              >
                 {child.label}
               </Box>
             ))}
