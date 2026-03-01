@@ -16,10 +16,6 @@ import {
   Skeleton,
   Flex,
   useToast,
-  Divider,
-  Switch,
-  FormControl,
-  FormLabel,
 
   Tooltip,
 } from '@chakra-ui/react';
@@ -32,7 +28,6 @@ import {
     FaArrowRight,
     FaCalendarAlt,
     FaClipboardList,
-    FaDesktop,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -69,7 +64,7 @@ const StatCard = ({ title, value, subValue, icon, color, onClick }) => {
   );
 };
 
-const PortalPage = ({ onLayoutChange, layout }) => {
+const PortalPage = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -120,18 +115,6 @@ const PortalPage = ({ onLayoutChange, layout }) => {
       duration: 3000,
     });
     navigate('/');
-  };
-
-  const handleLayoutToggle = (e) => {
-    const newLayout = e.target.checked ? 'horizontal' : 'vertical';
-    localStorage.setItem('navLayout', newLayout);
-    onLayoutChange(newLayout);
-    toast({
-        title: `Mode Navigasi: ${newLayout === 'horizontal' ? 'Horizontal (Atas)' : 'Vertical (Samping)'}`,
-        status: 'success',
-        duration: 2000,
-        isClosable: true,
-    });
   };
 
   if (loading) {
@@ -205,36 +188,6 @@ const PortalPage = ({ onLayoutChange, layout }) => {
                 </Button>
               </HStack>
             </Flex>
-          </Box>
-
-          {/* Settings Section */}
-          <Box
-            p={{ base: 6, md: 8 }}
-            borderRadius="3xl"
-            bg="white"
-            boxShadow="sm"
-            border="1px solid"
-            borderColor="gray.100"
-          >
-             <VStack align="start" spacing={6}>
-                <HStack>
-                    <Icon as={FaDesktop} color="brand.500" />
-                    <Heading size="sm" color="gray.700">Pengaturan Tampilan (Khusus Desktop)</Heading>
-                </HStack>
-                <Divider />
-                <FormControl display="flex" alignItems="center" justifyContent="space-between">
-                    <Box>
-                        <FormLabel mb="0" fontWeight="bold">Gunakan Navigasi Horizontal (Top Bar)</FormLabel>
-                        <Text fontSize="xs" color="gray.500">Alihkan antara Sidebar samping (default) atau Menu atas.</Text>
-                    </Box>
-                    <Switch
-                        colorScheme="brand"
-                        isChecked={layout === 'horizontal'}
-                        onChange={handleLayoutToggle}
-                        size="lg"
-                    />
-                </FormControl>
-             </VStack>
           </Box>
 
           {/* Activity Overview */}
