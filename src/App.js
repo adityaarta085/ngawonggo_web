@@ -32,10 +32,6 @@ import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
 import { FaMoon } from 'react-icons/fa';
 
-// User Portal Views
-import AuthPage from './views/AuthPage/index.js';
-import PortalPage from './views/PortalPage/index.js';
-
 const TopBar = () => {
   return (
     <Box bg="white" py={2} px={{ base: 4, md: 8 }} borderBottom="1px solid" borderColor="gray.100">
@@ -71,14 +67,10 @@ const TopBar = () => {
 function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
-  const isAuth = location.pathname.startsWith('/auth');
-
-  const [adminSession, setAdminSession] = useState(() => {
+  const [session, setSession] = useState(() => {
     const localSession = localStorage.getItem('adminSession');
     return localSession ? JSON.parse(localSession) : null;
   });
-
-  const [userSession, setUserSession] = useState(null);
   const [showSplash, setShowSplash] = useState(true);
   const [isVerified, setIsVerified] = useState(() => {
     return sessionStorage.getItem('isVerified') === 'true';
@@ -90,25 +82,17 @@ function App() {
   usePageTracking();
 
   useEffect(() => {
-    // Check initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUserSession(session);
-      if (session) {
-        // Bypass splash & verification if user is logged in
-        setShowSplash(false);
-        setIsVerified(true);
-        sessionStorage.setItem('isVerified', 'true');
-      }
+    supabase.auth.getSession().then(({ data: { session: authSession } }) => {
+      if (authSession) setSession(authSession);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserSession(session);
-      if (session) {
-        setShowSplash(false);
-        setIsVerified(true);
-        sessionStorage.setItem('isVerified', 'true');
+    } = supabase.auth.onAuthStateChange((_event, authSession) => {
+      if (authSession) {
+        setSession(authSession);
+      } else if (!localStorage.getItem('adminSession')) {
+        setSession(null);
       }
     });
 
@@ -117,23 +101,23 @@ function App() {
 
   return (
     <Box>
-      {!showSplash && !isVerified && !isAdmin && !isAuth && (
+      {!showSplash && !isVerified && !isAdmin && (
         <HumanVerification onVerified={() => {
           setIsVerified(true);
           sessionStorage.setItem('isVerified', 'true');
         }} />
       )}
-      {showSplash && !isAdmin && !isAuth && (
+      {showSplash && !isAdmin && (
         <SplashScreen onComplete={() => setShowSplash(false)} />
       )}
-      {!isAdmin && !isAuth && <TopBar />}
-      {!isAdmin && !isAuth && <Navbar user={userSession?.user} />}
-      {!isAdmin && !isAuth && <PopupNotification />}
+      {!isAdmin && <TopBar />}
+      {!isAdmin && <Navbar />}
+      {!isAdmin && <PopupNotification />}
 
       <ScrollToTop />
 
       <Routes>
-        <Route path="/" element={<LandingPage isReady={(!showSplash && isVerified) || userSession} />} />
+        <Route path="/" element={<LandingPage isReady={!showSplash && isVerified} />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:id" element={<NewsDetail />} />
         <Route path="/profil" element={<ProfilPage />} />
@@ -149,27 +133,17 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-conditions" element={<TermsConditions />} />
         <Route path="/credits" element={<CreditsPage />} />
-
-        {/* User Auth & Portal */}
-        <Route path="/auth" element={<AuthPage />} />
-        <Route
-            path="/portal"
-            element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
-        />
-
-        {/* Admin Panel */}
         <Route
           path="/admin"
           element={
-            adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
+            session ? <AdminPage setSession={setSession} /> : <Navigate to="/admin/login" replace />
           }
         />
-        <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
-
+        <Route path="/admin/login" element={<Login setSession={setSession} />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
 
-      {!isAdmin && !isAuth && !showSplash && isVerified && (
+      {!isAdmin && !showSplash && isVerified && (
         <>
           <Chatbot
             isHidden={isFloatingHidden}
@@ -199,7 +173,7 @@ function App() {
         </>
       )}
 
-      {!isAdmin && !isAuth && <Footer />}
+      {!isAdmin && <Footer />}
     </Box>
   );
 }
