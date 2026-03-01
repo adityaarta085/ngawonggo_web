@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -9,15 +8,17 @@ import {
   Stack,
   Collapse,
   Icon,
+  Link,
   Popover,
   PopoverTrigger,
   PopoverContent,
   useColorModeValue,
   useBreakpointValue,
   useDisclosure,
-  Link,
   Container,
   HStack,
+  Tooltip,
+
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -31,8 +32,9 @@ import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { translations } from '../translations';
+import { FaUserCircle, FaLock } from 'react-icons/fa';
 
-function Navbar() {
+function Navbar({ user }) {
   const { isOpen, onToggle } = useDisclosure();
   const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
@@ -180,7 +182,44 @@ function Navbar() {
             justify={'flex-end'}
             direction={'row'}
             spacing={4}
+            align="center"
           >
+            {/* User Auth Section */}
+            <Box display={{ base: 'none', md: 'block' }}>
+               {user ? (
+                   <Tooltip label="Portal Warga">
+                       <Button
+                            as={RouterLink}
+                            to="/portal"
+                            leftIcon={<FaUserCircle />}
+                            colorScheme="brand"
+                            variant="solid"
+                            size="sm"
+                            borderRadius="full"
+                            px={6}
+                       >
+                           {user.email.split('@')[0]}
+                       </Button>
+                   </Tooltip>
+               ) : (
+                   <Tooltip label="Masuk untuk bypass splash & simpan progres">
+                       <Button
+                            as={RouterLink}
+                            to="/auth"
+                            leftIcon={<FaLock />}
+                            colorScheme="brand"
+                            variant="outline"
+                            size="sm"
+                            borderRadius="full"
+                            px={6}
+                            _hover={{ bg: 'brand.500', color: 'white' }}
+                       >
+                           Masuk
+                       </Button>
+                   </Tooltip>
+               )}
+            </Box>
+
             <HStack spacing={1}>
               <Button
                 size="xs"
@@ -204,7 +243,7 @@ function Navbar() {
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
-        <MobileNav navItems={NAV_ITEMS} />
+        <MobileNav navItems={NAV_ITEMS} user={user} />
       </Collapse>
     </Box>
   );
@@ -298,7 +337,7 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
   );
 };
 
-const MobileNav = ({ navItems }) => {
+const MobileNav = ({ navItems, user }) => {
   return (
     <Stack
       layerStyle="liquidGlass"
@@ -310,6 +349,32 @@ const MobileNav = ({ navItems }) => {
       boxShadow="xl"
       bg={useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)')}
     >
+      {user ? (
+          <Button
+            as={RouterLink}
+            to="/portal"
+            leftIcon={<FaUserCircle />}
+            colorScheme="brand"
+            variant="solid"
+            mb={4}
+            borderRadius="xl"
+        >
+            Portal: {user.email.split('@')[0]}
+        </Button>
+      ) : (
+          <Button
+            as={RouterLink}
+            to="/auth"
+            leftIcon={<FaLock />}
+            colorScheme="brand"
+            variant="outline"
+            mb={4}
+            borderRadius="xl"
+        >
+            Masuk Portal Warga
+        </Button>
+      )}
+
       {navItems.map((navItem) => (
         <MobileNavItem key={navItem.label} {...navItem} />
       ))}

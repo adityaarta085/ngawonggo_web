@@ -34,8 +34,10 @@ import {
   FaList,
   FaDownload,
   FaArrowUp,
+  FaHistory,
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../../lib/supabase';
 
 const MotionBox = motion(Box);
 
@@ -53,6 +55,8 @@ const QuranPage = () => {
   const [playbackMode, setPlaybackMode] = useState('single');
   const [rangeStart, setRangeStart] = useState(1);
   const [rangeEnd, setRangeEnd] = useState(1);
+  const [user, setUser] = useState(null);
+  const [lastRead, setLastRead] = useState(null);
 
   const audioRef = useRef(null);
   const ayahRefs = useRef([]);
@@ -66,6 +70,44 @@ const QuranPage = () => {
   const tafsirBg = useColorModeValue('orange.50', 'rgba(251, 146, 60, 0.1)');
   const bottomNavBg = useColorModeValue('rgba(255, 255, 255, 0.98)', 'rgba(15, 23, 42, 0.98)');
   const pageBg = useColorModeValue('gray.50', 'gray.900');
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+        fetchLastRead(user.id);
+      }
+    });
+  }, []);
+
+  const fetchLastRead = async (userId) => {
+    const { data, error } = await supabase
+      .from('user_quran_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (data && !error) {
+      setLastRead(data);
+    }
+  };
+
+  const saveProgress = async (surah, ayah) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('user_quran_progress')
+      .upsert({
+        user_id: user.id,
+        surah_number: surah,
+        ayah_number: ayah,
+        updated_at: new Date()
+      }, { onConflict: 'user_id' });
+
+    if (!error) {
+      setLastRead({ surah_number: surah, ayah_number: ayah });
+    }
+  };
 
   const fetchSurahs = useCallback(async () => {
     try {
@@ -98,7 +140,7 @@ const QuranPage = () => {
   }, [currentAyahIndex, isAutoScroll]);
 
 
-  const fetchSurahDetail = async (number) => {
+  const fetchSurahDetail = async (number, initialAyah = -1) => {
     setDetailLoading(true);
     try {
       const response = await fetch(`https://api.quran.gading.dev/surah/${number}`);
@@ -107,13 +149,20 @@ const QuranPage = () => {
       setSelectedSurah(number);
       setRangeStart(1);
       setRangeEnd(data.data.numberOfVerses);
-      setCurrentAyahIndex(-1);
+
+      if (initialAyah !== -1) {
+          setCurrentAyahIndex(initialAyah - 1);
+      } else {
+          setCurrentAyahIndex(-1);
+      }
+
       setIsPlaying(false);
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.src = '';
       }
-      window.scrollTo(0, 0);
+
+      if (initialAyah === -1) window.scrollTo(0, 0);
     } catch (error) {
       console.error('Error fetching surah detail:', error);
       toast({
@@ -151,6 +200,9 @@ const QuranPage = () => {
 
     audioRef.current.play().catch(e => console.error("Audio play error:", e));
     setIsPlaying(true);
+
+    // Save progress to DB if user is logged in
+    saveProgress(selectedSurah, index + 1);
   };
 
   const handleAudioEnd = () => {
@@ -214,6 +266,35 @@ const QuranPage = () => {
                 Membaca dan mendengarkan Al-Qur'an secara digital untuk warga Ngawonggo.
               </Text>
             </Box>
+
+            {/* Last Read Progress Card */}
+            {user && lastRead && (
+                <Box
+                    p={5}
+                    borderRadius="2xl"
+                    bgGradient="linear(to-r, brand.500, brand.600)"
+                    color="white"
+                    boxShadow="xl"
+                    cursor="pointer"
+                    onClick={() => fetchSurahDetail(lastRead.surah_number, lastRead.ayah_number)}
+                    transition="all 0.3s"
+                    _hover={{ transform: 'scale(1.02)' }}
+                >
+                    <HStack justify="space-between">
+                        <VStack align="start" spacing={1}>
+                            <HStack>
+                                <Icon as={FaHistory} />
+                                <Text fontWeight="bold" fontSize="sm">LANJUTKAN MEMBACA</Text>
+                            </HStack>
+                            <Heading size="md">
+                                {surahs.find(s => s.number === lastRead.surah_number)?.name.transliteration.id || 'Memuat...'}
+                            </Heading>
+                            <Text fontSize="xs" opacity={0.8}>Terakhir di Ayat {lastRead.ayah_number}</Text>
+                        </VStack>
+                        <Button size="sm" colorScheme="whiteAlpha" variant="solid" borderRadius="full">Buka</Button>
+                    </HStack>
+                </Box>
+            )}
 
             <Box maxW="600px" mx="auto" w="full">
               <InputGroup size="md">
@@ -307,19 +388,16 @@ const QuranPage = () => {
                     position="absolute"
                     right="-10px"
                     top="-10px"
-                    w="120px"
-                    h="120px"
-                    opacity={0.15}
+                    boxSize="100px"
+                    opacity={0.1}
                   />
-                  <Heading size="md">{surahDetail?.name.transliteration.id}</Heading>
-                  <Text fontSize="xs" opacity={0.9}>
-                    {surahDetail?.name.translation.id} • {surahDetail?.revelation.id} • {surahDetail?.numberOfVerses} Ayat
-                  </Text>
+                  <Heading size="lg" mb={1}>{surahDetail?.name.transliteration.id}</Heading>
+                  <Text opacity={0.9} fontSize="sm">{surahDetail?.name.translation.id} • {surahDetail?.numberOfVerses} Ayat</Text>
                 </Box>
 
-                {surahDetail?.preBismillah && (
+                {surahDetail?.number !== 1 && surahDetail?.number !== 9 && (
                   <Box textAlign="center" py={4}>
-                    <Text fontSize="2xl" fontFamily="'Amiri', serif">
+                    <Text fontSize="xl" fontFamily="'Amiri', serif">
                       {surahDetail.preBismillah.text.arab}
                     </Text>
                   </Box>
