@@ -38,30 +38,31 @@ import PortalPage from './views/PortalPage/index.js';
 
 const TopBar = () => {
   return (
-    <Box bg="white" py={2} px={{ base: 4, md: 8 }} borderBottom="1px solid" borderColor="gray.100">
-      <Flex justify="space-between" align="center" gap={4}>
-        <HStack flex={1} spacing={4} maxW="70%">
+    <Box bg="white" py={2} px={{ base: 2, md: 8 }} borderBottom="1px solid" borderColor="gray.100" overflow="hidden">
+      <Flex justify="space-between" align="center" gap={{ base: 2, md: 4 }}>
+        <HStack flex={1} spacing={{ base: 2, md: 4 }} maxW={{ base: "60%", md: "70%" }}>
           <Badge
-            display={{ base: "none", md: "flex" }}
+            display={{ base: "none", sm: "flex" }}
             colorScheme="yellow"
             variant="subtle"
             alignItems="center"
             gap={1}
-            px={3}
+            px={{ base: 2, md: 3 }}
             py={1}
             borderRadius="full"
           >
             <Icon as={FaMoon} />
-            <Text fontSize="xs" fontWeight="bold">RAMADAN 1447H</Text>
+            <Text fontSize="2xs" fontWeight="bold">RAMADAN</Text>
           </Badge>
-          <Box flex={1}>
+          <Box flex={1} overflow="hidden">
             <RunningText isEmbedded={true} />
           </Box>
         </HStack>
         <Image
           src="https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png"
-          h={{ base: "20px", md: "30px" }}
+          h={{ base: "15px", md: "30px" }}
           alt="Berakhlak - Bangga Melayani Bangsa"
+          flexShrink={0}
         />
       </Flex>
     </Box>
@@ -116,7 +117,7 @@ function App() {
   }, []);
 
   return (
-    <Box>
+    <Box overflowX="hidden" maxW="100vw">
       {!showSplash && !isVerified && !isAdmin && !isAuth && (
         <HumanVerification onVerified={() => {
           setIsVerified(true);
