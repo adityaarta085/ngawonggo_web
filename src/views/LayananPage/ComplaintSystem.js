@@ -21,9 +21,10 @@ import {
   SimpleGrid,
   Icon,
 } from '@chakra-ui/react';
-import { FaPaperPlane, FaImage, FaSync, FaSignOutAlt, FaCheckCircle } from 'react-icons/fa';
+import { FaPaperPlane, FaImage, FaSync, FaSignOutAlt, FaCheckCircle, FaLock } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { uploadDeline } from '../../lib/uploader';
+import { Link as RouterLink } from 'react-router-dom';
 
 const generateComplaintId = () => {
   return 'NGA-' + Math.random().toString(36).substr(2, 5).toUpperCase();
@@ -40,6 +41,7 @@ const ComplaintSystem = () => {
   const [trackId, setTrackId] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [user, setUser] = useState(null);
   const toast = useToast();
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -49,63 +51,73 @@ const ComplaintSystem = () => {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+          setName(user.user_metadata?.full_name || '');
+          setContact(user.email || '');
+      }
+    });
+  }, []);
+
+  const fetchMessages = useCallback(async (id) => {
+    const { data, error } = await supabase
+      .from('complaint_messages')
+      .select('*')
+      .eq('complaint_id', id)
+      .order('created_at', { ascending: true });
+
+    if (!error) setMessages(data);
+  }, []);
 
   const fetchComplaint = useCallback(async (id) => {
     setLoading(true);
-    try {
-      const { data: complaint, error: cError } = await supabase
-        .from('complaints')
-        .select('*')
-        .eq('id', id)
-        .single();
+    const { data, error } = await supabase
+      .from('complaints')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-      if (cError || !complaint) {
-        throw new Error('Pengaduan tidak ditemukan');
-      }
-
-      setComplaintData(complaint);
-
-      const { data: msgs, error: mError } = await supabase
-        .from('complaint_messages')
-        .select('*')
-        .eq('complaint_id', id)
-        .order('created_at', { ascending: true });
-
-      if (mError) throw mError;
-      setMessages(msgs);
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Gagal memuat pengaduan', description: err.message, status: 'error' });
+    if (!error && data) {
+      setComplaintData(data);
+      await fetchMessages(id);
+    } else {
       setComplaintId('');
       localStorage.removeItem('complaint_id');
-    } finally {
-      setLoading(false);
     }
-  }, [toast]);
+    setLoading(false);
+  }, [fetchMessages]);
 
   useEffect(() => {
     if (complaintId) {
       fetchComplaint(complaintId);
-      // Subscribe to new messages
-      const subscription = supabase
-        .channel(`complaint_${complaintId}`)
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'complaint_messages',
-          filter: `complaint_id=eq.${complaintId}`
-        }, payload => {
-          setMessages(prev => [...prev, payload.new]);
-        })
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(subscription);
-      };
     }
   }, [complaintId, fetchComplaint]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Realtime subscription
+  useEffect(() => {
+    if (!complaintId) return;
+
+    const channel = supabase
+      .channel('public:complaint_messages')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'complaint_messages',
+        filter: `complaint_id=eq.${complaintId}`
+      }, (payload) => {
+        setMessages((prev) => [...prev, payload.new]);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [complaintId]);
 
   const handleStartComplaint = async (e) => {
     e.preventDefault();
@@ -121,7 +133,8 @@ const ComplaintSystem = () => {
           id: newId,
           name: name,
           contact: contact,
-          category: category
+          category: category,
+          user_id: user?.id || null
         }]);
 
       if (cError) throw cError;
@@ -204,6 +217,21 @@ const ComplaintSystem = () => {
             </Text>
           </Box>
 
+          {!user && (
+              <Box p={4} borderRadius="2xl" bg="brand.50" border="1px dashed" borderColor="brand.200">
+                  <HStack justify="space-between">
+                      <HStack>
+                          <Icon as={FaLock} color="brand.500" />
+                          <VStack align="start" spacing={0}>
+                              <Text fontWeight="bold" fontSize="sm">Masuk untuk Simpan Riwayat</Text>
+                              <Text fontSize="xs" color="gray.500">Akses riwayat pengaduan Anda kapan saja di Portal Warga.</Text>
+                          </VStack>
+                      </HStack>
+                      <Button as={RouterLink} to="/auth" colorScheme="brand" size="sm" borderRadius="full">Masuk</Button>
+                  </HStack>
+              </Box>
+          )}
+
           <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
             <HStack bg="green.50" p={3} borderRadius="xl">
                <Icon as={FaCheckCircle} color="green.500" />
@@ -224,11 +252,21 @@ const ComplaintSystem = () => {
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
                 <FormControl isRequired>
                   <FormLabel fontWeight="bold">Nama Lengkap</FormLabel>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Masukkan nama Anda" borderRadius="xl" />
+                  <Input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Masukkan nama Anda"
+                    borderRadius="xl"
+                  />
                 </FormControl>
                 <FormControl isRequired>
                   <FormLabel fontWeight="bold">Kontak (WA/Email)</FormLabel>
-                  <Input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Nomor WhatsApp atau Email" borderRadius="xl" />
+                  <Input
+                    value={contact}
+                    onChange={(e) => setContact(e.target.value)}
+                    placeholder="Nomor WhatsApp atau Email"
+                    borderRadius="xl"
+                  />
                 </FormControl>
               </SimpleGrid>
 
