@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import {
   Box,
   VStack,
@@ -13,7 +14,6 @@ import {
   Progress,
   Badge,
 } from '@chakra-ui/react';
-import { supabase } from '../../lib/supabase';
 
 const questions = [
   {
@@ -53,28 +53,7 @@ const QuizGame = ({ onBack }) => {
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState(null);
   const [isFinished, setIsFinished] = useState(false);
-  const [user, setUser] = useState(null);
   const toast = useToast();
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-    });
-  }, []);
-
-  const saveScore = async (finalScore) => {
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('user_game_scores')
-      .insert([{
-        user_id: user.id,
-        game_name: 'Quiz Game',
-        score: finalScore
-      }]);
-
-    if (error) console.error('Error saving score:', error);
-  };
 
   const handleNext = () => {
     if (selected === null) {
@@ -82,15 +61,15 @@ const QuizGame = ({ onBack }) => {
       return;
     }
 
-    const currentScore = parseInt(selected) === questions[currentStep].answer ? score + 1 : score;
-    setScore(currentScore);
+    if (parseInt(selected) === questions[currentStep].answer) {
+      setScore(score + 1);
+    }
 
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
       setSelected(null);
     } else {
       setIsFinished(true);
-      saveScore(currentScore);
     }
   };
 
@@ -102,7 +81,6 @@ const QuizGame = ({ onBack }) => {
         <Badge colorScheme={score === questions.length ? "green" : "blue"} fontSize="lg" p={2}>
           {score === questions.length ? "Luar Biasa! Ahli Teknologi!" : "Bagus! Terus Belajar!"}
         </Badge>
-        {user && <Text fontSize="xs" color="green.500">Skor Anda telah disimpan ke Portal Warga!</Text>}
         <Button colorScheme="brand" onClick={() => {
           setCurrentStep(0);
           setScore(0);
