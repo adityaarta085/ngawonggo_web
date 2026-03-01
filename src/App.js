@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Flex, Image, Tooltip, HStack, Text, Badge, Icon } from '@chakra-ui/react';
-import Navbar from './components/Navbar.js';
+import { Navbar, Sidebar } from './components/index.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import NewsPage from './views/NewsPage/index.js';
@@ -36,9 +36,17 @@ import { FaMoon } from 'react-icons/fa';
 import AuthPage from './views/AuthPage/index.js';
 import PortalPage from './views/PortalPage/index.js';
 
-const TopBar = () => {
+const TopBar = ({ layout }) => {
   return (
-    <Box bg="white" py={2} px={{ base: 4, md: 8 }} borderBottom="1px solid" borderColor="gray.100">
+    <Box
+        bg="white"
+        py={2}
+        px={{ base: 4, md: 8 }}
+        borderBottom="1px solid"
+        borderColor="gray.100"
+        ml={layout === 'vertical' ? { lg: '80px' } : 0}
+        transition="margin 0.3s"
+    >
       <Flex justify="space-between" align="center" gap={4}>
         <HStack flex={1} spacing={4} maxW="70%">
           <Badge
@@ -84,6 +92,20 @@ function App() {
     return sessionStorage.getItem('isVerified') === 'true';
   });
 
+  // Nav Layout Preference
+  const [navLayout, setNavLayout] = useState(() => {
+    return localStorage.getItem('navLayout') || 'vertical';
+  });
+
+  // Listen for storage changes to sync layout across tabs if necessary
+  useEffect(() => {
+    const handleStorage = () => {
+        setNavLayout(localStorage.getItem('navLayout') || 'vertical');
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
   // Floating windows hide logic (Now manual only as requested)
   const [isFloatingHidden, setIsFloatingHidden] = useState(false);
 
@@ -115,6 +137,8 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const showNav = !isAdmin && !isAuth;
+
   return (
     <Box>
       {!showSplash && !isVerified && !isAdmin && !isAuth && (
@@ -126,50 +150,58 @@ function App() {
       {showSplash && !isAdmin && !isAuth && (
         <SplashScreen onComplete={() => setShowSplash(false)} />
       )}
-      {!isAdmin && !isAuth && <TopBar />}
-      {!isAdmin && !isAuth && <Navbar user={userSession?.user} />}
-      {!isAdmin && !isAuth && <PopupNotification />}
+
+      {showNav && <TopBar layout={navLayout} />}
+      {showNav && navLayout === 'vertical' && <Sidebar user={userSession?.user} />}
+      {showNav && <Navbar user={userSession?.user} layout={navLayout} />}
+      {showNav && <PopupNotification />}
 
       <ScrollToTop />
 
-      <Routes>
-        <Route path="/" element={<LandingPage isReady={(!showSplash && isVerified) || userSession} />} />
-        <Route path="/news" element={<NewsPage />} />
-        <Route path="/news/:id" element={<NewsDetail />} />
-        <Route path="/profil" element={<ProfilPage />} />
-        <Route path="/pemerintahan" element={<PemerintahanPage />} />
-        <Route path="/layanan" element={<LayananPage />} />
-        <Route path="/jelajahi" element={<JelajahiPage />} />
-        <Route path="/transparansi" element={<TransparansiPage />} />
-        <Route path="/kontak" element={<KontakPage />} />
-        <Route path="/media" element={<MediaPage />} />
-        <Route path="/game-edukasi" element={<EduGamePage />} />
-        <Route path="/dusun/:slug" element={<DusunPage />} />
-        <Route path="/quran" element={<QuranPage />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms-conditions" element={<TermsConditions />} />
-        <Route path="/credits" element={<CreditsPage />} />
+      <Box
+        ml={showNav && navLayout === 'vertical' ? { lg: '80px' } : 0}
+        transition="margin 0.3s"
+        minH="100vh"
+      >
+        <Routes>
+            <Route path="/" element={<LandingPage isReady={(!showSplash && isVerified) || userSession} />} />
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:id" element={<NewsDetail />} />
+            <Route path="/profil" element={<ProfilPage />} />
+            <Route path="/pemerintahan" element={<PemerintahanPage />} />
+            <Route path="/layanan" element={<LayananPage />} />
+            <Route path="/jelajahi" element={<JelajahiPage />} />
+            <Route path="/transparansi" element={<TransparansiPage />} />
+            <Route path="/kontak" element={<KontakPage />} />
+            <Route path="/media" element={<MediaPage />} />
+            <Route path="/game-edukasi" element={<EduGamePage />} />
+            <Route path="/dusun/:slug" element={<DusunPage />} />
+            <Route path="/quran" element={<QuranPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-conditions" element={<TermsConditions />} />
+            <Route path="/credits" element={<CreditsPage />} />
 
-        {/* User Auth & Portal */}
-        <Route path="/auth" element={<AuthPage />} />
-        <Route
-            path="/portal"
-            element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
-        />
+            {/* User Auth & Portal */}
+            <Route path="/auth" element={<AuthPage />} />
+            <Route
+                path="/portal"
+                element={userSession ? <PortalPage onLayoutChange={setNavLayout} layout={navLayout} /> : <Navigate to="/auth" replace />}
+            />
 
-        {/* Admin Panel */}
-        <Route
-          path="/admin"
-          element={
-            adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
-          }
-        />
-        <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
+            {/* Admin Panel */}
+            <Route
+            path="/admin"
+            element={
+                adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
+            }
+            />
+            <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
 
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
+            <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </Box>
 
-      {!isAdmin && !isAuth && !showSplash && isVerified && (
+      {showNav && !showSplash && isVerified && (
         <>
           <Chatbot
             isHidden={isFloatingHidden}
@@ -199,7 +231,7 @@ function App() {
         </>
       )}
 
-      {!isAdmin && !isAuth && <Footer />}
+      {showNav && <Footer ml={navLayout === 'vertical' ? { lg: '80px' } : 0} />}
     </Box>
   );
 }

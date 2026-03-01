@@ -18,7 +18,6 @@ import {
   Container,
   HStack,
   Tooltip,
-
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -26,7 +25,7 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from '@chakra-ui/icons';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { Image } from '@chakra-ui/react';
 import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -34,11 +33,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { translations } from '../translations';
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 
-function Navbar({ user }) {
-  const { isOpen, onToggle } = useDisclosure();
+function Navbar({ user, layout = 'horizontal' }) {
+  const { isOpen, onToggle, onClose } = useDisclosure();
   const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
   const t = translations[language].nav;
+  const location = useLocation();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -46,6 +46,11 @@ function Navbar({ user }) {
     }, 4000);
     return () => clearInterval(timer);
   }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    onClose();
+  }, [location, onClose]);
 
   const logos = [
     {
@@ -125,6 +130,7 @@ function Navbar({ user }) {
       zIndex={1000}
       p={{ base: 2, md: 3 }}
       transition="all 0.3s ease"
+      display={layout === 'vertical' ? { base: 'block', lg: 'none' } : 'block'}
     >
       <Flex
         layerStyle="liquidGlass"
@@ -144,7 +150,7 @@ function Navbar({ user }) {
           <Flex
             flex={{ base: 1, md: 'auto' }}
             ml={{ base: -2 }}
-            display={{ base: 'flex', md: 'none' }}
+            display={{ base: 'flex', lg: 'none' }}
           >
             <IconButton
               onClick={onToggle}
@@ -156,8 +162,8 @@ function Navbar({ user }) {
             />
           </Flex>
 
-          <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }} alignItems="center">
-            <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "200px", md: "320px" }} flexShrink={0}>
+          <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} alignItems="center">
+            <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "180px", md: "320px" }} flexShrink={0}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={logoIndex}
@@ -172,7 +178,16 @@ function Navbar({ user }) {
               </AnimatePresence>
             </Box>
 
-            <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
+            <Flex
+                display={{ base: 'none', lg: 'flex' }}
+                ml={4}
+                overflowX="auto"
+                css={{
+                    '&::-webkit-scrollbar': { display: 'none' },
+                    'msOverflowStyle': 'none',
+                    'scrollbarWidth': 'none',
+                }}
+            >
               <DesktopNav navItems={NAV_ITEMS} />
             </Flex>
           </Flex>
@@ -196,7 +211,7 @@ function Navbar({ user }) {
                             variant="solid"
                             size="sm"
                             borderRadius="full"
-                            px={6}
+                            px={4}
                        >
                            {user.email.split('@')[0]}
                        </Button>
@@ -211,7 +226,7 @@ function Navbar({ user }) {
                             variant="outline"
                             size="sm"
                             borderRadius="full"
-                            px={6}
+                            px={4}
                             _hover={{ bg: 'brand.500', color: 'white' }}
                        >
                            Masuk
@@ -243,7 +258,7 @@ function Navbar({ user }) {
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
-        <MobileNav navItems={NAV_ITEMS} user={user} />
+        <MobileNav navItems={NAV_ITEMS} user={user} onClose={onClose} />
       </Collapse>
     </Box>
   );
@@ -253,9 +268,10 @@ const DesktopNav = ({ navItems }) => {
   const linkColor = useColorModeValue('gray.600', 'gray.200');
   const linkHoverColor = useColorModeValue('brand.500', 'brand.300');
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
+  const bgHover = useColorModeValue('brand.50', 'whiteAlpha.100');
 
   return (
-    <Stack direction={'row'} spacing={4}>
+    <HStack spacing={1} whiteSpace="nowrap">
       {navItems.map((navItem) => (
         <Box key={navItem.label}>
           <Popover trigger={'hover'} placement={'bottom-start'}>
@@ -264,12 +280,14 @@ const DesktopNav = ({ navItems }) => {
                 as={RouterLink}
                 p={2}
                 to={navItem.href ?? '#'}
-                fontSize={'sm'}
+                fontSize={'xs'}
                 fontWeight={600}
                 color={navItem.isSpecial ? 'brand.500' : linkColor}
+                borderRadius="md"
                 _hover={{
                   textDecoration: 'none',
                   color: linkHoverColor,
+                  bg: bgHover
                 }}
               >
                 {navItem.label}
@@ -295,11 +313,12 @@ const DesktopNav = ({ navItems }) => {
           </Popover>
         </Box>
       ))}
-    </Stack>
+    </HStack>
   );
 };
 
 const DesktopSubNav = ({ label, href, subLabel }) => {
+  const bgHover = useColorModeValue('brand.50', 'gray.900');
   return (
     <Box
       as={RouterLink}
@@ -308,7 +327,7 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
       display={'block'}
       p={2}
       rounded={'md'}
-      _hover={{ bg: useColorModeValue('brand.50', 'gray.900') }}
+      _hover={{ bg: bgHover }}
     >
       <Stack direction={'row'} align={'center'}>
         <Box>
@@ -337,17 +356,18 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
   );
 };
 
-const MobileNav = ({ navItems, user }) => {
+const MobileNav = ({ navItems, user, onClose }) => {
+  const bg = useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)');
   return (
     <Stack
       layerStyle="liquidGlass"
       p={4}
-      display={{ md: 'none' }}
+      display={{ lg: 'none' }}
       borderRadius="2xl"
       mt={2}
       mx={2}
       boxShadow="xl"
-      bg={useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)')}
+      bg={bg}
     >
       {user ? (
           <Button
@@ -358,6 +378,7 @@ const MobileNav = ({ navItems, user }) => {
             variant="solid"
             mb={4}
             borderRadius="xl"
+            onClick={onClose}
         >
             Portal: {user.email.split('@')[0]}
         </Button>
@@ -370,36 +391,48 @@ const MobileNav = ({ navItems, user }) => {
             variant="outline"
             mb={4}
             borderRadius="xl"
+            onClick={onClose}
         >
             Masuk Portal Warga
         </Button>
       )}
 
       {navItems.map((navItem) => (
-        <MobileNavItem key={navItem.label} {...navItem} />
+        <MobileNavItem key={navItem.label} {...navItem} onClose={onClose} />
       ))}
     </Stack>
   );
 };
 
-const MobileNavItem = ({ label, children, href }) => {
+const MobileNavItem = ({ label, children, href, onClose }) => {
   const { isOpen, onToggle } = useDisclosure();
+  const color = useColorModeValue('gray.600', 'gray.200');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+
+  const handleLinkClick = () => {
+    if (!children) {
+      onClose();
+    } else {
+      onToggle();
+    }
+  };
 
   return (
-    <Stack spacing={4} onClick={children && onToggle}>
+    <Stack spacing={4}>
       <Flex
         py={2}
         as={RouterLink}
         to={href ?? '#'}
         justify={'space-between'}
         align={'center'}
+        onClick={handleLinkClick}
         _hover={{
           textDecoration: 'none',
         }}
       >
         <Text
           fontWeight={600}
-          color={useColorModeValue('gray.600', 'gray.200')}
+          color={color}
         >
           {label}
         </Text>
@@ -420,12 +453,18 @@ const MobileNavItem = ({ label, children, href }) => {
           pl={4}
           borderLeft={1}
           borderStyle={'solid'}
-          borderColor={useColorModeValue('gray.200', 'gray.700')}
+          borderColor={borderColor}
           align={'start'}
         >
           {children &&
             children.map((child) => (
-              <Box as={RouterLink} key={child.label} py={2} to={child.href}>
+              <Box
+                as={RouterLink}
+                key={child.label}
+                py={2}
+                to={child.href}
+                onClick={onClose}
+              >
                 {child.label}
               </Box>
             ))}
