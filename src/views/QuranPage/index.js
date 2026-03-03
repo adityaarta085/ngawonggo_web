@@ -25,6 +25,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Progress as ChakraProgress,
 } from '@chakra-ui/react';
 import { SearchIcon, ChevronLeftIcon, ChevronDownIcon } from '@chakra-ui/icons';
 import {
@@ -57,10 +58,13 @@ const QuranPage = () => {
   const [rangeEnd, setRangeEnd] = useState(1);
   const [user, setUser] = useState(null);
   const [lastRead, setLastRead] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   const audioRef = useRef(null);
   const ayahRefs = useRef([]);
   const toast = useToast();
+  const lastSavedProgress = useRef({ surah: null, ayah: null });
 
   const glassBg = useColorModeValue('rgba(255, 255, 255, 0.8)', 'rgba(15, 23, 42, 0.8)');
   const cardBg = useColorModeValue('white', 'gray.800');
@@ -71,16 +75,7 @@ const QuranPage = () => {
   const bottomNavBg = useColorModeValue('rgba(255, 255, 255, 0.98)', 'rgba(15, 23, 42, 0.98)');
   const pageBg = useColorModeValue('gray.50', 'gray.900');
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      if (user) {
-        fetchLastRead(user.id);
-      }
-    });
-  }, []);
-
-  const fetchLastRead = async (userId) => {
+  const fetchLastRead = useCallback(async (userId) => {
     const { data, error } = await supabase
       .from('user_quran_progress')
       .select('*')
@@ -90,23 +85,46 @@ const QuranPage = () => {
     if (data && !error) {
       setLastRead(data);
     }
-  };
+  }, []);
 
-  const saveProgress = async (surah, ayah) => {
+  const saveProgressToDB = useCallback(async (surah, ayah) => {
     if (!user) return;
-
-    const { error } = await supabase
-      .from('user_quran_progress')
-      .upsert({
-        user_id: user.id,
-        surah_number: surah,
-        ayah_number: ayah,
-        updated_at: new Date()
-      }, { onConflict: 'user_id' });
-
-    if (!error) {
-      setLastRead({ surah_number: surah, ayah_number: ayah });
+    try {
+        await supabase
+          .from('user_quran_progress')
+          .upsert({
+            user_id: user.id,
+            surah_number: surah,
+            ayah_number: ayah,
+            updated_at: new Date()
+          }, { onConflict: 'user_id' });
+    } catch (e) {
+        console.error("Failed to sync progress", e);
     }
+  }, [user]);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+        fetchLastRead(user.id);
+      }
+    });
+
+    return () => {
+        // Sync progress on unmount if needed
+        if (lastSavedProgress.current.surah && lastSavedProgress.current.ayah) {
+            saveProgressToDB(lastSavedProgress.current.surah, lastSavedProgress.current.ayah);
+        }
+    };
+  }, [fetchLastRead, saveProgressToDB]);
+
+  const saveProgress = (surah, ayah) => {
+    if (!user) return;
+    // Update local state immediately for UI responsiveness
+    setLastRead({ surah_number: surah, ayah_number: ayah });
+    // Keep track for later sync
+    lastSavedProgress.current = { surah, ayah };
   };
 
   const fetchSurahs = useCallback(async () => {
@@ -181,6 +199,10 @@ const QuranPage = () => {
     if (currentAyahIndex === index && isPlaying && mode === playbackMode) {
       audioRef.current.pause();
       setIsPlaying(false);
+      // Sync on pause
+      if (lastSavedProgress.current.surah) {
+          saveProgressToDB(lastSavedProgress.current.surah, lastSavedProgress.current.ayah);
+      }
       return;
     }
 
@@ -201,13 +223,17 @@ const QuranPage = () => {
     audioRef.current.play().catch(e => console.error("Audio play error:", e));
     setIsPlaying(true);
 
-    // Save progress to DB if user is logged in
+    // Update local progress (non-blocking)
     saveProgress(selectedSurah, index + 1);
   };
 
   const handleAudioEnd = () => {
     if (playbackMode === 'single') {
       setIsPlaying(false);
+      // Sync on stop
+      if (lastSavedProgress.current.surah) {
+          saveProgressToDB(lastSavedProgress.current.surah, lastSavedProgress.current.ayah);
+      }
     } else {
       const nextIndex = currentAyahIndex + 1;
       const endLimit = playbackMode === 'range' ? rangeEnd - 1 : surahDetail.verses.length - 1;
@@ -219,41 +245,92 @@ const QuranPage = () => {
         playAudio(nextIndex, playbackMode);
       } else {
         setIsPlaying(false);
-        setCurrentAyahIndex(-1);
+        // Sync on end of range/surah
+        if (lastSavedProgress.current.surah) {
+            saveProgressToDB(lastSavedProgress.current.surah, lastSavedProgress.current.ayah);
+        }
       }
     }
   };
 
   const toggleTafsir = (index) => {
-    setShowTafsir((prev) => ({ ...prev, [index]: !prev[index] }));
+    setShowTafsir((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
   };
-
-  const filteredSurahs = surahs.filter(
-    (s) =>
-      s.name.transliteration.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.number.toString().includes(searchQuery)
-  );
 
   const downloadVerse = (index) => {
-    if (!surahDetail) return;
     const url = surahDetail.verses[index].audio.primary;
-    window.open(url, '_blank');
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${surahDetail.name.transliteration.id}_Ayah_${index + 1}.mp3`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const downloadFullSurah = () => {
+  const downloadFullSurah = async () => {
     if (!surahDetail) return;
+
+    setIsDownloading(true);
+    setDownloadProgress(0);
+
     toast({
-      title: 'Fitur unduh paket sedang dikembangkan',
-      description: 'Silakan unduh ayat per ayat untuk saat ini.',
+      title: 'Mempersiapkan Unduhan',
+      description: 'Seluruh ayat sedang disiapkan untuk diunduh secara berurutan.',
       status: 'info',
       duration: 3000,
     });
+
+    try {
+        const total = surahDetail.verses.length;
+        for (let i = 0; i < total; i++) {
+            const url = surahDetail.verses[i].audio.primary;
+            const fileName = `${surahDetail.name.transliteration.id}_Ayat_${i+1}.mp3`;
+
+            // Simple approach: Trigger sequential downloads
+            // Note: Modern browsers might block many simultaneous downloads, so we do it one by one
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(blobUrl);
+
+            setDownloadProgress(Math.round(((i + 1) / total) * 100));
+            // Small delay to prevent browser overload
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+
+        toast({
+          title: 'Unduhan Selesai',
+          description: `Seluruh ${total} ayat telah berhasil diunduh.`,
+          status: 'success',
+          duration: 5000,
+        });
+    } catch (error) {
+        console.error("Download failed", error);
+        toast({
+          title: 'Gagal mengunduh',
+          description: 'Terjadi kesalahan saat mengunduh seluruh surah.',
+          status: 'error',
+          duration: 3000,
+        });
+    } finally {
+        setIsDownloading(false);
+    }
   };
 
   if (loading) return <Loading fullPage />;
 
   return (
-    <Box pb={selectedSurah ? "120px" : 0} minH="100vh" bg={pageBg}>
+    <Box pb={selectedSurah ? "140px" : 0} minH="100vh" bg={pageBg}>
       <Container maxW="container.xl" pt={4}>
         {!selectedSurah ? (
           <VStack spacing={6} align="stretch">
@@ -278,126 +355,126 @@ const QuranPage = () => {
                     cursor="pointer"
                     onClick={() => fetchSurahDetail(lastRead.surah_number, lastRead.ayah_number)}
                     transition="all 0.3s"
-                    _hover={{ transform: 'scale(1.02)' }}
+                    _hover={{ transform: 'translateY(-5px)', boxShadow: '2xl' }}
                 >
                     <HStack justify="space-between">
-                        <VStack align="start" spacing={1}>
+                        <VStack align="start" spacing={0}>
                             <HStack>
                                 <Icon as={FaHistory} />
-                                <Text fontWeight="bold" fontSize="sm">LANJUTKAN MEMBACA</Text>
+                                <Text fontSize="xs" fontWeight="bold">LANJUTKAN MEMBACA</Text>
                             </HStack>
-                            <Heading size="md">
-                                {surahs.find(s => s.number === lastRead.surah_number)?.name.transliteration.id || 'Memuat...'}
-                            </Heading>
-                            <Text fontSize="xs" opacity={0.8}>Terakhir di Ayat {lastRead.ayah_number}</Text>
+                            <Heading size="md" mt={1}>Surah {surahs.find(s => s.number === lastRead.surah_number)?.name.transliteration.id}</Heading>
+                            <Text fontSize="sm" opacity={0.9}>Ayat Terakhir: {lastRead.ayah_number}</Text>
                         </VStack>
-                        <Button size="sm" colorScheme="whiteAlpha" variant="solid" borderRadius="full">Buka</Button>
+                        <Icon as={FaBookOpen} fontSize="4xl" opacity={0.3} />
                     </HStack>
                 </Box>
             )}
 
-            <Box maxW="600px" mx="auto" w="full">
-              <InputGroup size="md">
-                <InputLeftElement pointerEvents="none">
-                  <SearchIcon color="gray.400" />
-                </InputLeftElement>
-                <Input
-                  placeholder="Cari Surah atau Nomor..."
-                  bg={glassBg}
-                  borderRadius="full"
-                  border="1px solid"
-                  borderColor={borderColor}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  _focus={{ boxShadow: '0 0 0 2px #137fec' }}
-                />
-              </InputGroup>
-            </Box>
+            <InputGroup size="lg">
+              <InputLeftElement pointerEvents="none">
+                <SearchIcon color="gray.300" />
+              </InputLeftElement>
+              <Input
+                placeholder="Cari surah (contoh: Al-Fatihah)"
+                bg={glassBg}
+                borderRadius="2xl"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                border="none"
+                _focus={{ boxShadow: '0 0 0 2px #137fec' }}
+              />
+            </InputGroup>
 
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-              {filteredSurahs.map((surah) => (
-                <MotionBox
-                  key={surah.number}
-                  whileHover={{ y: -3, boxShadow: 'md' }}
-                  bg={cardBg}
-                  p={4}
-                  borderRadius="xl"
-                  boxShadow="sm"
-                  cursor="pointer"
-                  onClick={() => fetchSurahDetail(surah.number)}
-                  border="1px solid"
-                  borderColor={borderColor}
-                >
-                  <HStack spacing={3}>
-                    <Flex
-                      w="36px"
-                      h="36px"
-                      bg="brand.50"
-                      color="brand.500"
-                      borderRadius="lg"
-                      align="center"
-                      justify="center"
-                      fontWeight="bold"
-                      fontSize="sm"
-                    >
-                      {surah.number}
-                    </Flex>
-                    <VStack align="start" spacing={0} flex={1}>
-                      <Text fontWeight="bold" fontSize="md">{surah.name.transliteration.id}</Text>
-                      <Text fontSize="xs" color="gray.500">
-                        {surah.name.translation.id} • {surah.numberOfVerses} Ayat
+              {surahs
+                .filter((s) =>
+                  s.name.transliteration.id.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map((surah) => (
+                  <MotionBox
+                    key={surah.number}
+                    p={5}
+                    bg={cardBg}
+                    borderRadius="2xl"
+                    border="1px solid"
+                    borderColor={borderColor}
+                    cursor="pointer"
+                    whileHover={{ scale: 1.02, boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}
+                    transition={{ type: 'spring', stiffness: 300 }}
+                    onClick={() => fetchSurahDetail(surah.number)}
+                  >
+                    <HStack justify="space-between">
+                      <HStack spacing={4}>
+                        <Box
+                          w="45px"
+                          h="45px"
+                          bg="brand.500"
+                          color="white"
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          borderRadius="xl"
+                          fontSize="lg"
+                          fontWeight="bold"
+                          transform="rotate(45deg)"
+                        >
+                          <Text transform="rotate(-45deg)">{surah.number}</Text>
+                        </Box>
+                        <VStack align="start" spacing={0}>
+                          <Heading size="sm">{surah.name.transliteration.id}</Heading>
+                          <Text fontSize="xs" color="gray.500">
+                            {surah.name.translation.id} • {surah.numberOfVerses} Ayat
+                          </Text>
+                        </VStack>
+                      </HStack>
+                      <Text
+                        fontSize="2xl"
+                        fontFamily="'Amiri', serif"
+                        color="brand.600"
+                      >
+                        {surah.name.short}
                       </Text>
-                    </VStack>
-                    <Text fontSize="lg" fontFamily="'Amiri', serif" color="brand.500">
-                      {surah.name.short}
-                    </Text>
-                  </HStack>
-                </MotionBox>
-              ))}
+                    </HStack>
+                  </MotionBox>
+                ))}
             </SimpleGrid>
           </VStack>
         ) : (
           <Box>
-            <Button
-              leftIcon={<ChevronLeftIcon />}
-              variant="ghost"
-              size="sm"
-              mb={4}
-              onClick={() => {
-                  setSelectedSurah(null);
-                  if (audioRef.current) audioRef.current.pause();
-                  setIsPlaying(false);
-              }}
-            >
-              Kembali
-            </Button>
+            <Flex align="center" justify="space-between" mb={6}>
+              <IconButton
+                icon={<ChevronLeftIcon w={8} h={8} />}
+                onClick={() => {
+                    setSelectedSurah(null);
+                    setSurahDetail(null);
+                    // Sync on back
+                    if (lastSavedProgress.current.surah) {
+                        saveProgressToDB(lastSavedProgress.current.surah, lastSavedProgress.current.ayah);
+                    }
+                }}
+                variant="ghost"
+                borderRadius="full"
+                aria-label="Kembali"
+              />
+              {surahDetail && (
+                <VStack spacing={0}>
+                  <Heading size="lg">{surahDetail.name.transliteration.id}</Heading>
+                  <Text color="gray.500" fontSize="sm">
+                    {surahDetail.name.translation.id} • {surahDetail.revelation.id}
+                  </Text>
+                </VStack>
+              )}
+              <Box w="40px" />
+            </Flex>
 
-            {detailLoading ? <Loading /> : (
-              <VStack spacing={4} align="stretch">
-                <Box
-                  bg="brand.500"
-                  color="white"
-                  p={5}
-                  borderRadius="xl"
-                  textAlign="center"
-                  position="relative"
-                  overflow="hidden"
-                >
-                  <Icon
-                    as={FaBookOpen}
-                    position="absolute"
-                    right="-10px"
-                    top="-10px"
-                    boxSize="100px"
-                    opacity={0.1}
-                  />
-                  <Heading size="lg" mb={1}>{surahDetail?.name.transliteration.id}</Heading>
-                  <Text opacity={0.9} fontSize="sm">{surahDetail?.name.translation.id} • {surahDetail?.numberOfVerses} Ayat</Text>
-                </Box>
-
-                {surahDetail?.number !== 1 && surahDetail?.number !== 9 && (
-                  <Box textAlign="center" py={4}>
-                    <Text fontSize="xl" fontFamily="'Amiri', serif">
+            {detailLoading ? (
+              <Loading />
+            ) : (
+              <VStack spacing={8} align="stretch" pb={10}>
+                {surahDetail?.preBismillah && (
+                  <Box textAlign="center" py={8}>
+                    <Text fontSize="4xl" fontFamily="'Amiri', serif">
                       {surahDetail.preBismillah.text.arab}
                     </Text>
                   </Box>
@@ -503,115 +580,140 @@ const QuranPage = () => {
           left={0}
           right={0}
           bg={bottomNavBg}
-          boxShadow="0 -4px 20px rgba(0,0,0,0.15)"
+          boxShadow="0 -4px 30px rgba(0,0,0,0.2)"
           zIndex={100}
           borderTopRadius="3xl"
           p={{ base: 3, md: 4 }}
           layerStyle="glass"
+          borderTop="1px solid"
+          borderColor={borderColor}
         >
           <Container maxW="container.lg">
-            <Flex
-              direction={{ base: 'column', md: 'row' }}
-              align="center"
-              justify="space-between"
-              gap={{ base: 2, md: 6 }}
-            >
-              <HStack spacing={4} w={{ base: 'full', md: 'auto' }} justify="center">
-                <VStack spacing={0} cursor="pointer" onClick={() => setIsAutoScroll(!isAutoScroll)}>
-                    <Checkbox
-                        isChecked={isAutoScroll}
-                        onChange={(e) => setIsAutoScroll(e.target.checked)}
-                        colorScheme="brand"
+            <VStack spacing={3} align="stretch">
+              {isDownloading && (
+                  <VStack spacing={1} align="stretch">
+                      <Flex justify="space-between" align="center">
+                          <Text fontSize="10px" fontWeight="bold" color="brand.500">MENGUNDUH SURAH...</Text>
+                          <Text fontSize="10px" fontWeight="bold">{downloadProgress}%</Text>
+                      </Flex>
+                      <ChakraProgress value={downloadProgress} size="xs" colorScheme="brand" borderRadius="full" />
+                  </VStack>
+              )}
+
+              <Flex
+                direction={{ base: 'column', md: 'row' }}
+                align="center"
+                justify="space-between"
+                gap={{ base: 2, md: 6 }}
+              >
+                <HStack spacing={4} w={{ base: 'full', md: 'auto' }} justify="center">
+                  <VStack spacing={0} cursor="pointer" onClick={() => setIsAutoScroll(!isAutoScroll)}>
+                      <Checkbox
+                          isChecked={isAutoScroll}
+                          onChange={(e) => setIsAutoScroll(e.target.checked)}
+                          colorScheme="brand"
+                          size="sm"
+                      />
+                      <Text fontSize="9px" fontWeight="bold" mt={1}>AUTO SCROLL</Text>
+                  </VStack>
+
+                  <Divider orientation="vertical" h="30px" />
+
+                  <VStack align="start" spacing={0}>
+                      <Text fontSize="9px" fontWeight="bold" color="gray.500">RENTANG AYAT</Text>
+                      <HStack spacing={1}>
+                          <Select
+                              size="xs"
+                              w="60px"
+                              variant="filled"
+                              value={rangeStart}
+                              onChange={(e) => setRangeStart(parseInt(e.target.value))}
+                          >
+                              {surahDetail?.verses.map(v => (
+                                  <option key={v.number.inSurah} value={v.number.inSurah}>{v.number.inSurah}</option>
+                              ))}
+                          </Select>
+                          <Text fontSize="xs">-</Text>
+                          <Select
+                              size="xs"
+                              w="60px"
+                              variant="filled"
+                              value={rangeEnd}
+                              onChange={(e) => setRangeEnd(parseInt(e.target.value))}
+                          >
+                              {surahDetail?.verses.map(v => (
+                                  <option key={v.number.inSurah} value={v.number.inSurah}>{v.number.inSurah}</option>
+                              ))}
+                          </Select>
+                      </HStack>
+                  </VStack>
+                </HStack>
+
+                <Flex flex={1} justify="center" align="center">
+                  <HStack spacing={4}>
+                      <IconButton
+                          icon={isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? <FaPause /> : <FaPlay />}
+                          colorScheme="brand"
+                          borderRadius="full"
+                          size="lg"
+                          onClick={() => {
+                              const targetMode = (rangeStart === 1 && rangeEnd === surahDetail.numberOfVerses) ? 'full' : 'range';
+
+                              if (isPlaying && (playbackMode === 'range' || playbackMode === 'full')) {
+                                  audioRef.current.pause();
+                                  setIsPlaying(false);
+                                  if (lastSavedProgress.current.surah) {
+                                      saveProgressToDB(lastSavedProgress.current.surah, lastSavedProgress.current.ayah);
+                                  }
+                              } else {
+                                  if (currentAyahIndex >= rangeStart - 1 && currentAyahIndex < rangeEnd && playbackMode === targetMode) {
+                                      audioRef.current.play();
+                                      setIsPlaying(true);
+                                  } else {
+                                      playAudio(rangeStart - 1, targetMode);
+                                  }
+                              }
+                          }}
+                      />
+                      <VStack align="start" spacing={0}>
+                          <Text fontSize="xs" fontWeight="bold" lineHeight="1">
+                              {isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? 'MEMUTAR RENTANG' : 'PUTAR RENTANG'}
+                          </Text>
+                          <Text fontSize="10px" color="gray.500">
+                              Ayat {rangeStart} - {rangeEnd}
+                          </Text>
+                      </VStack>
+                  </HStack>
+                </Flex>
+
+                <HStack spacing={3} w={{ base: 'full', md: 'auto' }} justify="center">
+                  <Menu>
+                      <MenuButton
+                        as={Button}
                         size="sm"
-                    />
-                    <Text fontSize="9px" fontWeight="bold" mt={1}>AUTO SCROLL</Text>
-                </VStack>
-
-                <Divider orientation="vertical" h="30px" />
-
-                <VStack align="start" spacing={0}>
-                    <Text fontSize="9px" fontWeight="bold" color="gray.500">RENTANG AYAT</Text>
-                    <HStack spacing={1}>
-                        <Select
-                            size="xs"
-                            w="60px"
-                            variant="filled"
-                            value={rangeStart}
-                            onChange={(e) => setRangeStart(parseInt(e.target.value))}
-                        >
-                            {surahDetail?.verses.map(v => (
-                                <option key={v.number.inSurah} value={v.number.inSurah}>{v.number.inSurah}</option>
-                            ))}
-                        </Select>
-                        <Text fontSize="xs">-</Text>
-                        <Select
-                            size="xs"
-                            w="60px"
-                            variant="filled"
-                            value={rangeEnd}
-                            onChange={(e) => setRangeEnd(parseInt(e.target.value))}
-                        >
-                            {surahDetail?.verses.map(v => (
-                                <option key={v.number.inSurah} value={v.number.inSurah}>{v.number.inSurah}</option>
-                            ))}
-                        </Select>
-                    </HStack>
-                </VStack>
-              </HStack>
-
-              <Flex flex={1} justify="center" align="center">
-                <HStack spacing={4}>
-                    <IconButton
-                        icon={isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? <FaPause /> : <FaPlay />}
+                        leftIcon={<FaDownload />}
+                        variant="outline"
                         colorScheme="brand"
-                        borderRadius="full"
-                        size="lg"
-                        onClick={() => {
-                            const targetMode = (rangeStart === 1 && rangeEnd === surahDetail.numberOfVerses) ? 'full' : 'range';
-
-                            if (isPlaying && (playbackMode === 'range' || playbackMode === 'full')) {
-                                audioRef.current.pause();
-                                setIsPlaying(false);
-                            } else {
-                                if (currentAyahIndex >= rangeStart - 1 && currentAyahIndex < rangeEnd && playbackMode === targetMode) {
-                                    audioRef.current.play();
-                                    setIsPlaying(true);
-                                } else {
-                                    playAudio(rangeStart - 1, targetMode);
-                                }
-                            }
-                        }}
-                    />
-                    <VStack align="start" spacing={0}>
-                        <Text fontSize="xs" fontWeight="bold" lineHeight="1">
-                            {isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? 'MEMUTAR RENTANG' : 'PUTAR RENTANG'}
-                        </Text>
-                        <Text fontSize="10px" color="gray.500">
-                            Ayat {rangeStart} - {rangeEnd}
-                        </Text>
-                    </VStack>
+                        rightIcon={<ChevronDownIcon />}
+                        isLoading={isDownloading}
+                      >
+                          Unduh
+                      </MenuButton>
+                      <MenuList fontSize="sm">
+                          <MenuItem onClick={() => downloadVerse(currentAyahIndex === -1 ? rangeStart - 1 : currentAyahIndex)}>Unduh Ayat Ini</MenuItem>
+                          <MenuItem onClick={downloadFullSurah}>Unduh Seluruh Surah</MenuItem>
+                      </MenuList>
+                  </Menu>
+                  <IconButton
+                      icon={<FaArrowUp />}
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                      aria-label="Ke Atas"
+                  />
                 </HStack>
               </Flex>
-
-              <HStack spacing={3} w={{ base: 'full', md: 'auto' }} justify="center">
-                <Menu>
-                    <MenuButton as={Button} size="sm" leftIcon={<FaDownload />} variant="outline" colorScheme="brand" rightIcon={<ChevronDownIcon />}>
-                        Unduh
-                    </MenuButton>
-                    <MenuList fontSize="sm">
-                        <MenuItem onClick={() => downloadVerse(currentAyahIndex === -1 ? rangeStart - 1 : currentAyahIndex)}>Unduh Ayat Ini</MenuItem>
-                        <MenuItem onClick={downloadFullSurah}>Unduh Seluruh Surah</MenuItem>
-                    </MenuList>
-                </Menu>
-                <IconButton
-                    icon={<FaArrowUp />}
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    aria-label="Ke Atas"
-                />
-              </HStack>
-            </Flex>
+            </VStack>
           </Container>
         </Box>
       )}

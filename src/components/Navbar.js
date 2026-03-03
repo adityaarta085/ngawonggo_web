@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Flex,
@@ -8,182 +8,148 @@ import {
   Stack,
   Collapse,
   Icon,
-  Link,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
   useColorModeValue,
-  useBreakpointValue,
   useDisclosure,
-  Container,
   HStack,
   Tooltip,
+  VStack,
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
   CloseIcon,
   ChevronDownIcon,
-  ChevronRightIcon,
 } from '@chakra-ui/icons';
-import { Link as RouterLink } from 'react-router-dom';
-import { Image } from '@chakra-ui/react';
-import NgawonggoLogo from './NgawonggoLogo';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
-import { motion, AnimatePresence } from 'framer-motion';
 import { translations } from '../translations';
+import NgawonggoLogo from './NgawonggoLogo';
 import { FaUserCircle, FaLock } from 'react-icons/fa';
+import { supabase } from '../lib/supabase';
+import { motion, AnimatePresence } from 'framer-motion';
 
-function Navbar({ user }) {
+const Navbar = () => {
   const { isOpen, onToggle, onClose } = useDisclosure();
-  const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
   const t = translations[language].nav;
+  const [user, setUser] = useState(null);
+  const [logoIndex, setLogoIndex] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setLogoIndex((prev) => (prev + 1) % 3);
-    }, 4000);
-    return () => clearInterval(timer);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
-  const logos = [
-    {
-      id: 'desa',
-      content: (
-        <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }} onClick={onClose}>
-          <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'lg' })} />
-        </Link>
-      ),
-    },
-    {
-      id: 'kab',
-      content: (
-        <HStack spacing={3}>
-          <Image
-            src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
-            h="35px"
-            alt="Logo Kab Magelang"
-          />
-          <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
-            Kabupaten Magelang
-          </Text>
-        </HStack>
-      ),
-    },
-    {
-      id: 'spbe',
-      content: (
-        <Link
-          href="https://menpan.go.id/site/tentang-kami/kedeputian/transformasi-digital-pemerintah/sistem-pemerintahan-berbasis-elektronik-spbe-2"
-          isExternal
-        >
-          <HStack spacing={3}>
-            <Image
-              src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png"
-              h="35px"
-              alt="Logo SPBE"
-            />
-            <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
-              SPBE Digital
-            </Text>
-          </HStack>
-        </Link>
-      ),
-    },
-  ];
+  const logos = useMemo(() => [
+    { content: <NgawonggoLogo h="35px" />, duration: 5000 },
+    { content: <Text fontWeight="800" fontSize="md" color="brand.500" letterSpacing="tighter">DESA NGAWONGGO</Text>, duration: 3000 }
+  ], []);
 
-  const NAV_ITEMS = [
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLogoIndex((prev) => (prev + 1) % logos.length);
+    }, logos[logoIndex].duration);
+    return () => clearTimeout(timer);
+  }, [logoIndex, logos]);
+
+  const NAV_ITEMS = useMemo(() => [
     { label: t.home, href: '/' },
-    {
-      label: t.profile,
-      parenHref: '/profil',
-      children: [
-        { label: 'Sejarah', href: '/profil#sejarah' },
-        { label: 'Visi Misi', href: '/profil#visimisi' },
-        { label: 'Geografis', href: '/profil#kondisigeografis' },
-        { label: 'Demografi', href: '/profil#demografi' },
-      ],
-    },
+    { label: t.profile, href: '/profil' },
     { label: t.government, href: '/pemerintahan' },
     { label: t.services, href: '/layanan' },
     { label: t.explore, href: '/jelajahi' },
-    { label: t.news, href: '/news' },
+    { label: t.news, href: '/berita' },
     { label: t.media, href: '/media' },
     { label: t.games, href: '/game-edukasi' },
     { label: t.contact, href: '/kontak' },
-    { label: t.admin, href: '/admin', isSpecial: true },
-  ];
+  ], [t]);
 
   const navBg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)');
   const navColor = useColorModeValue('gray.700', 'white');
+  const borderColor = useColorModeValue('rgba(255, 255, 255, 0.3)', 'rgba(255, 255, 255, 0.1)');
 
   return (
     <Box
-      position="sticky"
-      top={0}
+      position="fixed"
+      top={2}
+      left={0}
+      right={0}
       zIndex={1000}
-      p={{ base: 2, md: 3 }}
+      px={{ base: 2, md: 4 }}
       transition="all 0.3s ease"
-      maxW="100vw"
     >
       <Flex
         layerStyle="liquidGlass"
         bg={navBg}
         color={navColor}
-        minH={'70px'}
-        py={{ base: 2 }}
-        px={{ base: 4, md: 8 }}
+        minH={'60px'}
+        py={{ base: 1 }}
+        px={{ base: 3, md: 6 }}
         align={'center'}
-        borderRadius={{ base: '2xl', md: 'full' }}
+        borderRadius="full"
         maxW="container.xl"
         mx="auto"
-        transition="all 0.3s ease"
-        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.1)"
+        transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+        boxShadow="0 10px 30px -5px rgba(0, 0, 0, 0.15)"
+        backdropFilter="blur(16px) saturate(180%)"
+        border="1px solid"
+        borderColor={borderColor}
       >
-        <Container maxW="full" display="flex" alignItems="center" px={0}>
-          <Flex
+        <Flex
             flex={{ base: '0 0 auto', lg: 'none' }}
             display={{ base: 'flex', lg: 'none' }}
             mr={2}
-          >
+        >
             <IconButton
-              onClick={onToggle}
-              icon={
-                isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
-              }
-              variant={'ghost'}
-              aria-label={'Toggle Navigation'}
+                onClick={onToggle}
+                icon={
+                    isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
+                }
+                variant={'ghost'}
+                aria-label={'Toggle Navigation'}
+                borderRadius="full"
+                size="sm"
             />
-          </Flex>
+        </Flex>
 
-          <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} alignItems="center" overflow="hidden">
-            <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "180px", md: "280px", lg: "320px" }} flexShrink={0}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={logoIndex}
-                  initial={{ x: 20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -20, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
-                  {logos[logoIndex].content}
-                </motion.div>
-              </AnimatePresence>
+        <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} alignItems="center">
+            <Box h="35px" display="flex" alignItems="center" overflow="hidden" w={{ base: "150px", md: "200px" }} flexShrink={0}>
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={logoIndex}
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: -10, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ display: 'flex', alignItems: 'center' }}
+                    >
+                        {logos[logoIndex].content}
+                    </motion.div>
+                </AnimatePresence>
             </Box>
 
-            <Flex display={{ base: 'none', lg: 'flex' }} ml={4}>
-              <DesktopNav navItems={NAV_ITEMS} />
+            <Flex display={{ base: 'none', lg: 'flex' }} ml={1} flex={1} justify="center">
+                <DesktopNav navItems={NAV_ITEMS} />
             </Flex>
-          </Flex>
+        </Flex>
 
-          <Stack
+        <Stack
             flex={{ base: '0 0 auto', lg: 0 }}
             justify={'flex-end'}
             direction={'row'}
-            spacing={{ base: 2, md: 4 }}
+            spacing={{ base: 1, md: 2 }}
             align="center"
-          >
+        >
             {/* User Auth Section */}
             <Box display={{ base: 'none', md: 'block' }}>
                {user ? (
@@ -194,25 +160,24 @@ function Navbar({ user }) {
                             leftIcon={<FaUserCircle />}
                             colorScheme="brand"
                             variant="solid"
-                            size="sm"
+                            size="xs"
                             borderRadius="full"
-                            px={6}
+                            px={4}
                        >
                            {user.email.split('@')[0]}
                        </Button>
                    </Tooltip>
                ) : (
-                   <Tooltip label="Masuk untuk bypass splash & simpan progres">
+                   <Tooltip label="Masuk Portal">
                        <Button
                             as={RouterLink}
                             to="/auth"
                             leftIcon={<FaLock />}
                             colorScheme="brand"
-                            variant="outline"
-                            size="sm"
+                            variant="ghost"
+                            size="xs"
                             borderRadius="full"
-                            px={6}
-                            _hover={{ bg: 'brand.500', color: 'white' }}
+                            px={4}
                        >
                            Masuk
                        </Button>
@@ -220,12 +185,16 @@ function Navbar({ user }) {
                )}
             </Box>
 
-            <HStack spacing={1}>
+            <HStack spacing={0} bg={useColorModeValue('rgba(0,0,0,0.05)', 'rgba(255,255,255,0.05)')} p={0.5} borderRadius="full">
               <Button
                 size="xs"
                 variant={language === 'id' ? 'solid' : 'ghost'}
                 colorScheme="brand"
                 onClick={() => setLanguage('id')}
+                borderRadius="full"
+                h="20px"
+                minW="28px"
+                fontSize="8px"
               >
                 ID
               </Button>
@@ -234,12 +203,15 @@ function Navbar({ user }) {
                 variant={language === 'en' ? 'solid' : 'ghost'}
                 colorScheme="brand"
                 onClick={() => setLanguage('en')}
+                borderRadius="full"
+                h="20px"
+                minW="28px"
+                fontSize="8px"
               >
                 EN
               </Button>
             </HStack>
-          </Stack>
-        </Container>
+        </Stack>
       </Flex>
 
       <Collapse in={isOpen} animateOpacity>
@@ -252,105 +224,60 @@ function Navbar({ user }) {
 const DesktopNav = ({ navItems }) => {
   const linkColor = useColorModeValue('gray.600', 'gray.200');
   const linkHoverColor = useColorModeValue('brand.500', 'brand.300');
-  const popoverContentBgColor = useColorModeValue('white', 'gray.800');
+  const activeBg = useColorModeValue('brand.50', 'rgba(19, 127, 236, 0.1)');
+  const location = useLocation();
 
   return (
-    <Stack direction={'row'} spacing={2} align="center">
-      {navItems.map((navItem) => (
-        <Box key={navItem.label}>
-          <Popover trigger={'hover'} placement={'bottom-start'}>
-            <PopoverTrigger>
+    <Stack direction={'row'} spacing={0} align="center">
+      {navItems.map((navItem) => {
+        const isActive = location.pathname === navItem.href;
+        return (
+            <Box key={navItem.label}>
               <Box
                 as={RouterLink}
-                p={2}
+                px={2.5}
+                py={1.5}
                 to={navItem.href ?? '#'}
-                fontSize={'xs'}
-                fontWeight={600}
-                color={navItem.isSpecial ? 'brand.500' : linkColor}
+                fontSize={'10px'}
+                fontWeight={ isActive ? 700 : 600}
+                color={isActive ? 'brand.500' : linkColor}
+                bg={isActive ? activeBg : 'transparent'}
+                borderRadius="full"
                 _hover={{
                   textDecoration: 'none',
                   color: linkHoverColor,
+                  bg: activeBg
                 }}
                 whiteSpace="nowrap"
+                transition="all 0.2s"
               >
                 {navItem.label}
               </Box>
-            </PopoverTrigger>
-
-            {navItem.children && (
-              <PopoverContent
-                border={0}
-                boxShadow={'xl'}
-                bg={popoverContentBgColor}
-                p={4}
-                rounded={'xl'}
-                minW={'sm'}
-              >
-                <Stack>
-                  {navItem.children.map((child) => (
-                    <DesktopSubNav key={child.label} {...child} />
-                  ))}
-                </Stack>
-              </PopoverContent>
-            )}
-          </Popover>
-        </Box>
-      ))}
+            </Box>
+        );
+      })}
     </Stack>
   );
 };
 
-const DesktopSubNav = ({ label, href, subLabel }) => {
-  return (
-    <Box
-      as={RouterLink}
-      to={href}
-      role={'group'}
-      display={'block'}
-      p={2}
-      rounded={'md'}
-      _hover={{ bg: useColorModeValue('brand.50', 'gray.900') }}
-    >
-      <Stack direction={'row'} align={'center'}>
-        <Box>
-          <Text
-            transition={'all .3s ease'}
-            _groupHover={{ color: 'brand.500' }}
-            fontWeight={500}
-          >
-            {label}
-          </Text>
-          <Text fontSize={'sm'}>{subLabel}</Text>
-        </Box>
-        <Flex
-          transition={'all .3s ease'}
-          transform={'translateX(-10px)'}
-          opacity={0}
-          _groupHover={{ opacity: '100%', transform: 'translateX(0)' }}
-          justify={'flex-end'}
-          align={'center'}
-          flex={1}
-        >
-          <Icon color={'brand.500'} w={5} h={5} as={ChevronRightIcon} />
-        </Flex>
-      </Stack>
-    </Box>
-  );
-};
-
 const MobileNav = ({ navItems, user, onClose }) => {
+  const navBg = useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(15, 23, 42, 0.95)');
+  const borderColor = useColorModeValue('gray.100', 'gray.800');
+
   return (
     <Stack
       layerStyle="liquidGlass"
-      p={4}
+      p={6}
       display={{ lg: 'none' }}
-      borderRadius="2xl"
-      mt={2}
-      mx={2}
-      boxShadow="xl"
-      bg={useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)')}
-      maxH="70vh"
+      borderRadius="3xl"
+      mt={4}
+      boxShadow="2xl"
+      bg={navBg}
+      maxH="75vh"
       overflowY="auto"
+      backdropFilter="blur(20px)"
+      border="1px solid"
+      borderColor={borderColor}
     >
       {user ? (
           <Button
@@ -359,8 +286,9 @@ const MobileNav = ({ navItems, user, onClose }) => {
             leftIcon={<FaUserCircle />}
             colorScheme="brand"
             variant="solid"
-            mb={4}
-            borderRadius="xl"
+            mb={6}
+            borderRadius="2xl"
+            size="lg"
             onClick={onClose}
         >
             Portal: {user.email.split('@')[0]}
@@ -372,23 +300,30 @@ const MobileNav = ({ navItems, user, onClose }) => {
             leftIcon={<FaLock />}
             colorScheme="brand"
             variant="outline"
-            mb={4}
-            borderRadius="xl"
+            mb={6}
+            borderRadius="2xl"
+            size="lg"
             onClick={onClose}
         >
             Masuk Portal Warga
         </Button>
       )}
 
-      {navItems.map((navItem) => (
-        <MobileNavItem key={navItem.label} {...navItem} onClose={onClose} />
-      ))}
+      <VStack align="stretch" spacing={2}>
+          {navItems.map((navItem) => (
+            <MobileNavItem key={navItem.label} {...navItem} onClose={onClose} />
+          ))}
+      </VStack>
     </Stack>
   );
 };
 
 const MobileNavItem = ({ label, children, href, onClose }) => {
   const { isOpen, onToggle } = useDisclosure();
+  const location = useLocation();
+  const isActive = location.pathname === href;
+  const textColor = useColorModeValue('gray.600', 'gray.200');
+  const subNavBorderColor = useColorModeValue('gray.200', 'gray.700');
 
   const handleLinkClick = () => {
     if (!children) {
@@ -401,19 +336,23 @@ const MobileNavItem = ({ label, children, href, onClose }) => {
   return (
     <Stack spacing={4}>
       <Flex
-        py={2}
+        py={3}
+        px={4}
         as={RouterLink}
         to={href ?? '#'}
         justify={'space-between'}
         align={'center'}
+        borderRadius="xl"
+        bg={isActive ? 'brand.50' : 'transparent'}
         _hover={{
           textDecoration: 'none',
+          bg: 'gray.50'
         }}
         onClick={handleLinkClick}
       >
         <Text
-          fontWeight={600}
-          color={useColorModeValue('gray.600', 'gray.200')}
+          fontWeight={isActive ? 700 : 600}
+          color={isActive ? 'brand.500' : textColor}
         >
           {label}
         </Text>
@@ -434,7 +373,7 @@ const MobileNavItem = ({ label, children, href, onClose }) => {
           pl={4}
           borderLeft={1}
           borderStyle={'solid'}
-          borderColor={useColorModeValue('gray.200', 'gray.700')}
+          borderColor={subNavBorderColor}
           align={'start'}
         >
           {children &&

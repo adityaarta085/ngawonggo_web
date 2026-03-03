@@ -153,3 +153,26 @@ CREATE TABLE site_settings (
 
 ## Tim Pengembang
 Proyek ini dikembangkan oleh siswa **SMK Muhammadiyah Bandongan (Kelas 10 TJKT A - 2026)** sebagai bagian dari inisiatif digitalisasi desa.
+
+### SQL Updates (March 2026)
+*   Table `user_quran_progress`: Tracks user reading persistence in the Al Quran page.
+*   Table `user_game_scores`: Stores user scores for EduGame modules.
+
+```sql
+-- Progress tracking for Al Quran
+CREATE TABLE IF NOT EXISTS user_quran_progress (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  surah_number INTEGER NOT NULL,
+  ayah_number INTEGER NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Score tracking for EduGame
+CREATE TABLE IF NOT EXISTS user_game_scores (
+  id BIGSERIAL PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  game_name TEXT NOT NULL,
+  score INTEGER NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
