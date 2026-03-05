@@ -15,15 +15,10 @@ import {
 } from '@chakra-ui/react';
 import { supabase } from '../../lib/supabase';
 
-const questions = [
+const questionPool = [
   {
     question: "Apa singkatan dari SPBE?",
-    options: [
-      "Sistem Pemerintahan Berbasis Elektronik",
-      "Sistem Pengelolaan Berita Elektronik",
-      "Sistem Pelayanan Bocah Edan",
-      "Sistem Pembangunan Berbasis Ekonomi"
-    ],
+    options: ["Sistem Pemerintahan Berbasis Elektronik", "Sistem Pengelolaan Berita Elektronik", "Sistem Pelayanan Bocah Edan", "Sistem Pembangunan Berbasis Ekonomi"],
     answer: 0
   },
   {
@@ -38,17 +33,43 @@ const questions = [
   },
   {
     question: "Apa fungsi utama AI (Artificial Intelligence)?",
-    options: [
-      "Menggantikan manusia tidur",
-      "Meniru kecerdasan manusia untuk tugas tertentu",
-      "Membuat kopi secara otomatis",
-      "Menghapus semua data internet"
-    ],
+    options: ["Menggantikan manusia tidur", "Meniru kecerdasan manusia untuk tugas tertentu", "Membuat kopi secara otomatis", "Menghapus semua data internet"],
+    answer: 1
+  },
+  {
+    question: "Apa yang dimaksud dengan 'Internet of Things' (IoT)?",
+    options: ["Internet khusus untuk barang antik", "Jaringan perangkat fisik yang terhubung ke internet", "Cara baru memasak nasi pakai wifi", "Alat untuk menangkap sinyal alien"],
+    answer: 1
+  },
+  {
+    question: "Manakah yang merupakan bahasa pemrograman untuk membuat website?",
+    options: ["Microsoft Word", "JavaScript", "Adobe Photoshop", "Google Chrome"],
+    answer: 1
+  },
+  {
+    question: "Apa fungsi dari Router?",
+    options: ["Untuk memotong kayu", "Untuk mengarahkan lalu lintas data dalam jaringan", "Untuk mencetak foto", "Untuk mendinginkan ruangan"],
+    answer: 1
+  },
+  {
+    question: "Apa itu Cloud Computing?",
+    options: ["Menghitung jumlah awan di langit", "Penyimpanan dan pengolahan data melalui server internet", "Komputer yang bisa terbang", "Alat ramalan cuaca digital"],
+    answer: 1
+  },
+  {
+    question: "Siapa penemu World Wide Web (WWW)?",
+    options: ["Steve Jobs", "Tim Berners-Lee", "Mark Zuckerberg", "Bill Gates"],
+    answer: 1
+  },
+  {
+    question: "Apa kegunaan dari Firewall?",
+    options: ["Memadamkan api di komputer", "Melindungi jaringan dari akses yang tidak sah", "Mempercepat koneksi internet", "Membersihkan debu di dalam CPU"],
     answer: 1
   }
 ];
 
 const QuizGame = ({ onBack }) => {
+  const [activeQuestions, setActiveQuestions] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [score, setScore] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -60,6 +81,10 @@ const QuizGame = ({ onBack }) => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
     });
+
+    // Randomize and pick 5 questions from the pool
+    const shuffled = [...questionPool].sort(() => 0.5 - Math.random());
+    setActiveQuestions(shuffled.slice(0, 5));
   }, []);
 
   const saveScore = async (finalScore) => {
@@ -82,10 +107,10 @@ const QuizGame = ({ onBack }) => {
       return;
     }
 
-    const currentScore = parseInt(selected) === questions[currentStep].answer ? score + 1 : score;
+    const currentScore = parseInt(selected) === activeQuestions[currentStep].answer ? score + 1 : score;
     setScore(currentScore);
 
-    if (currentStep < questions.length - 1) {
+    if (currentStep < activeQuestions.length - 1) {
       setCurrentStep(currentStep + 1);
       setSelected(null);
     } else {
@@ -94,21 +119,27 @@ const QuizGame = ({ onBack }) => {
     }
   };
 
+  const handleReset = () => {
+    const shuffled = [...questionPool].sort(() => 0.5 - Math.random());
+    setActiveQuestions(shuffled.slice(0, 5));
+    setCurrentStep(0);
+    setScore(0);
+    setIsFinished(false);
+    setSelected(null);
+  };
+
+  if (activeQuestions.length === 0) return null;
+
   if (isFinished) {
     return (
-      <VStack spacing={6} p={8} bg="white" borderRadius="2xl" textAlign="center" boxShadow="xl">
+      <VStack spacing={6} p={8} bg="white" borderRadius="2xl" textAlign="center" boxShadow="xl" w="full">
         <Heading color="brand.500">Kuis Selesai!</Heading>
-        <Text fontSize="xl">Skor Kamu: {score} / {questions.length}</Text>
-        <Badge colorScheme={score === questions.length ? "green" : "blue"} fontSize="lg" p={2}>
-          {score === questions.length ? "Luar Biasa! Ahli Teknologi!" : "Bagus! Terus Belajar!"}
+        <Text fontSize="xl">Skor Kamu: {score} / {activeQuestions.length}</Text>
+        <Badge colorScheme={score === activeQuestions.length ? "green" : "blue"} fontSize="lg" p={2}>
+          {score === activeQuestions.length ? "Luar Biasa! Ahli Teknologi!" : "Bagus! Terus Belajar!"}
         </Badge>
         {user && <Text fontSize="xs" color="green.500">Skor Anda telah disimpan ke Portal Warga!</Text>}
-        <Button colorScheme="brand" onClick={() => {
-          setCurrentStep(0);
-          setScore(0);
-          setIsFinished(false);
-          setSelected(null);
-        }}>Main Lagi</Button>
+        <Button colorScheme="brand" onClick={handleReset}>Main Lagi</Button>
         <Button variant="ghost" onClick={onBack}>Kembali ke Menu</Button>
       </VStack>
     );
@@ -119,15 +150,15 @@ const QuizGame = ({ onBack }) => {
       <VStack spacing={6} align="stretch">
         <HStack justify="space-between">
           <Heading size="md" color="brand.500">Kuis Tekno-Sains</Heading>
-          <Text fontWeight="bold">{currentStep + 1} / {questions.length}</Text>
+          <Text fontWeight="bold">{currentStep + 1} / {activeQuestions.length}</Text>
         </HStack>
-        <Progress value={((currentStep + 1) / questions.length) * 100} borderRadius="full" colorScheme="brand" />
+        <Progress value={((currentStep + 1) / activeQuestions.length) * 100} borderRadius="full" colorScheme="brand" />
 
         <Box py={4}>
-          <Text fontSize="lg" fontWeight="bold" mb={4}>{questions[currentStep].question}</Text>
+          <Text fontSize="lg" fontWeight="bold" mb={4}>{activeQuestions[currentStep].question}</Text>
           <RadioGroup onChange={setSelected} value={selected}>
             <Stack spacing={3}>
-              {questions[currentStep].options.map((opt, idx) => (
+              {activeQuestions[currentStep].options.map((opt, idx) => (
                 <Box
                   key={idx}
                   p={4}
@@ -146,7 +177,7 @@ const QuizGame = ({ onBack }) => {
         </Box>
 
         <Button colorScheme="brand" size="lg" onClick={handleNext} borderRadius="xl">
-          {currentStep === questions.length - 1 ? "Lihat Hasil" : "Lanjut"}
+          {currentStep === activeQuestions.length - 1 ? "Lihat Hasil" : "Lanjut"}
         </Button>
         <Button variant="ghost" onClick={onBack}>Menyerah</Button>
       </VStack>

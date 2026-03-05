@@ -7,11 +7,11 @@ Compiled successfully.
 
 File sizes after gzip:
 
-  853.54 kB  build/static/js/main.986d3ce8.js
-  42.69 kB   build/static/js/198.ee48f157.chunk.js
-  15.58 kB   build/static/css/main.6043a7ee.css
-  8.7 kB     build/static/js/404.78e34673.chunk.js
-  1.77 kB    build/static/js/787.d4aba7ab.chunk.js
+  859.29 kB (-5 B)  build/static/js/main.29d81715.js
+  42.69 kB          build/static/js/198.ee48f157.chunk.js
+  15.58 kB          build/static/css/main.6043a7ee.css
+  8.7 kB            build/static/js/404.78e34673.chunk.js
+  1.77 kB           build/static/js/787.d4aba7ab.chunk.js
 
 The bundle size is significantly larger than recommended.
 Consider reducing it with code splitting: https://goo.gl/9VhYWB
