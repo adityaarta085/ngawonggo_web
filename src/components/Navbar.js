@@ -61,11 +61,11 @@ function Navbar({ user }) {
         <HStack spacing={3}>
           <Image
             src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
-            h="35px"
+            h="30px"
             alt="Logo Kab Magelang"
           />
           <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
-            Kabupaten Magelang
+            Kab. Magelang
           </Text>
         </HStack>
       ),
@@ -80,7 +80,7 @@ function Navbar({ user }) {
           <HStack spacing={3}>
             <Image
               src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png"
-              h="35px"
+              h="30px"
               alt="Logo SPBE"
             />
             <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
@@ -114,15 +114,12 @@ function Navbar({ user }) {
     { label: t.admin, href: '/admin', isSpecial: true },
   ];
 
-  const navBg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)');
+  const navBg = useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)');
   const navColor = useColorModeValue('gray.700', 'white');
 
   return (
     <Box
-      position="sticky"
-      top={0}
-      zIndex={1000}
-      p={{ base: 2, md: 3 }}
+      p={{ base: 1, md: 2 }}
       transition="all 0.3s ease"
       maxW="100vw"
     >
@@ -130,15 +127,15 @@ function Navbar({ user }) {
         layerStyle="liquidGlass"
         bg={navBg}
         color={navColor}
-        minH={'70px'}
-        py={{ base: 2 }}
-        px={{ base: 4, md: 8 }}
+        minH={'60px'}
+        py={{ base: 1 }}
+        px={{ base: 4, md: 6 }}
         align={'center'}
-        borderRadius={{ base: '2xl', md: 'full' }}
+        borderRadius={{ base: 'xl', md: 'full' }}
         maxW="container.xl"
         mx="auto"
         transition="all 0.3s ease"
-        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.1)"
+        boxShadow="0 4px 12px 0 rgba(31, 38, 135, 0.08)"
       >
         <Container maxW="full" display="flex" alignItems="center" px={0}>
           <Flex
@@ -153,11 +150,12 @@ function Navbar({ user }) {
               }
               variant={'ghost'}
               aria-label={'Toggle Navigation'}
+              size="sm"
             />
           </Flex>
 
           <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} alignItems="center" overflow="hidden">
-            <Box h="45px" display="flex" alignItems="center" overflow="hidden" w={{ base: "180px", md: "280px", lg: "320px" }} flexShrink={0}>
+            <Box h="40px" display="flex" alignItems="center" overflow="hidden" w={{ base: "150px", md: "250px", lg: "280px" }} flexShrink={0}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={logoIndex}
@@ -172,7 +170,7 @@ function Navbar({ user }) {
               </AnimatePresence>
             </Box>
 
-            <Flex display={{ base: 'none', lg: 'flex' }} ml={4}>
+            <Flex display={{ base: 'none', lg: 'flex' }} ml={2}>
               <DesktopNav navItems={NAV_ITEMS} />
             </Flex>
           </Flex>
@@ -181,7 +179,7 @@ function Navbar({ user }) {
             flex={{ base: '0 0 auto', lg: 0 }}
             justify={'flex-end'}
             direction={'row'}
-            spacing={{ base: 2, md: 4 }}
+            spacing={{ base: 2, md: 3 }}
             align="center"
           >
             {/* User Auth Section */}
@@ -194,9 +192,9 @@ function Navbar({ user }) {
                             leftIcon={<FaUserCircle />}
                             colorScheme="brand"
                             variant="solid"
-                            size="sm"
+                            size="xs"
                             borderRadius="full"
-                            px={6}
+                            px={4}
                        >
                            {user.email.split('@')[0]}
                        </Button>
@@ -209,9 +207,9 @@ function Navbar({ user }) {
                             leftIcon={<FaLock />}
                             colorScheme="brand"
                             variant="outline"
-                            size="sm"
+                            size="xs"
                             borderRadius="full"
-                            px={6}
+                            px={4}
                             _hover={{ bg: 'brand.500', color: 'white' }}
                        >
                            Masuk
@@ -222,7 +220,7 @@ function Navbar({ user }) {
 
             <HStack spacing={1}>
               <Button
-                size="xs"
+                size="2xs"
                 variant={language === 'id' ? 'solid' : 'ghost'}
                 colorScheme="brand"
                 onClick={() => setLanguage('id')}
@@ -230,7 +228,7 @@ function Navbar({ user }) {
                 ID
               </Button>
               <Button
-                size="xs"
+                size="2xs"
                 variant={language === 'en' ? 'solid' : 'ghost'}
                 colorScheme="brand"
                 onClick={() => setLanguage('en')}
@@ -255,16 +253,16 @@ const DesktopNav = ({ navItems }) => {
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
 
   return (
-    <Stack direction={'row'} spacing={2} align="center">
+    <Stack direction={'row'} spacing={1} align="center">
       {navItems.map((navItem) => (
         <Box key={navItem.label}>
           <Popover trigger={'hover'} placement={'bottom-start'}>
             <PopoverTrigger>
               <Box
                 as={RouterLink}
-                p={2}
+                p={1.5}
                 to={navItem.href ?? '#'}
-                fontSize={'xs'}
+                fontSize={'11px'}
                 fontWeight={600}
                 color={navItem.isSpecial ? 'brand.500' : linkColor}
                 _hover={{
@@ -348,7 +346,7 @@ const MobileNav = ({ navItems, user, onClose }) => {
       mt={2}
       mx={2}
       boxShadow="xl"
-      bg={useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)')}
+      bg={useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(15, 23, 42, 0.95)')}
       maxH="70vh"
       overflowY="auto"
     >

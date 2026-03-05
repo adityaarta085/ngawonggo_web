@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import { Box, Container, Heading, Text, Button, Stack, useBreakpointValue } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
@@ -12,33 +12,6 @@ const MotionStack = motion(Stack);
 const Hero = ({ isReady }) => {
   const { language } = useLanguage();
   const t = translations[language].hero;
-  const videoRef = useRef(null);
-
-  useEffect(() => {
-    // Attempt to play video when isReady is true and on any user interaction
-    const playVideo = () => {
-      if (videoRef.current && isReady) {
-        const playPromise = videoRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.log("Autoplay blocked, waiting for interaction:", error);
-          });
-        }
-      }
-    };
-
-    if (isReady) {
-        playVideo();
-    }
-
-    window.addEventListener('click', playVideo);
-    window.addEventListener('touchstart', playVideo);
-
-    return () => {
-      window.removeEventListener('click', playVideo);
-      window.removeEventListener('touchstart', playVideo);
-    };
-  }, [isReady]);
 
   return (
     <Box
@@ -47,30 +20,10 @@ const Hero = ({ isReady }) => {
       display="flex"
       alignItems="center"
       overflow="hidden"
-      bg="black"
+      bg="brand.600"
+      bgGradient="linear(to-br, brand.600, brand.800, #0F2F24)"
     >
-      {/* Video Background */}
-      {isReady && (
-        <Box
-          as="video"
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          src="https://api.deline.web.id/nKT00jDXVR.mp4"
-          position="absolute"
-          top="0"
-          left="0"
-          width="100%"
-          height="100%"
-          objectFit="cover"
-          zIndex={0}
-          opacity={0.8}
-        />
-      )}
-
-      {/* Gradient Overlay (IKN Inspired) */}
+      {/* Animated Aurora Background Effect */}
       <Box
         position="absolute"
         top="0"
@@ -78,7 +31,9 @@ const Hero = ({ isReady }) => {
         right="0"
         bottom="0"
         zIndex={1}
-        background="linear-gradient(180deg, rgba(15, 47, 36, 0.4) 0%, rgba(15, 47, 36, 0.2) 50%, rgba(15, 47, 36, 0.9) 100%)"
+        opacity={0.4}
+        bgGradient="radial(circle at 20% 30%, brand.400 0%, transparent 50%), radial(circle at 80% 70%, purple.500 0%, transparent 50%)"
+        filter="blur(80px)"
       />
 
       <Container maxW="container.xl" zIndex={2} position="relative">
@@ -91,7 +46,7 @@ const Hero = ({ isReady }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            textShadow="2px 2px 8px rgba(0,0,0,0.5)"
+            textShadow="2px 2px 8px rgba(0,0,0,0.3)"
           >
             {t.title}
           </MotionHeading>
@@ -103,7 +58,7 @@ const Hero = ({ isReady }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            textShadow="1px 1px 4px rgba(0,0,0,0.5)"
+            textShadow="1px 1px 4px rgba(0,0,0,0.3)"
           >
             {t.subtitle}
           </MotionText>
@@ -124,6 +79,7 @@ const Hero = ({ isReady }) => {
               height="60px"
               fontSize="md"
               boxShadow="xl"
+              borderRadius="full"
             >
               {t.cta}
             </Button>
@@ -138,8 +94,9 @@ const Hero = ({ isReady }) => {
               height="60px"
               fontSize="md"
               borderColor="whiteAlpha.500"
+              borderRadius="full"
             >
-              {language === 'id' ? 'Lihat Video' : 'Watch Video'}
+              {language === 'id' ? 'Galeri Media' : 'Media Gallery'}
             </Button>
           </MotionStack>
         </Stack>

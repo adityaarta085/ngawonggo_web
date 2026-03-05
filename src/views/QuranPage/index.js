@@ -62,25 +62,7 @@ const QuranPage = () => {
   const ayahRefs = useRef([]);
   const toast = useToast();
 
-  const glassBg = useColorModeValue('rgba(255, 255, 255, 0.8)', 'rgba(15, 23, 42, 0.8)');
-  const cardBg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.100', 'gray.700');
-  const activeAyahBg = useColorModeValue('brand.50', 'rgba(19, 127, 236, 0.1)');
-  const translationColor = useColorModeValue('gray.600', 'gray.400');
-  const tafsirBg = useColorModeValue('orange.50', 'rgba(251, 146, 60, 0.1)');
-  const bottomNavBg = useColorModeValue('rgba(255, 255, 255, 0.98)', 'rgba(15, 23, 42, 0.98)');
-  const pageBg = useColorModeValue('gray.50', 'gray.900');
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      if (user) {
-        fetchLastRead(user.id);
-      }
-    });
-  }, []);
-
-  const fetchLastRead = async (userId) => {
+  const fetchLastRead = useCallback(async (userId) => {
     const { data, error } = await supabase
       .from('user_quran_progress')
       .select('*')
@@ -90,9 +72,9 @@ const QuranPage = () => {
     if (data && !error) {
       setLastRead(data);
     }
-  };
+  }, []);
 
-  const saveProgress = async (surah, ayah) => {
+  const saveProgress = useCallback(async (surah, ayah) => {
     if (!user) return;
 
     const { error } = await supabase
@@ -107,7 +89,28 @@ const QuranPage = () => {
     if (!error) {
       setLastRead({ surah_number: surah, ayah_number: ayah });
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+        fetchLastRead(user.id);
+      }
+    });
+  }, [fetchLastRead]);
+
+  const glassBg = useColorModeValue('rgba(255, 255, 255, 0.8)', 'rgba(15, 23, 42, 0.8)');
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.100', 'gray.700');
+  const activeAyahBg = useColorModeValue('brand.50', 'rgba(19, 127, 236, 0.1)');
+  const translationColor = useColorModeValue('gray.600', 'gray.400');
+  const tafsirBg = useColorModeValue('orange.50', 'rgba(251, 146, 60, 0.1)');
+  const bottomNavBg = useColorModeValue('rgba(255, 255, 255, 0.98)', 'rgba(15, 23, 42, 0.98)');
+  const pageBg = useColorModeValue('gray.50', 'gray.900');
+
+
+
 
   const fetchSurahs = useCallback(async () => {
     try {
@@ -175,12 +178,13 @@ const QuranPage = () => {
     }
   };
 
-  const playAudio = (index, mode = 'single') => {
+    const playAudio = (index, mode = 'single') => {
     if (!surahDetail) return;
 
     if (currentAyahIndex === index && isPlaying && mode === playbackMode) {
       audioRef.current.pause();
       setIsPlaying(false);
+      saveProgress(selectedSurah, index + 1);
       return;
     }
 
@@ -200,12 +204,10 @@ const QuranPage = () => {
 
     audioRef.current.play().catch(e => console.error("Audio play error:", e));
     setIsPlaying(true);
-
-    // Save progress to DB if user is logged in
-    saveProgress(selectedSurah, index + 1);
   };
 
-  const handleAudioEnd = () => {
+    const handleAudioEnd = () => {
+    saveProgress(selectedSurah, currentAyahIndex + 1);
     if (playbackMode === 'single') {
       setIsPlaying(false);
     } else {
@@ -240,15 +242,44 @@ const QuranPage = () => {
     window.open(url, '_blank');
   };
 
-  const downloadFullSurah = () => {
+    const downloadFullSurah = () => {
     if (!surahDetail) return;
+
     toast({
-      title: 'Fitur unduh paket sedang dikembangkan',
-      description: 'Silakan unduh ayat per ayat untuk saat ini.',
+      title: 'Menyiapkan Unduhan',
+      description: 'Membuka tautan murottal lengkap Surah ' + surahDetail.name.transliteration.id,
       status: 'info',
       duration: 3000,
     });
+
+    const paddedNumber = selectedSurah.toString().padStart(3, '0');
+    // Using a reliable full surah audio source (Mishary Rashid Alafasy)
+    const url = `https://download.quranicaudio.com/quran/mishari_al_afasy/${paddedNumber}.mp3`;
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.download = `${paddedNumber}_${surahDetail.name.transliteration.id}.mp3`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
+
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (selectedSurah && currentAyahIndex !== -1) {
+        saveProgress(selectedSurah, currentAyahIndex + 1);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (selectedSurah && currentAyahIndex !== -1) {
+        saveProgress(selectedSurah, currentAyahIndex + 1);
+      }
+    };
+  }, [selectedSurah, currentAyahIndex, saveProgress]);
 
   if (loading) return <Loading fullPage />;
 

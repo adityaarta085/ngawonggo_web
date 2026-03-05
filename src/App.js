@@ -38,7 +38,16 @@ import PortalPage from './views/PortalPage/index.js';
 
 const TopBar = () => {
   return (
-    <Box bg="white" py={2} px={{ base: 2, md: 8 }} borderBottom="1px solid" borderColor="gray.100" overflow="hidden">
+    <Box
+      bg="white"
+      py={1}
+      px={{ base: 2, md: 8 }}
+      borderBottom="1px solid"
+      borderColor="gray.100"
+      overflow="hidden"
+      position="relative"
+      zIndex={1100}
+    >
       <Flex justify="space-between" align="center" gap={{ base: 2, md: 4 }}>
         <HStack flex={1} spacing={{ base: 2, md: 4 }} maxW={{ base: "60%", md: "70%" }}>
           <Badge
@@ -60,7 +69,7 @@ const TopBar = () => {
         </HStack>
         <Image
           src="https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png"
-          h={{ base: "15px", md: "30px" }}
+          h={{ base: "12px", md: "25px" }}
           alt="Berakhlak - Bangga Melayani Bangsa"
           flexShrink={0}
         />
@@ -127,48 +136,56 @@ function App() {
       {showSplash && !isAdmin && !isAuth && (
         <SplashScreen onComplete={() => setShowSplash(false)} />
       )}
-      {!isAdmin && !isAuth && <TopBar />}
-      {!isAdmin && !isAuth && <Navbar user={userSession?.user} />}
+
+      {!isAdmin && !isAuth && (
+        <Box position="sticky" top={0} zIndex={1000} w="full">
+          <TopBar />
+          <Navbar user={userSession?.user} />
+        </Box>
+      )}
+
       {!isAdmin && !isAuth && <PopupNotification />}
 
       <ScrollToTop />
 
-      <Routes>
-        <Route path="/" element={<LandingPage isReady={(!showSplash && isVerified) || userSession} />} />
-        <Route path="/news" element={<NewsPage />} />
-        <Route path="/news/:id" element={<NewsDetail />} />
-        <Route path="/profil" element={<ProfilPage />} />
-        <Route path="/pemerintahan" element={<PemerintahanPage />} />
-        <Route path="/layanan" element={<LayananPage />} />
-        <Route path="/jelajahi" element={<JelajahiPage />} />
-        <Route path="/transparansi" element={<TransparansiPage />} />
-        <Route path="/kontak" element={<KontakPage />} />
-        <Route path="/media" element={<MediaPage />} />
-        <Route path="/game-edukasi" element={<EduGamePage />} />
-        <Route path="/dusun/:slug" element={<DusunPage />} />
-        <Route path="/quran" element={<QuranPage />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-        <Route path="/terms-conditions" element={<TermsConditions />} />
-        <Route path="/credits" element={<CreditsPage />} />
+      <Box pt={(!isAdmin && !isAuth) ? { base: "85px", md: "110px" } : "0"}>
+        <Routes>
+          <Route path="/" element={<LandingPage isReady={(!showSplash && isVerified) || userSession} />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/news/:id" element={<NewsDetail />} />
+          <Route path="/profil" element={<ProfilPage />} />
+          <Route path="/pemerintahan" element={<PemerintahanPage />} />
+          <Route path="/layanan" element={<LayananPage />} />
+          <Route path="/jelajahi" element={<JelajahiPage />} />
+          <Route path="/transparansi" element={<TransparansiPage />} />
+          <Route path="/kontak" element={<KontakPage />} />
+          <Route path="/media" element={<MediaPage />} />
+          <Route path="/game-edukasi" element={<EduGamePage />} />
+          <Route path="/dusun/:slug" element={<DusunPage />} />
+          <Route path="/quran" element={<QuranPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/credits" element={<CreditsPage />} />
 
-        {/* User Auth & Portal */}
-        <Route path="/auth" element={<AuthPage />} />
-        <Route
-            path="/portal"
-            element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
-        />
+          {/* User Auth & Portal */}
+          <Route path="/auth" element={<AuthPage />} />
+          <Route
+              path="/portal"
+              element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
+          />
 
-        {/* Admin Panel */}
-        <Route
-          path="/admin"
-          element={
-            adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
-          }
-        />
-        <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
+          {/* Admin Panel */}
+          <Route
+            path="/admin"
+            element={
+              adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
+            }
+          />
+          <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
 
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </Box>
 
       {!isAdmin && !isAuth && !showSplash && isVerified && (
         <>
