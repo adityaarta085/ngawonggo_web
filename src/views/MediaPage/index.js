@@ -81,7 +81,7 @@ const MediaPage = () => {
   };
 
   return (
-    <Box  pt={{ base: "130px", md: "160px" }} pt={8} pb={32} bg="gray.50" minH="100vh">
+    <Box  pt={8} pb={32} bg="gray.50" minH="100vh">
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
           <Box textAlign="center">
