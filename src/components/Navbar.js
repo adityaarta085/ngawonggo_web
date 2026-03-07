@@ -8,16 +8,15 @@ import {
   Stack,
   Collapse,
   Icon,
-  Link,
   Popover,
   PopoverTrigger,
   PopoverContent,
   useColorModeValue,
-  useBreakpointValue,
   useDisclosure,
   Container,
   HStack,
   Tooltip,
+  VStack,
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -26,83 +25,52 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
-import { Image } from '@chakra-ui/react';
 import NgawonggoLogo from './NgawonggoLogo';
-import { useLanguage } from '../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { translations } from '../translations';
-import { FaUserCircle, FaLock } from 'react-icons/fa';
+import { useLanguage } from '../contexts/LanguageContext';
+import { FaLock, FaUserCircle } from 'react-icons/fa';
 
-function Navbar({ user }) {
+export default function Navbar({ user }) {
   const { isOpen, onToggle, onClose } = useDisclosure();
+  const { t, language, setLanguage } = useLanguage();
   const [logoIndex, setLogoIndex] = useState(0);
-  const { language, setLanguage } = useLanguage();
-  const t = translations[language].nav;
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setLogoIndex((prev) => (prev + 1) % 3);
-    }, 4000);
-    return () => clearInterval(timer);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const logos = [
-    {
-      id: 'desa',
-      content: (
-        <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }} onClick={onClose}>
-          <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'lg' })} />
-        </Link>
-      ),
-    },
-    {
-      id: 'kab',
-      content: (
-        <HStack spacing={3}>
-          <Image
-            src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
-            h="30px"
-            alt="Logo Kab Magelang"
-          />
-          <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
-            Kab. Magelang
-          </Text>
-        </HStack>
-      ),
-    },
-    {
-      id: 'spbe',
-      content: (
-        <Link
-          href="https://menpan.go.id/site/tentang-kami/kedeputian/transformasi-digital-pemerintah/sistem-pemerintahan-berbasis-elektronik-spbe-2"
-          isExternal
-        >
-          <HStack spacing={3}>
-            <Image
-              src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png"
-              h="30px"
-              alt="Logo SPBE"
-            />
-            <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
-              SPBE Digital
-            </Text>
-          </HStack>
-        </Link>
-      ),
-    },
+    { id: 'desa', content: <NgawonggoLogo h="32px" /> },
+    { id: 'text', content: (
+      <VStack align="start" spacing={0} ml={2}>
+        <Text fontSize="xs" fontWeight="800" color="brand.500" lineHeight="1">DESA NGAWONGGO</Text>
+        <Text fontSize="10px" fontWeight="600" color="gray.500">Kec. Bandongan, Kab. Magelang</Text>
+      </VStack>
+    )},
   ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLogoIndex((prev) => (prev + 1) % logos.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [logos.length]);
 
   const NAV_ITEMS = [
     { label: t.home, href: '/' },
     {
       label: t.profile,
-      parenHref: '/profil',
       children: [
-        { label: 'Sejarah', href: '/profil#sejarah' },
-        { label: 'Visi Misi', href: '/profil#visimisi' },
-        { label: 'Geografis', href: '/profil#kondisigeografis' },
-        { label: 'Demografi', href: '/profil#demografi' },
+        { label: 'Sejarah & Budaya', subLabel: 'Warisan leluhur Ngawonggo', href: '/profil' },
+        { label: 'Visi & Misi', subLabel: 'Arah pembangunan desa', href: '/profil' },
+        { label: 'Wilayah Desa', subLabel: 'Geografis & batas wilayah', href: '/profil' },
       ],
+      href: '/profil'
     },
     { label: t.government, href: '/pemerintahan' },
     { label: t.services, href: '/layanan' },
@@ -114,28 +82,34 @@ function Navbar({ user }) {
     { label: t.admin, href: '/admin', isSpecial: true },
   ];
 
-  const navBg = useColorModeValue('white', 'rgba(15, 23, 42, 0.95)');
+  const navBg = useColorModeValue(
+    isScrolled ? 'rgba(255, 255, 255, 0.45)' : 'white',
+    isScrolled ? 'rgba(15, 23, 42, 0.7)' : 'rgba(15, 23, 42, 0.95)'
+  );
+
   const navColor = useColorModeValue('gray.700', 'white');
 
   return (
     <Box
       p={0}
-      transition="all 0.3s ease"
+      transition="all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
       maxW="100vw"
     >
       <Flex
-        layerStyle="liquidGlass"
+        layerStyle={isScrolled ? "liquidGlass" : "none"}
         bg={navBg}
         color={navColor}
         minH={'60px'}
-        py={{ base: 1 }}
+        py={isScrolled ? 1 : 2}
         px={{ base: 4, md: 6 }}
         align={'center'}
-        borderRadius={{ base: '2xl', md: 'full' }}
-        maxW="container.xl"
+        borderRadius={isScrolled ? { base: '2xl', md: 'full' } : 'none'}
+        maxW={isScrolled ? "container.xl" : "full"}
         mx="auto"
-        transition="all 0.3s ease"
-        boxShadow="0 4px 12px 0 rgba(31, 38, 135, 0.08)"
+        transition="all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
+        boxShadow={isScrolled ? "0 12px 40px 0 rgba(31, 38, 135, 0.12)" : "none"}
+        borderBottom={isScrolled ? "none" : "1px solid"}
+        borderColor={useColorModeValue('gray.100', 'whiteAlpha.100')}
       >
         <Container maxW="full" display="flex" alignItems="center" px={0}>
           <Flex
@@ -452,5 +426,3 @@ const MobileNavItem = ({ label, children, href, onClose }) => {
     </Stack>
   );
 };
-
-export default Navbar;

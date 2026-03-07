@@ -37,18 +37,23 @@ import { FaMoon } from 'react-icons/fa';
 import AuthPage from './views/AuthPage/index.js';
 import PortalPage from './views/PortalPage/index.js';
 
-const TopBar = () => {
+const TopBar = ({ isScrolled }) => {
   return (
     <Box
-      bg="white" borderBottom="1px solid" borderColor="gray.100"
+      bg="white"
+      borderBottom={isScrolled ? "none" : "1px solid"}
+      borderColor="gray.100"
       py={1}
       px={{ base: 4, md: 10 }}
-
-
       overflow="hidden"
       position="relative"
       zIndex={1100}
       boxShadow="none"
+      transition="all 0.3s ease"
+      opacity={isScrolled ? 0 : 1}
+      transform={isScrolled ? "translateY(-100%)" : "translateY(0)"}
+      visibility={isScrolled ? "hidden" : "visible"}
+      h={isScrolled ? "0" : "auto"}
     >
       <Flex justify="space-between" align="center" gap={{ base: 2, md: 4 }}>
         <HStack flex={1} spacing={{ base: 2, md: 4 }} maxW={{ base: "65%", md: "75%" }}>
@@ -100,6 +105,15 @@ function App() {
   });
 
   const [isFloatingHidden, setIsFloatingHidden] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   usePageTracking();
 
@@ -146,13 +160,13 @@ function App() {
 
       {!isAdmin && !isAuth && (
         <Box position="fixed" top={0} zIndex={1100} w="full" pointerEvents="none">
-          <Box pointerEvents="auto"><TopBar /></Box>
+          <Box pointerEvents="auto"><TopBar isScrolled={isScrolled} /></Box>
           <Box pointerEvents="auto"
             position="sticky"
-            top={{ base: "5px", md: "15px" }}
-            px={{ base: 4, md: 12 }}
+            top={isScrolled ? { base: "10px", md: "20px" } : "0"}
+            px={isScrolled ? { base: 4, md: 12 } : 0}
             zIndex={1000}
-            transition="all 0.3s ease"
+            transition="all 0.5s cubic-bezier(0.4, 0, 0.2, 1)"
           >
             <Navbar user={userSession?.user} />
           </Box>

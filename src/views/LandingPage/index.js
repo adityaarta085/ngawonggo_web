@@ -20,8 +20,8 @@ export default function LandingPage({ isReady }) {
       <RamadanSection />
       <BMKGSection />
       <QuickLinks />
-      <DusunSection />
       <StatsSection />
+      <DusunSection />
       <LatestNews />
       <VideoPromo />
       <QuranAccess />
