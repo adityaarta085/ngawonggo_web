@@ -8,7 +8,7 @@ import Demografi from './components/Demografi';
 
 export default function ProfilPage() {
   return (
-    <Flex m="30px 10px" gap={50} flexDirection={{ base: 'column', lg: 'row' }}>
+    <Flex  pt={{ base: "130px", md: "160px" }} m="30px 10px" gap={50} flexDirection={{ base: 'column', lg: 'row' }}>
       <Box textAlign={{ base: 'left', lg: 'right' }} fontFamily="heading" minW="200px">
         <Heading mb={3}>Profil Desa</Heading>
         <Link href="#sejarah">

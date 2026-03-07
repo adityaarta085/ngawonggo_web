@@ -39,15 +39,15 @@ import PortalPage from './views/PortalPage/index.js';
 const TopBar = () => {
   return (
     <Box
-      bg="white"
+      bg="transparent" backdropFilter="blur(10px)"
       py={1}
       px={{ base: 4, md: 10 }}
-      borderBottom="1px solid"
-      borderColor="gray.50"
+
+
       overflow="hidden"
       position="relative"
       zIndex={1100}
-      boxShadow="sm"
+      boxShadow="none"
     >
       <Flex justify="space-between" align="center" gap={{ base: 2, md: 4 }}>
         <HStack flex={1} spacing={{ base: 2, md: 4 }} maxW={{ base: "65%", md: "75%" }}>
@@ -144,9 +144,17 @@ function App() {
       )}
 
       {!isAdmin && !isAuth && (
-        <Box position="sticky" top={0} zIndex={1000} w="full">
-          <TopBar />
-          <Navbar user={userSession?.user} />
+        <Box position="fixed" top={0} zIndex={1100} w="full" pointerEvents="none">
+          <Box pointerEvents="auto"><TopBar /></Box>
+          <Box pointerEvents="auto"
+            position="sticky"
+            top={{ base: "5px", md: "15px" }}
+            px={{ base: 4, md: 12 }}
+            zIndex={1000}
+            transition="all 0.3s ease"
+          >
+            <Navbar user={userSession?.user} />
+          </Box>
         </Box>
       )}
 
@@ -154,7 +162,7 @@ function App() {
 
       <ScrollToTop />
 
-      <Box pt={(!isAdmin && !isAuth) ? { base: "90px", md: "115px" } : "0"} minH="80vh">
+      <Box pt={0} minH="80vh">
         <Routes>
           <Route path="/" element={<LandingPage isReady={isBypassed} />} />
           <Route path="/news" element={<NewsPage />} />
