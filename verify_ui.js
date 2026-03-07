@@ -2,66 +2,38 @@ const { chromium } = require('playwright');
 
 (async () => {
   const browser = await chromium.launch();
-  const page = await browser.newPage();
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const page = await context.newPage();
 
-  // Set viewport to desktop
-  await page.setViewportSize({ width: 1280, height: 800 });
-
-  // Go to the page
+  console.log('Navigating to Landing Page...');
   await page.goto('http://localhost:3000');
+  await page.evaluate(() => sessionStorage.setItem('isVerified', 'true'));
+  await page.reload();
+  await page.waitForTimeout(5000); // Wait for splash to clear
 
-  // Bypass verification by setting session storage and reloading
-  await page.evaluate(() => {
-    sessionStorage.setItem('isVerified', 'true');
-    localStorage.setItem('hasVisited', '2'); // Trigger login promo
-  });
+  // 1. Hero Screenshot
+  await page.screenshot({ path: 'hero_landing.png' });
+  console.log('Saved hero_landing.png');
 
-  await page.goto('http://localhost:3000');
+  // 2. Footer Screenshot (Scroll to bottom)
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(1000);
+  await page.screenshot({ path: 'footer.png' });
+  console.log('Saved footer.png');
 
-  // Wait for the content to load
-  await page.waitForTimeout(5000);
+  // 3. Jelajahi Page
+  console.log('Navigating to Jelajahi...');
+  await page.goto('http://localhost:3000/jelajahi');
+  await page.waitForTimeout(3000);
+  await page.screenshot({ path: 'jelajahi_page.png' });
+  console.log('Saved jelajahi_page.png');
 
-  // Take screenshot of Hero and Navbar
-  await page.screenshot({ path: '/home/jules/verification/hero_navbar_v2.png' });
-
-  // Scroll to Stats Section
-  // It's after DusunSection. Let's find "Ngawonggo Dalam Angka"
-  const statsHeading = page.locator('text=Ngawonggo Dalam Angka');
-  if (await statsHeading.count() > 0) {
-    await statsHeading.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1000);
-    await page.screenshot({ path: '/home/jules/verification/stats_section_v2.png' });
-  }
-
-  // Scroll to Quran Access
-  const quranHeading = page.locator('text=Al-Qur\'an Digital');
-  if (await quranHeading.count() > 0) {
-    await quranHeading.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1000);
-    await page.screenshot({ path: '/home/jules/verification/quran_section_v2.png' });
-  }
-
-  // Scroll to BMKG
-  const bmkgHeading = page.locator('text=Informasi Cuaca');
-  if (await bmkgHeading.count() > 0) {
-    await bmkgHeading.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1000);
-    await page.screenshot({ path: '/home/jules/verification/bmkg_section_v2.png' });
-  }
-
-  // Scroll to Supports
-  const supportsHeading = page.locator('text=Instansi Terkait');
-  if (await supportsHeading.count() > 0) {
-    await supportsHeading.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1000);
-    await page.screenshot({ path: '/home/jules/verification/supports_section_v2.png' });
-  }
-
-  // Check for Login Promo
-  const promoHeading = page.locator('text=Bergabunglah dengan Portal Warga');
-  if (await promoHeading.isVisible()) {
-     await page.screenshot({ path: '/home/jules/verification/login_promo_v2.png' });
-  }
+  // 4. Quran Page
+  console.log('Navigating to Quran...');
+  await page.goto('http://localhost:3000/quran');
+  await page.waitForTimeout(5000); // Wait for data to load
+  await page.screenshot({ path: 'quran_page.png' });
+  console.log('Saved quran_page.png');
 
   await browser.close();
 })();
