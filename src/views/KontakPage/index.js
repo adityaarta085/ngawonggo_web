@@ -19,7 +19,7 @@ const MotionBox = motion(Box);
 
 const ContactInfo = ({ icon, label, value, href }) => {
   return (
-    <HStack align="start" spacing={5}>
+    <HStack  pt={{ base: "130px", md: "160px" }} align="start" spacing={5}>
       <Flex w={12} h={12} bg="brand.50" borderRadius="2xl" align="center" justify="center" flexShrink={0} boxShadow="inner">
         <Icon as={icon} color="brand.500" w={6} h={6} />
       </Flex>

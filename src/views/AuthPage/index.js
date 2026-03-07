@@ -79,11 +79,23 @@ const AuthPage = () => {
   };
 
   const handleGoogleLogin = async () => {
+    setLoading(true);
+    toast({
+      title: 'Menghubungkan ke Google...',
+      status: 'info',
+      duration: 2000,
+      isClosable: true,
+    });
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: window.location.origin + '/portal'
+            redirectTo: window.location.origin + '/portal',
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'consent',
+            },
         }
       });
       if (error) throw error;
@@ -279,6 +291,8 @@ const AuthPage = () => {
               onClick={handleGoogleLogin}
               borderRadius="xl"
               h="50px"
+              isLoading={loading}
+              _hover={{ bg: 'gray.50' }}
             >
               Lanjutkan dengan Google
             </Button>

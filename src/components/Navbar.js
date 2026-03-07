@@ -114,12 +114,12 @@ function Navbar({ user }) {
     { label: t.admin, href: '/admin', isSpecial: true },
   ];
 
-  const navBg = useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)');
+  const navBg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)');
   const navColor = useColorModeValue('gray.700', 'white');
 
   return (
     <Box
-      p={{ base: 1, md: 2 }}
+      p={0}
       transition="all 0.3s ease"
       maxW="100vw"
     >
