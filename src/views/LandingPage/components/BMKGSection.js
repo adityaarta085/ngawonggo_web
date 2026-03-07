@@ -4,13 +4,13 @@ import {
   Container,
   Heading,
   Text,
-  SimpleGrid,
-  Grid,
-  Flex,
-  Icon,
-  HStack,
   VStack,
+  HStack,
+  SimpleGrid,
   Badge,
+  Icon,
+  Flex,
+  Grid,
   Divider,
   useColorModeValue,
 } from '@chakra-ui/react';
@@ -34,6 +34,21 @@ const BMKGSection = () => {
   const eqCardBg = useColorModeValue('red.50', 'rgba(254, 178, 178, 0.1)');
   const eqBorderColor = useColorModeValue('red.100', 'red.900');
   const alertBg = useColorModeValue('white', 'gray.800');
+
+  const translateWeather = (desc) => {
+    if (!desc) return 'Data Tidak Tersedia';
+    const mapping = {
+      'Clear Skies': 'Cerah',
+      'Partly Cloudy': 'Cerah Berawan',
+      'Mostly Cloudy': 'Berawan Tebal',
+      'Cloudy': 'Berawan',
+      'Light Rain': 'Hujan Ringan',
+      'Rain': 'Hujan',
+      'Heavy Rain': 'Hujan Lebat',
+      'Thunderstorm': 'Hujan Petir',
+    };
+    return mapping[desc] || desc;
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -126,7 +141,7 @@ const BMKGSection = () => {
                   </Text>
                   <VStack align="start" spacing={0}>
                     <Text fontSize="3xl" fontWeight="800">
-                        {weather?.descText || 'Partly Cloudy'}
+                        {translateWeather(weather?.descText)}
                     </Text>
                     <Text color="gray.400" fontSize="xs" fontWeight="700">Pembaruan Real-time BMKG</Text>
                   </VStack>

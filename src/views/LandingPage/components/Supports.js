@@ -67,7 +67,7 @@ const Supports = () => {
                   <Box
                     layerStyle="glassCard"
                     w={{ base: "140px", md: "200px" }}
-                    h="120px"
+                    minH="120px" h="auto"
                     display="flex"
                     flexDirection="column"
                     justifyContent="center"
@@ -92,7 +92,7 @@ const Supports = () => {
                       mb={3}
                       filter={imageFilter}
                     />
-                    <Text fontSize="xs" fontWeight="800" textAlign="center" color="gray.600" noOfLines={2}>
+                    <Text fontSize="xs" fontWeight="800" textAlign="center" color="gray.600" >
                       {e.title}
                     </Text>
                   </Box>
@@ -150,7 +150,7 @@ const Supports = () => {
                       )}
                     </Flex>
                     {e.address && (
-                      <Text fontSize="sm" color="gray.600" mb={4} noOfLines={2}>
+                      <Text fontSize="sm" color="gray.600" mb={4} >
                         {e.address}
                       </Text>
                     )}
@@ -212,7 +212,7 @@ const Supports = () => {
                       )}
                     </Flex>
                     {e.address && (
-                      <Text fontSize="sm" color="gray.600" mb={4} noOfLines={2}>
+                      <Text fontSize="sm" color="gray.600" mb={4} >
                         {e.address}
                       </Text>
                     )}

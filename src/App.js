@@ -17,6 +17,7 @@ import EduGamePage from './views/EduGamePage/index.js';
 import DusunPage from './views/DusunPage/index.js';
 import QuranPage from './views/QuranPage/index.js';
 import NewsDetail from './views/NewsPage/NewsDetail.js';
+import LoginPromo from './components/LoginPromo.js';
 import AdminPage from './views/AdminPage/index.js';
 import Login from './views/AdminPage/Login.js';
 import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
@@ -39,7 +40,7 @@ import PortalPage from './views/PortalPage/index.js';
 const TopBar = () => {
   return (
     <Box
-      bg="transparent" backdropFilter="blur(10px)"
+      bg="white" borderBottom="1px solid" borderColor="gray.100"
       py={1}
       px={{ base: 4, md: 10 }}
 
@@ -160,6 +161,7 @@ function App() {
 
       {!isAdmin && !isAuth && <PopupNotification />}
 
+      {!isAdmin && !isAuth && <LoginPromo user={userSession?.user} />}
       <ScrollToTop />
 
       <Box pt={0} minH="80vh">

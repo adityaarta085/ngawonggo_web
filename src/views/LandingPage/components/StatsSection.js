@@ -8,6 +8,7 @@ import {
   Heading,
   Icon,
   Flex,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { FaUsers, FaMapMarkedAlt, FaBriefcase, FaGraduationCap } from 'react-icons/fa';
@@ -22,6 +23,13 @@ const StatsSection = () => {
     workers: 0,
     students: 0
   });
+
+  const cardBg = useColorModeValue('gray.50', 'whiteAlpha.50');
+  const cardHoverBg = useColorModeValue('white', 'whiteAlpha.100');
+  const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100');
+  const textColor = useColorModeValue('gray.800', 'white');
+  const subTextColor = useColorModeValue('gray.500', 'whiteAlpha.700');
+  const sectionBg = useColorModeValue('white', 'gray.900');
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -50,22 +58,21 @@ const StatsSection = () => {
   ];
 
   return (
-    <Box py={24} bg="brand.900" bgGradient="linear(to-b, brand.900, #0F172A)" position="relative" overflow="hidden">
-      {/* Decorative Circles */}
-      <Box position="absolute" top="-100px" right="-100px" w="400px" h="400px" bg="brand.500" opacity={0.05} borderRadius="full" filter="blur(80px)" />
-      <Box position="absolute" bottom="-100px" left="-100px" w="300px" h="300px" bg="teal.500" opacity={0.05} borderRadius="full" filter="blur(60px)" />
+    <Box py={24} bg={sectionBg} position="relative" overflow="hidden">
+      {/* Decorative Blur */}
+      <Box position="absolute" top="-100px" right="-100px" w="400px" h="400px" bg="brand.500" opacity={0.03} borderRadius="full" filter="blur(80px)" />
 
       <Container maxW="container.xl" position="relative" zIndex={1}>
         <VStack spacing={16}>
           <Box textAlign="center" maxW="3xl">
-            <Text color="brand.400" fontWeight="800" letterSpacing="widest" fontSize="xs" mb={3}>
+            <Text color="brand.500" fontWeight="800" letterSpacing="widest" fontSize="xs" mb={3}>
               STATISTIK DESA
             </Text>
-            <Heading color="white" size="2xl" fontWeight="900" mb={6}>
+            <Heading color={textColor} size="2xl" fontWeight="900" mb={6}>
               Ngawonggo Dalam Angka
             </Heading>
-            <Text color="whiteAlpha.700" fontSize="xl" fontWeight="500">
-              Gambaran umum kependudukan dan geografis Desa Ngawonggo yang terus berkembang menuju kemandirian digital.
+            <Text color={subTextColor} fontSize="xl" fontWeight="500">
+              Data statistik asli terintegrasi sistem untuk gambaran umum kependudukan dan geografis Desa Ngawonggo.
             </Text>
           </Box>
 
@@ -77,17 +84,17 @@ const StatsSection = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                bg="rgba(255, 255, 255, 0.03)"
+                bg={cardBg}
                 p={10}
                 borderRadius="3xl"
                 border="1px solid"
-                borderColor="whiteAlpha.100"
+                borderColor={borderColor}
                 textAlign="center"
-                backdropFilter="blur(10px)"
                 _hover={{
-                    bg: "rgba(255, 255, 255, 0.07)",
-                    borderColor: "whiteAlpha.300",
-                    transform: "translateY(-10px)"
+                    bg: cardHoverBg,
+                    borderColor: "brand.200",
+                    transform: "translateY(-10px)",
+                    boxShadow: "2xl"
                 }}
               >
                 <Flex
@@ -104,13 +111,13 @@ const StatsSection = () => {
                 >
                   <Icon as={item.icon} w={8} h={8} />
                 </Flex>
-                <Heading color="white" size="xl" fontWeight="900" mb={2}>
+                <Heading color={textColor} size="xl" fontWeight="900" mb={2}>
                   {item.value.toLocaleString('id-ID')}
-                  <Text as="span" fontSize="lg" fontWeight="700" color="whiteAlpha.600">
+                  <Text as="span" fontSize="lg" fontWeight="700" color="gray.400">
                     {item.suffix}
                   </Text>
                 </Heading>
-                <Text color="whiteAlpha.600" fontSize="md" fontWeight="800" letterSpacing="wider" textTransform="uppercase">
+                <Text color="gray.400" fontSize="md" fontWeight="800" letterSpacing="wider" textTransform="uppercase">
                   {item.label}
                 </Text>
               </MotionBox>
