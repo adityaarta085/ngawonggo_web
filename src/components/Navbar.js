@@ -8,16 +8,15 @@ import {
   Stack,
   Collapse,
   Icon,
-  Link,
   Popover,
   PopoverTrigger,
   PopoverContent,
   useColorModeValue,
-  useBreakpointValue,
   useDisclosure,
   Container,
   HStack,
   Tooltip,
+  Image,
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -26,14 +25,19 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
-import { Image } from '@chakra-ui/react';
 import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { translations } from '../translations';
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 
-function Navbar({ user }) {
+const VStack = ({ children, align, spacing, ...props }) => (
+    <Stack direction="column" align={align} spacing={spacing} {...props}>
+        {children}
+    </Stack>
+);
+
+function Navbar({ user, isScrolled }) {
   const { isOpen, onToggle, onClose } = useDisclosure();
   const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
@@ -50,63 +54,50 @@ function Navbar({ user }) {
     {
       id: 'desa',
       content: (
-        <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }} onClick={onClose}>
-          <NgawonggoLogo fontSize={useBreakpointValue({ base: 'md', md: 'lg' })} />
-        </Link>
-      ),
-    },
-    {
-      id: 'kab',
-      content: (
-        <HStack spacing={3}>
-          <Image
-            src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png"
-            h="30px"
-            alt="Logo Kab Magelang"
-          />
-          <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
-            Kab. Magelang
-          </Text>
+        <HStack spacing={2} key="logo-desa">
+          <Image src="/logo_desa.png" h="32px" w="auto" fallbackSrc="https://via.placeholder.com/32" />
+          <VStack align="start" spacing={0}>
+            <Text fontWeight="900" fontSize="sm" color="brand.500" lineHeight="1">DESA</Text>
+            <Text fontWeight="900" fontSize="xs" color="gray.600" lineHeight="1">NGAWONGGO</Text>
+          </VStack>
         </HStack>
-      ),
+      )
     },
     {
-      id: 'spbe',
+      id: 'tjkt',
       content: (
-        <Link
-          href="https://menpan.go.id/site/tentang-kami/kedeputian/transformasi-digital-pemerintah/sistem-pemerintahan-berbasis-elektronik-spbe-2"
-          isExternal
-        >
-          <HStack spacing={3}>
-            <Image
-              src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png"
-              h="30px"
-              alt="Logo SPBE"
-            />
-            <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} whiteSpace="nowrap">
-              SPBE Digital
-            </Text>
-          </HStack>
-        </Link>
-      ),
+        <HStack spacing={2} key="logo-tjkt">
+          <Box p={1} bg="brand.500" borderRadius="lg">
+            <Text fontWeight="900" fontSize="xs" color="white">TJKT</Text>
+          </Box>
+          <VStack align="start" spacing={0}>
+            <Text fontWeight="900" fontSize="sm" color="brand.500" lineHeight="1">SMK MUH</Text>
+            <Text fontWeight="800" fontSize="10px" color="gray.500" lineHeight="1">BANDONGAN</Text>
+          </VStack>
+        </HStack>
+      )
     },
+    {
+      id: 'brand',
+      content: <NgawonggoLogo h="30px" key="logo-brand" />
+    }
   ];
 
   const NAV_ITEMS = [
     { label: t.home, href: '/' },
     {
       label: t.profile,
-      parenHref: '/profil',
       children: [
-        { label: 'Sejarah', href: '/profil#sejarah' },
-        { label: 'Visi Misi', href: '/profil#visimisi' },
-        { label: 'Geografis', href: '/profil#kondisigeografis' },
-        { label: 'Demografi', href: '/profil#demografi' },
+        { label: 'Sejarah Desa', subLabel: 'Asal usul Desa Ngawonggo', href: '/profil#sejarah' },
+        { label: 'Visi & Misi', subLabel: 'Tujuan dan arah desa', href: '/profil#visimisi' },
+        { label: 'Wilayah Desa', subLabel: 'Data geografis & administratif', href: '/profil#wilayah' },
       ],
+      href: '/profil'
     },
-    { label: t.government, href: '/pemerintahan' },
+    { label: t.gov, href: '/pemerintahan' },
     { label: t.services, href: '/layanan' },
     { label: t.explore, href: '/jelajahi' },
+    { label: t.transparency, href: '/transparansi' },
     { label: t.news, href: '/news' },
     { label: t.media, href: '/media' },
     { label: t.games, href: '/game-edukasi' },
@@ -114,7 +105,10 @@ function Navbar({ user }) {
     { label: t.admin, href: '/admin', isSpecial: true },
   ];
 
-  const navBg = useColorModeValue('white', 'rgba(15, 23, 42, 0.95)');
+  const navBg = useColorModeValue(
+    isScrolled ? 'rgba(255, 255, 255, 0.45)' : 'white',
+    isScrolled ? 'rgba(15, 23, 42, 0.45)' : 'rgba(15, 23, 42, 0.95)'
+  );
   const navColor = useColorModeValue('gray.700', 'white');
 
   return (
@@ -124,18 +118,20 @@ function Navbar({ user }) {
       maxW="100vw"
     >
       <Flex
-        layerStyle="liquidGlass"
+        layerStyle={isScrolled ? "liquidGlass" : "none"}
         bg={navBg}
         color={navColor}
         minH={'60px'}
         py={{ base: 1 }}
         px={{ base: 4, md: 6 }}
         align={'center'}
-        borderRadius={{ base: '2xl', md: 'full' }}
-        maxW="container.xl"
+        borderRadius={isScrolled ? { base: '2xl', md: 'full' } : "none"}
+        maxW={isScrolled ? "container.xl" : "full"}
         mx="auto"
-        transition="all 0.3s ease"
-        boxShadow="0 4px 12px 0 rgba(31, 38, 135, 0.08)"
+        transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+        boxShadow={isScrolled ? "0 4px 12px 0 rgba(31, 38, 135, 0.08)" : "none"}
+        borderBottom={!isScrolled ? "1px solid" : "none"}
+        borderColor={useColorModeValue('gray.100', 'whiteAlpha.100')}
       >
         <Container maxW="full" display="flex" alignItems="center" px={0}>
           <Flex
@@ -185,7 +181,7 @@ function Navbar({ user }) {
             {/* User Auth Section */}
             <Box display={{ base: 'none', md: 'block' }}>
                {user ? (
-                   <Tooltip label="Portal Warga">
+                   <Tooltip label="Portal Warga" key="portal-tooltip">
                        <Button
                             as={RouterLink}
                             to="/portal"
@@ -200,7 +196,7 @@ function Navbar({ user }) {
                        </Button>
                    </Tooltip>
                ) : (
-                   <Tooltip label="Masuk untuk bypass splash & simpan progres">
+                   <Tooltip label="Masuk untuk bypass splash & simpan progres" key="auth-tooltip">
                        <Button
                             as={RouterLink}
                             to="/auth"
@@ -254,8 +250,8 @@ const DesktopNav = ({ navItems }) => {
 
   return (
     <Stack direction={'row'} spacing={2} align="center">
-      {navItems.map((navItem) => (
-        <Box key={navItem.label}>
+      {navItems.map((navItem, index) => (
+        <Box key={`${navItem.label}-${index}`}>
           <Popover trigger={'hover'} placement={'bottom-start'}>
             <PopoverTrigger>
               <Box
@@ -285,8 +281,8 @@ const DesktopNav = ({ navItems }) => {
                 minW={'sm'}
               >
                 <Stack>
-                  {navItem.children.map((child) => (
-                    <DesktopSubNav key={child.label} {...child} />
+                  {navItem.children.map((child, childIndex) => (
+                    <DesktopSubNav key={`${child.label}-${childIndex}`} {...child} />
                   ))}
                 </Stack>
               </PopoverContent>
@@ -352,6 +348,7 @@ const MobileNav = ({ navItems, user, onClose }) => {
     >
       {user ? (
           <Button
+            key="portal-btn"
             as={RouterLink}
             to="/portal"
             leftIcon={<FaUserCircle />}
@@ -365,6 +362,7 @@ const MobileNav = ({ navItems, user, onClose }) => {
         </Button>
       ) : (
           <Button
+            key="auth-btn"
             as={RouterLink}
             to="/auth"
             leftIcon={<FaLock />}
@@ -378,8 +376,8 @@ const MobileNav = ({ navItems, user, onClose }) => {
         </Button>
       )}
 
-      {navItems.map((navItem) => (
-        <MobileNavItem key={navItem.label} {...navItem} onClose={onClose} />
+      {navItems.map((navItem, index) => (
+        <MobileNavItem key={`${navItem.label}-${index}`} {...navItem} onClose={onClose} />
       ))}
     </Stack>
   );
@@ -436,10 +434,10 @@ const MobileNavItem = ({ label, children, href, onClose }) => {
           align={'start'}
         >
           {children &&
-            children.map((child) => (
+            children.map((child, index) => (
               <Box
                 as={RouterLink}
-                key={child.label}
+                key={`${child.label}-${index}`}
                 py={2}
                 to={child.href}
                 onClick={onClose}
