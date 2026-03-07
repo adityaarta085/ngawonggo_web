@@ -107,7 +107,7 @@ const Footer = ({ ml }) => {
                Made With SMK Muhammadiyah Bandongan 2026 TJKT A
              </Link>
              <Text fontSize="xs" fontWeight="700" letterSpacing="wider">
-                © 2024 GOVERNMENT DESA NGAWONGGO. ALL RIGHTS RESERVED.
+                © 2026 GOVERNMENT DESA NGAWONGGO. ALL RIGHTS RESERVED.
              </Text>
           </VStack>
 

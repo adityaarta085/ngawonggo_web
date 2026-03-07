@@ -91,7 +91,7 @@ export default function JelajahiPage() {
               >
                 <Box h="220px" overflow="hidden" position="relative">
                   <Image
-                    src={dusun.image || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800'}
+                    src={dusun.image_url || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800'}
                     alt={dusun.name}
                     w="full"
                     h="full"
