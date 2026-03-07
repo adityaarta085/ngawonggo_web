@@ -84,7 +84,7 @@ const EduGamePage = () => {
   }
 
   return (
-    <Box minH="100vh" bg={bg} py={20} position="relative" overflow="hidden">
+    <Box minH="100vh" bg={bg} py={12} position="relative" overflow="hidden">
       {/* Background Decor */}
       <Box position="absolute" top="-10%" left="-10%" w="40%" h="40%" bg="brand.100" opacity={0.3} filter="blur(120px)" borderRadius="full" />
       <Box position="absolute" bottom="-10%" right="-10%" w="30%" h="30%" bg="purple.100" opacity={0.3} filter="blur(100px)" borderRadius="full" />

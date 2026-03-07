@@ -41,7 +41,7 @@ const KontakPage = () => {
   return (
     <Box py={20} bg="gray.50" minH="100vh">
       {/* Hero Section */}
-      <Box pt={32} pb={20} position="relative" overflow="hidden">
+      <Box pt={12} pb={20} position="relative" overflow="hidden">
         <Box
           position="absolute"
           top="-10%"

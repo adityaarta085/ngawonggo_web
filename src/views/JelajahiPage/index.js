@@ -39,7 +39,7 @@ export default function JelajahiPage() {
   return (
     <Box minH="100vh" bg="gray.50" pb={32}>
       {/* Hero Header */}
-      <Box pt={32} pb={20} position="relative" overflow="hidden">
+      <Box pt={12} pb={20} position="relative" overflow="hidden">
         <Box
           position="absolute"
           top="-10%"
