@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Flex,
@@ -25,9 +25,7 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
-import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
-import { motion, AnimatePresence } from 'framer-motion';
 import { translations } from '../translations';
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 
@@ -39,83 +37,85 @@ const VStack = ({ children, align, spacing, ...props }) => (
 
 function Navbar({ user, isScrolled }) {
   const { isOpen, onToggle, onClose } = useDisclosure();
-  const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
   const t = translations[language].nav;
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setLogoIndex((prev) => (prev + 1) % 3);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const logos = [
-    {
-      id: 'desa',
-      content: (
-        <HStack spacing={2} key="logo-desa">
-          <Image src="/logo_desa.png" h="32px" w="auto" fallbackSrc="https://via.placeholder.com/32" />
-          <VStack align="start" spacing={0}>
-            <Text fontWeight="900" fontSize="sm" color="brand.500" lineHeight="1">DESA</Text>
-            <Text fontWeight="900" fontSize="xs" color="gray.600" lineHeight="1">NGAWONGGO</Text>
-          </VStack>
-        </HStack>
-      )
-    },
-    {
-      id: 'tjkt',
-      content: (
-        <HStack spacing={2} key="logo-tjkt">
-          <Box p={1} bg="brand.500" borderRadius="lg">
-            <Text fontWeight="900" fontSize="xs" color="white">TJKT</Text>
-          </Box>
-          <VStack align="start" spacing={0}>
-            <Text fontWeight="900" fontSize="sm" color="brand.500" lineHeight="1">SMK MUH</Text>
-            <Text fontWeight="800" fontSize="10px" color="gray.500" lineHeight="1">BANDONGAN</Text>
-          </VStack>
-        </HStack>
-      )
-    },
-    {
-      id: 'brand',
-      content: <NgawonggoLogo h="30px" key="logo-brand" />
-    }
-  ];
-
   const NAV_ITEMS = [
-    { label: t.home, href: '/' },
+    {
+      label: t.home,
+      href: '/',
+    },
     {
       label: t.profile,
       children: [
-        { label: 'Sejarah Desa', subLabel: 'Asal usul Desa Ngawonggo', href: '/profil#sejarah' },
-        { label: 'Visi & Misi', subLabel: 'Tujuan dan arah desa', href: '/profil#visimisi' },
-        { label: 'Wilayah Desa', subLabel: 'Data geografis & administratif', href: '/profil#wilayah' },
+        {
+          label: t.villageProfile,
+          subLabel: t.villageProfileSub,
+          href: '/profil',
+        },
+        {
+          label: t.government,
+          subLabel: t.governmentSub,
+          href: '/pemerintahan',
+        },
       ],
-      href: '/profil'
     },
-    { label: t.gov, href: '/pemerintahan' },
-    { label: t.services, href: '/layanan' },
-    { label: t.explore, href: '/jelajahi' },
-    { label: t.transparency, href: '/transparansi' },
-    { label: t.news, href: '/news' },
-    { label: t.media, href: '/media' },
-    { label: t.games, href: '/game-edukasi' },
-    { label: t.contact, href: '/kontak' },
-    { label: t.admin, href: '/admin', isSpecial: true },
+    {
+      label: t.services,
+      href: '/layanan',
+    },
+    {
+        label: t.explore,
+        href: '/jelajahi',
+        isSpecial: true
+    },
+    {
+      label: t.news,
+      href: '/berita',
+    },
+    {
+        label: t.media,
+        children: [
+          {
+            label: 'Al-Quran Digital',
+            subLabel: 'Baca & Simpan Progres',
+            href: '/quran',
+          },
+          {
+            label: 'Galeri Desa',
+            subLabel: 'Visual Ngawonggo',
+            href: '/media',
+          }
+        ]
+    },
+    {
+      label: 'Game Edukasi',
+      href: '/edugame',
+    },
+    {
+      label: t.contact,
+      href: '/kontak',
+    },
+    {
+      label: 'Admin',
+      href: '/admin',
+    },
   ];
 
   const navBg = useColorModeValue(
-    isScrolled ? 'rgba(255, 255, 255, 0.45)' : 'white',
-    isScrolled ? 'rgba(15, 23, 42, 0.45)' : 'rgba(15, 23, 42, 0.95)'
+    isScrolled ? 'rgba(255, 255, 255, 0.8)' : 'white',
+    isScrolled ? 'rgba(15, 23, 42, 0.8)' : 'gray.900'
   );
-  const navColor = useColorModeValue('gray.700', 'white');
+  const navColor = useColorModeValue('gray.600', 'white');
 
   return (
     <Box
-      p={0}
-      transition="all 0.3s ease"
-      maxW="100vw"
+      position={isScrolled ? "fixed" : "relative"}
+      top={isScrolled ? { base: "12px", md: "20px" } : "0"}
+      left="0"
+      right="0"
+      zIndex="1000"
+      px={isScrolled ? { base: 2, md: 4 } : 0}
     >
       <Flex
         layerStyle={isScrolled ? "liquidGlass" : "none"}
@@ -152,18 +152,16 @@ function Navbar({ user, isScrolled }) {
 
           <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} alignItems="center" overflow="hidden">
             <Box h="40px" display="flex" alignItems="center" overflow="hidden" w={{ base: "150px", md: "250px", lg: "280px" }} flexShrink={0}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={logoIndex}
-                  initial={{ x: 20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -20, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
-                  {logos[logoIndex].content}
-                </motion.div>
-              </AnimatePresence>
+              <HStack spacing={3}>
+                <Image src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png" h="28px" w="auto" alt="Logo Kab Magelang" />
+                <Box h="20px" w="1px" bg="gray.300" />
+                <Image src="/logo_desa.png" h="28px" w="auto" alt="Logo Desa Ngawonggo" />
+                <Box h="20px" w="1px" bg="gray.300" />
+                <VStack align="start" spacing={0}>
+                  <Text fontWeight="900" fontSize="10px" color="brand.500" lineHeight="1">SMK MUH</Text>
+                  <Text fontWeight="800" fontSize="8px" color="gray.500" lineHeight="1">BANDONGAN</Text>
+                </VStack>
+              </HStack>
             </Box>
 
             <Flex display={{ base: 'none', lg: 'flex' }} ml={2}>
