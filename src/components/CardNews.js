@@ -1,56 +1,106 @@
+import React from 'react';
 import {
-  Card,
-  CardHeader,
-  CardBody,
-  Badge,
-  Heading,
-  Image,
   Box,
-  Button
+  Image,
+  Text,
+  Heading,
+  Stack,
+  Flex,
+  Badge,
+  Icon,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
+import { FaCalendarAlt, FaChevronRight } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 
-export default function CardNews({ id, title, image, caption, date }) {
+const MotionBox = motion(Box);
+
+const CardNews = ({ news }) => {
+  const formattedDate = new Date(news.created_at).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
   return (
-    <Card
-      size="md"
+    <MotionBox
+      as={RouterLink}
+      to={`/news/${news.id}`}
+      bg="white"
+      borderRadius="3xl"
+      overflow="hidden"
+      boxShadow="soft"
+      border="1px solid"
+      borderColor="gray.100"
+      transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
       _hover={{
-        transform: 'translateY(-5px)',
-        transition: 'transform 0.3s',
+        transform: 'translateY(-12px)',
+        boxShadow: 'strong',
+        borderColor: 'brand.200',
       }}
-      w={"400px"}
+      display="flex"
+      flexDirection="column"
+      height="full"
+      role="group"
     >
-      <Image
-        src={image}
-        alt='ImageNews'
-        objectFit="cover"
-      />
-      <CardHeader pb={0}>
-        <Badge colorScheme="green" fontSize="xs" mb="2" fontFamily="default">
-          {date}
-        </Badge>
-        <Heading size={{ base: 'sm', lg: 'sm' }}>
-          {title}
-        </Heading>
-      </CardHeader>
-      <CardBody fontFamily="body" pb={4}>
-        <Box
-          fontSize={{ lg: 'sm', base: 'xs' }}
-          noOfLines={3}
-          dangerouslySetInnerHTML={{ __html: caption }}
-          mb={4}
+      <Box position="relative" overflow="hidden" h="240px">
+        <Image
+          src={news.image_url || 'https://via.placeholder.com/800x600?text=Desa+Ngawonggo'}
+          alt={news.title}
+          objectFit="cover"
+          w="full"
+          h="full"
+          transition="transform 0.5s"
+          _groupHover={{ transform: 'scale(1.1)' }}
+          loading="lazy"
         />
-        <Button
-          as={RouterLink}
-          to={`/news/${id}`}
-          size="sm"
+        <Badge
+          position="absolute"
+          top={4}
+          left={4}
           colorScheme="brand"
-          variant="outline"
-          _hover={{ bg: 'brand.500', color: 'white' }}
+          variant="solid"
+          borderRadius="full"
+          px={4}
+          py={1}
+          fontSize="xs"
+          fontWeight="900"
+          letterSpacing="widest"
+          boxShadow="lg"
         >
-          Selengkapnya
-        </Button>
-      </CardBody>
-    </Card>
+          {news.category || 'Berita'}
+        </Badge>
+      </Box>
+
+      <Stack p={8} spacing={4} flex={1}>
+        <Flex align="center" gap={2} color="gray.400" fontSize="xs" fontWeight="700">
+          <Icon as={FaCalendarAlt} />
+          <Text>{formattedDate}</Text>
+        </Flex>
+
+        <Heading size="md" fontWeight="900" color="gray.800" noOfLines={2} lineHeight="1.4">
+          {news.title}
+        </Heading>
+
+        <Text color="gray.500" fontSize="sm" noOfLines={3} lineHeight="tall" fontWeight="500">
+          {news.content.replace(/<[^>]*>/g, '')}
+        </Text>
+      </Stack>
+
+      <Flex p={8} pt={0} align="center" justify="space-between">
+        <Text color="brand.500" fontWeight="800" fontSize="sm" letterSpacing="wide">
+          BACA SELENGKAPNYA
+        </Text>
+        <Icon
+            as={FaChevronRight}
+            color="brand.500"
+            w={4} h={4}
+            transition="transform 0.3s"
+            _groupHover={{ transform: 'translateX(5px)' }}
+        />
+      </Flex>
+    </MotionBox>
   );
-}
+};
+
+export default CardNews;

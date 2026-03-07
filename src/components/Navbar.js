@@ -131,7 +131,7 @@ function Navbar({ user }) {
         py={{ base: 1 }}
         px={{ base: 4, md: 6 }}
         align={'center'}
-        borderRadius={{ base: 'xl', md: 'full' }}
+        borderRadius={{ base: '2xl', md: 'full' }}
         maxW="container.xl"
         mx="auto"
         transition="all 0.3s ease"
@@ -218,7 +218,7 @@ function Navbar({ user }) {
                )}
             </Box>
 
-            <HStack spacing={1}>
+            <HStack spacing={2}>
               <Button
                 size="2xs"
                 variant={language === 'id' ? 'solid' : 'ghost'}
@@ -253,7 +253,7 @@ const DesktopNav = ({ navItems }) => {
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
 
   return (
-    <Stack direction={'row'} spacing={1} align="center">
+    <Stack direction={'row'} spacing={2} align="center">
       {navItems.map((navItem) => (
         <Box key={navItem.label}>
           <Popover trigger={'hover'} placement={'bottom-start'}>
