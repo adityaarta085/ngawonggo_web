@@ -17,11 +17,11 @@ export default function LandingPage({ isReady }) {
     <Box>
       <Hero isReady={isReady} />
       <InstallPWA />
-      <StatsSection />
       <RamadanSection />
       <BMKGSection />
       <QuickLinks />
       <DusunSection />
+      <StatsSection />
       <LatestNews />
       <VideoPromo />
       <QuranAccess />
