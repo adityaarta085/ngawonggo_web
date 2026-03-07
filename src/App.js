@@ -41,27 +41,30 @@ const TopBar = () => {
     <Box
       bg="white"
       py={1}
-      px={{ base: 2, md: 8 }}
+      px={{ base: 4, md: 10 }}
       borderBottom="1px solid"
-      borderColor="gray.100"
+      borderColor="gray.50"
       overflow="hidden"
       position="relative"
       zIndex={1100}
+      boxShadow="sm"
     >
       <Flex justify="space-between" align="center" gap={{ base: 2, md: 4 }}>
-        <HStack flex={1} spacing={{ base: 2, md: 4 }} maxW={{ base: "60%", md: "70%" }}>
+        <HStack flex={1} spacing={{ base: 2, md: 4 }} maxW={{ base: "65%", md: "75%" }}>
           <Badge
             display={{ base: "none", sm: "flex" }}
             colorScheme="yellow"
             variant="subtle"
             alignItems="center"
-            gap={1}
-            px={{ base: 2, md: 3 }}
+            gap={1.5}
+            px={3}
             py={1}
             borderRadius="full"
+            border="1px solid"
+            borderColor="yellow.200"
           >
             <Icon as={FaMoon} />
-            <Text fontSize="2xs" fontWeight="bold">RAMADAN</Text>
+            <Text fontSize="2xs" fontWeight="800">RAMADAN 1447H</Text>
           </Badge>
           <Box flex={1} overflow="hidden">
             <RunningText isEmbedded={true} />
@@ -69,9 +72,10 @@ const TopBar = () => {
         </HStack>
         <Image
           src="https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png"
-          h={{ base: "12px", md: "25px" }}
+          h={{ base: "14px", md: "28px" }}
           alt="Berakhlak - Bangga Melayani Bangsa"
           flexShrink={0}
+          loading="lazy"
         />
       </Flex>
     </Box>
@@ -94,17 +98,14 @@ function App() {
     return sessionStorage.getItem('isVerified') === 'true';
   });
 
-  // Floating windows hide logic (Now manual only as requested)
   const [isFloatingHidden, setIsFloatingHidden] = useState(false);
 
   usePageTracking();
 
   useEffect(() => {
-    // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserSession(session);
       if (session) {
-        // Bypass splash & verification if user is logged in
         setShowSplash(false);
         setIsVerified(true);
         sessionStorage.setItem('isVerified', 'true');
@@ -125,16 +126,21 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const isBypassed = (!showSplash && isVerified) || userSession;
+
   return (
     <Box overflowX="hidden" maxW="100vw">
-      {!showSplash && !isVerified && !isAdmin && !isAuth && (
-        <HumanVerification onVerified={() => {
-          setIsVerified(true);
-          sessionStorage.setItem('isVerified', 'true');
-        }} />
-      )}
-      {showSplash && !isAdmin && !isAuth && (
-        <SplashScreen onComplete={() => setShowSplash(false)} />
+      {!isBypassed && !isAdmin && !isAuth && (
+        <>
+          {showSplash ? (
+            <SplashScreen onComplete={() => setShowSplash(false)} />
+          ) : (
+            <HumanVerification onVerified={() => {
+              setIsVerified(true);
+              sessionStorage.setItem('isVerified', 'true');
+            }} />
+          )}
+        </>
       )}
 
       {!isAdmin && !isAuth && (
@@ -148,9 +154,9 @@ function App() {
 
       <ScrollToTop />
 
-      <Box pt={(!isAdmin && !isAuth) ? { base: "85px", md: "110px" } : "0"}>
+      <Box pt={(!isAdmin && !isAuth) ? { base: "90px", md: "115px" } : "0"} minH="80vh">
         <Routes>
-          <Route path="/" element={<LandingPage isReady={(!showSplash && isVerified) || userSession} />} />
+          <Route path="/" element={<LandingPage isReady={isBypassed} />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/profil" element={<ProfilPage />} />
@@ -167,14 +173,12 @@ function App() {
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/credits" element={<CreditsPage />} />
 
-          {/* User Auth & Portal */}
           <Route path="/auth" element={<AuthPage />} />
           <Route
               path="/portal"
               element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
           />
 
-          {/* Admin Panel */}
           <Route
             path="/admin"
             element={
@@ -194,7 +198,6 @@ function App() {
             onHide={() => setIsFloatingHidden(true)}
           />
 
-          {/* Restore Handle */}
           {isFloatingHidden && (
             <Tooltip label="Tampilkan Panel" placement="left" aria-label="Restore Panels">
               <Box
@@ -202,15 +205,16 @@ function App() {
                 right={0}
                 top="50%"
                 transform="translateY(-50%)"
-                w="6px"
-                h="100px"
-                bg="blue.500"
+                w="8px"
+                h="120px"
+                bg="brand.500"
                 cursor="pointer"
                 zIndex={2000}
                 borderLeftRadius="full"
                 onClick={() => setIsFloatingHidden(false)}
-                _hover={{ w: '10px', bg: 'blue.400' }}
-                transition="all 0.2s"
+                _hover={{ w: '12px', bg: 'brand.400' }}
+                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                boxShadow="lg"
               />
             </Tooltip>
           )}

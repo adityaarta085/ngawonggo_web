@@ -1,142 +1,95 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
   Heading,
-  Text,
   SimpleGrid,
-  Image,
-  Badge,
-  Link,
-  VStack,
-  HStack,
+  Text,
   Button,
-  Icon,
+  VStack,
   Flex,
+  Icon,
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
-import { useLanguage } from '../../../contexts/LanguageContext';
-import { supabase } from '../../../lib/supabase';
-import { FaPlay } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
-
-const MotionBox = motion(Box);
-
-const NewsCard = ({ id, title, date, category, image, video_url, delay }) => {
-  return (
-    <MotionBox
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay }}
-      bg="white"
-      borderRadius="2xl"
-      overflow="hidden"
-      boxShadow="sm"
-      border="1px solid"
-      borderColor="gray.100"
-      _hover={{ transform: 'translateY(-10px)', boxShadow: 'xl' }}
-    >
-      <Box position="relative">
-        <Image src={image} alt={title} h="240px" w="100%" objectFit="cover" />
-        {video_url && (
-          <Flex
-            position="absolute"
-            top="50%"
-            left="50%"
-            transform="translate(-50%, -50%)"
-            bg="whiteAlpha.800"
-            borderRadius="full"
-            p={4}
-          >
-            <Icon as={FaPlay} color="brand.500" />
-          </Flex>
-        )}
-        <Badge
-          position="absolute"
-          top={4}
-          left={4}
-          colorScheme="brand"
-          px={3}
-          py={1}
-          borderRadius="full"
-        >
-          {category}
-        </Badge>
-      </Box>
-      <VStack p={6} align="start" spacing={3}>
-        <Text fontSize="sm" color="gray.500" fontWeight="600">
-          {date}
-        </Text>
-        <Heading size="md" lineHeight="tall" noOfLines={2}>
-          {title}
-        </Heading>
-        <Link
-          as={RouterLink}
-          to={`/news/${id}`}
-          color="brand.500"
-          fontWeight="700"
-          fontSize="sm"
-          _hover={{ textDecoration: 'none', color: 'brand.600' }}
-        >
-          Selengkapnya →
-        </Link>
-      </VStack>
-    </MotionBox>
-  );
-};
+import { supabase } from '../../../lib/supabase';
+import CardNews from '../../../components/CardNews';
+import { FaArrowRight, FaNewspaper } from 'react-icons/fa';
+import Loading from '../../../components/Loading';
 
 const LatestNews = () => {
-  const { language } = useLanguage();
-  const [newsItems, setNewsItems] = useState([]);
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchNews = async () => {
       const { data, error } = await supabase
         .from('news')
         .select('*')
-        .order('id', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(3);
-      if (!error && data) setNewsItems(data);
+      if (data && !error) setNews(data);
+      setLoading(false);
     };
     fetchNews();
   }, []);
 
   return (
-    <Box py={20}>
+    <Box py={24} bg="white">
       <Container maxW="container.xl">
-        <HStack justify="space-between" mb={12} align="flex-end">
-          <Box>
-            <Text
-              fontSize="sm"
-              fontWeight="bold"
-              color="brand.500"
-              textTransform="uppercase"
-              letterSpacing="widest"
-              mb={2}
-            >
-              {language === 'id' ? 'Kabar Terbaru' : 'Latest Updates'}
-            </Text>
-            <Heading as="h2" size="xl" fontWeight="800">
-              {language === 'id' ? 'Berita Desa Ngawonggo' : 'Ngawonggo Village News'}
+        <Flex
+          direction={{ base: 'column', md: 'row' }}
+          justify="space-between"
+          align={{ base: 'start', md: 'flex-end' }}
+          mb={16}
+          gap={6}
+        >
+          <VStack align="start" spacing={4} maxW="2xl">
+            <Flex align="center" gap={3}>
+                <Icon as={FaNewspaper} color="brand.500" w={6} h={6} />
+                <Text color="brand.500" fontWeight="800" letterSpacing="widest" fontSize="xs" textTransform="uppercase">
+                    WARTA DESA
+                </Text>
+            </Flex>
+            <Heading as="h2" size="2xl" fontWeight="900" color="gray.900">
+              Kabar Terkini Ngawonggo
             </Heading>
-          </Box>
+            <Text fontSize="xl" color="gray.500" fontWeight="500">
+              Ikuti perkembangan terbaru mengenai kegiatan, pembangunan, dan pengumuman resmi dari Pemerintah Desa Ngawonggo.
+            </Text>
+          </VStack>
           <Button
             as={RouterLink}
             to="/news"
             variant="ghost"
             colorScheme="brand"
-            rightIcon={<span>→</span>}
+            size="lg"
+            rightIcon={<FaArrowRight />}
+            fontWeight="800"
+            _hover={{ bg: 'brand.50', transform: 'translateX(5px)' }}
           >
-            {language === 'id' ? 'Lihat Semua' : 'View All'}
+            Lihat Semua Berita
           </Button>
-        </HStack>
+        </Flex>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
-          {newsItems.map((news, index) => (
-            <NewsCard key={news.id} id={news.id} {...news} delay={index * 0.1} />
-          ))}
-        </SimpleGrid>
+        {loading ? (
+          <Flex justify="center" py={20}>
+            <Loading />
+          </Flex>
+        ) : (
+          <>
+            {news.length > 0 ? (
+              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
+                {news.map((item) => (
+                  <CardNews key={item.id} news={item} />
+                ))}
+              </SimpleGrid>
+            ) : (
+              <Box textAlign="center" py={20} bg="gray.50" borderRadius="3xl" border="2px dashed" borderColor="gray.200">
+                <Text color="gray.400" fontSize="lg" fontWeight="600">Belum ada berita yang diterbitkan.</Text>
+              </Box>
+            )}
+          </>
+        )}
       </Container>
     </Box>
   );

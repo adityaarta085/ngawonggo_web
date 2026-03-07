@@ -1,73 +1,197 @@
+import React, { useState, useEffect } from 'react';
 import {
   Box,
+  Container,
   Heading,
   Text,
   SimpleGrid,
-  Image,
-  Stack,
-  Badge,
-  Container,
   VStack,
+  Icon,
+  Badge, Button,
+  Image,
+  Link,
+  HStack,
+  Divider,
 } from '@chakra-ui/react';
-import DusunSection from '../LandingPage/components/DusunSection';
+import { FaMapMarkedAlt, FaChevronRight, FaCompass, FaExternalLinkAlt } from 'react-icons/fa';
+import { supabase } from '../../lib/supabase';
+import { Link as RouterLink } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 export default function JelajahiPage() {
-  const potentials = [
-    {
-      title: 'Kopi Arabika Ngawonggo',
-      desc: 'Salah satu penghasil Kopi Arabika terbaik di lereng Sumbing dengan cita rasa unik tanah vulkanik.',
-      category: 'Pertanian',
-      image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      title: 'Komoditas Hortikultura',
-      desc: 'Produksi Cabe (Cabai) dan sayuran segar menjadi andalan ekonomi warga desa.',
-      category: 'Pertanian',
-      image: 'https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=800&q=80',
-    },
-    {
-      title: 'Wisata Religi & Budaya',
-      desc: 'Keberadaan Pondok Pesantren besar dan tradisi Nyadran yang tetap lestari.',
-      category: 'Wisata',
-      image: 'https://images.unsplash.com/photo-1545127398-14699f92334b?auto=format&fit=crop&w=800&q=80',
-    },
-  ];
+  const [dusuns, setDusuns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDusuns = async () => {
+      const { data, error } = await supabase
+        .from('dusuns')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (data && !error) setDusuns(data);
+      setLoading(false);
+    };
+    fetchDusuns();
+  }, []);
 
   return (
-    <Box minH="100vh" bg="gray.50">
-      {/* Dusun Section First */}
-      <Box pt={12}>
-        <DusunSection />
+    <Box minH="100vh" bg="gray.50" pb={32}>
+      {/* Hero Header */}
+      <Box pt={32} pb={20} position="relative" overflow="hidden">
+        <Box
+          position="absolute"
+          top="-10%"
+          left="-10%"
+          w="120%"
+          h="120%"
+          bgGradient="radial(circle, brand.50 0%, transparent 70%)"
+          zIndex={0}
+        />
+        <Container maxW="container.xl" position="relative" zIndex={1}>
+          <VStack spacing={6} textAlign="center">
+            <MotionBox
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <Badge colorScheme="brand" variant="subtle" px={4} py={1} borderRadius="full" mb={4} fontWeight="900" letterSpacing="widest">
+                WILAYAH DESA
+              </Badge>
+              <Heading size="3xl" color="accent.green" mb={6} fontWeight="900">
+                Jelajahi <Text as="span" color="brand.500">Sepuluh Dusun</Text> Ngawonggo
+              </Heading>
+              <Text fontSize="xl" color="gray.600" maxW="3xl" mx="auto" lineHeight="tall">
+                Setiap dusun di Desa Ngawonggo memiliki karakteristik unik, kekayaan potensi lokal,
+                dan semangat kemandirian yang membangun harmoni desa secara keseluruhan.
+              </Text>
+            </MotionBox>
+          </VStack>
+        </Container>
       </Box>
 
-      <Container maxW="container.xl" pb={24}>
-        <VStack spacing={16} align="stretch">
-          <Box layerStyle="glassCard" p={10} bgGradient="linear(to-br, brand.600, blue.600)" color="white">
-            <Heading mb={4} size="2xl">Potensi & Ekonomi Desa</Heading>
-            <Text fontSize="lg" opacity={0.9}>
-              Ngawonggo memiliki kekayaan alam dan budaya yang melimpah, menjadi penggerak utama ekonomi masyarakat menuju kemandirian.
-            </Text>
-          </Box>
+      <Container maxW="container.xl">
+        <VStack spacing={20} align="stretch">
 
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={8}>
-            {potentials.map((item, index) => (
-              <Box key={index} layerStyle="glassCard" overflow="hidden" transition="all 0.3s" _hover={{ transform: 'translateY(-10px)', boxShadow: '2xl' }}>
-                <Image src={item.image} alt={item.title} h="240px" w="100%" objectFit="cover" />
-                <Stack p={6} spacing={4}>
-                  <Badge colorScheme="brand" alignSelf="start" variant="solid" borderRadius="full" px={3}>{item.category}</Badge>
-                  <Heading size="md" color="gray.800">{item.title}</Heading>
-                  <Text fontSize="md" color="gray.600">{item.desc}</Text>
-                </Stack>
-              </Box>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
+            {dusuns.map((dusun, idx) => (
+              <MotionBox
+                key={dusun.id}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.05 }}
+                whileHover={{ y: -10 }}
+                as={RouterLink}
+                to={`/dusun/${dusun.slug}`}
+                layerStyle="glassCard"
+                overflow="hidden"
+                display="flex"
+                flexDirection="column"
+              >
+                <Box h="220px" overflow="hidden" position="relative">
+                  <Image
+                    src={dusun.image || 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=800'}
+                    alt={dusun.name}
+                    w="full"
+                    h="full"
+                    objectFit="cover"
+                    transition="0.5s"
+                    _groupHover={{ transform: 'scale(1.1)' }}
+                  />
+                  <Box
+                    position="absolute"
+                    top={4}
+                    left={4}
+                    bg="white"
+                    color="brand.600"
+                    px={3}
+                    py={1}
+                    borderRadius="full"
+                    fontSize="xs"
+                    fontWeight="800"
+                    boxShadow="lg"
+                  >
+                    DUSUN {idx + 1}
+                  </Box>
+                </Box>
+
+                <VStack p={8} align="start" spacing={4} flex={1}>
+                  <VStack align="start" spacing={1}>
+                    <Heading size="md" color="gray.800" fontWeight="800">{dusun.name}</Heading>
+                    <Text fontSize="sm" color="gray.500" fontWeight="600">{dusun.sub_name || 'Bagian dari Ngawonggo'}</Text>
+                  </VStack>
+
+                  <Text noOfLines={3} fontSize="sm" color="gray.600" lineHeight="relaxed">
+                    {dusun.description || 'Mari mengenal lebih dekat tentang sejarah, potensi ekonomi, dan kehidupan sosial di dusun ini.'}
+                  </Text>
+
+                  <Divider />
+
+                  <HStack w="full" justify="space-between" color="brand.500">
+                    <HStack spacing={2}>
+                        <Icon as={FaMapMarkedAlt} />
+                        <Text fontSize="xs" fontWeight="800">LIHAT DETAIL</Text>
+                    </HStack>
+                    <Icon as={FaChevronRight} w={3} h={3} />
+                  </HStack>
+                </VStack>
+              </MotionBox>
             ))}
           </SimpleGrid>
 
-          <Box layerStyle="glassCard" p={8} borderLeft="4px solid" borderColor="brand.500">
-            <Heading size="lg" mb={4} color="gray.800">UMKM Desa</Heading>
-            <Text color="gray.600" fontSize="lg">
-              Pemerintah Desa terus mendukung pelaku UMKM lokal, khususnya pengolah kopi dan kerajinan tangan, untuk menembus pasar digital melalui program pemberdayaan ekonomi kreatif. Kami percaya produk lokal adalah masa depan Ngawonggo.
-            </Text>
-          </Box>
+          {dusuns.length === 0 && !loading && (
+            <Box textAlign="center" py={40} layerStyle="glassCard" border="2px dashed" borderColor="gray.100">
+                <Icon as={FaCompass} w={12} h={12} color="gray.200" mb={4} />
+                <Text fontSize="xl" color="gray.400" fontWeight="700">Data wilayah belum tersedia.</Text>
+            </Box>
+          )}
+
+          {/* Interactive Map Prompt */}
+          <MotionBox
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            p={{ base: 10, md: 16 }}
+            borderRadius="4xl"
+            bgGradient="linear(to-br, brand.500, accent.green)"
+            color="white"
+            boxShadow="2xl"
+            textAlign="center"
+          >
+            <VStack spacing={8}>
+                <Icon as={FaMapMarkedAlt} w={12} h={12} opacity={0.3} />
+                <VStack spacing={4}>
+                    <Heading size="2xl" fontWeight="900" letterSpacing="tight">
+                        Visualisasi Wilayah Secara <br /> Digital & Interaktif
+                    </Heading>
+                    <Text fontSize="lg" opacity={0.9} maxW="2xl">
+                        Kami mengintegrasikan Google Maps untuk memetakan setiap sudut dusun guna
+                        memudahkan pendataan infrastruktur dan navigasi warga serta pengunjung.
+                    </Text>
+                </VStack>
+                <Link
+                    href="https://www.google.com/maps/search/Desa+Ngawonggo+Kaliangkrik"
+                    isExternal
+                    _hover={{ textDecoration: 'none' }}
+                >
+                    <Button
+                        size="xl"
+                        h="70px"
+                        px={12}
+                        borderRadius="2xl"
+                        bg="white"
+                        color="brand.500"
+                        leftIcon={<FaExternalLinkAlt />}
+                        fontWeight="900"
+                        _hover={{ transform: 'translateY(-3px)', boxShadow: '2xl' }}
+                    >
+                        Buka Peta Desa
+                    </Button>
+                </Link>
+            </VStack>
+          </MotionBox>
+
         </VStack>
       </Container>
     </Box>
