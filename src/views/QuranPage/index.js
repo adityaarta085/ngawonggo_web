@@ -321,7 +321,7 @@ const QuranPage = () => {
 
                   {surahDetail?.preBismillah && (
                     <Box textAlign="center" py={12}>
-                        <Text fontSize="3xl" fontFamily="'Amiri', serif" color="gray.800" fontWeight="bold">
+                        <Text fontSize="2xl" fontFamily="'Amiri', serif" color="gray.800" fontWeight="bold">
                             {surahDetail.preBismillah.text.arab}
                         </Text>
                     </Box>
@@ -377,10 +377,10 @@ const QuranPage = () => {
                           </Flex>
 
                           <Text
-                            fontSize="3xl"
+                            fontSize="2xl"
                             textAlign="right"
                             fontFamily="'Amiri', serif"
-                            lineHeight="2.2"
+                            lineHeight="1.8"
                             dir="rtl"
                             color="gray.800"
                             fontWeight="bold"

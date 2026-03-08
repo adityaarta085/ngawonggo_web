@@ -167,8 +167,7 @@ function App() {
           <Box pointerEvents="auto"><TopBar isScrolled={scrolled} /></Box>
           <Box pointerEvents="auto"
             position="sticky"
-            top={scrolled ? { base: "5px", md: "15px" } : "0"}
-            px={scrolled ? { base: 4, md: 12 } : 0}
+            top="0"
             zIndex={1000}
             transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
           >
