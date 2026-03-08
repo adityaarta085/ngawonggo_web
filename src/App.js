@@ -163,25 +163,24 @@ function App() {
       )}
 
       {!isAdmin && !isAuth && (
-        <Box
-          zIndex={1100}
-          w="full"
-          position="fixed"
-          top="0"
-          left="0"
-          right="0"
-          pointerEvents="none"
-        >
-          <Box pointerEvents="auto">
-            <TopBar isScrolled={scrolled} />
-          </Box>
+        <>
+          <TopBar isScrolled={scrolled} />
           <Box
-            pointerEvents="auto"
+            zIndex={1100}
+            w="full"
+            position={scrolled ? 'fixed' : 'relative'}
+            top={scrolled ? { base: 2, md: 3 } : 'auto'}
+            left={0}
+            right={0}
+            pointerEvents="none"
             transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
           >
-            <Navbar user={userSession?.user} isScrolled={scrolled} />
+            <Box pointerEvents="auto">
+              <Navbar user={userSession?.user} isScrolled={scrolled} />
+            </Box>
           </Box>
-        </Box>
+          {scrolled && <Box h={{ base: '80px', md: '96px' }} />}
+        </>
       )}
 
       {!isAdmin && !isAuth && <PopupNotification />}
