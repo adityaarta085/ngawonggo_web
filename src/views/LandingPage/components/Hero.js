@@ -11,20 +11,21 @@ const MotionText = motion(Text);
 const MotionStack = motion(Stack);
 const MotionBox = motion(Box);
 
-const Hero = ({ isReady }) => {
+const Hero = () => {
   const { language } = useLanguage();
   const t = translations[language].hero;
 
   return (
     <Box
       position="relative"
-      height="100vh"
+      minH="100svh"
       display="flex"
-      alignItems="center"
+      alignItems="flex-start"
       overflow="hidden"
       bg="brand.900"
       bgGradient="linear(to-br, #0F172A, brand.900, #0F2F24)"
-      pt={{ base: "100px", md: "140px" }}
+      pt={{ base: "88px", md: "124px" }}
+      pb={{ base: "56px", md: "40px" }}
     >
       {/* Animated Aurora Background Effect */}
       <MotionBox
@@ -60,7 +61,7 @@ const Hero = ({ isReady }) => {
       />
 
       <Container maxW="container.xl" zIndex={3} position="relative">
-        <Stack spacing={8} maxW="4xl">
+        <Stack spacing={{ base: 6, md: 8 }} maxW="4xl" mt={{ base: "-2", md: "-6" }}>
           <MotionHeading
             as="h1"
             fontSize={useBreakpointValue({ base: '4xl', md: '6xl', lg: '8xl' })}
@@ -137,6 +138,7 @@ const Hero = ({ isReady }) => {
       <MotionBox
         position="absolute"
         bottom="40px"
+        display={{ base: "none", md: "block" }}
         left="50%"
         transform="translateX(-50%)"
         zIndex={10}

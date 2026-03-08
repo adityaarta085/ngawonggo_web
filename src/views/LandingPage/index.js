@@ -12,10 +12,10 @@ import QuranAccess from './components/QuranAccess.js';
 import BMKGSection from './components/BMKGSection.js';
 import RamadanSection from './components/RamadanSection.js';
 
-export default function LandingPage({ isReady }) {
+export default function LandingPage() {
   return (
     <Box>
-      <Hero isReady={isReady} />
+      <Hero />
       <InstallPWA />
       <RamadanSection />
       <BMKGSection />

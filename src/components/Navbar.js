@@ -71,7 +71,7 @@ function Navbar({ user, isScrolled }) {
   return (
     <Box
       p={{ base: 2, md: 4 }}
-      transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+      transition="padding 0.35s ease"
       w="full"
     >
       <Flex
@@ -79,13 +79,13 @@ function Navbar({ user, isScrolled }) {
         bg={navBg}
         color={navColor}
         minH="64px"
-        py={{ base: 2 }}
+        py={{ base: isScrolled ? 1 : 2 }}
         px={{ base: 4, md: 8 }}
         align="center"
-        borderRadius={isScrolled ? "full" : "2xl"}
+        borderRadius={isScrolled ? "3xl" : "2xl"}
         maxW="container.xl"
         mx="auto"
-        transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+        transition="padding 0.35s ease"
         boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.15)"
         border="1px solid"
         borderColor={useColorModeValue("rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 0.1)")}
