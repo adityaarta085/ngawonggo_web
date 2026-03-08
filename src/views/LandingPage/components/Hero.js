@@ -11,20 +11,21 @@ const MotionText = motion(Text);
 const MotionStack = motion(Stack);
 const MotionBox = motion(Box);
 
-const Hero = ({ isReady }) => {
+const Hero = () => {
   const { language } = useLanguage();
   const t = translations[language].hero;
 
   return (
     <Box
       position="relative"
-      height="100vh"
+      minH="100vh"
       display="flex"
-      alignItems="center"
+      alignItems="flex-start"
       overflow="hidden"
       bg="brand.900"
       bgGradient="linear(to-br, #0F172A, brand.900, #0F2F24)"
-      pt={{ base: "100px", md: "140px" }}
+      pt={{ base: "132px", md: "176px" }}
+      pb={{ base: "96px", md: "120px" }}
     >
       {/* Animated Aurora Background Effect */}
       <MotionBox
@@ -59,11 +60,11 @@ const Hero = ({ isReady }) => {
         backdropFilter="contrast(1.1) saturate(1.2)"
       />
 
-      <Container maxW="container.xl" zIndex={3} position="relative">
-        <Stack spacing={8} maxW="4xl">
+      <Container maxW="container.xl" zIndex={3} position="relative" h="full">
+        <Stack spacing={{ base: 6, md: 8 }} maxW="4xl">
           <MotionHeading
             as="h1"
-            fontSize={useBreakpointValue({ base: '4xl', md: '6xl', lg: '8xl' })}
+            fontSize={useBreakpointValue({ base: '3xl', md: '5xl', lg: '7xl' })}
             color="white"
             lineHeight="1.05"
             initial={{ opacity: 0, y: 30 }}
@@ -76,7 +77,7 @@ const Hero = ({ isReady }) => {
           </MotionHeading>
 
           <MotionText
-            fontSize={useBreakpointValue({ base: 'lg', md: '2xl' })}
+            fontSize={useBreakpointValue({ base: 'md', md: 'xl', lg: '2xl' })}
             color="whiteAlpha.900"
             fontWeight="500"
             initial={{ opacity: 0, y: 20 }}
@@ -95,7 +96,8 @@ const Hero = ({ isReady }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            pt={4}
+            pt={{ base: 1, md: 3 }}
+            pb={{ base: 2, md: 0 }}
           >
             <Button
               as={RouterLink}

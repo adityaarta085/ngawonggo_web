@@ -63,33 +63,36 @@ function Navbar({ user, isScrolled }) {
   ];
 
   const navBg = useColorModeValue(
-    isScrolled ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.3)',
-    isScrolled ? 'rgba(15, 23, 42, 0.85)' : 'rgba(15, 23, 42, 0.3)'
+    isScrolled ? 'rgba(255, 255, 255, 0.92)' : 'rgba(255, 255, 255, 0.78)',
+    isScrolled ? 'rgba(15, 23, 42, 0.92)' : 'rgba(15, 23, 42, 0.78)'
   );
   const navColor = useColorModeValue('gray.800', 'white');
+  const navShadow = isScrolled
+    ? '0 16px 30px -18px rgba(15, 23, 42, 0.5)'
+    : '0 10px 26px -18px rgba(15, 23, 42, 0.3)';
 
   return (
     <Box
-      p={{ base: 2, md: 4 }}
-      transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+      p={{ base: 2, md: 3 }}
+      transition="all 0.28s cubic-bezier(0.22, 1, 0.36, 1)"
       w="full"
     >
       <Flex
         layerStyle="liquidGlass"
         bg={navBg}
         color={navColor}
-        minH="64px"
-        py={{ base: 2 }}
-        px={{ base: 4, md: 8 }}
+        minH={isScrolled ? "60px" : "64px"}
+        py={isScrolled ? 1.5 : 2}
+        px={{ base: 4, md: isScrolled ? 6 : 8 }}
         align="center"
-        borderRadius={isScrolled ? "full" : "2xl"}
+        borderRadius={isScrolled ? "20px" : "2xl"}
         maxW="container.xl"
         mx="auto"
-        transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
-        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.15)"
+        transition="all 0.28s cubic-bezier(0.22, 1, 0.36, 1)"
+        boxShadow={navShadow}
         border="1px solid"
         borderColor={useColorModeValue("rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 0.1)")}
-        backdropFilter="blur(16px)"
+        backdropFilter={isScrolled ? "blur(18px)" : "blur(14px)"}
       >
         <Container maxW="container.xl" display="flex" alignItems="center" px={0}>
           <Flex

@@ -164,15 +164,14 @@ function App() {
 
       {!isAdmin && !isAuth && (
         <>
-          {scrolled && <Box h={{ base: '88px', md: '104px' }} />}
           <Box
             zIndex={1100}
             w="full"
-            position={scrolled ? 'fixed' : 'relative'}
-            top={scrolled ? 0 : 'auto'}
-            left={scrolled ? 0 : 'auto'}
-            right={scrolled ? 0 : 'auto'}
-            pointerEvents={scrolled ? 'none' : 'auto'}
+            position="sticky"
+            top={0}
+            left={0}
+            right={0}
+            pointerEvents="none"
           >
             <Box pointerEvents="auto">
               <TopBar isScrolled={scrolled} />
