@@ -37,7 +37,7 @@ export default function LayananPage() {
   ];
 
   return (
-    <Box  pt={{ base: "130px", md: "160px" }}>
+    <Box  pt={{ base: "20px", md: "40px" }}>
       <Container maxW="container.xl" py={8}>
         <Box textAlign="center" mb={16}>
           <Heading mb={5} size="2xl" color="ngawonggo.green">Layanan Publik</Heading>
