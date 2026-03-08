@@ -163,7 +163,7 @@ function App() {
       )}
 
       {!isAdmin && !isAuth && (
-        <Box position="fixed" top={0} zIndex={1100} w="full" pointerEvents="none">
+        <Box zIndex={1100} w="full" position="relative">
           <Box pointerEvents="auto"><TopBar isScrolled={scrolled} /></Box>
           <Box pointerEvents="auto"
             position="sticky"

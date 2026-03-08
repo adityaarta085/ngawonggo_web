@@ -37,7 +37,7 @@ export default function JelajahiPage() {
   }, []);
 
   return (
-    <Box  pt={{ base: "130px", md: "160px" }} minH="100vh" bg="gray.50" pb={32}>
+    <Box  pt={{ base: "20px", md: "40px" }} minH="100vh" bg="gray.50" pb={32}>
       {/* Hero Header */}
       <Box pt={12} pb={20} position="relative" overflow="hidden">
         <Box

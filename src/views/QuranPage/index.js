@@ -2,32 +2,26 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Container,
-  Heading,
-  Text,
   VStack,
   HStack,
-  SimpleGrid,
+  Text,
+  Heading,
   Input,
   InputGroup,
   InputLeftElement,
+  SimpleGrid,
   Icon,
-  Badge,
-
   Flex,
-  Button,
+  Badge,
   useColorModeValue,
-  Divider,
   IconButton,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  Checkbox,
+  Button,
+  Divider,
   Select,
+  Checkbox,
   useToast,
 } from '@chakra-ui/react';
-import { FaSearch,  FaPlay, FaPause, FaDownload, FaList, FaArrowUp, FaQuran } from 'react-icons/fa';
-import { ChevronDownIcon } from '@chakra-ui/icons';
+import { FaSearch, FaQuran, FaPlay, FaPause, FaArrowUp, FaList } from 'react-icons/fa';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import Loading from '../../components/Loading';
@@ -82,6 +76,7 @@ const QuranPage = () => {
   const fetchSurahDetail = async (number) => {
     setDetailLoading(true);
     setSelectedSurah(number);
+    window.scrollTo(0, 0);
     try {
       const res = await axios.get(`https://api.quran.gading.dev/surah/${number}`);
       setSurahDetail(res.data.data);
@@ -175,20 +170,8 @@ const QuranPage = () => {
     s.number.toString().includes(search)
   );
 
-  const downloadVerse = (index) => {
-    const verse = surahDetail.verses[index];
-    const link = document.createElement('a');
-    link.href = verse.audio.primary;
-    link.download = `Surah-${selectedSurah}-Ayat-${verse.number.inSurah}.mp3`;
-    link.click();
-  };
-
-  const downloadFullSurah = () => {
-    toast({ title: "Fitur ini dalam pengembangan", status: "info" });
-  };
-
   return (
-    <Box  pt={{ base: "130px", md: "160px" }} minH="100vh" bg={bg} pb={selectedSurah ? 32 : 10}>
+    <Box  pt={{ base: "20px", md: "40px" }} minH="100vh" bg={bg} pb={selectedSurah ? 32 : 10}>
       <Container maxW="container.xl" pt={2}>
         <VStack spacing={8} align="stretch">
           {!selectedSurah ? (
@@ -298,53 +281,40 @@ const QuranPage = () => {
                   <Box
                     p={10}
                     bgGradient="linear(to-br, brand.600, brand.800)"
-                    borderRadius="4xl"
+                    borderRadius="3xl"
                     color="white"
                     textAlign="center"
                     boxShadow="xl"
-                    position="relative"
-                    overflow="hidden"
                   >
-                    <Icon as={FaQuran} position="absolute" top="-20px" right="-20px" w="200px" h="200px" opacity={0.1} />
                     <VStack spacing={4}>
-                      <Badge colorScheme="whiteAlpha" variant="solid" borderRadius="full" px={4} py={1}>
-                         Surah ke-{surahDetail?.number} • {surahDetail?.revelation.id}
-                      </Badge>
-                      <Heading size="2xl" fontWeight="900">{surahDetail?.name.transliteration.id}</Heading>
-                      <Text fontSize="xl" fontWeight="500" opacity={0.9}>{surahDetail?.name.translation.id}</Text>
-                      <Divider borderColor="whiteAlpha.300" maxW="200px" />
-                      <Text fontSize="md" fontStyle="italic" maxW="2xl" opacity={0.8}>
-                         {surahDetail?.tafsir.id}
-                      </Text>
+                      <Text fontSize="xl" fontWeight="700" letterSpacing="widest">SURAH {surahDetail.name.transliteration.en}</Text>
+                      <Heading size="4xl" fontFamily="'Amiri', serif">{surahDetail.name.short}</Heading>
+                      <Text fontSize="lg" fontWeight="500">{surahDetail.name.translation.id} • {surahDetail.revelation.id} • {surahDetail.numberOfVerses} Ayat</Text>
                     </VStack>
                   </Box>
 
-                  {surahDetail?.preBismillah && (
-                    <Box textAlign="center" py={12}>
-                        <Text fontSize="2xl" fontFamily="'Amiri', serif" color="gray.800" fontWeight="bold">
-                            {surahDetail.preBismillah.text.arab}
-                        </Text>
-                    </Box>
-                  )}
-
                   <VStack spacing={6} align="stretch">
-                    {surahDetail?.verses.map((ayah, index) => (
+                    {surahDetail.verses.map((ayah, index) => (
                       <Box
-                        key={ayah.number.inSurah}
-                        ref={(el) => (ayahRefs.current[index] = el)}
+                        key={ayah.number.inQuran}
+                        ref={el => ayahRefs.current[index] = el}
                         p={8}
                         bg={currentAyahIndex === index ? activeAyahBg : cardBg}
                         borderRadius="3xl"
                         border="1px solid"
-                        borderColor={currentAyahIndex === index ? 'brand.500' : borderColor}
-                        transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                        boxShadow={currentAyahIndex === index ? 'lg' : 'none'}
+                        borderColor={currentAyahIndex === index ? 'brand.200' : borderColor}
+                        transition="all 0.3s"
+                        boxShadow={currentAyahIndex === index ? 'strong' : 'soft'}
                       >
                         <VStack align="stretch" spacing={6}>
                           <Flex justify="space-between" align="center">
-                            <Badge colorScheme="brand" variant="solid" borderRadius="full" px={4} py={1} fontSize="xs" fontWeight="900">
-                              AYAT {ayah.number.inSurah}
-                            </Badge>
+                            <Flex
+                                w={10} h={10} bg="brand.500" color="white"
+                                borderRadius="full" align="center" justify="center"
+                                fontWeight="900" fontSize="sm"
+                            >
+                              {ayah.number.inSurah}
+                            </Flex>
                             <HStack spacing={2}>
                               <IconButton
                                 size="md"
@@ -363,15 +333,6 @@ const QuranPage = () => {
                                 colorScheme="orange"
                                 borderRadius="full"
                                 aria-label="Tafsir"
-                              />
-                              <IconButton
-                                size="md"
-                                icon={<FaDownload />}
-                                onClick={() => downloadVerse(index)}
-                                variant="ghost"
-                                colorScheme="green"
-                                borderRadius="full"
-                                aria-label="Download Ayah"
                               />
                             </HStack>
                           </Flex>
@@ -531,15 +492,6 @@ const QuranPage = () => {
               </Flex>
 
               <HStack spacing={4} w={{ base: 'full', md: 'auto' }} justify="center">
-                <Menu>
-                    <MenuButton as={Button} size="md" leftIcon={<FaDownload />} variant="outline" colorScheme="brand" rightIcon={<ChevronDownIcon />} borderRadius="xl" fontWeight="800">
-                        Unduh
-                    </MenuButton>
-                    <MenuList borderRadius="2xl" boxShadow="xl" p={2}>
-                        <MenuItem borderRadius="xl" fontWeight="600" onClick={() => downloadVerse(currentAyahIndex === -1 ? rangeStart - 1 : currentAyahIndex)}>Unduh Ayat Aktif</MenuItem>
-                        <MenuItem borderRadius="xl" fontWeight="600" onClick={downloadFullSurah}>Unduh Full Surah</MenuItem>
-                    </MenuList>
-                </Menu>
                 <IconButton
                     icon={<FaArrowUp />}
                     size="md"

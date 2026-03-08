@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Heading, Text, Button, Stack, useBreakpointValue, Flex, Icon } from '@chakra-ui/react';
+import { Box, Container, Heading, Text, Button, Stack, useBreakpointValue, Icon } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
@@ -24,7 +24,7 @@ const Hero = ({ isReady }) => {
       overflow="hidden"
       bg="brand.900"
       bgGradient="linear(to-br, #0F172A, brand.900, #0F2F24)"
-      pt={{ base: "180px", md: "220px" }}
+      pt={{ base: "80px", md: "120px" }}
     >
       {/* Animated Aurora Background Effect */}
       <MotionBox
@@ -61,19 +61,6 @@ const Hero = ({ isReady }) => {
 
       <Container maxW="container.xl" zIndex={3} position="relative">
         <Stack spacing={8} maxW="4xl">
-          <MotionBox
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-             <Flex align="center" gap={3} mb={4}>
-                <Box h="2px" w="40px" bg="accent.gold" />
-                <Text color="accent.gold" fontWeight="800" letterSpacing="widest" fontSize="sm">
-                   SELAMAT DATANG DI DESA DIGITAL
-                </Text>
-             </Flex>
-          </MotionBox>
-
           <MotionHeading
             as="h1"
             fontSize={useBreakpointValue({ base: '4xl', md: '6xl', lg: '8xl' })}

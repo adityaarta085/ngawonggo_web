@@ -22,6 +22,8 @@ const CardNews = ({ news }) => {
     year: 'numeric',
   });
 
+  const fallbackImage = 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80';
+
   return (
     <MotionBox
       as={RouterLink}
@@ -43,9 +45,9 @@ const CardNews = ({ news }) => {
       height="full"
       role="group"
     >
-      <Box position="relative" overflow="hidden" h="240px">
+      <Box position="relative" overflow="hidden" h="240px" bg="gray.100">
         <Image
-          src={news.image_url || 'https://via.placeholder.com/800x600?text=Desa+Ngawonggo'}
+          src={news.image_url || fallbackImage}
           alt={news.title}
           objectFit="cover"
           w="full"
@@ -53,6 +55,8 @@ const CardNews = ({ news }) => {
           transition="transform 0.5s"
           _groupHover={{ transform: 'scale(1.1)' }}
           loading="lazy"
+          fallbackSrc={fallbackImage}
+          onError={(e) => { e.target.src = fallbackImage; }}
         />
         <Badge
           position="absolute"

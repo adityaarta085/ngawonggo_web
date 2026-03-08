@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Box,
   Flex,
@@ -25,9 +25,7 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
-import NgawonggoLogo from './NgawonggoLogo';
 import { useLanguage } from '../contexts/LanguageContext';
-import { motion, AnimatePresence } from 'framer-motion';
 import { translations } from '../translations';
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 
@@ -39,49 +37,8 @@ const VStack = ({ children, align, spacing, ...props }) => (
 
 function Navbar({ user, isScrolled }) {
   const { isOpen, onToggle, onClose } = useDisclosure();
-  const [logoIndex, setLogoIndex] = useState(0);
   const { language, setLanguage } = useLanguage();
   const t = translations[language].nav;
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setLogoIndex((prev) => (prev + 1) % 3);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const logos = [
-    {
-      id: 'desa',
-      content: (
-        <HStack spacing={2} key="logo-desa">
-          <Image src="/logo_desa.png" h="32px" w="auto" fallbackSrc="https://via.placeholder.com/32" />
-          <VStack align="start" spacing={0}>
-            <Text fontWeight="900" fontSize="sm" color="brand.500" lineHeight="1">DESA</Text>
-            <Text fontWeight="900" fontSize="xs" color="gray.600" lineHeight="1">NGAWONGGO</Text>
-          </VStack>
-        </HStack>
-      )
-    },
-    {
-      id: 'tjkt',
-      content: (
-        <HStack spacing={2} key="logo-tjkt">
-          <Box p={1} bg="brand.500" borderRadius="lg">
-            <Text fontWeight="900" fontSize="xs" color="white">TJKT</Text>
-          </Box>
-          <VStack align="start" spacing={0}>
-            <Text fontWeight="900" fontSize="sm" color="brand.500" lineHeight="1">SMK MUH</Text>
-            <Text fontWeight="800" fontSize="10px" color="gray.500" lineHeight="1">BANDONGAN</Text>
-          </VStack>
-        </HStack>
-      )
-    },
-    {
-      id: 'brand',
-      content: <NgawonggoLogo h="30px" key="logo-brand" />
-    }
-  ];
 
   const NAV_ITEMS = [
     { label: t.home, href: '/' },
@@ -106,34 +63,33 @@ function Navbar({ user, isScrolled }) {
   ];
 
   const navBg = useColorModeValue(
-    'rgba(255,255,255,0.7)',
-    'rgba(15,23,42,0.7)'
+    isScrolled ? 'rgba(255,255,255,0.7)' : 'white',
+    isScrolled ? 'rgba(15,23,42,0.7)' : 'gray.800'
   );
   const navColor = useColorModeValue('gray.700', 'white');
 
   return (
     <Box
-      position="sticky"
-      top={0}
-      zIndex={1000}
-      p={{ base: 2, md: 3 }}
-      transition="all 0.3s ease"
+      p={isScrolled ? { base: 2, md: 3 } : 0}
+      transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
     >
       <Flex
-        layerStyle="liquidGlass"
+        layerStyle={isScrolled ? "liquidGlass" : "none"}
         bg={navBg}
         color={navColor}
         minH="70px"
         py={{ base: 2 }}
         px={{ base: 4, md: 8 }}
         align="center"
-        borderRadius={{ base: "2xl", md: "full" }}
-        maxW="container.xl"
+        borderRadius={isScrolled ? { base: "2xl", md: "full" } : "none"}
+        maxW={isScrolled ? "container.xl" : "full"}
         mx="auto"
-        transition="all 0.3s ease"
-        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.1)"
+        transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+        boxShadow={isScrolled ? "0 8px 32px 0 rgba(31, 38, 135, 0.1)" : "sm"}
+        borderBottom={isScrolled ? "none" : "1px solid"}
+        borderColor={isScrolled ? "transparent" : "gray.100"}
       >
-        <Container maxW="full" display="flex" alignItems="center" px={0}>
+        <Container maxW="container.xl" display="flex" alignItems="center" px={0}>
           <Flex
             flex={{ base: '0 0 auto', lg: 'none' }}
             display={{ base: 'flex', lg: 'none' }}
@@ -150,23 +106,18 @@ function Navbar({ user, isScrolled }) {
             />
           </Flex>
 
-          <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} alignItems="center" overflow="hidden">
-            <Box h="40px" display="flex" alignItems="center" overflow="hidden" w={{ base: "150px", md: "250px", lg: "280px" }} flexShrink={0}>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={logoIndex}
-                  initial={{ x: 20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  exit={{ x: -20, opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
-                  {logos[logoIndex].content}
-                </motion.div>
-              </AnimatePresence>
+          <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} alignItems="center">
+            <Box as={RouterLink} to="/" h="40px" display="flex" alignItems="center" flexShrink={0}>
+                <HStack spacing={2}>
+                  <Image src="/logo_desa.png" h="36px" w="auto" fallbackSrc="https://via.placeholder.com/36" />
+                  <VStack align="start" spacing={0}>
+                    <Text fontWeight="900" fontSize="sm" color="brand.500" lineHeight="1">DESA</Text>
+                    <Text fontWeight="900" fontSize="xs" color="gray.600" lineHeight="1">NGAWONGGO</Text>
+                  </VStack>
+                </HStack>
             </Box>
 
-            <Flex display={{ base: 'none', lg: 'flex' }} ml={2}>
+            <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
               <DesktopNav navItems={NAV_ITEMS} />
             </Flex>
           </Flex>
