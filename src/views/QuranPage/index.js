@@ -171,7 +171,7 @@ const QuranPage = () => {
   );
 
   return (
-    <Box  pt={{ base: "20px", md: "40px" }} minH="100vh" bg={bg} pb={selectedSurah ? 32 : 10}>
+    <Box  pt={{ base: "100px", md: "140px" }} minH="100vh" bg={bg} pb={selectedSurah ? 32 : 10}>
       <Container maxW="container.xl" pt={2}>
         <VStack spacing={8} align="stretch">
           {!selectedSurah ? (
