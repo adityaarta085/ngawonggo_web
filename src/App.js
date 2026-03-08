@@ -164,22 +164,21 @@ function App() {
 
       {!isAdmin && !isAuth && (
         <>
-          {scrolled && <Box h={{ base: '88px', md: '104px' }} />}
+          <Box
+            h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
+            transition="height 0.35s ease"
+          />
           <Box
             zIndex={1100}
             w="full"
-            position={scrolled ? 'fixed' : 'relative'}
-            top={scrolled ? 0 : 'auto'}
-            left={scrolled ? 0 : 'auto'}
-            right={scrolled ? 0 : 'auto'}
-            pointerEvents={scrolled ? 'none' : 'auto'}
+            position="fixed"
+            top={0}
+            left={0}
+            right={0}
           >
-            <Box pointerEvents="auto">
-              <TopBar isScrolled={scrolled} />
-            </Box>
+            <TopBar isScrolled={scrolled} />
             <Box
-              pointerEvents="auto"
-              transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+              transition="padding 0.35s ease"
               pt={scrolled ? 2 : 0}
             >
               <Navbar user={userSession?.user} isScrolled={scrolled} />
@@ -195,7 +194,7 @@ function App() {
 
       <Box pt={0} minH="80vh">
         <Routes>
-          <Route path="/" element={<LandingPage isReady={isBypassed} />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/news/:id" element={<NewsDetail />} />
           <Route path="/profil" element={<ProfilPage />} />
