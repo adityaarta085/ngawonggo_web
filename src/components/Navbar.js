@@ -63,31 +63,33 @@ function Navbar({ user, isScrolled }) {
   ];
 
   const navBg = useColorModeValue(
-    isScrolled ? 'rgba(255,255,255,0.7)' : 'white',
-    isScrolled ? 'rgba(15,23,42,0.7)' : 'gray.800'
+    isScrolled ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.3)',
+    isScrolled ? 'rgba(15, 23, 42, 0.85)' : 'rgba(15, 23, 42, 0.3)'
   );
-  const navColor = useColorModeValue('gray.700', 'white');
+  const navColor = useColorModeValue('gray.800', 'white');
 
   return (
     <Box
-      p={isScrolled ? { base: 2, md: 3 } : 0}
+      p={{ base: 2, md: 4 }}
       transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
+      w="full"
     >
       <Flex
-        layerStyle={isScrolled ? "liquidGlass" : "none"}
+        layerStyle="liquidGlass"
         bg={navBg}
         color={navColor}
-        minH="70px"
+        minH="64px"
         py={{ base: 2 }}
         px={{ base: 4, md: 8 }}
         align="center"
-        borderRadius={isScrolled ? { base: "2xl", md: "full" } : "none"}
-        maxW={isScrolled ? "container.xl" : "full"}
+        borderRadius={isScrolled ? "full" : "2xl"}
+        maxW="container.xl"
         mx="auto"
         transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
-        boxShadow={isScrolled ? "0 8px 32px 0 rgba(31, 38, 135, 0.1)" : "sm"}
-        borderBottom={isScrolled ? "none" : "1px solid"}
-        borderColor={isScrolled ? "transparent" : "gray.100"}
+        boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.15)"
+        border="1px solid"
+        borderColor={useColorModeValue("rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 0.1)")}
+        backdropFilter="blur(16px)"
       >
         <Container maxW="container.xl" display="flex" alignItems="center" px={0}>
           <Flex
@@ -200,16 +202,16 @@ const DesktopNav = ({ navItems }) => {
   const popoverContentBgColor = useColorModeValue('white', 'gray.800');
 
   return (
-    <Stack direction={'row'} spacing={2} align="center">
+    <Stack direction={'row'} spacing={1} align="center">
       {navItems.map((navItem, index) => (
         <Box key={`${navItem.label}-${index}`}>
           <Popover trigger={'hover'} placement={'bottom-start'}>
             <PopoverTrigger>
               <Box
                 as={RouterLink}
-                p={1.5}
+                p={2}
                 to={navItem.href ?? '#'}
-                fontSize={'11px'}
+                fontSize={'xs'}
                 fontWeight={600}
                 color={navItem.isSpecial ? 'brand.500' : linkColor}
                 _hover={{

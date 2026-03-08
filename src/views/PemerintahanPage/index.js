@@ -27,7 +27,7 @@ export default function PemerintahanPage() {
   ];
 
   return (
-    <Box  pt={{ base: "20px", md: "40px" }} py={8} minH="100vh" bg="gray.50">
+    <Box  pt={{ base: "100px", md: "140px" }} py={8} minH="100vh" bg="gray.50">
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
           {/* Header Section */}
