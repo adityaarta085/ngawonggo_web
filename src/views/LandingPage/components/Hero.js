@@ -18,13 +18,13 @@ const Hero = ({ isReady }) => {
   return (
     <Box
       position="relative"
-      height={{ base: '85vh', md: '100vh' }}
+      height="100vh"
       display="flex"
       alignItems="center"
       overflow="hidden"
       bg="brand.900"
       bgGradient="linear(to-br, #0F172A, brand.900, #0F2F24)"
-      pt={{ base: "80px", md: "120px" }}
+      pt={{ base: "100px", md: "140px" }}
     >
       {/* Animated Aurora Background Effect */}
       <MotionBox

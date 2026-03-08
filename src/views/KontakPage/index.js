@@ -39,7 +39,7 @@ const ContactInfo = ({ icon, label, value, href }) => {
 
 const KontakPage = () => {
   return (
-    <Box pt={{ base: "20px", md: "40px" }} bg="gray.50" minH="100vh">
+    <Box pt={{ base: "100px", md: "140px" }} bg="gray.50" minH="100vh">
       {/* Hero Section */}
       <Box pt={12} pb={20} position="relative" overflow="hidden">
         <Box

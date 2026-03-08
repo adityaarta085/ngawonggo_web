@@ -63,7 +63,7 @@ const DusunPage = () => {
   );
 
   return (
-    <Box pb={20}>
+    <Box pt={{ base: "100px", md: "140px" }} pb={20}>
       <Box h={{ base: "40vh", md: "60vh" }} position="relative" overflow="hidden">
         <Image src={data.image_url} w="full" h="full" objectFit="cover" filter="brightness(0.6)" />
         <Container maxW="container.xl" h="full" position="relative">
