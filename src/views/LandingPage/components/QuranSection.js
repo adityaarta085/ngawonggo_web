@@ -25,10 +25,10 @@ import {
   Badge,
   Divider,
   useToast,
+  Center,
 } from '@chakra-ui/react';
-import { SearchIcon } from '@chakra-ui/icons';
+import { FaSearch, FaPlay, FaPause, FaBookOpen, FaList, FaQuran } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPlay, FaPause, FaBookOpen, FaList } from 'react-icons/fa';
 import Loading from '../../../components/Loading';
 
 const MotionBox = motion(Box);
@@ -38,6 +38,7 @@ const QuranSection = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [surahDetail, setSurahDetail] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [currentAyahIndex, setCurrentAyahIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showTafsir, setShowTafsir] = useState({});
@@ -49,10 +50,9 @@ const QuranSection = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.100', 'gray.700');
   const modalBg = useColorModeValue('gray.50', 'gray.900');
-  const activeAyahBg = useColorModeValue('blue.50', 'blue.900');
-  const translationColor = useColorModeValue('gray.700', 'gray.300');
-  const tafsirBg = useColorModeValue('orange.50', 'gray.700');
-  const accentColor = '#137fec';
+  const activeAyahBg = useColorModeValue('brand.50', 'rgba(19, 127, 236, 0.1)');
+  const translationColor = useColorModeValue('gray.600', 'gray.400');
+  const tafsirBg = useColorModeValue('orange.50', 'rgba(251, 146, 60, 0.1)');
 
   useEffect(() => {
     fetchSurahs();
@@ -60,27 +60,30 @@ const QuranSection = () => {
 
   const fetchSurahs = async () => {
     try {
+      setLoading(true);
       const response = await fetch('https://api.quran.gading.dev/surah');
       const json = await response.json();
       if (json.code === 200) {
         setSurahs(json.data);
       }
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching surahs:', error);
+    } finally {
       setLoading(false);
     }
   };
 
   const fetchSurahDetail = async (number) => {
+    setDetailLoading(true);
     setCurrentAyahIndex(-1);
     setIsPlaying(false);
+    setShowTafsir({});
+    onOpen();
     try {
       const response = await fetch(`https://api.quran.gading.dev/surah/${number}`);
       const json = await response.json();
       if (json.code === 200) {
         setSurahDetail(json.data);
-        onOpen();
       }
     } catch (error) {
       toast({
@@ -89,6 +92,9 @@ const QuranSection = () => {
         status: 'error',
         duration: 3000,
       });
+      onClose();
+    } finally {
+      setDetailLoading(false);
     }
   };
 
@@ -99,6 +105,7 @@ const QuranSection = () => {
   );
 
   const playAudio = (index) => {
+    if (!surahDetail) return;
     if (index === currentAyahIndex && isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
@@ -107,7 +114,7 @@ const QuranSection = () => {
       setIsPlaying(true);
       if (audioRef.current) {
         audioRef.current.src = surahDetail.verses[index].audio.primary;
-        audioRef.current.play();
+        audioRef.current.play().catch(e => console.error("Audio play error:", e));
       }
     }
   };
@@ -117,19 +124,10 @@ const QuranSection = () => {
       const nextIndex = currentAyahIndex + 1;
       setCurrentAyahIndex(nextIndex);
       audioRef.current.src = surahDetail.verses[nextIndex].audio.primary;
-      audioRef.current.play();
+      audioRef.current.play().catch(e => console.error("Audio play error:", e));
     } else {
       setIsPlaying(false);
       setCurrentAyahIndex(-1);
-      if (surahDetail.number < 114) {
-          toast({
-              title: 'Surah Selesai',
-              description: 'Memutar surah berikutnya...',
-              status: 'info',
-              duration: 2000,
-          });
-          fetchSurahDetail(surahDetail.number + 1);
-      }
     }
   };
 
@@ -138,43 +136,48 @@ const QuranSection = () => {
   };
 
   return (
-    <Box py={20} position="relative" overflow="hidden">
+    <Box py={24} position="relative" overflow="hidden">
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
-          <Box textAlign="center">
-            <Badge colorScheme="brand" mb={4} px={3} py={1} borderRadius="full">
-              Fitur Religi
+          <VStack spacing={4} textAlign="center">
+            <Badge colorScheme="brand" px={4} py={1} borderRadius="full" textTransform="uppercase" fontWeight="900" letterSpacing="widest">
+              Fasilitas Religi
             </Badge>
-            <Heading size="2xl" mb={4}>Al-Qur'an Digital</Heading>
-            <Text fontSize="xl" color="gray.500" maxW="2xl" mx="auto">
-              Akses kitab suci Al-Qur'an dengan terjemahan, audio, dan tafsir lengkap untuk masyarakat Desa Ngawonggo.
+            <Heading size="3xl" fontWeight="900" bgGradient="linear(to-r, brand.500, brand.800)" bgClip="text">
+                Al-Qur'an Digital
+            </Heading>
+            <Text fontSize="xl" color="gray.500" maxW="2xl" mx="auto" fontWeight="500">
+              Akses kitab suci Al-Qur'an dengan terjemahan, audio, dan tafsir lengkap secara modern dan nyaman.
             </Text>
-          </Box>
+          </VStack>
 
           <Box maxW="600px" mx="auto" w="full">
-            <InputGroup size="lg">
-              <InputLeftElement pointerEvents="none">
-                <SearchIcon color="gray.400" />
+            <InputGroup size="xl">
+              <InputLeftElement pointerEvents="none" h="full" px={6}>
+                <Icon as={FaSearch} color="gray.400" />
               </InputLeftElement>
               <Input
                 placeholder="Cari Surah (contoh: Al-Fatihah atau 18)..."
                 bg={glassBg}
-                borderRadius="full"
-                border="none"
-                boxShadow="xl"
+                borderRadius="2xl"
+                py={8}
+                pl={16}
+                border="1px solid"
+                borderColor={borderColor}
+                boxShadow="soft"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                _focus={{ boxShadow: '0 0 0 2px #137fec' }}
+                _focus={{ borderColor: 'brand.500', boxShadow: '0 0 0 1px #137fec' }}
               />
             </InputGroup>
           </Box>
 
           {loading ? (
-            <Flex justify="center" py={20}>
+            <Center py={20}>
               <Loading />
-            </Flex>
+            </Center>
           ) : (
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
               <AnimatePresence>
                 {filteredSurahs.map((surah) => (
                   <MotionBox
@@ -183,45 +186,41 @@ const QuranSection = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    whileHover={{ y: -5 }}
-                    bg={cardBg}
+                    whileHover={{ y: -8, scale: 1.02 }}
+                    layerStyle="glassCard"
                     p={6}
-                    borderRadius="2xl"
-                    boxShadow="lg"
                     cursor="pointer"
                     onClick={() => fetchSurahDetail(surah.number)}
-                    position="relative"
-                    border="1px solid"
-                    borderColor={borderColor}
                   >
-                    <HStack spacing={4}>
+                    <HStack spacing={6}>
                       <Flex
-                        w="50px"
-                        h="50px"
+                        w={14}
+                        h={14}
                         bg="brand.50"
                         color="brand.500"
-                        borderRadius="xl"
+                        borderRadius="2xl"
                         align="center"
                         justify="center"
-                        fontWeight="bold"
-                        fontSize="lg"
-                        transform="rotate(45deg)"
+                        fontWeight="900"
+                        fontSize="xl"
+                        flexShrink={0}
+                        boxShadow="inner"
                       >
-                        <Text transform="rotate(-45deg)">{surah.number}</Text>
+                        {surah.number}
                       </Flex>
                       <VStack align="start" spacing={0} flex={1}>
-                        <Text fontWeight="bold" fontSize="lg">
+                        <Heading size="md" fontWeight="800">
                           {surah.name.transliteration.id}
-                        </Text>
-                        <Text fontSize="sm" color="gray.500">
+                        </Heading>
+                        <Text fontSize="sm" color="gray.500" fontWeight="600">
                           {surah.name.translation.id} • {surah.numberOfVerses} Ayat
                         </Text>
                       </VStack>
                       <Text
-                        fontSize="2xl"
+                        fontSize="3xl"
                         fontFamily="'Amiri', serif"
                         fontWeight="bold"
-                        color="brand.500"
+                        color="brand.600"
                       >
                         {surah.name.short}
                       </Text>
@@ -236,134 +235,161 @@ const QuranSection = () => {
 
       {/* Surah Detail Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="full" scrollBehavior="inside">
-        <ModalOverlay backdropFilter="blur(10px)" />
+        <ModalOverlay backdropFilter="blur(20px)" />
         <ModalContent bg={modalBg}>
           <ModalHeader p={0}>
             <Box
-              bg={accentColor}
+              bgGradient="linear(to-br, brand.600, brand.800)"
               color="white"
-              p={8}
+              p={{ base: 10, md: 16 }}
               textAlign="center"
               position="relative"
               overflow="hidden"
             >
               <Box position="absolute" top="-10%" right="-5%" opacity={0.1}>
-                <Icon as={FaBookOpen} w="200px" h="200px" />
+                <Icon as={FaQuran} w="300px" h="300px" />
               </Box>
-              <VStack spacing={2}>
-                <Heading size="lg">{surahDetail?.name.transliteration.id}</Heading>
-                <Text fontSize="md" opacity={0.9}>
-                  {surahDetail?.name.translation.id} • {surahDetail?.revelation.id} • {surahDetail?.numberOfVerses} Ayat
+              <VStack spacing={4}>
+                <Badge colorScheme="whiteAlpha" px={4} py={1} borderRadius="full" variant="outline">
+                    {surahDetail?.revelation.id.toUpperCase()}
+                </Badge>
+                <Heading size="4xl" fontFamily="'Amiri', serif" fontWeight="normal">
+                    {surahDetail?.name.short || "..."}
+                </Heading>
+                <Heading size="lg" fontWeight="800">
+                    {surahDetail?.name.transliteration.id}
+                </Heading>
+                <Text fontSize="lg" opacity={0.9} fontWeight="500">
+                  {surahDetail?.name.translation.id} • {surahDetail?.numberOfVerses} Ayat
                 </Text>
-                <Flex gap={4} mt={4}>
+
+                {surahDetail && (
                     <Button
                         leftIcon={isPlaying ? <FaPause /> : <FaPlay />}
-                        colorScheme="whiteAlpha"
-                        variant="solid"
+                        bg="white"
+                        color="brand.600"
+                        size="lg"
+                        px={10}
                         borderRadius="full"
                         onClick={() => playAudio(currentAyahIndex === -1 ? 0 : currentAyahIndex)}
+                        boxShadow="xl"
+                        _hover={{ transform: 'scale(1.05)', bg: 'gray.100' }}
                     >
-                        {isPlaying ? 'Pause Audio' : 'Putar Audio'}
+                        {isPlaying ? 'Jeda Audio' : 'Putar Murottal'}
                     </Button>
-                </Flex>
+                )}
               </VStack>
             </Box>
           </ModalHeader>
-          <ModalCloseButton color="white" size="lg" top={4} />
-          <ModalBody p={{ base: 4, md: 8 }}>
+          <ModalCloseButton color="white" size="lg" top={6} right={6} zIndex={10} />
+          <ModalBody p={{ base: 4, md: 12 }}>
             <Container maxW="container.lg">
-              <VStack spacing={8} align="stretch">
-                {surahDetail?.preBismillah && (
-                  <Box textAlign="center" py={8}>
-                    <Text fontSize="3xl" fontFamily="'Amiri', serif" mb={4}>
-                      {surahDetail.preBismillah.text.arab}
-                    </Text>
-                  </Box>
-                )}
+              {detailLoading ? (
+                  <Center py={20}>
+                      <Loading />
+                  </Center>
+              ) : (
+                <VStack spacing={6} align="stretch">
+                    {surahDetail?.preBismillah && (
+                      <Box textAlign="center" py={12}>
+                        <Text fontSize="4xl" fontFamily="'Amiri', serif" color="gray.800">
+                          {surahDetail.preBismillah.text.arab}
+                        </Text>
+                      </Box>
+                    )}
 
-                {surahDetail?.verses.map((ayah, index) => (
-                  <MotionBox
-                    key={ayah.number.inSurah}
-                    p={6}
-                    bg={currentAyahIndex === index ? activeAyahBg : cardBg}
-                    borderRadius="2xl"
-                    boxShadow="sm"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    border="1px solid"
-                    borderColor={currentAyahIndex === index ? 'brand.500' : 'transparent'}
-                  >
-                    <VStack align="stretch" spacing={6}>
-                      <HStack justify="space-between">
-                        <Badge colorScheme="brand" variant="subtle" borderRadius="md" px={2}>
-                          {surahDetail.number}:{ayah.number.inSurah}
-                        </Badge>
-                        <HStack spacing={2}>
-                          <IconButton
-                            size="sm"
-                            icon={currentAyahIndex === index && isPlaying ? <FaPause /> : <FaPlay />}
-                            onClick={() => playAudio(index)}
-                            variant="ghost"
-                            colorScheme="brand"
-                            aria-label="Play"
-                          />
-                          <IconButton
-                            size="sm"
-                            icon={<FaList />}
-                            onClick={() => toggleTafsir(index)}
-                            variant="ghost"
-                            colorScheme="orange"
-                            aria-label="Tafsir"
-                          />
-                        </HStack>
-                      </HStack>
-
-                      <Text
-                        fontSize={{ base: '2xl', md: '3xl' }}
-                        textAlign="right"
-                        fontFamily="'Amiri', serif"
-                        lineHeight="2.5"
-                        dir="rtl"
+                    {surahDetail?.verses.map((ayah, index) => (
+                      <MotionBox
+                        key={ayah.number.inSurah}
+                        p={{ base: 6, md: 10 }}
+                        bg={currentAyahIndex === index ? activeAyahBg : cardBg}
+                        borderRadius="3xl"
+                        boxShadow={currentAyahIndex === index ? 'medium' : 'soft'}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        border="1px solid"
+                        borderColor={currentAyahIndex === index ? 'brand.200' : borderColor}
+                        position="relative"
+                        overflow="hidden"
                       >
-                        {ayah.text.arab}
-                      </Text>
-
-                      <VStack align="start" spacing={2}>
-                        <Text fontWeight="medium" color="brand.500" fontSize="sm">
-                          {ayah.text.transliteration.en}
-                        </Text>
-                        <Text color={translationColor}>
-                          {ayah.translation.id}
-                        </Text>
-                      </VStack>
-
-                      <AnimatePresence>
-                        {showTafsir[index] && (
-                          <MotionBox
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            overflow="hidden"
-                          >
-                            <Box mt={4} p={4} bg={tafsirBg} borderRadius="xl">
-                              <Heading size="xs" mb={2} color="orange.600">Tafsir Ringkas:</Heading>
-                              <Text fontSize="sm" fontStyle="italic">
-                                {ayah.tafsir.id.short}
-                              </Text>
-                              <Divider my={3} />
-                              <Heading size="xs" mb={2} color="orange.600">Tafsir Lengkap:</Heading>
-                              <Text fontSize="sm" whiteSpace="pre-wrap">
-                                {ayah.tafsir.id.long}
-                              </Text>
-                            </Box>
-                          </MotionBox>
+                        {currentAyahIndex === index && (
+                            <Box position="absolute" left={0} top={0} bottom={0} w="4px" bg="brand.500" />
                         )}
-                      </AnimatePresence>
-                    </VStack>
-                  </MotionBox>
-                ))}
-              </VStack>
+
+                        <VStack align="stretch" spacing={8}>
+                          <HStack justify="space-between">
+                            <Flex
+                                w={10} h={10} bg="brand.500" color="white"
+                                borderRadius="xl" align="center" justify="center"
+                                fontWeight="900" fontSize="sm" boxShadow="lg"
+                            >
+                              {ayah.number.inSurah}
+                            </Flex>
+                            <HStack spacing={3}>
+                              <IconButton
+                                size="md"
+                                icon={currentAyahIndex === index && isPlaying ? <FaPause /> : <FaPlay />}
+                                onClick={() => playAudio(index)}
+                                variant={currentAyahIndex === index ? "solid" : "ghost"}
+                                colorScheme="brand"
+                                borderRadius="xl"
+                                aria-label="Play"
+                              />
+                              <IconButton
+                                size="md"
+                                icon={<FaList />}
+                                onClick={() => toggleTafsir(index)}
+                                variant="ghost"
+                                colorScheme="orange"
+                                borderRadius="xl"
+                                aria-label="Tafsir"
+                              />
+                            </HStack>
+                          </HStack>
+
+                          <Text
+                            fontSize="3xl"
+                            textAlign="right"
+                            fontFamily="'Amiri', serif"
+                            lineHeight="2.5"
+                            dir="rtl"
+                            color="gray.800"
+                          >
+                            {ayah.text.arab}
+                          </Text>
+
+                          <VStack align="start" spacing={4} borderLeft="2px solid" borderColor="brand.50" pl={6}>
+                            <Text fontWeight="800" color="brand.600" fontSize="sm" letterSpacing="wide">
+                              {ayah.text.transliteration.en}
+                            </Text>
+                            <Text color={translationColor} fontSize="lg" fontWeight="600" lineHeight="1.8">
+                              {ayah.translation.id}
+                            </Text>
+                          </VStack>
+
+                          <AnimatePresence>
+                            {showTafsir[index] && (
+                              <MotionBox
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                overflow="hidden"
+                              >
+                                <Box mt={4} p={8} bg={tafsirBg} borderRadius="2xl" border="1px solid" borderColor="orange.100">
+                                  <Badge colorScheme="orange" variant="solid" mb={4} borderRadius="md">TAFSIR RINGKAS</Badge>
+                                  <Text fontSize="md" color="gray.700" lineHeight="1.8" fontWeight="500">
+                                    {ayah.tafsir.id.short}
+                                  </Text>
+                                </Box>
+                              </MotionBox>
+                            )}
+                          </AnimatePresence>
+                        </VStack>
+                      </MotionBox>
+                    ))}
+                </VStack>
+              )}
             </Container>
           </ModalBody>
         </ModalContent>
