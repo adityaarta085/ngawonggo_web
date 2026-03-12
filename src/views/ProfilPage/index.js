@@ -1,4 +1,4 @@
-import { Box, Divider, Flex, Heading, Text, Link } from '@chakra-ui/react';
+import { Box, Divider, Flex, Heading, Text, Link, Container } from '@chakra-ui/react';
 import DataWilayah from './components/DataWilayah';
 import VisiMisi from './components/VisiMisi';
 import LogoDesa from './components/LogoDesa';
@@ -9,59 +9,61 @@ import { SEO } from '../../components';
 
 export default function ProfilPage() {
   return (
-    <Flex  pt={{ base: "100px", md: "140px" }} m="30px 10px" gap={50} flexDirection={{ base: 'column', lg: 'row' }}>
+    <Container maxW="container.xl" py={8}>
       <SEO
         title="Profil Desa"
         description="Pelajari lebih lanjut tentang Desa Ngawonggo. Sejarah, Visi & Misi, Kondisi Geografis, Demografi, dan identitas resmi desa."
       />
-      <Box textAlign={{ base: 'left', lg: 'right' }} fontFamily="heading" minW="200px">
-        <Heading mb={3}>Profil Desa</Heading>
-        <Link href="#sejarah">
-          <Text decoration="underline">Sejarah Desa</Text>
-        </Link>
-        <Link href="#visimisi">
-          <Text decoration="underline">Visi Misi</Text>
-        </Link>
-        <Link href="#kondisigeografis">
-          <Text decoration="underline">Kondisi Geografis</Text>
-        </Link>
-        <Link href="#datawilayah">
-          <Text decoration="underline">Data Wilayah</Text>
-        </Link>
-        <Link href="#demografi">
-          <Text decoration="underline">Demografi</Text>
-        </Link>
-        <Link href="#logodesa">
-          <Text decoration="underline">Logo Desa</Text>
-        </Link>
-      </Box>
-      <Box flex="1">
-        <Flex flexDirection="column" gap={8}>
-          <Box id="sejarah">
-            <Sejarah />
-          </Box>
-          <Box id="visimisi">
-            <Divider mb={8} />
-            <VisiMisi />
-          </Box>
-          <Box id="kondisigeografis">
-            <Divider mb={8} />
-            <KondisiGeo />
-          </Box>
-          <Box id="datawilayah">
-            <Divider mb={8} />
-            <DataWilayah />
-          </Box>
-          <Box id="demografi">
-            <Divider mb={8} />
-            <Demografi />
-          </Box>
-          <Box id="logodesa">
-            <Divider mb={8} />
-            <LogoDesa />
-          </Box>
-        </Flex>
-      </Box>
-    </Flex>
+      <Flex m="10px" gap={{ base: 10, lg: 50 }} flexDirection={{ base: 'column', lg: 'row' }}>
+        <Box textAlign={{ base: 'left', lg: 'right' }} fontFamily="heading" minW="200px">
+          <Heading mb={3}>Profil Desa</Heading>
+          <Link href="#sejarah">
+            <Text decoration="underline">Sejarah Desa</Text>
+          </Link>
+          <Link href="#visimisi">
+            <Text decoration="underline">Visi Misi</Text>
+          </Link>
+          <Link href="#kondisigeografis">
+            <Text decoration="underline">Kondisi Geografis</Text>
+          </Link>
+          <Link href="#datawilayah">
+            <Text decoration="underline">Data Wilayah</Text>
+          </Link>
+          <Link href="#demografi">
+            <Text decoration="underline">Demografi</Text>
+          </Link>
+          <Link href="#logodesa">
+            <Text decoration="underline">Logo Desa</Text>
+          </Link>
+        </Box>
+        <Box flex="1">
+          <Flex flexDirection="column" gap={8}>
+            <Box id="sejarah">
+              <Sejarah />
+            </Box>
+            <Box id="visimisi">
+              <Divider mb={8} />
+              <VisiMisi />
+            </Box>
+            <Box id="kondisigeografis">
+              <Divider mb={8} />
+              <KondisiGeo />
+            </Box>
+            <Box id="datawilayah">
+              <Divider mb={8} />
+              <DataWilayah />
+            </Box>
+            <Box id="demografi">
+              <Divider mb={8} />
+              <Demografi />
+            </Box>
+            <Box id="logodesa">
+              <Divider mb={8} />
+              <LogoDesa />
+            </Box>
+          </Flex>
+        </Box>
+      </Flex>
+    </Container>
   );
 }

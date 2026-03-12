@@ -201,7 +201,7 @@ const QuranPage = () => {
         description={surahDetail ? `Baca Surah ${surahDetail.name.transliteration.id} lengkap dengan terjemahan dan audio murottal.` : "Baca Al-Quran Digital lengkap dengan terjemahan Bahasa Indonesia, audio per ayat, dan tafsir. Fasilitas keagamaan untuk warga Desa Ngawonggo."}
       />
 
-      <Box pt={{ base: "100px", md: "140px" }} minH="100vh" bg={bg} pb={selectedSurah ? 48 : 20}>
+      <Box  minH="100vh" bg={bg} pb={selectedSurah ? 48 : 20}>
         <Container maxW="container.xl">
           <AnimatePresence mode="wait">
             {!selectedSurah ? (

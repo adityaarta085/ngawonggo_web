@@ -51,7 +51,7 @@ function Navbar({ user, isScrolled }) {
       ],
       href: '/profil'
     },
-    { label: t.gov, href: '/pemerintahan' },
+    { label: t.government, href: '/pemerintahan' },
     { label: t.services, href: '/layanan' },
     { label: t.explore, href: '/jelajahi' },
     { label: t.transparency, href: '/transparansi' },

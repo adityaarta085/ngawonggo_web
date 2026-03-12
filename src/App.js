@@ -165,7 +165,7 @@ function App() {
       {!isAdmin && !isAuth && (
         <>
           <Box
-            h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
+            h={{ base: scrolled ? '88px' : '112px', md: scrolled ? '104px' : '140px' }}
             transition="height 0.35s ease"
           />
           <Box

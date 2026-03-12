@@ -38,13 +38,13 @@ export default function JelajahiPage() {
   }, []);
 
   return (
-    <Box  pt={{ base: "100px", md: "140px" }} minH="100vh" bg="gray.50" pb={32}>
+    <Box minH="100vh" bg="gray.50" pb={32}>
       <SEO
         title="Jelajahi Dusun"
         description="Jelajahi kekayaan potensi dan keindahan 10 dusun di Desa Ngawonggo. Temukan informasi sejarah, ekonomi, dan profil lengkap setiap wilayah dusun."
       />
       {/* Hero Header */}
-      <Box pt={12} pb={20} position="relative" overflow="hidden">
+      <Box pt={8} pb={20} position="relative" overflow="hidden">
         <Box
           position="absolute"
           top="-10%"

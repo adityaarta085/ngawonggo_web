@@ -133,7 +133,7 @@ const PortalPage = () => {
   }
 
   return (
-    <Box minH="100vh" bg="gray.50" pt={{ base: '80px', md: '100px' }} pb={20}>
+    <Box minH="100vh" bg="gray.50" pt={8} pb={20}>
       <Container maxW="container.lg">
         <VStack spacing={8} align="stretch">
           {/* Header Section */}

@@ -38,7 +38,7 @@ export default function LayananPage() {
   ];
 
   return (
-    <Box  pt={{ base: "100px", md: "140px" }}>
+    <Box>
       <SEO
         title="Layanan Publik"
         description="Informasi Pelayanan Administrasi dan Pengaduan Masyarakat Desa Ngawonggo. Panduan KK, KTP, Surat Keterangan, dan Sistem Pengaduan Online."
