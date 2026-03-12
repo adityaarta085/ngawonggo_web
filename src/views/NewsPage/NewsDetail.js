@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loading } from '../../components';
+import { Loading, SEO } from '../../components';
 import {
   Box,
   Container,
@@ -16,6 +16,7 @@ import {
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import CommentSection from './CommentSection';
+import sanitizeHtml from 'sanitize-html';
 
 const NewsDetail = () => {
   const { id } = useParams();
@@ -58,8 +59,20 @@ const NewsDetail = () => {
     );
   }
 
+  // Extract plain text for SEO description
+  const plainText = sanitizeHtml(news.content, {
+    allowedTags: [],
+    allowedAttributes: {}
+  }).substring(0, 160) + "...";
+
   return (
-    <Box py={10}>
+    <Box py={10} pt={{ base: "100px", md: "140px" }}>
+      <SEO
+        title={news.title}
+        description={plainText}
+        image={news.image || "/logo_desa.png"}
+        type="article"
+      />
       <Container maxW="container.lg">
         <Breadcrumb mb={8}>
           <BreadcrumbItem>

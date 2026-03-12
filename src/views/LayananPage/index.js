@@ -16,6 +16,7 @@ import {
 import { EmailIcon, InfoIcon, EditIcon } from '@chakra-ui/icons';
 import ComplaintSystem from './ComplaintSystem';
 import Supports from '../LandingPage/components/Supports';
+import { SEO } from '../../components';
 
 export default function LayananPage() {
   const services = [
@@ -38,6 +39,10 @@ export default function LayananPage() {
 
   return (
     <Box  pt={{ base: "100px", md: "140px" }}>
+      <SEO
+        title="Layanan Publik"
+        description="Informasi Pelayanan Administrasi dan Pengaduan Masyarakat Desa Ngawonggo. Panduan KK, KTP, Surat Keterangan, dan Sistem Pengaduan Online."
+      />
       <Container maxW="container.xl" py={8}>
         <Box textAlign="center" mb={16}>
           <Heading mb={5} size="2xl" color="ngawonggo.green">Layanan Publik</Heading>

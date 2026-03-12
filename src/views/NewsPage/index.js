@@ -21,6 +21,7 @@ import CardNews from '../../components/CardNews.js';
 import SmallCardNews from '../../components/SmallCardNews';
 import { supabase } from '../../lib/supabase';
 import { motion } from 'framer-motion';
+import { SEO } from '../../components';
 
 const MotionBox = motion(Box);
 
@@ -43,6 +44,10 @@ export default function NewsPage() {
 
   return (
     <Box  pt={{ base: "100px", md: "140px" }} minH="100vh" bg="gray.50" pb={20}>
+      <SEO
+        title="Berita Terkini"
+        description="Pantau berita dan informasi terbaru seputar kegiatan, pembangunan, dan pengumuman resmi dari Desa Ngawonggo."
+      />
       {/* Hero Header */}
       <Box pt={12} pb={20} position="relative" overflow="hidden">
         <Box

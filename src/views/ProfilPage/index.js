@@ -5,10 +5,15 @@ import LogoDesa from './components/LogoDesa';
 import KondisiGeo from './components/KondisiGeo';
 import Sejarah from './components/Sejarah';
 import Demografi from './components/Demografi';
+import { SEO } from '../../components';
 
 export default function ProfilPage() {
   return (
     <Flex  pt={{ base: "100px", md: "140px" }} m="30px 10px" gap={50} flexDirection={{ base: 'column', lg: 'row' }}>
+      <SEO
+        title="Profil Desa"
+        description="Pelajari lebih lanjut tentang Desa Ngawonggo. Sejarah, Visi & Misi, Kondisi Geografis, Demografi, dan identitas resmi desa."
+      />
       <Box textAlign={{ base: 'left', lg: 'right' }} fontFamily="heading" minW="200px">
         <Heading mb={3}>Profil Desa</Heading>
         <Link href="#sejarah">

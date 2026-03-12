@@ -1,4 +1,4 @@
-import { InstallPWA } from "../../components";
+import { InstallPWA, SEO } from "../../components";
 import { Box } from '@chakra-ui/react';
 import Hero from './components/Hero.js';
 import QuickLinks from './components/QuickLinks.js';
@@ -15,6 +15,10 @@ import RamadanSection from './components/RamadanSection.js';
 export default function LandingPage() {
   return (
     <Box>
+      <SEO
+        title="Beranda"
+        description="Selamat datang di Website Resmi Desa Ngawonggo. Pusat informasi pelayanan publik, berita terkini, dan potensi desa di Kecamatan Kaliangkrik, Kabupaten Magelang."
+      />
       <Hero />
       <InstallPWA />
       <RamadanSection />
