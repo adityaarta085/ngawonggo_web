@@ -201,7 +201,7 @@ const QuranPage = () => {
         description={surahDetail ? `Baca Surah ${surahDetail.name.transliteration.id} lengkap dengan terjemahan dan audio murottal.` : "Baca Al-Quran Digital lengkap dengan terjemahan Bahasa Indonesia, audio per ayat, dan tafsir. Fasilitas keagamaan untuk warga Desa Ngawonggo."}
       />
 
-      <Box pt={{ base: "100px", md: "140px" }} minH="100vh" bg={bg} pb={selectedSurah ? 40 : 20}>
+      <Box pt={{ base: "100px", md: "140px" }} minH="100vh" bg={bg} pb={selectedSurah ? 48 : 20}>
         <Container maxW="container.xl">
           <AnimatePresence mode="wait">
             {!selectedSurah ? (
@@ -484,13 +484,14 @@ const QuranPage = () => {
         <AnimatePresence>
           {selectedSurah && !detailLoading && surahDetail && (
             <MotionBox
-              initial={{ y: 100 }}
-              animate={{ y: 0 }}
-              exit={{ y: 100 }}
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
               position="fixed"
-              bottom={{ base: 4, md: 8 }}
-              left="50%"
-              transform="translateX(-50%)"
+              bottom={{ base: 4, md: 10 }}
+              left="0"
+              right="0"
+              mx="auto"
               zIndex={100}
               w="full"
               maxW="container.lg"
@@ -500,7 +501,9 @@ const QuranPage = () => {
                 layerStyle="liquidGlass"
                 borderRadius="3xl"
                 p={{ base: 4, md: 6 }}
-                boxShadow="0 20px 50px rgba(0,0,0,0.15)"
+                boxShadow="0 25px 60px rgba(0,0,0,0.2)"
+                border="1px solid"
+                borderColor="whiteAlpha.300"
               >
                 <Flex
                   direction={{ base: 'column', md: 'row' }}
@@ -521,12 +524,12 @@ const QuranPage = () => {
 
                     <Divider orientation="vertical" h="40px" display={{ base: 'none', md: 'block' }} />
 
-                    <VStack align="start" spacing={1}>
+                    <VStack align="start" spacing={1} flex={{ base: 1, md: 'none' }}>
                         <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="widest">RENTANG AYAT</Text>
-                        <HStack spacing={2}>
+                        <HStack spacing={2} w="full">
                             <Select
                                 size="sm"
-                                w="80px"
+                                w={{ base: 'full', md: '80px' }}
                                 variant="filled"
                                 borderRadius="xl"
                                 value={rangeStart}
@@ -540,7 +543,7 @@ const QuranPage = () => {
                             <Text fontSize="xs" fontWeight="bold">S/D</Text>
                             <Select
                                 size="sm"
-                                w="80px"
+                                w={{ base: 'full', md: '80px' }}
                                 variant="filled"
                                 borderRadius="xl"
                                 value={rangeEnd}
@@ -555,8 +558,8 @@ const QuranPage = () => {
                     </VStack>
                   </HStack>
 
-                  <Flex flex={1} justify="center" align="center">
-                    <HStack spacing={4} bg="brand.500" p={2} pr={8} pl={2} borderRadius="full" color="white" boxShadow="xl">
+                  <Flex flex={1} justify="center" align="center" w="full">
+                    <HStack spacing={4} bg="brand.500" p={2} pr={8} pl={2} borderRadius="full" color="white" boxShadow="xl" w={{ base: 'full', md: 'auto' }} justify="center">
                         <IconButton
                             icon={isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? <FaPause /> : <FaPlay />}
                             bg="white"
