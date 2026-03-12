@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Box,
   Container,
@@ -54,16 +54,10 @@ const QuranPage = () => {
   const cardBg = useColorModeValue('white', 'gray.800');
   const activeAyahBg = useColorModeValue('brand.50', 'rgba(19, 127, 236, 0.1)');
   const borderColor = useColorModeValue('gray.100', 'gray.700');
-  const bottomNavBg = useColorModeValue('rgba(255, 255, 255, 0.8)', 'rgba(15, 23, 42, 0.8)');
   const tafsirBg = useColorModeValue('orange.50', 'rgba(251, 146, 60, 0.1)');
   const translationColor = useColorModeValue('gray.600', 'gray.400');
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-    fetchSurahs();
-  }, []);
-
-  const fetchSurahs = async () => {
+  const fetchSurahs = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.get('https://api.quran.gading.dev/surah');
@@ -80,7 +74,18 @@ const QuranPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    fetchSurahs();
+  }, [fetchSurahs]);
+
+  const scrollToAyah = useCallback((index) => {
+    setTimeout(() => {
+      ayahRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }, []);
 
   const fetchSurahDetail = async (number) => {
     setDetailLoading(true);
@@ -178,12 +183,6 @@ const QuranPage = () => {
         setPlaybackMode('single');
       }
     }
-  };
-
-  const scrollToAyah = (index) => {
-    setTimeout(() => {
-      ayahRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
   };
 
   const toggleTafsir = (index) => {
