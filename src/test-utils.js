@@ -4,13 +4,16 @@ import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme';
 import { BrowserRouter } from 'react-router-dom';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { HelmetProvider } from 'react-helmet-async';
 
 const AllProviders = ({ children }) => (
-  <ChakraProvider theme={theme}>
-    <LanguageProvider>
-      <BrowserRouter>{children}</BrowserRouter>
-    </LanguageProvider>
-  </ChakraProvider>
+  <HelmetProvider>
+    <ChakraProvider theme={theme}>
+      <LanguageProvider>
+        <BrowserRouter>{children}</BrowserRouter>
+      </LanguageProvider>
+    </ChakraProvider>
+  </HelmetProvider>
 );
 
 const customRender = (ui, options) =>

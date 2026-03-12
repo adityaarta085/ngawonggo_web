@@ -16,6 +16,7 @@ import {
   HStack,
 } from '@chakra-ui/react';
 import { FaUserTie, FaUsers, FaBullseye } from 'react-icons/fa';
+import { SEO } from '../../components';
 
 export default function PemerintahanPage() {
   const staff = [
@@ -28,6 +29,10 @@ export default function PemerintahanPage() {
 
   return (
     <Box  pt={{ base: "100px", md: "140px" }} py={8} minH="100vh" bg="gray.50">
+      <SEO
+        title="Pemerintahan"
+        description="Informasi Struktur Organisasi dan Tata Kelola Pemerintah Desa Ngawonggo. Daftar perangkat desa dan visi misi pelayanan publik."
+      />
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
           {/* Header Section */}

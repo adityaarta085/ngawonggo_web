@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaWhatsapp, FaInstagram, FaFacebook } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { SEO } from '../../components';
 
 const MotionBox = motion(Box);
 
@@ -40,6 +41,10 @@ const ContactInfo = ({ icon, label, value, href }) => {
 const KontakPage = () => {
   return (
     <Box pt={{ base: "100px", md: "140px" }} bg="gray.50" minH="100vh">
+      <SEO
+        title="Kontak"
+        description="Hubungi Pemerintah Desa Ngawonggo. Informasi alamat kantor desa, nomor telepon, WhatsApp center, email, dan media sosial resmi."
+      />
       {/* Hero Section */}
       <Box pt={12} pb={20} position="relative" overflow="hidden">
         <Box

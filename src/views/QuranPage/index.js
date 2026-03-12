@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Container,
@@ -24,7 +24,7 @@ import {
 import { FaSearch, FaQuran, FaPlay, FaPause, FaArrowUp, FaList } from 'react-icons/fa';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import Loading from '../../components/Loading';
+import { Loading, SEO } from '../../components';
 import { supabase } from '../../lib/supabase';
 
 const MotionBox = motion(Box);
@@ -171,6 +171,7 @@ const QuranPage = () => {
   );
 
   return (
+    <>      <SEO title={selectedSurah ? `Al-Quran: ${selectedSurah.name.transliteration.id}` : "Al-Quran Digital"} description="Baca Al-Quran Digital lengkap dengan terjemahan Bahasa Indonesia, audio per ayat, dan tafsir. Fasilitas keagamaan untuk warga Desa Ngawonggo." />
     <Box  pt={{ base: "100px", md: "140px" }} minH="100vh" bg={bg} pb={selectedSurah ? 32 : 10}>
       <Container maxW="container.xl" pt={2}>
         <VStack spacing={8} align="stretch">
@@ -512,6 +513,7 @@ const QuranPage = () => {
         style={{ display: 'none' }}
       />
     </Box>
+    </>
   );
 };
 
