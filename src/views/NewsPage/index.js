@@ -43,13 +43,13 @@ export default function NewsPage() {
   if (loading) return <Loading fullPage />;
 
   return (
-    <Box  pt={{ base: "100px", md: "140px" }} minH="100vh" bg="gray.50" pb={20}>
+    <Box minH="100vh" bg="gray.50" pb={20}>
       <SEO
         title="Berita Terkini"
         description="Pantau berita dan informasi terbaru seputar kegiatan, pembangunan, dan pengumuman resmi dari Desa Ngawonggo."
       />
       {/* Hero Header */}
-      <Box pt={12} pb={20} position="relative" overflow="hidden">
+      <Box pt={8} pb={20} position="relative" overflow="hidden">
         <Box
           position="absolute"
           top="-10%"

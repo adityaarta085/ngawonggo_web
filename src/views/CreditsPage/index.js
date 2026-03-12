@@ -231,7 +231,7 @@ const CreditsPage = () => {
   const bgColor = useColorModeValue('gray.50', 'gray.900');
 
   return (
-    <Box bg={bgColor} minH="100vh" pt={24} pb={20}>
+    <Box bg={bgColor} minH="100vh" pt={8} pb={20}>
       <Container maxW="container.xl">
         <VStack spacing={4} textAlign="center" mb={16}>
           <Heading size="2xl" fontWeight="900">Tim Pengembang</Heading>

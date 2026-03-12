@@ -24,7 +24,7 @@ const Hero = () => {
       overflow="hidden"
       bg="brand.900"
       bgGradient="linear(to-br, #0F172A, brand.900, #0F2F24)"
-      pt={{ base: "88px", md: "124px" }}
+      pt={0}
       pb={{ base: "56px", md: "40px" }}
     >
       {/* Animated Aurora Background Effect */}
