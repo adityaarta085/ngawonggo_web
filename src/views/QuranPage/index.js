@@ -24,7 +24,7 @@ import {
 import { FaSearch, FaQuran, FaPlay, FaPause, FaArrowUp, FaList } from 'react-icons/fa';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import Loading from '../../components/Loading';
+import { Loading, SEO } from '../../components';
 import { supabase } from '../../lib/supabase';
 
 const MotionBox = motion(Box);
