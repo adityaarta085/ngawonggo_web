@@ -184,7 +184,7 @@ const TakedownPage = () => {
                 <FaRobot size="24px" />
                 <VStack align="start" spacing={0}>
                   <Heading size="xs">ASISTEN DARURAT AI</Heading>
-                  <Text fontSize="10px" opacity={0.8}>Tanya seputar informasi desa</Text>
+                  <Text fontSize="10px" opacity={0.8}>Tanya</Text>
                 </VStack>
               </Flex>
 
