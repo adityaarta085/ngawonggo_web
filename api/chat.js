@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { messages } = req.body;
+  const { messages, customPrompt } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Messages are required' });
@@ -30,13 +30,21 @@ module.exports = async (req, res) => {
 
     const GROQ_API_KEY = settings.value;
 
+    // Default System Prompt
+    let systemPrompt = 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.';
+
+    // Use customPrompt if provided (used by Takedown Page)
+    if (customPrompt) {
+        systemPrompt = customPrompt;
+    }
+
     // 2. Call Groq API
     const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
       model: 'llama-3.1-8b-instant',
       messages: [
         {
           role: 'system',
-          content: 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.'
+          content: systemPrompt
         },
         ...messages
       ],
