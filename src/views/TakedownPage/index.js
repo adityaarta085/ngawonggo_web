@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   Container,
@@ -39,19 +39,8 @@ const TakedownPage = () => {
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('red.200', 'red.700');
   const userBubbleBg = useColorModeValue('red.500', 'red.600');
-  const botBubbleBg = useColorModeValue('gray.100', 'gray.700');
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('site_settings')
@@ -70,7 +59,17 @@ const TakedownPage = () => {
     } catch (error) {
       console.error('Error fetching takedown settings:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -83,7 +82,7 @@ const TakedownPage = () => {
     try {
       const response = await axios.post('/api/chat', {
         messages: [...messages, userMessage].slice(-10),
-        customPrompt: settings.prompt // Pass the custom prompt to the API
+        customPrompt: settings.prompt
       });
 
       const botMessage = response.data.choices[0].message;

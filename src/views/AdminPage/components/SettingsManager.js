@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   VStack,
@@ -40,11 +40,7 @@ const SettingsManager = () => {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('site_settings')
@@ -52,7 +48,13 @@ const SettingsManager = () => {
 
       if (error) throw error;
 
-      const mapped = { ...settings };
+      const mapped = {
+        groq_api_key: '',
+        is_takedown: 'false',
+        takedown_message: '',
+        takedown_image: '',
+        takedown_ai_prompt: '',
+      };
       data.forEach(item => {
         if (mapped.hasOwnProperty(item.key)) {
           mapped[item.key] = item.value;
@@ -62,7 +64,11 @@ const SettingsManager = () => {
     } catch (error) {
       console.error('Error fetching settings:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchSettings();
+  }, [fetchSettings]);
 
   const handleSave = async () => {
     setLoading(true);

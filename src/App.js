@@ -129,7 +129,7 @@ function App() {
     // Check Takedown Status
     const checkTakedown = async () => {
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('site_settings')
           .select('value')
           .eq('key', 'is_takedown')
