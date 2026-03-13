@@ -29,6 +29,7 @@ import HumanVerification from './components/HumanVerification.js';
 import Chatbot from './components/Chatbot.js';
 import RunningText from './components/RunningText.js';
 import PopupNotification from './components/PopupNotification.js';
+import TakedownPage from './views/TakedownPage/index.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
 import { FaMoon } from 'react-icons/fa';
@@ -88,6 +89,7 @@ function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith('/admin');
   const isAuth = location.pathname.startsWith('/auth');
+  const isDownPage = location.pathname === '/down';
 
   const [adminSession, setAdminSession] = useState(() => {
     const localSession = localStorage.getItem('adminSession');
@@ -99,6 +101,8 @@ function App() {
   const [isVerified, setIsVerified] = useState(() => {
     return sessionStorage.getItem('isVerified') === 'true';
   });
+
+  const [isTakedown, setIsTakedown] = useState(false);
 
   const [isFloatingHidden, setIsFloatingHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -122,6 +126,25 @@ function App() {
   }, [handleScroll]);
 
   useEffect(() => {
+    // Check Takedown Status
+    const checkTakedown = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'is_takedown')
+          .single();
+
+        if (data && data.value === 'true') {
+          setIsTakedown(true);
+        }
+      } catch (err) {
+        console.error('Takedown check failed:', err);
+      }
+    };
+
+    checkTakedown();
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserSession(session);
       if (session) {
@@ -147,9 +170,19 @@ function App() {
 
   const isBypassed = (!showSplash && isVerified) || userSession;
 
+  // Redirect to /down if takedown is active and user is not on admin page
+  if (isTakedown && !isAdmin && !isDownPage) {
+    return <Navigate to="/down" replace />;
+  }
+
+  // If on /down but takedown is NOT active, redirect back to home
+  if (!isTakedown && isDownPage) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <Box overflowX="hidden" maxW="100vw">
-      {!isBypassed && !isAdmin && !isAuth && (
+      {!isBypassed && !isAdmin && !isAuth && !isDownPage && (
         <>
           {showSplash ? (
             <SplashScreen onComplete={() => setShowSplash(false)} />
@@ -162,7 +195,7 @@ function App() {
         </>
       )}
 
-      {!isAdmin && !isAuth && (
+      {!isAdmin && !isAuth && !isDownPage && (
         <>
           <Box
             h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
@@ -187,9 +220,9 @@ function App() {
         </>
       )}
 
-      {!isAdmin && !isAuth && <PopupNotification />}
+      {!isAdmin && !isAuth && !isDownPage && <PopupNotification />}
 
-      {!isAdmin && !isAuth && <LoginPromo user={userSession?.user} />}
+      {!isAdmin && !isAuth && !isDownPage && <LoginPromo user={userSession?.user} />}
       <ScrollToTop />
 
       <Box pt={0} minH="80vh">
@@ -211,6 +244,8 @@ function App() {
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/credits" element={<CreditsPage />} />
 
+          <Route path="/down" element={<TakedownPage />} />
+
           <Route path="/auth" element={<AuthPage />} />
           <Route
               path="/portal"
@@ -229,7 +264,7 @@ function App() {
         </Routes>
       </Box>
 
-      {!isAdmin && !isAuth && !showSplash && isVerified && (
+      {!isAdmin && !isAuth && !showSplash && isVerified && !isDownPage && (
         <>
           <Chatbot
             isHidden={isFloatingHidden}
@@ -259,7 +294,7 @@ function App() {
         </>
       )}
 
-      {!isAdmin && !isAuth && <Footer />}
+      {!isAdmin && !isAuth && !isDownPage && <Footer />}
     </Box>
   );
 }
