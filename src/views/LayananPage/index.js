@@ -45,7 +45,7 @@ export default function LayananPage() {
       />
       <Container maxW="container.xl" py={8}>
         <Box textAlign="center" mb={16}>
-          <Heading mb={5} size="2xl" color="ngawonggo.green">Layanan Publik</Heading>
+          <Heading mb={5} size="2xl" color="accent.green">Layanan Publik</Heading>
           <Text fontSize="lg" color="gray.600" maxW="2xl" mx="auto">
             Pemerintah Desa Ngawonggo berkomitmen memudahkan warga dalam mengurus administrasi kependudukan dan memberikan informasi layanan publik yang transparan.
           </Text>

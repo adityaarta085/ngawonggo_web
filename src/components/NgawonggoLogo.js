@@ -1,7 +1,7 @@
 import React from 'react';
 import { Flex, Image, Text } from '@chakra-ui/react';
 
-const NgawonggoLogo = ({ color = "ngawonggo.green", fontSize = "xl", iconSize = 8, showText = true, flexDirection = "row" }) => {
+const NgawonggoLogo = ({ color = "accent.green", fontSize = "xl", iconSize = 8, showText = true, flexDirection = "row" }) => {
   return (
     <Flex align="center" direction={flexDirection}>
       <Image
