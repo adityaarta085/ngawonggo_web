@@ -92,14 +92,24 @@ function App() {
   const isDownPage = location.pathname === '/down';
 
   const [adminSession, setAdminSession] = useState(() => {
-    const localSession = localStorage.getItem('adminSession');
-    return localSession ? JSON.parse(localSession) : null;
+    try {
+      const localSession = localStorage.getItem('adminSession');
+      return localSession ? JSON.parse(localSession) : null;
+    } catch (e) {
+      console.error('Failed to access localStorage:', e);
+      return null;
+    }
   });
 
   const [userSession, setUserSession] = useState(null);
   const [showSplash, setShowSplash] = useState(true);
   const [isVerified, setIsVerified] = useState(() => {
-    return sessionStorage.getItem('isVerified') === 'true';
+    try {
+      return sessionStorage.getItem('isVerified') === 'true';
+    } catch (e) {
+      console.error('Failed to access sessionStorage:', e);
+      return false;
+    }
   });
 
   const [isTakedown, setIsTakedown] = useState(false);
@@ -126,7 +136,6 @@ function App() {
   }, [handleScroll]);
 
   useEffect(() => {
-    // Check Takedown Status
     const checkTakedown = async () => {
       try {
         const { data } = await supabase
@@ -150,7 +159,9 @@ function App() {
       if (session) {
         setShowSplash(false);
         setIsVerified(true);
-        sessionStorage.setItem('isVerified', 'true');
+        try {
+          sessionStorage.setItem('isVerified', 'true');
+        } catch (e) {}
       }
     });
 
@@ -161,7 +172,9 @@ function App() {
       if (session) {
         setShowSplash(false);
         setIsVerified(true);
-        sessionStorage.setItem('isVerified', 'true');
+        try {
+          sessionStorage.setItem('isVerified', 'true');
+        } catch (e) {}
       }
     });
 
@@ -170,131 +183,133 @@ function App() {
 
   const isBypassed = (!showSplash && isVerified) || userSession;
 
-  // Redirect to /down if takedown is active and user is not on admin page
   if (isTakedown && !isAdmin && !isDownPage) {
     return <Navigate to="/down" replace />;
   }
 
-  // If on /down but takedown is NOT active, redirect back to home
   if (!isTakedown && isDownPage) {
     return <Navigate to="/" replace />;
   }
 
   return (
     <Box overflowX="hidden" maxW="100vw">
-      {!isBypassed && !isAdmin && !isAuth && !isDownPage && (
+      {!isBypassed && !isAdmin && !isAuth && !isDownPage ? (
         <>
           {showSplash ? (
             <SplashScreen onComplete={() => setShowSplash(false)} />
           ) : (
             <HumanVerification onVerified={() => {
               setIsVerified(true);
-              sessionStorage.setItem('isVerified', 'true');
+              try {
+                sessionStorage.setItem('isVerified', 'true');
+              } catch (e) {}
             }} />
           )}
         </>
-      )}
-
-      {!isAdmin && !isAuth && !isDownPage && (
+      ) : (
         <>
-          <Box
-            h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
-            transition="height 0.35s ease"
-          />
-          <Box
-            zIndex={1100}
-            w="full"
-            position="fixed"
-            top={0}
-            left={0}
-            right={0}
-          >
-            <TopBar isScrolled={scrolled} />
-            <Box
-              transition="padding 0.35s ease"
-              pt={scrolled ? 2 : 0}
-            >
-              <Navbar user={userSession?.user} isScrolled={scrolled} />
-            </Box>
-          </Box>
-        </>
-      )}
-
-      {!isAdmin && !isAuth && !isDownPage && <PopupNotification />}
-
-      {!isAdmin && !isAuth && !isDownPage && <LoginPromo user={userSession?.user} />}
-      <ScrollToTop />
-
-      <Box pt={0} minH="80vh">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/news" element={<NewsPage />} />
-          <Route path="/news/:id" element={<NewsDetail />} />
-          <Route path="/profil" element={<ProfilPage />} />
-          <Route path="/pemerintahan" element={<PemerintahanPage />} />
-          <Route path="/layanan" element={<LayananPage />} />
-          <Route path="/jelajahi" element={<JelajahiPage />} />
-          <Route path="/transparansi" element={<TransparansiPage />} />
-          <Route path="/kontak" element={<KontakPage />} />
-          <Route path="/media" element={<MediaPage />} />
-          <Route path="/game-edukasi" element={<EduGamePage />} />
-          <Route path="/dusun/:slug" element={<DusunPage />} />
-          <Route path="/quran" element={<QuranPage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/terms-conditions" element={<TermsConditions />} />
-          <Route path="/credits" element={<CreditsPage />} />
-
-          <Route path="/down" element={<TakedownPage />} />
-
-          <Route path="/auth" element={<AuthPage />} />
-          <Route
-              path="/portal"
-              element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
-          />
-
-          <Route
-            path="/admin"
-            element={
-              adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
-            }
-          />
-          <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
-
-          <Route path="*" element={<PageNotFound />} />
-        </Routes>
-      </Box>
-
-      {!isAdmin && !isAuth && !showSplash && isVerified && !isDownPage && (
-        <>
-          <Chatbot
-            isHidden={isFloatingHidden}
-            onHide={() => setIsFloatingHidden(true)}
-          />
-
-          {isFloatingHidden && (
-            <Tooltip label="Tampilkan Panel" placement="left" aria-label="Restore Panels">
+          {!isAdmin && !isAuth && !isDownPage && (
+            <>
               <Box
-                position="fixed"
-                right={0}
-                top="50%"
-                transform="translateY(-50%)"
-                w="8px"
-                h="120px"
-                bg="brand.500"
-                cursor="pointer"
-                zIndex={2000}
-                borderLeftRadius="full"
-                onClick={() => setIsFloatingHidden(false)}
-                _hover={{ w: '12px', bg: 'brand.400' }}
-                transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                boxShadow="lg"
+                h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
+                transition="height 0.35s ease"
               />
-            </Tooltip>
+              <Box
+                zIndex={1100}
+                w="full"
+                position="fixed"
+                top={0}
+                left={0}
+                right={0}
+              >
+                <TopBar isScrolled={scrolled} />
+                <Box
+                  transition="padding 0.35s ease"
+                  pt={scrolled ? 2 : 0}
+                >
+                  <Navbar user={userSession?.user} isScrolled={scrolled} />
+                </Box>
+              </Box>
+            </>
           )}
+
+          {!isAdmin && !isAuth && !isDownPage && <PopupNotification />}
+
+          {!isAdmin && !isAuth && !isDownPage && <LoginPromo user={userSession?.user} />}
+          <ScrollToTop />
+
+          <Box pt={0} minH="80vh">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/news" element={<NewsPage />} />
+              <Route path="/news/:id" element={<NewsDetail />} />
+              <Route path="/profil" element={<ProfilPage />} />
+              <Route path="/pemerintahan" element={<PemerintahanPage />} />
+              <Route path="/layanan" element={<LayananPage />} />
+              <Route path="/jelajahi" element={<JelajahiPage />} />
+              <Route path="/transparansi" element={<TransparansiPage />} />
+              <Route path="/kontak" element={<KontakPage />} />
+              <Route path="/media" element={<MediaPage />} />
+              <Route path="/game-edukasi" element={<EduGamePage />} />
+              <Route path="/dusun/:slug" element={<DusunPage />} />
+              <Route path="/quran" element={<QuranPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-conditions" element={<TermsConditions />} />
+              <Route path="/credits" element={<CreditsPage />} />
+
+              <Route path="/down" element={<TakedownPage />} />
+
+              <Route path="/auth" element={<AuthPage />} />
+              <Route
+                  path="/portal"
+                  element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
+              />
+
+              <Route
+                path="/admin"
+                element={
+                  adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
+                }
+              />
+              <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
+
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
+          </Box>
+
+          {!isAdmin && !isAuth && !showSplash && isVerified && !isDownPage && (
+            <>
+              <Chatbot
+                isHidden={isFloatingHidden}
+                onHide={() => setIsFloatingHidden(true)}
+              />
+
+              {isFloatingHidden && (
+                <Tooltip label="Tampilkan Panel" placement="left" aria-label="Restore Panels">
+                  <Box
+                    position="fixed"
+                    right={0}
+                    top="50%"
+                    transform="translateY(-50%)"
+                    w="8px"
+                    h="120px"
+                    bg="brand.500"
+                    cursor="pointer"
+                    zIndex={2000}
+                    borderLeftRadius="full"
+                    onClick={() => setIsFloatingHidden(false)}
+                    _hover={{ w: '12px', bg: 'brand.400' }}
+                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                    boxShadow="lg"
+                  />
+                </Tooltip>
+              )}
+            </>
+          )}
+
+          {!isAdmin && !isAuth && !isDownPage && <Footer />}
         </>
       )}
-
-      {!isAdmin && !isAuth && !isDownPage && <Footer />}
     </Box>
   );
 }
