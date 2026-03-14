@@ -14,7 +14,7 @@ import {
 
 export default function TransparansiPage() {
   return (
-    <Box  pt={{ base: "100px", md: "140px" }} py={12} minH="100vh" bg="gray.50">
+    <Box  pt={0} py={12} minH="100vh" bg="gray.50">
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
           <Box layerStyle="glassCard" p={10} bgGradient="linear(to-br, brand.500, blue.600)" color="white">

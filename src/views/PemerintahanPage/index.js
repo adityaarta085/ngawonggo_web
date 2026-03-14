@@ -28,7 +28,7 @@ export default function PemerintahanPage() {
   ];
 
   return (
-    <Box  pt={{ base: "100px", md: "140px" }} py={8} minH="100vh" bg="gray.50">
+    <Box  pt={0} py={8} minH="100vh" bg="gray.50">
       <SEO
         title="Pemerintahan"
         description="Informasi Struktur Organisasi dan Tata Kelola Pemerintah Desa Ngawonggo. Daftar perangkat desa dan visi misi pelayanan publik."

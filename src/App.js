@@ -42,7 +42,7 @@ const TopBar = ({ isScrolled }) => {
   return (
     <Collapse in={!isScrolled} animateOpacity>
         <Box
-          bg="white" borderBottom="1px solid" borderColor="gray.100"
+          layerStyle="liquidGlass" borderBottom="1px solid" borderColor="whiteAlpha.300" bg="rgba(255, 255, 255, 0.4)"
           py={1}
           px={{ base: 4, md: 10 }}
           overflow="hidden"

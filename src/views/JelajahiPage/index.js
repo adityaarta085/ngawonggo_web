@@ -38,7 +38,7 @@ export default function JelajahiPage() {
   }, []);
 
   return (
-    <Box  pt={{ base: "100px", md: "140px" }} minH="100vh" bg="gray.50" pb={32}>
+    <Box  pt={0} minH="100vh" bg="gray.50" pb={32}>
       <SEO
         title="Jelajahi Dusun"
         description="Jelajahi kekayaan potensi dan keindahan 10 dusun di Desa Ngawonggo. Temukan informasi sejarah, ekonomi, dan profil lengkap setiap wilayah dusun."

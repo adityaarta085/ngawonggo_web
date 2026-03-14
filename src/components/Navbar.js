@@ -14,9 +14,10 @@ import {
   useColorModeValue,
   useDisclosure,
   Container,
-  HStack,
-  Tooltip,
   Image,
+  HStack,
+  VStack,
+  Tooltip,
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -29,24 +30,17 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
 import { FaUserCircle, FaLock } from 'react-icons/fa';
 
-const VStack = ({ children, align, spacing, ...props }) => (
-    <Stack direction="column" align={align} spacing={spacing} {...props}>
-        {children}
-    </Stack>
-);
-
-function Navbar({ user, isScrolled }) {
+const Navbar = ({ user, isScrolled }) => {
   const { isOpen, onToggle, onClose } = useDisclosure();
   const { language, setLanguage } = useLanguage();
-  const t = translations[language].nav;
+  const t = translations[language].navbar;
 
   const NAV_ITEMS = [
-    { label: t.home, href: '/' },
     {
       label: t.profile,
       children: [
         { label: 'Sejarah Desa', subLabel: 'Asal usul Desa Ngawonggo', href: '/profil#sejarah' },
-        { label: 'Visi & Misi', subLabel: 'Tujuan dan arah desa', href: '/profil#visimisi' },
+        { label: 'Visi & Misi', subLabel: 'Tujuan & cita-cita desa', href: '/profil#visimisi' },
         { label: 'Wilayah Desa', subLabel: 'Data geografis & administratif', href: '/profil#wilayah' },
       ],
       href: '/profil'
@@ -63,8 +57,8 @@ function Navbar({ user, isScrolled }) {
   ];
 
   const navBg = useColorModeValue(
-    isScrolled ? 'rgba(255, 255, 255, 0.85)' : 'rgba(255, 255, 255, 0.3)',
-    isScrolled ? 'rgba(15, 23, 42, 0.85)' : 'rgba(15, 23, 42, 0.3)'
+    isScrolled ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.15)',
+    isScrolled ? 'rgba(15, 23, 42, 0.4)' : 'rgba(15, 23, 42, 0.15)'
   );
   const navColor = useColorModeValue('gray.800', 'white');
 
@@ -85,11 +79,11 @@ function Navbar({ user, isScrolled }) {
         borderRadius={isScrolled ? "3xl" : "2xl"}
         maxW="container.xl"
         mx="auto"
-        transition="padding 0.35s ease"
+        transition="all 0.35s ease"
         boxShadow="0 8px 32px 0 rgba(31, 38, 135, 0.15)"
         border="1px solid"
-        borderColor={useColorModeValue("rgba(255, 255, 255, 0.3)", "rgba(255, 255, 255, 0.1)")}
-        backdropFilter="blur(16px)"
+        borderColor={useColorModeValue("rgba(255, 255, 255, 0.2)", "rgba(255, 255, 255, 0.05)")}
+        backdropFilter="blur(24px) saturate(180%)"
       >
         <Container maxW="container.xl" display="flex" alignItems="center" px={0}>
           <Flex
@@ -114,7 +108,7 @@ function Navbar({ user, isScrolled }) {
                   <Image src="/logo_desa.png" h="36px" w="auto" fallbackSrc="https://via.placeholder.com/36" />
                   <VStack align="start" spacing={0}>
                     <Text fontWeight="900" fontSize="sm" color="brand.500" lineHeight="1">DESA</Text>
-                    <Text fontWeight="900" fontSize="xs" color="gray.600" lineHeight="1">NGAWONGGO</Text>
+                    <Text fontWeight="900" fontSize="xs" color={isScrolled ? "gray.600" : "gray.500"} lineHeight="1">NGAWONGGO</Text>
                   </VStack>
                 </HStack>
             </Box>
@@ -131,7 +125,6 @@ function Navbar({ user, isScrolled }) {
             spacing={{ base: 2, md: 3 }}
             align="center"
           >
-            {/* User Auth Section */}
             <Box display={{ base: 'none', md: 'block' }}>
                {user ? (
                    <Tooltip label="Portal Warga" key="portal-tooltip">
@@ -199,7 +192,7 @@ function Navbar({ user, isScrolled }) {
 const DesktopNav = ({ navItems }) => {
   const linkColor = useColorModeValue('gray.600', 'gray.200');
   const linkHoverColor = useColorModeValue('brand.500', 'brand.300');
-  const popoverContentBgColor = useColorModeValue('white', 'gray.800');
+  const popoverContentBgColor = useColorModeValue('rgba(255, 255, 255, 0.9)', 'rgba(15, 23, 42, 0.9)');
 
   return (
     <Stack direction={'row'} spacing={1} align="center">
@@ -229,6 +222,7 @@ const DesktopNav = ({ navItems }) => {
                 border={0}
                 boxShadow={'xl'}
                 bg={popoverContentBgColor}
+                backdropFilter="blur(20px)"
                 p={4}
                 rounded={'xl'}
                 minW={'sm'}
@@ -295,7 +289,8 @@ const MobileNav = ({ navItems, user, onClose }) => {
       mt={2}
       mx={2}
       boxShadow="xl"
-      bg={useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(15, 23, 42, 0.95)')}
+      bg={useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)')}
+      backdropFilter="blur(24px)"
       maxH="70vh"
       overflowY="auto"
     >

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Box,
   Container,
@@ -18,9 +18,10 @@ import {
   Button,
   Divider,
   Select,
-  Checkbox,
+
   useToast,
   Center,
+  Switch,
 } from '@chakra-ui/react';
 import { FaSearch, FaQuran, FaPlay, FaPause, FaArrowUp, FaList, FaArrowLeft } from 'react-icons/fa';
 import axios from 'axios';
@@ -45,6 +46,8 @@ const QuranPage = () => {
   const [isAutoScroll, setIsAutoScroll] = useState(true);
   const [showTafsir, setShowTafsir] = useState({});
   const [user, setUser] = useState(null);
+
+  const [visibleLimit, setVisibleLimit] = useState(20);
 
   const audioRef = useRef(null);
   const ayahRefs = useRef([]);
@@ -82,15 +85,19 @@ const QuranPage = () => {
   }, [fetchSurahs]);
 
   const scrollToAyah = useCallback((index) => {
+    if (index >= visibleLimit) {
+        setVisibleLimit(index + 10);
+    }
     setTimeout(() => {
       ayahRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
-  }, []);
+    }, 150);
+  }, [visibleLimit]);
 
   const fetchSurahDetail = async (number) => {
     setDetailLoading(true);
     setSelectedSurah(number);
     window.scrollTo(0, 0);
+    setVisibleLimit(20);
     try {
       const res = await axios.get(`https://api.quran.gading.dev/surah/${number}`);
       const data = res.data.data;
@@ -101,7 +108,6 @@ const QuranPage = () => {
       setIsPlaying(false);
       setShowTafsir({});
 
-      // Try to load progress
       if (user) {
         const { data: progressData } = await supabase
           .from('user_quran_progress')
@@ -189,20 +195,25 @@ const QuranPage = () => {
     setShowTafsir(prev => ({ ...prev, [index]: !prev[index] }));
   };
 
-  const filteredSurahs = surahs.filter(s =>
-    s.name.transliteration.id.toLowerCase().includes(search.toLowerCase()) ||
-    s.number.toString().includes(search)
-  );
+  const filteredSurahs = useMemo(() =>
+    surahs.filter(s =>
+      s.name.transliteration.id.toLowerCase().includes(search.toLowerCase()) ||
+      s.number.toString().includes(search)
+    ), [surahs, search]);
+
+  const visibleVerses = useMemo(() => {
+    if (!surahDetail) return [];
+    return surahDetail.verses.slice(0, visibleLimit);
+  }, [surahDetail, visibleLimit]);
 
   return (
     <>
       <SEO
         title={surahDetail ? `Surah ${surahDetail.name.transliteration.id} - Al-Quran Digital` : "Al-Quran Digital Ngawonggo"}
-        description={surahDetail ? `Baca Surah ${surahDetail.name.transliteration.id} lengkap dengan terjemahan dan audio murottal.` : "Baca Al-Quran Digital lengkap dengan terjemahan Bahasa Indonesia, audio per ayat, dan tafsir. Fasilitas keagamaan untuk warga Desa Ngawonggo."}
+        description={surahDetail ? `Baca Al-Quran Surah ${surahDetail.name.transliteration.id} (${surahDetail.name.translation.id}) lengkap dengan audio murottal dan tafsir ringkas.` : "Al-Quran Digital interaktif dengan murottal per ayat, terjemahan Bahasa Indonesia, dan tafsir ringkas."}
       />
-
-      <Box pt={{ base: "100px", md: "140px" }} minH="100vh" bg={bg} pb={selectedSurah ? 48 : 20}>
-        <Container maxW="container.xl">
+      <Box minH="100vh" bg={bg} pb={32}>
+        <Container maxW="container.xl" pt={{ base: 4, md: 8 }}>
           <AnimatePresence mode="wait">
             {!selectedSurah ? (
               <MotionBox
@@ -210,43 +221,42 @@ const QuranPage = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.3 }}
               >
                 <VStack spacing={8} align="stretch">
-                  <VStack spacing={4} textAlign="center" mb={6}>
-                    <Flex align="center" gap={3}>
-                      <Icon as={FaQuran} color="brand.500" w={8} h={8} />
-                      <Badge colorScheme="brand" borderRadius="full" px={4} py={1} fontWeight="900" letterSpacing="widest">
-                        KITAB SUCI DIGITAL
-                      </Badge>
-                    </Flex>
-                    <Heading size="3xl" fontWeight="900" bgGradient="linear(to-r, brand.500, brand.800)" bgClip="text">
-                      Al-Qur'anul Karim
-                    </Heading>
-                    <Text color="gray.500" fontSize="xl" fontWeight="500" maxW="2xl">
-                      Baca dan tadabburi Al-Qur'an di mana saja dengan fitur murottal dan terjemahan bahasa Indonesia yang jelas.
-                    </Text>
-                  </VStack>
-
-                  <InputGroup size="xl" maxW="2xl" mx="auto">
-                    <InputLeftElement pointerEvents="none" h="full" px={6}>
-                      <Icon as={FaSearch} color="gray.400" />
-                    </InputLeftElement>
-                    <Input
-                      placeholder="Cari Surah (contoh: Al-Baqarah atau 2)..."
-                      bg={cardBg}
-                      borderRadius="2xl"
-                      py={8}
-                      pl={16}
-                      fontSize="lg"
-                      boxShadow="soft"
-                      border="1px solid"
-                      borderColor={borderColor}
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      _focus={{ borderColor: 'brand.500', boxShadow: '0 0 0 1px #137fec' }}
-                    />
-                  </InputGroup>
+                  <Box
+                    p={{ base: 6, md: 10 }}
+                    bgGradient="linear(to-br, brand.500, brand.700)"
+                    borderRadius="3xl"
+                    color="white"
+                    boxShadow="xl"
+                    position="relative"
+                    overflow="hidden"
+                  >
+                    <Icon as={FaQuran} position="absolute" right="-20px" bottom="-20px" boxSize="200px" opacity={0.1} />
+                    <VStack align="start" spacing={4} position="relative" zIndex={1}>
+                      <Badge bg="whiteAlpha.300" color="white" px={3} py={1} borderRadius="full">FITUR DIGITAL</Badge>
+                      <Heading size="xl">Al-Quran Digital</Heading>
+                      <Text fontSize="md" opacity={0.9} maxW="md">
+                        Baca Al-Quran kapan saja dan di mana saja. Dilengkapi dengan murottal per ayat, terjemahan, dan tafsir ringkas.
+                      </Text>
+                      <InputGroup maxW="md" size="lg">
+                        <InputLeftElement pointerEvents="none">
+                          <FaSearch color="white" opacity={0.5} />
+                        </InputLeftElement>
+                        <Input
+                          placeholder="Cari Surah atau Nomor..."
+                          bg="whiteAlpha.200"
+                          border="none"
+                          _focus={{ bg: 'whiteAlpha.300', boxShadow: 'none' }}
+                          _placeholder={{ color: 'whiteAlpha.600' }}
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          borderRadius="2xl"
+                        />
+                      </InputGroup>
+                    </VStack>
+                  </Box>
 
                   {loading ? (
                     <Center py={20}>
@@ -257,43 +267,39 @@ const QuranPage = () => {
                       {filteredSurahs.map((surah) => (
                         <MotionBox
                           key={surah.number}
-                          whileHover={{ y: -8, scale: 1.02 }}
-                          layerStyle="glassCard"
                           p={6}
+                          bg={cardBg}
+                          borderRadius="2xl"
+                          border="1px solid"
+                          borderColor={borderColor}
                           cursor="pointer"
                           onClick={() => fetchSurahDetail(surah.number)}
+                          whileHover={{ y: -5, boxShadow: 'xl', borderColor: 'brand.300' }}
+                          transition={{ duration: 0.2 }}
                         >
-                          <HStack spacing={6}>
-                            <Flex
-                              w={16}
-                              h={16}
-                              bg="brand.50"
-                              color="brand.500"
-                              borderRadius="2xl"
-                              align="center"
-                              justify="center"
-                              fontWeight="900"
-                              fontSize="2xl"
-                              flexShrink={0}
-                              boxShadow="inner"
-                            >
-                              {surah.number}
-                            </Flex>
-                            <VStack align="start" spacing={0} flex={1}>
-                              <Heading size="md" fontWeight="800">{surah.name.transliteration.id}</Heading>
-                              <Text fontSize="sm" color="gray.500" fontWeight="600">
-                                {surah.revelation.id} • {surah.numberOfVerses} Ayat
-                              </Text>
-                            </VStack>
+                          <Flex align="center" justify="space-between">
+                            <HStack spacing={4}>
+                              <Center
+                                w={12} h={12} bg="brand.50" color="brand.500"
+                                borderRadius="xl" fontWeight="900" fontSize="lg"
+                              >
+                                {surah.number}
+                              </Center>
+                              <VStack align="start" spacing={0}>
+                                <Text fontWeight="800" fontSize="lg">{surah.name.transliteration.id}</Text>
+                                <Text fontSize="xs" color="gray.500" fontWeight="600">
+                                  {surah.name.translation.id} • {surah.numberOfVerses} Ayat
+                                </Text>
+                              </VStack>
+                            </HStack>
                             <Text
-                              fontSize="3xl"
+                              fontSize="2xl"
                               fontFamily="'Amiri', serif"
                               color="brand.600"
-                              fontWeight="bold"
                             >
                               {surah.name.short}
                             </Text>
-                          </HStack>
+                          </Flex>
                         </MotionBox>
                       ))}
                     </SimpleGrid>
@@ -306,7 +312,7 @@ const QuranPage = () => {
                 initial={{ opacity: 0, x: 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -50 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.4 }}
               >
                 <VStack spacing={8} align="stretch">
                   <HStack justify="space-between">
@@ -332,7 +338,6 @@ const QuranPage = () => {
                     </Center>
                   ) : (
                     <VStack spacing={8} align="stretch">
-                      {/* Header Surah */}
                       <MotionBox
                         p={{ base: 8, md: 12 }}
                         bgGradient="linear(to-br, brand.600, brand.800)"
@@ -340,111 +345,99 @@ const QuranPage = () => {
                         color="white"
                         textAlign="center"
                         boxShadow="2xl"
-                        initial={{ scale: 0.9, opacity: 0 }}
+                        initial={{ scale: 0.95, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        transition={{ duration: 0.4 }}
                       >
                         <VStack spacing={6}>
-                          <Text fontSize="lg" fontWeight="800" letterSpacing="0.2em" opacity={0.9}>
+                          <Text fontSize="sm" fontWeight="800" letterSpacing="0.2em" opacity={0.9}>
                             SURAH {surahDetail.name.transliteration.id.toUpperCase()}
                           </Text>
-                          <Heading size="4xl" fontFamily="'Amiri', serif" fontWeight="normal">
+                          <Heading size="3xl" fontFamily="'Amiri', serif" fontWeight="normal">
                             {surahDetail.name.short}
                           </Heading>
                           <Divider borderColor="whiteAlpha.300" maxW="200px" />
                           <VStack spacing={1}>
-                            <Text fontSize="xl" fontWeight="700">"{surahDetail.name.translation.id}"</Text>
-                            <Text fontSize="md" fontWeight="500" opacity={0.8}>
+                            <Text fontSize="lg" fontWeight="700">"{surahDetail.name.translation.id}"</Text>
+                            <Text fontSize="sm" fontWeight="500" opacity={0.8}>
                                 {surahDetail.revelation.id} • {surahDetail.numberOfVerses} Ayat
                             </Text>
                           </VStack>
                         </VStack>
                       </MotionBox>
 
-                      {/* Bismillah if not Al-Fatiha and At-Tawbah */}
                       {surahDetail.preBismillah && (
-                          <Center py={10}>
-                              <Text fontSize="4xl" fontFamily="'Amiri', serif" textAlign="center" color="gray.700">
+                          <Center py={6}>
+                              <Text fontSize="3xl" fontFamily="'Amiri', serif" textAlign="center" color="gray.700">
                                   {surahDetail.preBismillah.text.arab}
                               </Text>
                           </Center>
                       )}
 
-                      {/* List Ayat */}
                       <VStack spacing={4} align="stretch">
-                        {surahDetail.verses.map((ayah, index) => (
+                        {visibleVerses.map((ayah, index) => (
                           <MotionBox
                             key={ayah.number.inQuran}
                             ref={el => ayahRefs.current[index] = el}
-                            p={{ base: 6, md: 10 }}
+                            p={{ base: 6, md: 8 }}
                             bg={currentAyahIndex === index ? activeAyahBg : cardBg}
                             borderRadius="3xl"
                             border="1px solid"
                             borderColor={currentAyahIndex === index ? 'brand.200' : borderColor}
-                            transition="all 0.4s"
-                            boxShadow={currentAyahIndex === index ? 'medium' : 'soft'}
+                            transition="all 0.3s"
                             position="relative"
-                            overflow="hidden"
+                            layout
                           >
                             {currentAyahIndex === index && (
-                                <Box
-                                    position="absolute"
-                                    left={0}
-                                    top={0}
-                                    bottom={0}
-                                    w="4px"
-                                    bg="brand.500"
-                                />
+                                <Box position="absolute" left={0} top={0} bottom={0} w="4px" bg="brand.500" />
                             )}
 
-                            <VStack align="stretch" spacing={8}>
+                            <VStack align="stretch" spacing={6}>
                               <Flex justify="space-between" align="center">
                                 <Flex
-                                    w={12} h={12} bg="brand.500" color="white"
-                                    borderRadius="2xl" align="center" justify="center"
-                                    fontWeight="900" fontSize="lg" boxShadow="lg"
+                                    w={10} h={10} bg="brand.500" color="white"
+                                    borderRadius="xl" align="center" justify="center"
+                                    fontWeight="900" fontSize="md"
                                 >
                                   {ayah.number.inSurah}
                                 </Flex>
-                                <HStack spacing={3}>
+                                <HStack spacing={2}>
                                   <IconButton
-                                    size="lg"
+                                    size="md"
                                     icon={currentAyahIndex === index && isPlaying ? <FaPause /> : <FaPlay />}
                                     onClick={() => playAudio(index, 'single')}
                                     variant={currentAyahIndex === index ? "solid" : "ghost"}
                                     colorScheme="brand"
-                                    borderRadius="2xl"
+                                    borderRadius="xl"
                                     aria-label="Play Ayah"
                                   />
                                   <IconButton
-                                    size="lg"
+                                    size="md"
                                     icon={<FaList />}
                                     onClick={() => toggleTafsir(index)}
                                     variant="ghost"
                                     colorScheme="orange"
-                                    borderRadius="2xl"
+                                    borderRadius="xl"
                                     aria-label="Tafsir"
                                   />
                                 </HStack>
                               </Flex>
 
                               <Text
-                                fontSize="3xl"
+                                fontSize="2xl"
                                 textAlign="right"
                                 fontFamily="'Amiri', serif"
-                                lineHeight="2.5"
+                                lineHeight="2.2"
                                 dir="rtl"
                                 color="gray.800"
-                                fontWeight="normal"
                               >
                                 {ayah.text.arab}
                               </Text>
 
-                              <VStack align="start" spacing={4} borderLeft="2px solid" borderColor="brand.50" pl={6}>
-                                <Text color="brand.600" fontSize="sm" fontWeight="800" letterSpacing="wide">
+                              <VStack align="start" spacing={3} borderLeft="2px solid" borderColor="brand.50" pl={4}>
+                                <Text color="brand.600" fontSize="xs" fontWeight="800" letterSpacing="wide">
                                   {ayah.text.transliteration.en}
                                 </Text>
-                                <Text fontSize="lg" color={translationColor} fontWeight="600" lineHeight="1.8">
+                                <Text fontSize="md" color={translationColor} fontWeight="600" lineHeight="1.6">
                                   {ayah.translation.id}
                                 </Text>
                               </VStack>
@@ -457,11 +450,9 @@ const QuranPage = () => {
                                     exit={{ height: 0, opacity: 0 }}
                                     overflow="hidden"
                                   >
-                                    <Box mt={4} p={8} bg={tafsirBg} borderRadius="2xl" border="1px solid" borderColor="orange.100">
-                                      <HStack mb={4} spacing={2}>
-                                        <Badge colorScheme="orange" variant="solid" borderRadius="md">TAFSIR RINGKAS</Badge>
-                                      </HStack>
-                                      <Text fontSize="md" color="gray.700" lineHeight="1.8" fontWeight="500">
+                                    <Box mt={2} p={6} bg={tafsirBg} borderRadius="2xl" border="1px solid" borderColor="orange.100">
+                                      <Badge colorScheme="orange" variant="solid" borderRadius="md" mb={2}>TAFSIR</Badge>
+                                      <Text fontSize="sm" color="gray.700" lineHeight="1.6" fontWeight="500">
                                         {ayah.tafsir.id.short}
                                       </Text>
                                     </Box>
@@ -471,6 +462,20 @@ const QuranPage = () => {
                             </VStack>
                           </MotionBox>
                         ))}
+
+                        {surahDetail.verses.length > visibleLimit && (
+                            <Button
+                                variant="ghost"
+                                colorScheme="brand"
+                                onClick={() => setVisibleLimit(prev => prev + 20)}
+                                py={8}
+                                borderRadius="2xl"
+                                border="1px dashed"
+                                borderColor="brand.200"
+                            >
+                                Tampilkan Lebih Banyak Ayat...
+                            </Button>
+                        )}
                       </VStack>
                     </VStack>
                   )}
@@ -488,124 +493,140 @@ const QuranPage = () => {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 100, opacity: 0 }}
               position="fixed"
-              bottom={{ base: 4, md: 10 }}
+              bottom={{ base: 4, md: 8 }}
               left="0"
               right="0"
               mx="auto"
               zIndex={100}
               w="full"
-              maxW="container.lg"
+              maxW="container.md"
               px={4}
             >
               <Box
                 layerStyle="liquidGlass"
-                borderRadius="3xl"
-                p={{ base: 4, md: 6 }}
-                boxShadow="0 25px 60px rgba(0,0,0,0.2)"
+                borderRadius={{ base: "2xl", md: "3xl" }}
+                p={{ base: 3, md: 5 }}
+                boxShadow="0 25px 50px -12px rgba(0,0,0,0.25)"
                 border="1px solid"
                 borderColor="whiteAlpha.300"
               >
-                <Flex
-                  direction={{ base: 'column', md: 'row' }}
-                  align="center"
-                  justify="space-between"
-                  gap={{ base: 4, md: 8 }}
-                >
-                  <HStack spacing={6} w={{ base: 'full', md: 'auto' }} justify="space-between">
-                    <HStack spacing={3} cursor="pointer" onClick={() => setIsAutoScroll(!isAutoScroll)}>
-                        <Checkbox
-                            isChecked={isAutoScroll}
-                            onChange={(e) => setIsAutoScroll(e.target.checked)}
-                            colorScheme="brand"
-                            size="lg"
-                        />
-                        <Text fontSize="xs" fontWeight="900" color="gray.600" letterSpacing="tighter">AUTO SCROLL</Text>
-                    </HStack>
+                <VStack spacing={3}>
+                    <Flex w="full" justify="space-between" align="center" display={{ base: 'flex', md: 'none' }}>
+                         <HStack spacing={2}>
+                            <Badge colorScheme="brand" variant="solid" borderRadius="full">AUDIO</Badge>
+                            <Text fontSize="xs" fontWeight="800" color="gray.600">Surah {surahDetail.name.transliteration.id}</Text>
+                         </HStack>
+                         <IconButton
+                            icon={<FaArrowUp />}
+                            size="xs"
+                            variant="ghost"
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                         />
+                    </Flex>
 
-                    <Divider orientation="vertical" h="40px" display={{ base: 'none', md: 'block' }} />
-
-                    <VStack align="start" spacing={1} flex={{ base: 1, md: 'none' }}>
-                        <Text fontSize="10px" fontWeight="900" color="gray.400" letterSpacing="widest">RENTANG AYAT</Text>
-                        <HStack spacing={2} w="full">
-                            <Select
+                    <Flex
+                      direction={{ base: 'column', md: 'row' }}
+                      align="center"
+                      justify="space-between"
+                      w="full"
+                      gap={{ base: 3, md: 6 }}
+                    >
+                      <HStack spacing={{ base: 4, md: 6 }} w={{ base: 'full', md: 'auto' }} justify="space-between">
+                        <HStack spacing={3} onClick={() => setIsAutoScroll(!isAutoScroll)} cursor="pointer">
+                            <Switch
+                                isChecked={isAutoScroll}
+                                colorScheme="brand"
                                 size="sm"
-                                w={{ base: 'full', md: '80px' }}
-                                variant="filled"
-                                borderRadius="xl"
-                                value={rangeStart}
-                                onChange={(e) => setRangeStart(parseInt(e.target.value))}
-                                bg="whiteAlpha.500"
-                            >
-                                {surahDetail.verses.map(v => (
-                                    <option key={v.number.inSurah} value={v.number.inSurah}>{v.number.inSurah}</option>
-                                ))}
-                            </Select>
-                            <Text fontSize="xs" fontWeight="bold">S/D</Text>
-                            <Select
-                                size="sm"
-                                w={{ base: 'full', md: '80px' }}
-                                variant="filled"
-                                borderRadius="xl"
-                                value={rangeEnd}
-                                onChange={(e) => setRangeEnd(parseInt(e.target.value))}
-                                bg="whiteAlpha.500"
-                            >
-                                {surahDetail.verses.map(v => (
-                                    <option key={v.number.inSurah} value={v.number.inSurah}>{v.number.inSurah}</option>
-                                ))}
-                            </Select>
+                                pointerEvents="none"
+                            />
+                            <Text fontSize="9px" fontWeight="900" color="gray.500">AUTO SCROLL</Text>
                         </HStack>
-                    </VStack>
-                  </HStack>
 
-                  <Flex flex={1} justify="center" align="center" w="full">
-                    <HStack spacing={4} bg="brand.500" p={2} pr={8} pl={2} borderRadius="full" color="white" boxShadow="xl" w={{ base: 'full', md: 'auto' }} justify="center">
-                        <IconButton
-                            icon={isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? <FaPause /> : <FaPlay />}
-                            bg="white"
-                            color="brand.500"
-                            _hover={{ bg: 'gray.100' }}
-                            borderRadius="full"
-                            size="lg"
-                            onClick={() => {
-                                const targetMode = (rangeStart === 1 && rangeEnd === surahDetail.numberOfVerses) ? 'full' : 'range';
+                        <Divider orientation="vertical" h="30px" display={{ base: 'none', md: 'block' }} />
 
-                                if (isPlaying && (playbackMode === 'range' || playbackMode === 'full')) {
-                                    audioRef.current?.pause();
-                                    setIsPlaying(false);
-                                } else {
-                                    if (currentAyahIndex >= rangeStart - 1 && currentAyahIndex < rangeEnd && playbackMode === targetMode) {
-                                        audioRef.current?.play();
-                                        setIsPlaying(true);
-                                    } else {
-                                        playAudio(rangeStart - 1, targetMode);
-                                    }
-                                }
-                            }}
-                        />
-                        <VStack align="start" spacing={0}>
-                            <Text fontSize="xs" fontWeight="900" color="whiteAlpha.800" letterSpacing="wider">
-                                {isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? 'SEDANG DIPUTAR' : 'PUTAR RENTANG'}
-                            </Text>
-                            <Heading size="xs" color="white">
-                                Ayat {rangeStart} - {rangeEnd}
-                            </Heading>
+                        <VStack align="start" spacing={0} flex={{ base: 1, md: 'none' }}>
+                            <Text fontSize="8px" fontWeight="900" color="gray.400" letterSpacing="widest">RENTANG AYAT</Text>
+                            <HStack spacing={1} w="full">
+                                <Select
+                                    size="xs"
+                                    w="60px"
+                                    variant="filled"
+                                    borderRadius="lg"
+                                    value={rangeStart}
+                                    onChange={(e) => setRangeStart(parseInt(e.target.value))}
+                                    bg="whiteAlpha.500"
+                                >
+                                    {surahDetail.verses.map(v => (
+                                        <option key={v.number.inSurah} value={v.number.inSurah}>{v.number.inSurah}</option>
+                                    ))}
+                                </Select>
+                                <Text fontSize="xs" fontWeight="bold">-</Text>
+                                <Select
+                                    size="xs"
+                                    w="60px"
+                                    variant="filled"
+                                    borderRadius="lg"
+                                    value={rangeEnd}
+                                    onChange={(e) => setRangeEnd(parseInt(e.target.value))}
+                                    bg="whiteAlpha.500"
+                                >
+                                    {surahDetail.verses.map(v => (
+                                        <option key={v.number.inSurah} value={v.number.inSurah}>{v.number.inSurah}</option>
+                                    ))}
+                                </Select>
+                            </HStack>
                         </VStack>
-                    </HStack>
-                  </Flex>
+                      </HStack>
 
-                  <HStack spacing={4} w={{ base: 'full', md: 'auto' }} justify="center">
-                    <IconButton
-                        icon={<FaArrowUp />}
-                        size="md"
-                        colorScheme="brand"
-                        variant="ghost"
-                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                        aria-label="Ke Atas"
-                        borderRadius="full"
-                    />
-                  </HStack>
-                </Flex>
+                      <Flex flex={1} justify="center" align="center" w="full">
+                        <HStack spacing={3} bg="brand.500" p={1.5} pr={6} pl={1.5} borderRadius="full" color="white" boxShadow="lg" w={{ base: 'full', md: 'auto' }} justify="center">
+                            <IconButton
+                                icon={isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? <FaPause /> : <FaPlay />}
+                                bg="white"
+                                color="brand.500"
+                                _hover={{ bg: 'gray.100' }}
+                                borderRadius="full"
+                                size="md"
+                                onClick={() => {
+                                    const targetMode = (rangeStart === 1 && rangeEnd === surahDetail.numberOfVerses) ? 'full' : 'range';
+
+                                    if (isPlaying && (playbackMode === 'range' || playbackMode === 'full')) {
+                                        audioRef.current?.pause();
+                                        setIsPlaying(false);
+                                    } else {
+                                        if (currentAyahIndex >= rangeStart - 1 && currentAyahIndex < rangeEnd && playbackMode === targetMode) {
+                                            audioRef.current?.play();
+                                            setIsPlaying(true);
+                                        } else {
+                                            playAudio(rangeStart - 1, targetMode);
+                                        }
+                                    }
+                                }}
+                            />
+                            <VStack align="start" spacing={0}>
+                                <Text fontSize="8px" fontWeight="900" color="whiteAlpha.800" letterSpacing="wider">
+                                    {isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? 'DIPUTAR' : 'PUTAR'}
+                                </Text>
+                                <Heading size="xs" color="white" fontSize="10px">
+                                    Ayat {rangeStart} - {rangeEnd}
+                                </Heading>
+                            </VStack>
+                        </HStack>
+                      </Flex>
+
+                      <HStack spacing={4} display={{ base: 'none', md: 'flex' }}>
+                        <IconButton
+                            icon={<FaArrowUp />}
+                            size="sm"
+                            colorScheme="brand"
+                            variant="ghost"
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            aria-label="Ke Atas"
+                            borderRadius="full"
+                        />
+                      </HStack>
+                    </Flex>
+                </VStack>
               </Box>
             </MotionBox>
           )}
