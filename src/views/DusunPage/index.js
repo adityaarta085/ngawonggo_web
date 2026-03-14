@@ -63,7 +63,7 @@ const DusunPage = () => {
   );
 
   return (
-    <Box pt={{ base: "100px", md: "140px" }} pb={20}>
+    <Box pt={0} pb={20}>
       <SEO
         title={`Dusun ${data.name}`}
         description={`${data.description} Informasi lengkap profil, statistik, dan lokasi Dusun ${data.name}, Desa Ngawonggo.`}

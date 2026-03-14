@@ -66,7 +66,7 @@ const NewsDetail = () => {
   }).substring(0, 160) + "...";
 
   return (
-    <Box py={10} pt={{ base: "100px", md: "140px" }}>
+    <Box py={10} pt={0}>
       <SEO
         title={news.title}
         description={plainText}

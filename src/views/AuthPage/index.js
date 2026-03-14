@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   VStack,
@@ -25,7 +25,7 @@ import {
 } from '@chakra-ui/react';
 import { FaGoogle, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 
 const AuthPage = () => {
   const [email, setEmail] = useState('');
@@ -35,6 +35,22 @@ const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Handle errors from OAuth redirect if any
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const error = query.get('error_description');
+    if (error) {
+      toast({
+        title: 'Gagal Login',
+        description: error,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }, [location, toast]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -80,10 +96,12 @@ const AuthPage = () => {
 
   const handleGoogleLogin = async () => {
     setLoading(true);
+
+    // Use a small delay for better UX and to ensure state is set
     toast({
       title: 'Menghubungkan ke Google...',
       status: 'info',
-      duration: 2000,
+      duration: 3000,
       isClosable: true,
     });
 
@@ -91,7 +109,7 @@ const AuthPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: window.location.origin + '/portal',
+            redirectTo: `${window.location.origin}/portal`,
             queryParams: {
               access_type: 'offline',
               prompt: 'select_account',
@@ -99,12 +117,15 @@ const AuthPage = () => {
         }
       });
       if (error) throw error;
+      // Note: Redirect happens automatically
     } catch (error) {
+      setLoading(false);
       toast({
         title: 'Gagal Login Google',
         description: error.message,
         status: 'error',
-        duration: 3000,
+        duration: 5000,
+        isClosable: true,
       });
     }
   };
@@ -227,7 +248,6 @@ const AuthPage = () => {
                    </VStack>
                 </TabPanel>
                 <TabPanel p={0}>
-                    {/* Same form structure but with isSignUp active */}
                     <VStack spacing={4} as="form" onSubmit={handleAuth}>
                       <FormControl isRequired>
                         <FormLabel fontSize="sm">Email</FormLabel>
@@ -292,6 +312,7 @@ const AuthPage = () => {
               borderRadius="xl"
               h="50px"
               isLoading={loading}
+              disabled={loading}
               _hover={{ bg: 'gray.50' }}
             >
               Lanjutkan dengan Google

@@ -54,7 +54,7 @@ const EduGamePage = () => {
 
   if (activeGame) {
     return (
-      <Box  pt={{ base: "100px", md: "140px" }} minH="100vh" bg={bg} py={10} position="relative">
+      <Box  pt={0} minH="100vh" bg={bg} py={10} position="relative">
         <Container maxW="container.lg">
           <Button
             leftIcon={<FaArrowLeft />}

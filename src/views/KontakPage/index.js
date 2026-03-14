@@ -40,7 +40,7 @@ const ContactInfo = ({ icon, label, value, href }) => {
 
 const KontakPage = () => {
   return (
-    <Box pt={{ base: "100px", md: "140px" }} bg="gray.50" minH="100vh">
+    <Box pt={0} bg="gray.50" minH="100vh">
       <SEO
         title="Kontak"
         description="Hubungi Pemerintah Desa Ngawonggo. Informasi alamat kantor desa, nomor telepon, WhatsApp center, email, dan media sosial resmi."
