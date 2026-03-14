@@ -21,6 +21,7 @@ import {
   Checkbox,
   useToast,
   Center,
+  Switch,
 } from '@chakra-ui/react';
 import { FaSearch, FaQuran, FaPlay, FaPause, FaArrowUp, FaList, FaArrowLeft } from 'react-icons/fa';
 import axios from 'axios';
@@ -46,7 +47,6 @@ const QuranPage = () => {
   const [showTafsir, setShowTafsir] = useState({});
   const [user, setUser] = useState(null);
 
-  // Optimization: Virtualization-lite (Visible limit)
   const [visibleLimit, setVisibleLimit] = useState(20);
 
   const audioRef = useRef(null);
@@ -85,7 +85,6 @@ const QuranPage = () => {
   }, [fetchSurahs]);
 
   const scrollToAyah = useCallback((index) => {
-    // If target ayah is beyond current visible limit, expand it
     if (index >= visibleLimit) {
         setVisibleLimit(index + 10);
     }
@@ -98,7 +97,7 @@ const QuranPage = () => {
     setDetailLoading(true);
     setSelectedSurah(number);
     window.scrollTo(0, 0);
-    setVisibleLimit(20); // Reset limit
+    setVisibleLimit(20);
     try {
       const res = await axios.get(`https://api.quran.gading.dev/surah/${number}`);
       const data = res.data.data;
@@ -339,7 +338,6 @@ const QuranPage = () => {
                     </Center>
                   ) : (
                     <VStack spacing={8} align="stretch">
-                      {/* Header Surah */}
                       <MotionBox
                         p={{ base: 8, md: 12 }}
                         bgGradient="linear(to-br, brand.600, brand.800)"
@@ -375,7 +373,6 @@ const QuranPage = () => {
                           </Center>
                       )}
 
-                      {/* List Ayat */}
                       <VStack spacing={4} align="stretch">
                         {visibleVerses.map((ayah, index) => (
                           <MotionBox
@@ -514,7 +511,6 @@ const QuranPage = () => {
                 borderColor="whiteAlpha.300"
               >
                 <VStack spacing={3}>
-                    {/* Top Row: Info & Close */}
                     <Flex w="full" justify="space-between" align="center" display={{ base: 'flex', md: 'none' }}>
                          <HStack spacing={2}>
                             <Badge colorScheme="brand" variant="solid" borderRadius="full">AUDIO</Badge>
@@ -536,12 +532,12 @@ const QuranPage = () => {
                       gap={{ base: 3, md: 6 }}
                     >
                       <HStack spacing={{ base: 4, md: 6 }} w={{ base: 'full', md: 'auto' }} justify="space-between">
-                        <HStack spacing={2} cursor="pointer" onClick={() => setIsAutoScroll(!isAutoScroll)}>
-                            <Checkbox
+                        <HStack spacing={3} onClick={() => setIsAutoScroll(!isAutoScroll)} cursor="pointer">
+                            <Switch
                                 isChecked={isAutoScroll}
-                                onChange={(e) => setIsAutoScroll(e.target.checked)}
                                 colorScheme="brand"
-                                size="md"
+                                size="sm"
+                                pointerEvents="none"
                             />
                             <Text fontSize="9px" fontWeight="900" color="gray.500">AUTO SCROLL</Text>
                         </HStack>
