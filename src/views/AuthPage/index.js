@@ -23,7 +23,7 @@ import {
   TabPanel,
   Link,
 } from '@chakra-ui/react';
-import { FaGoogle, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+import { FaGoogle, FaFacebook, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 
@@ -122,6 +122,36 @@ const AuthPage = () => {
       setLoading(false);
       toast({
         title: 'Gagal Login Google',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    setLoading(true);
+
+    toast({
+      title: 'Menghubungkan ke Facebook...',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+            redirectTo: `${window.location.origin}/portal`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: 'Gagal Login Facebook',
         description: error.message,
         status: 'error',
         duration: 5000,
@@ -304,19 +334,35 @@ const AuthPage = () => {
               <Divider />
             </HStack>
 
-            <Button
-              w="full"
-              variant="outline"
-              leftIcon={<FaGoogle color="#EA4335" />}
-              onClick={handleGoogleLogin}
-              borderRadius="xl"
-              h="50px"
-              isLoading={loading}
-              disabled={loading}
-              _hover={{ bg: 'gray.50' }}
-            >
-              Lanjutkan dengan Google
-            </Button>
+            <VStack spacing={3} w="full">
+              <Button
+                w="full"
+                variant="outline"
+                leftIcon={<FaGoogle color="#EA4335" />}
+                onClick={handleGoogleLogin}
+                borderRadius="xl"
+                h="50px"
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+              >
+                Lanjutkan dengan Google
+              </Button>
+
+              <Button
+                w="full"
+                variant="outline"
+                leftIcon={<FaFacebook color="#1877F2" />}
+                onClick={handleFacebookLogin}
+                borderRadius="xl"
+                h="50px"
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+              >
+                Lanjutkan dengan Facebook (Beta)
+              </Button>
+            </VStack>
           </Box>
 
           <Text fontSize="xs" color="gray.500" textAlign="center">
