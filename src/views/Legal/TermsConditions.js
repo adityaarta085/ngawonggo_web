@@ -17,129 +17,163 @@ import {
   AccordionItem,
   AccordionButton,
   AccordionPanel,
-  AccordionIcon
+  AccordionIcon,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+  SimpleGrid
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import { FaFileContract, FaUserCheck, FaBalanceScale, FaExclamationTriangle } from 'react-icons/fa';
+import { FaFileContract, FaUserCheck, FaBalanceScale, FaExclamationTriangle, FaEnvelopeOpenText, FaAdn } from 'react-icons/fa';
 import SEO from '../../components/SEO';
 
 const TermsConditions = () => {
   return (
     <Box py={{ base: 20, md: 28 }} bg="gray.50" minH="100vh">
       <SEO
-        title="Syarat & Ketentuan - Desa Ngawonggo"
-        description="Syarat dan ketentuan penggunaan portal resmi Desa Ngawonggo."
+        title="Syarat & Ketentuan Terperinci - Desa Ngawonggo"
+        description="Dokumen hukum resmi mengenai syarat, ketentuan, hak, dan kewajiban pengguna Portal Desa Digital Ngawonggo."
       />
 
-      <Container maxW="container.lg">
+      <Container maxW="container.xl">
         <Breadcrumb mb={8} fontSize="sm">
           <BreadcrumbItem>
             <BreadcrumbLink as={RouterLink} to="/" color="brand.500">Beranda</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink fontWeight="bold">Syarat & Ketentuan</BreadcrumbLink>
+            <BreadcrumbLink fontWeight="bold">Syarat & Ketentuan (Lengkap)</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
 
         <Box
           layerStyle="glassCard"
-          p={{ base: 6, md: 12 }}
+          p={{ base: 6, md: 16 }}
           bg="white"
           borderRadius="3xl"
           boxShadow="soft"
         >
-          <VStack align="start" spacing={8}>
+          <VStack align="start" spacing={10}>
             <Box>
-              <Heading as="h1" size="2xl" color="brand.500" mb={2}>Syarat & Ketentuan</Heading>
-              <Text color="gray.500" fontWeight="600">Terakhir Diperbarui: 15 Januari 2026</Text>
+              <Heading as="h1" size="2xl" color="brand.500" mb={4}>Syarat & Ketentuan Penggunaan</Heading>
+              <Text color="gray.500" fontWeight="600" fontSize="lg">Perjanjian Layanan Digital | Terakhir Diperbarui: 15 Januari 2026</Text>
+              <Alert status="info" variant="left-accent" mt={6} borderRadius="xl">
+                <AlertIcon />
+                <Box>
+                  <AlertTitle>Persetujuan Penggunaan</AlertTitle>
+                  <AlertDescription fontSize="sm">
+                    Dokumen ini adalah kontrak yang mengikat secara hukum antara Anda dan Pemerintah Desa Ngawonggo. Dengan menggunakan portal ini, Anda menyetujui seluruh aspek teknis, etika, dan hukum yang kami tetapkan.
+                  </AlertDescription>
+                </Box>
+              </Alert>
             </Box>
 
             <Divider borderColor="gray.100" />
 
-            <Box w="full">
-              <Flex align="center" mb={4} gap={3}>
-                <Icon as={FaFileContract} color="brand.500" boxSize={6} />
-                <Heading size="md">1. Penerimaan Ketentuan</Heading>
-              </Flex>
-              <Text mb={4} lineHeight="tall">
-                Dengan mengakses dan menggunakan portal <strong>Desa Digital Ngawonggo</strong>, Anda secara otomatis menyetujui seluruh ketentuan yang tercantum dalam dokumen ini. Jika Anda tidak menyetujui salah satu bagian dari ketentuan ini, mohon untuk tidak melanjutkan penggunaan layanan kami.
-              </Text>
-            </Box>
+            <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={12} w="full">
+              <Box>
+                <Flex align="center" mb={6} gap={3}>
+                  <Icon as={FaFileContract} color="brand.500" boxSize={6} />
+                  <Heading size="md">1. Hak Komunikasi & Notifikasi</Heading>
+                </Flex>
+                <Text mb={4} color="gray.700" lineHeight="tall">
+                  Sebagai bagian integral dari layanan kami, Anda menyetujui bahwa Pemerintah Desa Ngawonggo memiliki hak untuk mengirimkan korespondensi elektronik (Email) ke alamat yang Anda gunakan saat login.
+                </Text>
+                <Box p={5} bg="green.50" borderRadius="xl" border="1px dashed" borderColor="green.300">
+                  <Text fontWeight="bold" color="green.700" mb={2}>Lingkup Komunikasi Positif:</Text>
+                  <Text fontSize="sm" color="green.800">
+                    Email yang dikirimkan murni bertujuan untuk kemaslahatan warga, termasuk namun tidak terbatas pada: Informasi administrasi kependudukan, update pembangunan desa, berita duka/bahagia komunitas, dan pemberitahuan layanan publik digital terbaru. Kami menjamin tidak ada spam komersial yang tidak relevan.
+                  </Text>
+                </Box>
+              </Box>
+
+              <Box>
+                <Flex align="center" mb={6} gap={3}>
+                  <Icon as={FaAdn} color="brand.500" boxSize={6} />
+                  <Heading size="md">2. Klausul Konten Sponsor & Iklan</Heading>
+                </Flex>
+                <Text mb={4} color="gray.700" lineHeight="tall">
+                  Meskipun saat ini platform kami beroperasi tanpa iklan, Pemerintah Desa Ngawonggo memegang hak prerogatif untuk memperkenalkan penempatan iklan atau konten bersponsor di masa mendatang.
+                </Text>
+                <UnorderedList spacing={2} ml={6} fontSize="sm" color="gray.600">
+                  <li>Iklan akan difokuskan pada pemberdayaan ekonomi lokal (UMKM Desa).</li>
+                  <li>Pengguna tidak dapat menuntut kompensasi atas iklan yang muncul.</li>
+                  <li>Kami menjaga agar estetika dan kenyamanan pengguna tetap menjadi prioritas utama meski terdapat iklan.</li>
+                </UnorderedList>
+              </Box>
+            </SimpleGrid>
 
             <Accordion allowMultiple w="full">
-              <AccordionItem border="none" mb={4}>
-                <AccordionButton p={4} bg="gray.50" borderRadius="xl" _hover={{ bg: "gray.100" }}>
-                  <Icon as={FaUserCheck} color="brand.500" mr={3} />
-                  <Box flex="1" textAlign="left" fontWeight="bold">
-                    2. Akun dan Otentikasi
+              <AccordionItem border="none" mb={6}>
+                <AccordionButton p={6} bg="gray.50" borderRadius="2xl" _hover={{ bg: "gray.100" }}>
+                  <Icon as={FaUserCheck} color="brand.500" mr={4} boxSize={5} />
+                  <Box flex="1" textAlign="left" fontWeight="bold" fontSize="lg">
+                    3. Kewajiban & Integritas Pengguna
                   </Box>
                   <AccordionIcon />
                 </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <UnorderedList spacing={2} ml={6} color="gray.700">
-                    <ListItem>Layanan Portal Warga memerlukan otentikasi melalui pihak ketiga (OAuth). Anda bertanggung jawab penuh atas keamanan akun pihak ketiga yang Anda gunakan.</ListItem>
-                    <ListItem>Anda wajib memberikan informasi yang akurat dan jujur saat berinteraksi dengan layanan pemerintah desa (seperti fitur Pengaduan).</ListItem>
-                    <ListItem>Satu akun hanya diperbolehkan digunakan oleh satu individu pemegang identitas yang sah.</ListItem>
+                <AccordionPanel pb={6} px={8}>
+                  <Text mb={4} color="gray.700">Setiap pengguna Portal Desa Digital Ngawonggo wajib:</Text>
+                  <UnorderedList spacing={3} color="gray.600">
+                    <li>Menggunakan identitas asli yang terverifikasi melalui provider sosial masing-masing.</li>
+                    <li>Menjaga kesantunan dalam setiap fitur interaktif (Komentar, Pengaduan, Chatbot).</li>
+                    <li>Tidak melakukan tindakan manipulasi data, hacking, atau percobaan perusakan infrastruktur digital milik desa.</li>
+                    <li>Melaporkan jika menemukan bug atau kerentanan keamanan melalui saluran resmi.</li>
                   </UnorderedList>
                 </AccordionPanel>
               </AccordionItem>
 
-              <AccordionItem border="none" mb={4}>
-                <AccordionButton p={4} bg="gray.50" borderRadius="xl" _hover={{ bg: "gray.100" }}>
-                  <Icon as={FaBalanceScale} color="brand.500" mr={3} />
-                  <Box flex="1" textAlign="left" fontWeight="bold">
-                    3. Penggunaan Layanan AI & Konten Digital
+              <AccordionItem border="none" mb={6}>
+                <AccordionButton p={6} bg="gray.50" borderRadius="2xl" _hover={{ bg: "gray.100" }}>
+                  <Icon as={FaBalanceScale} color="brand.500" mr={4} boxSize={5} />
+                  <Box flex="1" textAlign="left" fontWeight="bold" fontSize="lg">
+                    4. Konten Digital & Kekayaan Intelektual
                   </Box>
                   <AccordionIcon />
                 </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <UnorderedList spacing={2} ml={6} color="gray.700">
-                    <ListItem><strong>Chatbot AI:</strong> Merupakan asisten digital berbasis kecerdasan buatan. Jawaban yang diberikan bersifat informatif dan tidak dapat dianggap sebagai produk hukum formal tanpa verifikasi staf desa.</ListItem>
-                    <ListItem><strong>Digital Quran:</strong> Konten Al-Quran digital disediakan untuk memfasilitasi ibadah warga. Dilarang menyalahgunakan fitur ini untuk tujuan yang tidak semestinya.</ListItem>
-                    <ListItem><strong>Game Edukasi:</strong> Disediakan untuk sarana hiburan dan pendidikan. Skor yang tercatat murni untuk tujuan kompetisi sehat antar warga.</ListItem>
+                <AccordionPanel pb={6} px={8}>
+                  <Text mb={4} color="gray.700">Seluruh materi dalam portal ini dilindungi oleh Undang-Undang Hak Cipta:</Text>
+                  <UnorderedList spacing={3} color="gray.600">
+                    <li><strong>Atribusi Pengembang:</strong> Portal ini adalah karya kolaboratif <strong>SMK Muhammadiyah Bandongan (TJKT A 2026)</strong>.</li>
+                    <li><strong>Data Al-Quran:</strong> Diperoleh dari API terpercaya dan dilarang untuk dikomersialkan ulang oleh pihak manapun.</li>
+                    <li><strong>Berita & Foto:</strong> Hak cipta ada pada Pemerintah Desa Ngawonggo. Penggunaan ulang wajib mencantumkan sumber link aktif.</li>
                   </UnorderedList>
                 </AccordionPanel>
               </AccordionItem>
 
-              <AccordionItem border="none" mb={4}>
-                <AccordionButton p={4} bg="gray.50" borderRadius="xl" _hover={{ bg: "gray.100" }}>
-                  <Icon as={FaExclamationTriangle} color="brand.500" mr={3} />
-                  <Box flex="1" textAlign="left" fontWeight="bold">
-                    4. Batasan Tanggung Jawab
+              <AccordionItem border="none" mb={6}>
+                <AccordionButton p={6} bg="gray.50" borderRadius="2xl" _hover={{ bg: "gray.100" }}>
+                  <Icon as={FaExclamationTriangle} color="brand.500" mr={4} boxSize={5} />
+                  <Box flex="1" textAlign="left" fontWeight="bold" fontSize="lg">
+                    5. Batasan Kewajiban & Pemeliharaan (Takedown)
                   </Box>
                   <AccordionIcon />
                 </AccordionButton>
-                <AccordionPanel pb={4}>
-                  <Text mb={2}>Pemerintah Desa Ngawonggo tidak bertanggung jawab atas:</Text>
-                  <UnorderedList spacing={2} ml={6} color="gray.700">
-                    <ListItem>Kerugian yang timbul akibat penyalahgunaan akun oleh pihak lain.</ListItem>
-                    <ListItem>Ketidakakuratan data yang disebabkan oleh kesalahan input dari pengguna.</ListItem>
-                    <ListItem>Gangguan layanan yang terjadi selama masa pemeliharaan (Takedown Mode) atau gangguan infrastruktur internet pihak ketiga.</ListItem>
+                <AccordionPanel pb={6} px={8}>
+                  <Text mb={4} color="gray.700">Kami berupaya menjaga layanan tetap aktif 24/7, namun menyadari bahwa:</Text>
+                  <UnorderedList spacing={3} color="gray.600">
+                    <li><strong>Takedown Mode:</strong> Kami berhak mematikan akses website sewaktu-waktu untuk pemeliharaan rutin atau darurat keamanan tanpa pemberitahuan sebelumnya.</li>
+                    <li><strong>AI Hallucination:</strong> Kami tidak bertanggung jawab atas saran teknis yang salah yang mungkin dihasilkan oleh Chatbot AI. Selalu verifikasi informasi penting secara langsung ke perangkat desa.</li>
+                    <li><strong>Force Majeure:</strong> Kami tidak bertanggung jawab atas kegagalan sistem akibat bencana alam atau gangguan infrastruktur internet global.</li>
                   </UnorderedList>
                 </AccordionPanel>
               </AccordionItem>
             </Accordion>
 
-            <Box w="full">
-              <Heading size="md" mb={4}>5. Hak Kekayaan Intelektual</Heading>
-              <Text mb={4} lineHeight="tall">
-                Portal ini dikembangkan oleh <strong>SMK Muhammadiyah Bandongan (TJKT A 2026)</strong> atas nama Pemerintah Desa Ngawonggo. Seluruh aset visual, kode program, dan konten berita adalah milik Pemerintah Desa Ngawonggo. Penggunaan materi untuk kepentingan komersial tanpa izin tertulis merupakan pelanggaran hukum.
+            <Box w="full" p={8} bg="orange.50" borderRadius="2xl" border="1px solid" borderColor="orange.200">
+              <Heading size="sm" mb={3} color="orange.700" display="flex" align="center" gap={2}>
+                <Icon as={FaExclamationTriangle} /> Pelanggaran & Sanksi
+              </Heading>
+              <Text fontSize="sm" color="orange.900" lineHeight="tall">
+                Pelanggaran terhadap syarat ini dapat mengakibatkan: (1) Peringatan keras melalui email; (2) Pemblokiran akses akun sementara atau permanen; (3) Pelaporan kepada pihak kepolisian jika ditemukan unsur tindak pidana siber sesuai UU ITE yang berlaku di Indonesia.
               </Text>
             </Box>
 
-            <Box w="full">
-              <Heading size="md" mb={4}>6. Hukum yang Berlaku</Heading>
-              <Text mb={4} lineHeight="tall">
-                Syarat dan Ketentuan ini tunduk pada hukum Republik Indonesia. Segala sengketa yang tidak dapat diselesaikan secara musyawarah akan diselesaikan melalui jalur hukum yang berlaku di wilayah hukum Kabupaten Magelang.
+            <Flex justify="center" w="full" pt={4}>
+              <Text fontSize="xs" color="gray.400" textAlign="center">
+                Portal Desa Digital Ngawonggo - Mewujudkan Transparansi Melalui Teknologi Tepat Guna.
               </Text>
-            </Box>
-
-            <Box w="full" p={6} bg="orange.50" borderRadius="2xl" border="1px solid" borderColor="orange.100">
-              <Heading size="sm" mb={2} color="orange.700">Peringatan Penting</Heading>
-              <Text fontSize="sm" color="orange.800">
-                Kami berhak menonaktifkan akun atau membatasi akses warga yang terbukti melakukan provokasi, penyebaran berita bohong (hoax), atau tindakan asusila di dalam platform digital desa ini.
-              </Text>
-            </Box>
+            </Flex>
           </VStack>
         </Box>
       </Container>
