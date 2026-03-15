@@ -32,6 +32,7 @@ import {
   FaCog,
   FaBars,
   FaMapMarkedAlt,
+  FaEnvelope,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -45,6 +46,7 @@ import ComplaintManager from './components/ComplaintManager';
 import CommentManager from './components/CommentManager';
 import SettingsManager from './components/SettingsManager';
 import DusunManager from './components/DusunManager';
+import BroadcastManager from './components/BroadcastManager';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -64,6 +66,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Popup', icon: FaWindowMaximize },
     { name: 'Pengaduan', icon: FaExclamationCircle },
     { name: 'Komentar', icon: FaComments },
+    { name: 'Broadcast Email', icon: FaEnvelope },
     { name: 'Pengaturan', icon: FaCog },
   ];
 
@@ -172,6 +175,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Popup' && <PopupManager />}
           {activeTab === 'Pengaduan' && <ComplaintManager />}
           {activeTab === 'Komentar' && <CommentManager />}
+          {activeTab === 'Broadcast Email' && <BroadcastManager />}
           {activeTab === 'Pengaturan' && <SettingsManager />}
         </Box>
       </Box>
