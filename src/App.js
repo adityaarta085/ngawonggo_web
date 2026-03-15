@@ -4,6 +4,7 @@ import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import NewsPage from './views/NewsPage/index.js';
+import InstallPWA from "./components/InstallPWA";
 import Footer from './components/Footer.js';
 import ProfilPage from './views/ProfilPage/index.js';
 import PageNotFound from './views/PageNotFound/index.js';
@@ -291,6 +292,7 @@ function App() {
             </>
           )}
 
+          {!isAdmin && !isAuth && !isDownPage && <InstallPWA />}
           {!isAdmin && !isAuth && !isDownPage && <Footer />}
         </>
       )}

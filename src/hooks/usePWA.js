@@ -6,22 +6,15 @@ export const usePWA = () => {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
-      // Check if mobile
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      // Prevent the mini-infobar from appearing on mobile (and desktop)
+      // to use our own custom UI
+      e.preventDefault();
 
-      if (isMobile) {
-        // Do NOT preventDefault() on mobile to allow native Chrome Mini-infobar
-        // We still stash the event in case we want to trigger it from a button
-        setDeferredPrompt(e);
-        setIsInstallable(true);
-      } else {
-        // Prevent the mini-infobar from appearing on desktop to use custom UI
-        e.preventDefault();
-        // Stash the event so it can be triggered later.
-        setDeferredPrompt(e);
-        // Update UI notify the user they can install the PWA
-        setIsInstallable(true);
-      }
+      // Stash the event so it can be triggered later.
+      setDeferredPrompt(e);
+
+      // Update UI notify the user they can install the PWA
+      setIsInstallable(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -40,12 +33,14 @@ export const usePWA = () => {
 
   const installApp = async () => {
     if (!deferredPrompt) return;
+
     // Show the install prompt
     deferredPrompt.prompt();
+
     // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
-    // Optionally, send analytics event with outcome of user choice
     console.log(`User response to the install prompt: ${outcome}`);
+
     // We've used the prompt, and can't use it again, throw it away
     setDeferredPrompt(null);
     setIsInstallable(false);
