@@ -22,8 +22,9 @@ import {
   Tab,
   TabPanel,
   Link,
+  Badge,
 } from '@chakra-ui/react';
-import { FaGoogle, FaFacebook, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+import { FaGoogle, FaFacebook, FaDiscord, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 
@@ -160,6 +161,36 @@ const AuthPage = () => {
     }
   };
 
+  const handleDiscordLogin = async () => {
+    setLoading(true);
+
+    toast({
+      title: 'Menghubungkan ke Discord...',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'discord',
+        options: {
+            redirectTo: `${window.location.origin}/portal`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: 'Gagal Login Discord',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <Box
       minH="100vh"
@@ -222,6 +253,69 @@ const AuthPage = () => {
             layerStyle="glassCard"
             bg="white"
           >
+            <VStack spacing={3} w="full" mb={6}>
+              <Button
+                w="full"
+                variant="outline"
+                leftIcon={<FaGoogle color="#EA4335" />}
+                onClick={handleGoogleLogin}
+                borderRadius="xl"
+                h="50px"
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+              >
+                Lanjutkan dengan Google
+              </Button>
+
+              <Button
+                w="full"
+                variant="outline"
+                leftIcon={<FaDiscord color="#5865F2" />}
+                onClick={handleDiscordLogin}
+                borderRadius="xl"
+                h="50px"
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+                position="relative"
+              >
+                Lanjutkan dengan Discord
+                <Badge
+                  colorScheme="green"
+                  variant="solid"
+                  position="absolute"
+                  right="-2"
+                  top="-2"
+                  borderRadius="full"
+                  fontSize="2xs"
+                  px={2}
+                >
+                  NEW
+                </Badge>
+              </Button>
+
+              <Button
+                w="full"
+                variant="outline"
+                leftIcon={<FaFacebook color="#1877F2" />}
+                onClick={handleFacebookLogin}
+                borderRadius="xl"
+                h="50px"
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+              >
+                Lanjutkan dengan Facebook (Beta)
+              </Button>
+            </VStack>
+
+            <HStack w="full" mb={6}>
+              <Divider />
+              <Text fontSize="xs" color="gray.400" whiteSpace="nowrap">Atau gunakan Email</Text>
+              <Divider />
+            </HStack>
+
             <Tabs isFitted variant="soft-rounded" colorScheme="brand" onChange={(index) => setIsSignUp(index === 1)}>
               <TabList mb={6} bg="gray.100" p={1} borderRadius="full">
                 <Tab borderRadius="full">Masuk</Tab>
@@ -327,42 +421,6 @@ const AuthPage = () => {
                 </TabPanel>
               </TabPanels>
             </Tabs>
-
-            <HStack w="full" my={6}>
-              <Divider />
-              <Text fontSize="xs" color="gray.400" whiteSpace="nowrap">Atau gunakan</Text>
-              <Divider />
-            </HStack>
-
-            <VStack spacing={3} w="full">
-              <Button
-                w="full"
-                variant="outline"
-                leftIcon={<FaGoogle color="#EA4335" />}
-                onClick={handleGoogleLogin}
-                borderRadius="xl"
-                h="50px"
-                isLoading={loading}
-                disabled={loading}
-                _hover={{ bg: 'gray.50' }}
-              >
-                Lanjutkan dengan Google
-              </Button>
-
-              <Button
-                w="full"
-                variant="outline"
-                leftIcon={<FaFacebook color="#1877F2" />}
-                onClick={handleFacebookLogin}
-                borderRadius="xl"
-                h="50px"
-                isLoading={loading}
-                disabled={loading}
-                _hover={{ bg: 'gray.50' }}
-              >
-                Lanjutkan dengan Facebook (Beta)
-              </Button>
-            </VStack>
           </Box>
 
           <Text fontSize="xs" color="gray.500" textAlign="center">
