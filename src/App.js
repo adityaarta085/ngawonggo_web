@@ -103,14 +103,7 @@ function App() {
 
   const [userSession, setUserSession] = useState(null);
   const [showSplash, setShowSplash] = useState(true);
-  const [isVerified, setIsVerified] = useState(() => {
-    try {
-      return sessionStorage.getItem('isVerified') === 'true';
-    } catch (e) {
-      console.error('Failed to access sessionStorage:', e);
-      return false;
-    }
-  });
+  const [isVerified, setIsVerified] = useState(false); // Verification reset on refresh
 
   const [isTakedown, setIsTakedown] = useState(false);
 
@@ -159,9 +152,6 @@ function App() {
       if (session) {
         setShowSplash(false);
         setIsVerified(true);
-        try {
-          sessionStorage.setItem('isVerified', 'true');
-        } catch (e) {}
       }
     });
 
@@ -172,9 +162,6 @@ function App() {
       if (session) {
         setShowSplash(false);
         setIsVerified(true);
-        try {
-          sessionStorage.setItem('isVerified', 'true');
-        } catch (e) {}
       }
     });
 
@@ -200,9 +187,6 @@ function App() {
           ) : (
             <HumanVerification onVerified={() => {
               setIsVerified(true);
-              try {
-                sessionStorage.setItem('isVerified', 'true');
-              } catch (e) {}
             }} />
           )}
         </>

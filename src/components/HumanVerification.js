@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Text, Button, Checkbox, ScaleFade, Image } from '@chakra-ui/react';
+import { Box, VStack, Heading, Text, Button, ScaleFade, Image, useToast } from '@chakra-ui/react';
+import { Turnstile } from '@marsidev/react-turnstile';
+import axios from 'axios';
 import Loading from './Loading';
 
 const HumanVerification = ({ onVerified }) => {
   const [isVerifying, setIsVerifying] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const [token, setToken] = useState(null);
   const [verificationType, setVerificationType] = useState(0);
+  const toast = useToast();
+
+  const SITE_KEY = '0x4AAAAAACrMKtrKbQoaiY_g';
 
   useEffect(() => {
      // Randomize verification slightly so it's not always the same prompt text
@@ -18,12 +23,35 @@ const HumanVerification = ({ onVerified }) => {
     "Pastikan Anda bukan robot untuk menikmati pengalaman digital Desa Ngawonggo 2045."
   ];
 
-  const handleVerify = () => {
-    if (isChecked) {
-      setIsVerifying(true);
-      setTimeout(() => {
+  const handleVerify = async () => {
+    if (!token) return;
+
+    setIsVerifying(true);
+    try {
+      const response = await axios.post('/api/verify-turnstile', { token });
+
+      if (response.data.success) {
         onVerified();
-      }, 1200);
+      } else {
+        toast({
+          title: "Verifikasi Gagal",
+          description: "Silakan coba lagi.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        setIsVerifying(false);
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
+      toast({
+        title: "Kesalahan Sistem",
+        description: "Gagal memverifikasi status manusia. Silakan muat ulang halaman.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      setIsVerifying(false);
     }
   };
 
@@ -69,32 +97,24 @@ const HumanVerification = ({ onVerified }) => {
           </VStack>
 
           <Box
-            border="1px solid"
-            borderColor="gray.200"
-            p={4}
-            borderRadius="xl"
             w="full"
             display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            bg="gray.50"
-            _hover={{ borderColor: 'brand.300' }}
-            transition="all 0.2s"
+            justifyContent="center"
+            minH="65px"
           >
-             <Checkbox
-                colorScheme="brand"
-                size="lg"
-                isChecked={isChecked}
-                onChange={(e) => setIsChecked(e.target.checked)}
-                sx={{
-                    '.chakra-checkbox__control': {
-                        borderRadius: 'md',
-                    }
-                }}
-             >
-                <Text fontWeight="600" ml={2} color="gray.700">Saya bukan robot</Text>
-             </Checkbox>
-             {isVerifying ? <Loading size={30} /> : <Image src="https://www.gstatic.com/recaptcha/api2/logo_48.png" h="24px" opacity={0.6} />}
+            {isVerifying ? (
+              <VStack>
+                <Loading size={30} />
+                <Text fontSize="xs" color="gray.500">Memproses verifikasi...</Text>
+              </VStack>
+            ) : (
+              <Turnstile
+                siteKey={SITE_KEY}
+                onSuccess={(token) => setToken(token)}
+                onExpire={() => setToken(null)}
+                onError={() => setToken(null)}
+              />
+            )}
           </Box>
 
           <Button
@@ -102,7 +122,7 @@ const HumanVerification = ({ onVerified }) => {
             w="full"
             size="lg"
             h="56px"
-            isDisabled={!isChecked || isVerifying}
+            isDisabled={!token || isVerifying}
             isLoading={isVerifying}
             onClick={handleVerify}
             boxShadow="0 4px 14px 0 rgba(0, 86, 179, 0.39)"
@@ -116,7 +136,7 @@ const HumanVerification = ({ onVerified }) => {
           </Button>
 
           <Text fontSize="xs" color="gray.400">
-            Powered by Desa Digital Ngawonggo Security Stack
+            Powered by Cloudflare Turnstile & Desa Digital Ngawonggo
           </Text>
         </VStack>
       </ScaleFade>
