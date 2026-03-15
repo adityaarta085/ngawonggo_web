@@ -107,8 +107,8 @@ const KontakPage = () => {
                 <ContactInfo
                   icon={FaEnvelope}
                   label="Alamat Email"
-                  value="ngawonggodesa@gmail.com"
-                  href="mailto:ngawonggodesa@gmail.com"
+                  value="desangawonggoku@gmail.com"
+                  href="mailto:desangawonggoku@gmail.com"
                 />
                 <ContactInfo
                   icon={FaWhatsapp}
