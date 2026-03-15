@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -7,6 +7,7 @@ import {
   Image,
   useColorModeValue,
   IconButton,
+  HStack,
 } from '@chakra-ui/react';
 import { usePWA } from '../hooks/usePWA';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,16 +17,34 @@ const MotionBox = motion(Box);
 
 const InstallPWA = () => {
   const { isInstallable, installApp } = usePWA();
-  const [isVisible, setIsVisible] = React.useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
-  const bgColor = useColorModeValue('white', 'gray.800');
+  useEffect(() => {
+    // Check if user has previously dismissed the popup
+    const isDismissed = localStorage.getItem('pwa_dismissed');
+    if (!isDismissed && isInstallable) {
+      // Delay showing the popup slightly for better UX
+      const timer = setTimeout(() => setIsVisible(true), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isInstallable]);
+
   const textColor = useColorModeValue('gray.800', 'white');
   const subTextColor = useColorModeValue('gray.600', 'gray.400');
-  const borderColor = useColorModeValue('gray.200', 'whiteAlpha.200');
 
   // Logic to determine if we should show the custom UI
   // User requested: "custom install ... cuma hadir di mobile ... di bagian bawah"
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  const handleDismiss = () => {
+    setIsVisible(false);
+    localStorage.setItem('pwa_dismissed', 'true');
+  };
+
+  const handleInstall = async () => {
+    await installApp();
+    setIsVisible(false);
+  };
 
   if (!isInstallable || !isVisible || !isMobile) return null;
 
@@ -36,56 +55,57 @@ const InstallPWA = () => {
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         position="fixed"
-        bottom="0"
-        left="0"
-        right="0"
+        bottom="4"
+        left="4"
+        right="4"
         zIndex={10000}
-        p={4}
-        pb={{ base: 6, md: 4 }}
       >
         <Box
-          bg={bgColor}
-          borderRadius="2xl"
-          boxShadow="0 -4px 20px rgba(0,0,0,0.15)"
-          border="1px solid"
-          borderColor={borderColor}
-          overflow="hidden"
+          layerStyle="glassCard"
+          p={3}
           maxW="md"
           mx="auto"
+          position="relative"
+          _hover={{ transform: 'none' }} // Disable the hover lift for this specific popup
         >
-          <Flex align="center" p={4} gap={4}>
-            <Box boxSize="50px" borderRadius="xl" overflow="hidden" flexShrink={0} bg="gray.100">
-               <Image src="/logo_desa.png" boxSize="full" objectFit="contain" />
-            </Box>
+          <Flex align="center" justify="space-between" gap={3}>
+            <HStack spacing={3} flex={1}>
+              <Box boxSize="40px" borderRadius="xl" overflow="hidden" flexShrink={0} bg="white" p={1} boxShadow="sm">
+                 <Image src="/logo_desa.png" boxSize="full" objectFit="contain" />
+              </Box>
 
-            <Box flex={1}>
-               <Text fontWeight="bold" fontSize="md" color={textColor} lineHeight="tight">
-                 Aplikasi Desa Ngawonggo
-               </Text>
-               <Text fontSize="xs" color={subTextColor}>
-                 Pasang di layar utama untuk akses cepat
-               </Text>
-            </Box>
+              <Box overflow="hidden">
+                 <Text fontWeight="bold" fontSize="sm" color={textColor} isTruncated>
+                   Desa Ngawonggo App
+                 </Text>
+                 <Text fontSize="2xs" color={subTextColor} isTruncated>
+                   Akses lebih cepat & ringan
+                 </Text>
+              </Box>
+            </HStack>
 
-            <Flex align="center" gap={2}>
+            <Flex align="center" gap={1}>
               <Button
                 colorScheme="brand"
-                size="sm"
-                leftIcon={<FaDownload fontSize="12px" />}
-                onClick={installApp}
+                size="xs"
+                leftIcon={<FaDownload fontSize="10px" />}
+                onClick={handleInstall}
                 borderRadius="full"
-                px={4}
-                fontSize="sm"
+                px={3}
+                fontSize="2xs"
+                h="28px"
               >
                  Pasang
               </Button>
               <IconButton
-                icon={<FaTimes />}
-                size="sm"
+                icon={<FaTimes size="12px" />}
+                size="xs"
                 variant="ghost"
-                onClick={() => setIsVisible(false)}
+                onClick={handleDismiss}
                 aria-label="Tutup"
                 borderRadius="full"
+                h="28px"
+                w="28px"
               />
             </Flex>
           </Flex>
