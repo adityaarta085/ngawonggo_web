@@ -1,79 +1,31 @@
-const CACHE_NAME = 'ngawonggo-cache-v2';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/logo_desa.png',
-  '/favicon.ico'
-];
+// Service Worker for Desa Ngawonggo
+// Strategy: Network Only (No Caching)
+// This ensures the website is always up-to-date from the server.
 
-// Install Event
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
-  self.skipWaiting(); // Force the waiting service worker to become the active service worker.
+const CACHE_NAME = 'ngawonggo-no-cache-v1';
+
+// Install Event - Skip waiting to activate immediately
+self.addEventListener('install', () => {
+  self.skipWaiting();
 });
 
-// Activate Event
+// Activate Event - Clear all old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
+          return caches.delete(cacheName);
         })
       );
+    }).then(() => {
+      return self.clients.claim();
     })
   );
-  return self.clients.claim(); // Take control of all open clients immediately.
 });
 
-// Fetch Event
+// Fetch Event - Network Only
 self.addEventListener('fetch', event => {
-  const { request } = event;
-  const url = new URL(request.url);
-
-  // 1. Navigation requests (HTML) - ALWAYS Network First
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          // Update the cache with the latest index.html
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => caches.match('/index.html'))
-    );
-    return;
-  }
-
-  // 2. Static assets (JS, CSS, Images from same origin) - Stale While Revalidate
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      caches.match(request).then(cachedResponse => {
-        const fetchPromise = fetch(request).then(networkResponse => {
-          if (networkResponse && networkResponse.status === 200) {
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then(cache => {
-              cache.put(request, responseToCache);
-            });
-          }
-          return networkResponse;
-        }).catch(() => {
-           // Silently fail if network is down
-        });
-        return cachedResponse || fetchPromise;
-      })
-    );
-    return;
-  }
-
-  // 3. External requests (APIs, etc.) - Network Only
-  event.respondWith(fetch(request).catch(() => caches.match(request)));
+  // We don't cache anything, just fetch from network
+  event.respondWith(fetch(event.request));
 });
