@@ -24,7 +24,7 @@ import {
   Link,
   Badge,
 } from '@chakra-ui/react';
-import { FaGoogle, FaFacebook, FaDiscord, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+import { FaGoogle, FaFacebook, FaDiscord, FaTwitter, FaSpotify, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 
@@ -191,44 +191,101 @@ const AuthPage = () => {
     }
   };
 
+
+  const handleTwitterLogin = async () => {
+    setLoading(true);
+    toast({
+      title: 'Menghubungkan ke X...',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+            redirectTo: `${window.location.origin}/portal`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: 'Gagal Login X',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleSpotifyLogin = async () => {
+    setLoading(true);
+    toast({
+      title: 'Menghubungkan ke Spotify...',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'spotify',
+        options: {
+            redirectTo: `${window.location.origin}/portal`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: 'Gagal Login Spotify',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <Box
       minH="100vh"
       display="flex"
       alignItems="center"
       justifyContent="center"
-      bg="gray.50"
-      position="relative"
+      bg='gray.50'
+      position='relative'
       overflow="hidden"
       py={10}
     >
       {/* Background decoration */}
       <Box
-        position="absolute"
+        position='absolute'
         top="-10%"
         right="-5%"
         w="40%"
         h="40%"
         bg="brand.50"
-        borderRadius="full"
+        borderRadius='full'
         filter="blur(80px)"
         opacity={0.6}
         zIndex={0}
       />
       <Box
-        position="absolute"
+        position='absolute'
         bottom="-10%"
         left="-5%"
         w="40%"
         h="40%"
         bg="brand.50"
-        borderRadius="full"
+        borderRadius='full'
         filter="blur(80px)"
         opacity={0.6}
         zIndex={0}
       />
 
-      <Container maxW="md" position="relative" zIndex={1}>
+      <Container maxW="md" position='relative' zIndex={1}>
         <VStack spacing={6}>
             <IconButton
                 as={RouterLink}
@@ -247,20 +304,20 @@ const AuthPage = () => {
           </VStack>
 
           <Box
-            w="full"
+            w='full'
             p={8}
             borderRadius="2xl"
             layerStyle="glassCard"
             bg="white"
           >
-            <VStack spacing={3} w="full" mb={6}>
+            <VStack spacing={3} w='full' mb={6}>
               <Button
-                w="full"
-                variant="outline"
+                w='full'
+                variant='outline'
                 leftIcon={<FaGoogle color="#EA4335" />}
                 onClick={handleGoogleLogin}
-                borderRadius="xl"
-                h="50px"
+                borderRadius='xl'
+                h='50px'
                 isLoading={loading}
                 disabled={loading}
                 _hover={{ bg: 'gray.50' }}
@@ -269,26 +326,52 @@ const AuthPage = () => {
               </Button>
 
               <Button
-                w="full"
-                variant="outline"
+                w='full'
+                variant='outline'
                 leftIcon={<FaDiscord color="#5865F2" />}
                 onClick={handleDiscordLogin}
-                borderRadius="xl"
-                h="50px"
+                borderRadius='xl'
+                h='50px'
                 isLoading={loading}
                 disabled={loading}
                 _hover={{ bg: 'gray.50' }}
-                position="relative"
+                position='relative'
               >
                 Lanjutkan dengan Discord
                 <Badge
-                  colorScheme="green"
-                  variant="solid"
-                  position="absolute"
-                  right="-2"
-                  top="-2"
-                  borderRadius="full"
-                  fontSize="2xs"
+                  colorScheme='green'
+                  variant='solid'
+                  position='absolute'
+                  right='-2'
+                  top='-2'
+                  borderRadius='full'
+                  fontSize='2xs'
+                  px={2}
+                >
+                  NEW
+                </Badge>
+              </Button>
+              <Button
+                w='full'
+                variant='outline'
+                leftIcon={<FaTwitter color="#1DA1F2" />}
+                onClick={handleTwitterLogin}
+                borderRadius='xl'
+                h='50px'
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+                position='relative'
+              >
+                Lanjutkan dengan X
+                <Badge
+                  colorScheme='green'
+                  variant='solid'
+                  position='absolute'
+                  right='-2'
+                  top='-2'
+                  borderRadius='full'
+                  fontSize='2xs'
                   px={2}
                 >
                   NEW
@@ -296,30 +379,70 @@ const AuthPage = () => {
               </Button>
 
               <Button
-                w="full"
-                variant="outline"
-                leftIcon={<FaFacebook color="#1877F2" />}
-                onClick={handleFacebookLogin}
-                borderRadius="xl"
-                h="50px"
+                w='full'
+                variant='outline'
+                leftIcon={<FaSpotify color="#1DB954" />}
+                onClick={handleSpotifyLogin}
+                borderRadius='xl'
+                h='50px'
                 isLoading={loading}
                 disabled={loading}
                 _hover={{ bg: 'gray.50' }}
+                position='relative'
               >
-                Lanjutkan dengan Facebook (Beta)
+                Lanjutkan dengan Spotify
+                <Badge
+                  colorScheme='green'
+                  variant='solid'
+                  position='absolute'
+                  right='-2'
+                  top='-2'
+                  borderRadius='full'
+                  fontSize='2xs'
+                  px={2}
+                >
+                  NEW
+                </Badge>
+              </Button>
+
+              <Button
+                w='full'
+                variant='outline'
+                leftIcon={<FaFacebook color='#1877F2' />}
+                onClick={handleFacebookLogin}
+                borderRadius='xl'
+                h='50px'
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+                position='relative'
+              >
+                Lanjutkan dengan Facebook
+                <Badge
+                  colorScheme='blue'
+                  variant='solid'
+                  position='absolute'
+                  right='-2'
+                  top='-2'
+                  borderRadius='full'
+                  fontSize='2xs'
+                  px={2}
+                >
+                  BETA
+                </Badge>
               </Button>
             </VStack>
 
-            <HStack w="full" mb={6}>
+            <HStack w='full' mb={6}>
               <Divider />
               <Text fontSize="xs" color="gray.400" whiteSpace="nowrap">Atau gunakan Email</Text>
               <Divider />
             </HStack>
 
             <Tabs isFitted variant="soft-rounded" colorScheme="brand" onChange={(index) => setIsSignUp(index === 1)}>
-              <TabList mb={6} bg="gray.100" p={1} borderRadius="full">
-                <Tab borderRadius="full">Masuk</Tab>
-                <Tab borderRadius="full">Daftar</Tab>
+              <TabList mb={6} bg="gray.100" p={1} borderRadius='full'>
+                <Tab borderRadius='full'>Masuk</Tab>
+                <Tab borderRadius='full'>Daftar</Tab>
               </TabList>
 
               <TabPanels>
@@ -332,7 +455,7 @@ const AuthPage = () => {
                             placeholder="nama@email.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            borderRadius="xl"
+                            borderRadius='xl'
                         />
                       </FormControl>
 
@@ -344,7 +467,7 @@ const AuthPage = () => {
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            borderRadius="xl"
+                            borderRadius='xl'
                           />
                           <InputRightElement>
                             <IconButton
@@ -361,10 +484,10 @@ const AuthPage = () => {
                       <Button
                         type="submit"
                         colorScheme="brand"
-                        w="full"
-                        h="50px"
+                        w='full'
+                        h='50px'
                         isLoading={loading}
-                        borderRadius="xl"
+                        borderRadius='xl'
                         boxShadow="0 4px 12px rgba(0, 86, 179, 0.2)"
                       >
                         {isSignUp ? 'Buat Akun' : 'Masuk ke Portal'}
@@ -380,7 +503,7 @@ const AuthPage = () => {
                             placeholder="nama@email.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            borderRadius="xl"
+                            borderRadius='xl'
                         />
                       </FormControl>
 
@@ -392,7 +515,7 @@ const AuthPage = () => {
                             placeholder="Minimal 6 karakter"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            borderRadius="xl"
+                            borderRadius='xl'
                           />
                           <InputRightElement>
                             <IconButton
@@ -409,10 +532,10 @@ const AuthPage = () => {
                       <Button
                         type="submit"
                         colorScheme="brand"
-                        w="full"
-                        h="50px"
+                        w='full'
+                        h='50px'
                         isLoading={loading}
-                        borderRadius="xl"
+                        borderRadius='xl'
                         boxShadow="0 4px 12px rgba(0, 86, 179, 0.2)"
                       >
                         Daftar Sekarang
