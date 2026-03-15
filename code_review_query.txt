@@ -1,29 +1,15 @@
-I have implemented a Takedown mode for the Desa Ngawonggo website.
-
+I have implemented the Admin Broadcast Email feature for the Desa Ngawonggo website.
 Key changes:
-1. Created `src/views/TakedownPage/index.js`:
-   - Red warning theme.
-   - Customizable message and image fetched from Supabase `site_settings`.
-   - Integrated AI chat with a special "Emergency Mode" system prompt.
-   - Responsive layout using Chakra UI.
+1. Installed 'nodemailer' for email handling.
+2. Created 'api/broadcast.js' (Vercel/Node.js API) to handle SMTP logic with Gmail. It uses the provided App Password.
+3. Created 'get_all_users()' RPC function in Supabase to fetch emails from 'auth.users'.
+4. Created 'BroadcastManager.js' component in the admin dashboard:
+   - Form with Subject and React Quill editor.
+   - Recipient selection: All users vs Selected users.
+   - Searchable and multi-select user list for "Selected Users".
+   - Batch sending logic: sends 2 emails, waits 2 seconds, then continues.
+   - Progress indicator showing successful and failed counts.
+   - "Send test email to myself" option.
+5. Integrated 'BroadcastManager' into the 'AdminPage' sidebar and main content.
 
-2. Modified `src/App.js`:
-   - Fetches `is_takedown` status on mount.
-   - If `is_takedown` is true, redirects all non-admin traffic to `/down`.
-   - Added `/down` route mapping to `TakedownPage`.
-   - Ensures Navbar, Footer, and other components are hidden on `/down` to focus on the emergency message.
-
-3. Updated `src/views/AdminPage/components/SettingsManager.js`:
-   - Added a section for "Mode Takedown (Darurat)".
-   - Toggle switch for `is_takedown`.
-   - Editable fields for `takedown_message`, `takedown_image` (with uploader), and `takedown_ai_prompt`.
-   - Warning alert when takedown mode is active.
-
-4. Modified `api/chat.js`:
-   - Added support for `customPrompt` in the request body.
-   - Used by the Takedown page to provide specific "complete knowledge" instructions to the AI.
-
-5. Database:
-   - Initialized the required keys in `site_settings`.
-
-Please review the implementation for any security issues, potential redirection loops, or UI/UX improvements.
+Please review the implementation, especially the security aspects and the batching logic.
