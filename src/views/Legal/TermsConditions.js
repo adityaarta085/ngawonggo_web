@@ -10,7 +10,6 @@ import {
   BreadcrumbLink,
   Divider,
   UnorderedList,
-  ListItem,
   Icon,
   Flex,
   Accordion,
@@ -25,7 +24,7 @@ import {
   SimpleGrid
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import { FaFileContract, FaUserCheck, FaBalanceScale, FaExclamationTriangle, FaEnvelopeOpenText, FaAdn } from 'react-icons/fa';
+import { FaFileContract, FaUserCheck, FaBalanceScale, FaExclamationTriangle, FaAdn } from 'react-icons/fa';
 import SEO from '../../components/SEO';
 
 const TermsConditions = () => {

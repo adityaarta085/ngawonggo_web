@@ -17,7 +17,7 @@ import {
   Stack
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import { FaShieldAlt, FaUserLock, FaDatabase, FaHandsHelping, FaBullhorn, FaAd } from 'react-icons/fa';
+import { FaShieldAlt, FaUserLock, FaDatabase, FaBullhorn, FaAd } from 'react-icons/fa';
 import SEO from '../../components/SEO';
 
 const PrivacyPolicy = () => {
