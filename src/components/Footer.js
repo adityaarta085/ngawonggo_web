@@ -65,15 +65,15 @@ const Footer = ({ ml }) => {
             <Stack spacing={5} fontSize="sm" fontWeight="600">
               <Flex align="start" gap={4}>
                 <Icon as={FaMapMarkerAlt} mt={1} color="brand.400" />
-                <Text>Jl. Ngawonggo No. 1, Kec. Kaliangkrik, Kab. Magelang, Jawa Tengah 56153</Text>
+                <Text>Dusun Krajan 01/01 Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang, Jawa Tengah 56153</Text>
               </Flex>
               <Flex align="center" gap={4}>
                 <Icon as={FaPhone} color="brand.400" />
-                <Text>+62 (0293) 123-456</Text>
+                <Text>0812-1503-0896</Text>
               </Flex>
               <Flex align="center" gap={4}>
                 <Icon as={FaEnvelope} color="brand.400" />
-                <Text>info@ngawonggo.desa.id</Text>
+                <Text>desangawonggoku@gmail.com</Text>
               </Flex>
             </Stack>
           </VStack>
@@ -82,7 +82,7 @@ const Footer = ({ ml }) => {
             <Text color="white" fontWeight="900" fontSize="md" letterSpacing="widest">LOKASI KANTOR</Text>
             <Box borderRadius="2xl" overflow="hidden" w="full" h="180px" border="1px solid" borderColor="whiteAlpha.200">
                <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15822.421455589133!2d110.1118749!3d-7.4479991!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a8e235a8e0b07%3A0x5027a7613568c20!2sNgawonggo%2C%20Kaliangkrik%2C%20Magelang%20Regency%2C%20Central%20Java!5e0!3m2!1sen!2sid!4v1710398765432!5m2!1sen!2sid"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3955.968025562562!2d110.104991021157!3d-7.468782779901082!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a9a9004c3dad5%3A0x9bfc61f6dbe64b03!2sBalai%20Desa%20Ngawonggo!5e0!3m2!1sid!2sid!4v1771797061918!5m2!1sid!2sid"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
