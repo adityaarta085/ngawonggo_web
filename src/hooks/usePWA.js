@@ -6,12 +6,22 @@ export const usePWA = () => {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
-      // Prevent the mini-infobar from appearing on mobile
-      e.preventDefault();
-      // Stash the event so it can be triggered later.
-      setDeferredPrompt(e);
-      // Update UI notify the user they can install the PWA
-      setIsInstallable(true);
+      // Check if mobile
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        // Do NOT preventDefault() on mobile to allow native Chrome Mini-infobar
+        // We still stash the event in case we want to trigger it from a button
+        setDeferredPrompt(e);
+        setIsInstallable(true);
+      } else {
+        // Prevent the mini-infobar from appearing on desktop to use custom UI
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        setDeferredPrompt(e);
+        // Update UI notify the user they can install the PWA
+        setIsInstallable(true);
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);

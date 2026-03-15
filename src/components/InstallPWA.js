@@ -5,7 +5,6 @@ import {
   Flex,
   Text,
   Image,
-  VStack,
   useColorModeValue,
   CloseButton,
 } from '@chakra-ui/react';
@@ -19,92 +18,18 @@ const InstallPWA = () => {
   const [isVisible, setIsVisible] = React.useState(true);
 
   const bgColor = useColorModeValue('white', 'gray.900');
-  const textColor = useColorModeValue('gray.800', 'white');
   const subTextColor = useColorModeValue('gray.500', 'gray.400');
   const dividerColor = useColorModeValue('gray.200', 'whiteAlpha.200');
 
-  if (!isInstallable || !isVisible) return null;
+  // Logic to determine if we should show the custom UI
+  // We only show it on desktop because on mobile we want to use the native Chrome banner
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  if (!isInstallable || !isVisible || isMobile) return null;
 
   return (
     <AnimatePresence>
-      {/* Mobile Version - Clean & Honest */}
-      <MotionBox
-        initial={{ opacity: 0, y: 100 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 100 }}
-        position="fixed"
-        bottom={0}
-        left={0}
-        right={0}
-        zIndex={5000}
-        p={4}
-        display={{ base: "block", md: "none" }}
-      >
-        <Box
-          bg={bgColor}
-          borderRadius="2xl"
-          boxShadow="0 -10px 40px rgba(0,0,0,0.15)"
-          p={5}
-          position="relative"
-          border="1px solid"
-          borderColor={dividerColor}
-        >
-          <CloseButton
-            position="absolute"
-            top={2}
-            right={2}
-            onClick={() => setIsVisible(false)}
-            size="sm"
-          />
-
-          <VStack spacing={4} align="stretch">
-            <Flex align="center" gap={4}>
-              <Box
-                boxSize="60px"
-                borderRadius="15px"
-                overflow="hidden"
-                bg="white"
-                flexShrink={0}
-                border="1px solid"
-                borderColor="gray.100"
-              >
-                <Image src="/logo_desa.png" boxSize="full" objectFit="contain" p={1} />
-              </Box>
-
-              <VStack align="start" spacing={0} flex={1}>
-                <Text fontWeight="700" fontSize="lg" color={textColor} lineHeight="1.2">
-                  Desa Ngawonggo
-                </Text>
-                <Text fontSize="xs" color={subTextColor} fontWeight="500">
-                  Aplikasi Resmi Pemerintah Desa
-                </Text>
-                <Text fontSize="xs" color="blue.500" mt={1}>
-                  Versi PWA (Web App)
-                </Text>
-              </VStack>
-            </Flex>
-
-            <Box>
-                <Text fontSize="xs" color={subTextColor} mb={3}>
-                    Pasang aplikasi di layar utama untuk akses informasi desa yang lebih cepat dan mudah.
-                </Text>
-                <Button
-                    w="full"
-                    colorScheme="brand"
-                    size="md"
-                    borderRadius="full"
-                    fontWeight="bold"
-                    onClick={installApp}
-                    h="44px"
-                >
-                    Pasang Sekarang
-                </Button>
-            </Box>
-          </VStack>
-        </Box>
-      </MotionBox>
-
-      {/* Desktop Version */}
+      {/* Desktop Version - Only shown on desktop */}
       <MotionBox
         initial={{ opacity: 0, x: 100 }}
         animate={{ opacity: 1, x: 0 }}
