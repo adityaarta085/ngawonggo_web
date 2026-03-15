@@ -1,15 +1,14 @@
-I have implemented the Admin Broadcast Email feature for the Desa Ngawonggo website.
-Key changes:
-1. Installed 'nodemailer' for email handling.
-2. Created 'api/broadcast.js' (Vercel/Node.js API) to handle SMTP logic with Gmail. It uses the provided App Password.
-3. Created 'get_all_users()' RPC function in Supabase to fetch emails from 'auth.users'.
-4. Created 'BroadcastManager.js' component in the admin dashboard:
-   - Form with Subject and React Quill editor.
-   - Recipient selection: All users vs Selected users.
-   - Searchable and multi-select user list for "Selected Users".
-   - Batch sending logic: sends 2 emails, waits 2 seconds, then continues.
-   - Progress indicator showing successful and failed counts.
-   - "Send test email to myself" option.
-5. Integrated 'BroadcastManager' into the 'AdminPage' sidebar and main content.
+I have modified the PWA installation logic to allow the native Chrome "Mini-infobar" on mobile devices while keeping a custom installation UI on desktop.
 
-Please review the implementation, especially the security aspects and the batching logic.
+Changes:
+1. Updated `src/hooks/usePWA.js`:
+   - Added a check for mobile devices using `navigator.userAgent`.
+   - On mobile, I removed `e.preventDefault()` in the `beforeinstallprompt` event listener. This is the standard way to allow the native browser install promotion UI.
+   - On desktop, `e.preventDefault()` is still called to support the custom UI.
+
+2. Updated `src/components/InstallPWA.js`:
+   - Added the same mobile device check.
+   - Modified the component to return `null` early on mobile devices.
+   - Removed the mobile-specific JSX from the component to ensure it doesn't conflict with or overlap the native UI.
+
+Does this implementation correctly follow Google Chrome's PWA documentation for allowing the native Install Promotion UI on mobile?
