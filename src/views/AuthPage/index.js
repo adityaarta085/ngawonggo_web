@@ -66,7 +66,7 @@ const AuthPage = () => {
         if (error) throw error;
         toast({
           title: 'Pendaftaran Berhasil',
-          description: 'Silakan cek email Anda untuk verifikasi (jika dikonfigurasi).',
+          description: 'Silakan cek email Anda untuk verifikasi.',
           status: 'success',
           duration: 5000,
         });
@@ -202,7 +202,7 @@ const AuthPage = () => {
     });
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'twitter',
+        provider: 'x',
         options: {
             redirectTo: `${window.location.origin}/portal`,
         }
@@ -392,7 +392,7 @@ const AuthPage = () => {
               >
                 Lanjutkan dengan Spotify
                 <Badge
-                  colorScheme='green'
+                  colorScheme='blue'
                   variant='solid'
                   position='absolute'
                   right='-2'
@@ -401,7 +401,7 @@ const AuthPage = () => {
                   fontSize='2xs'
                   px={2}
                 >
-                  NEW
+                  BETA
                 </Badge>
               </Button>
 
