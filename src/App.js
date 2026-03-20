@@ -67,7 +67,7 @@ const TopBar = ({ isScrolled }) => {
                 borderColor="yellow.200"
               >
                 <Icon as={FaMoon} aria-hidden="true" />
-                <Text fontSize="2xs" fontWeight="800">RAMADAN 1447H</Text>
+                <Text fontSize="2xs" fontWeight="800">IDUL FITRI 1447H</Text>
               </Badge>
               <Box flex={1} overflow="hidden">
                 <RunningText isEmbedded={true} />

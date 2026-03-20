@@ -4,6 +4,7 @@ import Loading from "./Loading";
 import InstallPWA from "./InstallPWA";
 import SEO from "./SEO";
 import GoogleMap from "./GoogleMap";
+import SpecialEventPoster from "./SpecialEventPoster";
 
 export {
     Navbar,
@@ -12,4 +13,5 @@ export {
     InstallPWA,
     SEO,
     GoogleMap,
+    SpecialEventPoster,
 };
