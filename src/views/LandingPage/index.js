@@ -1,4 +1,4 @@
-import { InstallPWA, SEO } from "../../components";
+import { InstallPWA, SEO, SpecialEventPoster } from "../../components";
 import { Box } from '@chakra-ui/react';
 import Hero from './components/Hero.js';
 import QuickLinks from './components/QuickLinks.js';
@@ -10,7 +10,8 @@ import StatsSection from './components/StatsSection.js';
 import PengaduanSection from './components/PengaduanSection.js';
 import QuranAccess from './components/QuranAccess.js';
 import BMKGSection from './components/BMKGSection.js';
-import RamadanSection from './components/RamadanSection.js';
+// Ramadan has ended
+// import RamadanSection from './components/RamadanSection.js';
 
 export default function LandingPage() {
   return (
@@ -19,9 +20,11 @@ export default function LandingPage() {
         title="Beranda"
         description="Selamat datang di Website Resmi Desa Ngawonggo. Pusat informasi pelayanan publik, berita terkini, dan potensi desa di Kecamatan Kaliangkrik, Kabupaten Magelang."
       />
+      <SpecialEventPoster />
       <Hero />
       <InstallPWA />
-      <RamadanSection />
+      {/* Ramadan ended */}
+      {/* <RamadanSection /> */}
       <BMKGSection />
       <QuickLinks />
       <StatsSection />

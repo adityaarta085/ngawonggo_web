@@ -111,8 +111,15 @@ const HumanVerification = ({ onVerified }) => {
               <Turnstile
                 siteKey={SITE_KEY}
                 onSuccess={(token) => setToken(token)}
-                onExpire={() => setToken(null)}
-                onError={() => setToken(null)}
+                onError={() => {
+                  toast({
+                    title: "Kesalahan Turnstile",
+                    description: "Gagal memuat sistem verifikasi.",
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                  });
+                }}
               />
             )}
           </Box>
