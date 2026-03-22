@@ -31,6 +31,7 @@ import ImageUploadInput from './ImageUploadInput';
 const SettingsManager = () => {
   const [settings, setSettings] = useState({
     groq_api_key: '',
+    default_ai_prompt: '',
     is_takedown: 'false',
     takedown_message: '',
     takedown_image: '',
@@ -50,6 +51,7 @@ const SettingsManager = () => {
 
       const mapped = {
         groq_api_key: '',
+        default_ai_prompt: '',
         is_takedown: 'false',
         takedown_message: '',
         takedown_image: '',
@@ -144,6 +146,20 @@ const SettingsManager = () => {
                 </InputGroup>
                 <Text mt={2} fontSize="xs" color="gray.500">
                   Dapatkan API Key di console.groq.com. Key ini digunakan untuk layanan Asisten AI Desa.
+                </Text>
+              </FormControl>
+
+              <FormControl mt={4}>
+                <FormLabel fontWeight="bold">Default System Prompt AI</FormLabel>
+                <Textarea
+                  placeholder="Instruksi untuk AI, termasuk watermark dan kontak..."
+                  value={settings.default_ai_prompt}
+                  onChange={(e) => handleChange('default_ai_prompt', e.target.value)}
+                  rows={6}
+                  fontSize="sm"
+                />
+                <Text mt={2} fontSize="xs" color="gray.500">
+                  Prompt ini digunakan sebagai instruksi utama AI untuk menjawab pengunjung, wajib menyertakan watermark AI dan email.
                 </Text>
               </FormControl>
             </VStack>

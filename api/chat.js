@@ -20,18 +20,24 @@ module.exports = async (req, res) => {
     // 1. Get API Key from Supabase
     const { data: settings, error: settingsError } = await supabase
       .from('site_settings')
-      .select('value')
-      .eq('key', 'groq_api_key')
-      .single();
+      .select('key, value')
+      .in('key', ['groq_api_key', 'default_ai_prompt']);
 
-    if (settingsError || !settings?.value) {
+    if (settingsError || !settings || settings.length === 0) {
       return res.status(400).json({ error: 'Asisten AI belum dikonfigurasi oleh admin.' });
     }
 
-    const GROQ_API_KEY = settings.value;
+    const groqKeySetting = settings.find(s => s.key === 'groq_api_key');
+    const defaultPromptSetting = settings.find(s => s.key === 'default_ai_prompt');
+
+    if (!groqKeySetting?.value) {
+      return res.status(400).json({ error: 'Asisten AI belum dikonfigurasi oleh admin.' });
+    }
+
+    const GROQ_API_KEY = groqKeySetting.value;
 
     // Default System Prompt
-    let systemPrompt = 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.';
+    let systemPrompt = defaultPromptSetting?.value || 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.';
 
     // Use customPrompt if provided (used by Takedown Page)
     if (customPrompt) {
