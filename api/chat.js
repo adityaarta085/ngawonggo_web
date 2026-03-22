@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
     const { data: settings, error: settingsError } = await supabase
       .from('site_settings')
       .select('key, value')
-      .in('key', ['groq_api_key', 'default_ai_prompt']);
+      .in('key', ['groq_api_key', 'default_ai_prompt', 'groq_model']);
 
     if (settingsError || !settings || settings.length === 0) {
       return res.status(400).json({ error: 'Asisten AI belum dikonfigurasi oleh admin.' });
@@ -29,12 +29,15 @@ module.exports = async (req, res) => {
 
     const groqKeySetting = settings.find(s => s.key === 'groq_api_key');
     const defaultPromptSetting = settings.find(s => s.key === 'default_ai_prompt');
+    const groqModelSetting = settings.find(s => s.key === 'groq_model');
 
     if (!groqKeySetting?.value) {
       return res.status(400).json({ error: 'Asisten AI belum dikonfigurasi oleh admin.' });
     }
 
     const GROQ_API_KEY = groqKeySetting.value;
+
+    const GROQ_MODEL = groqModelSetting?.value || 'groq/compound';
 
     // Default System Prompt
     let systemPrompt = defaultPromptSetting?.value || 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.';
@@ -46,7 +49,7 @@ module.exports = async (req, res) => {
 
     // 2. Call Groq API
     const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
-      model: 'groq/compound',
+      model: GROQ_MODEL,
       messages: [
         {
           role: 'system',
