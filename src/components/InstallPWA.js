@@ -8,22 +8,38 @@ import {
   useColorModeValue,
   IconButton,
   HStack,
+  useToast
 } from '@chakra-ui/react';
 import { usePWA } from '../hooks/usePWA';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaDownload } from 'react-icons/fa';
+
 
 const MotionBox = motion(Box);
 
 const InstallPWA = () => {
   const { isInstallable, installApp } = usePWA();
   const [isVisible, setIsVisible] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
-    // Check if user has previously dismissed the popup
+    // Detect mobile
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isMobileDevice = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
+
+    // Check if app is already running in standalone mode (installed)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+
+    // Detect iOS devices specifically, as they don't support beforeinstallprompt
+    const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
+    setIsIOS(isIOSDevice);
+
     const isDismissed = localStorage.getItem('pwa_dismissed');
-    if (!isDismissed && isInstallable) {
-      // Delay showing the popup slightly for better UX
+
+    // Show popup if: it's a mobile device, NOT already installed, NOT dismissed,
+    // AND (isInstallable via Android event OR is iOS where we show manual instruction)
+    if (isMobileDevice && !isStandalone && !isDismissed && (isInstallable || isIOSDevice)) {
       const timer = setTimeout(() => setIsVisible(true), 3000);
       return () => clearTimeout(timer);
     } else {
@@ -33,10 +49,6 @@ const InstallPWA = () => {
 
   const textColor = useColorModeValue('gray.800', 'white');
   const subTextColor = useColorModeValue('gray.600', 'gray.400');
-
-  // Logic to determine if we should show the custom UI
-  // User requested: "custom install ... cuma hadir di mobile ... di bagian bawah"
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   const handleDismiss = () => {
     setIsVisible(false);
@@ -48,13 +60,26 @@ const InstallPWA = () => {
   };
 
   const handleInstall = async () => {
-    await installApp();
-    setIsVisible(false);
+    if (isIOS) {
+      // iOS doesn't support programmatic install. Show instructions.
+      toast({
+        title: 'Cara Install di iOS',
+        description: "Ketuk ikon Share di bawah layar, lalu pilih 'Add to Home Screen'.",
+        status: 'info',
+        duration: 7000,
+        isClosable: true,
+        position: 'bottom',
+      });
+    } else {
+      // Android / Chrome supports programmatic install
+      await installApp();
+      setIsVisible(false);
+    }
   };
 
   return (
     <AnimatePresence>
-      {isInstallable && isVisible && isMobile && (
+      {isVisible && (
         <MotionBox
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -71,11 +96,17 @@ const InstallPWA = () => {
             maxW="md"
             mx="auto"
             position="relative"
+            bg="rgba(255, 255, 255, 0.9)"
+            backdropFilter="blur(10px)"
+            borderRadius="2xl"
+            boxShadow="0 10px 30px -10px rgba(0,0,0,0.2)"
+            border="1px solid"
+            borderColor="whiteAlpha.400"
             _hover={{ transform: 'none' }} // Disable the hover lift for this specific popup
           >
             <Flex align="center" justify="space-between" gap={3}>
               <HStack spacing={3} flex={1}>
-                <Box boxSize="40px" borderRadius="xl" overflow="hidden" flexShrink={0} bg="white" p={1} boxShadow="sm">
+                <Box boxSize="40px" borderRadius="xl" overflow="hidden" flexShrink={0} bg="white" p={1} boxShadow="sm" border="1px solid" borderColor="gray.100">
                    <Image src="/logo_desa.png" boxSize="full" objectFit="contain" />
                 </Box>
 
@@ -99,6 +130,7 @@ const InstallPWA = () => {
                   px={3}
                   fontSize="2xs"
                   h="28px"
+                  fontWeight="bold"
                 >
                    Pasang
                 </Button>
@@ -111,6 +143,7 @@ const InstallPWA = () => {
                   borderRadius="full"
                   h="28px"
                   w="28px"
+                  color="gray.500"
                 />
               </Flex>
             </Flex>
