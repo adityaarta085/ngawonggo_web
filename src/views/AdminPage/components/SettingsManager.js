@@ -31,6 +31,7 @@ import ImageUploadInput from './ImageUploadInput';
 const SettingsManager = () => {
   const [settings, setSettings] = useState({
     groq_api_key: '',
+    groq_model: 'groq/compound',
     default_ai_prompt: '',
     is_takedown: 'false',
     takedown_message: '',
@@ -51,6 +52,7 @@ const SettingsManager = () => {
 
       const mapped = {
         groq_api_key: '',
+        groq_model: 'groq/compound',
         default_ai_prompt: '',
         is_takedown: 'false',
         takedown_message: '',
@@ -146,6 +148,19 @@ const SettingsManager = () => {
                 </InputGroup>
                 <Text mt={2} fontSize="xs" color="gray.500">
                   Dapatkan API Key di console.groq.com. Key ini digunakan untuk layanan Asisten AI Desa.
+                </Text>
+              </FormControl>
+
+              <FormControl mt={4}>
+                <FormLabel fontWeight="bold">Groq Model</FormLabel>
+                <Input
+                  type="text"
+                  placeholder="Contoh: groq/compound"
+                  value={settings.groq_model}
+                  onChange={(e) => handleChange('groq_model', e.target.value)}
+                />
+                <Text mt={2} fontSize="xs" color="gray.500">
+                  Pilih model AI yang akan digunakan (default: groq/compound).
                 </Text>
               </FormControl>
 

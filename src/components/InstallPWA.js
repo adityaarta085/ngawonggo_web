@@ -26,6 +26,8 @@ const InstallPWA = () => {
       // Delay showing the popup slightly for better UX
       const timer = setTimeout(() => setIsVisible(true), 3000);
       return () => clearTimeout(timer);
+    } else {
+      setIsVisible(false);
     }
   }, [isInstallable]);
 
@@ -38,7 +40,11 @@ const InstallPWA = () => {
 
   const handleDismiss = () => {
     setIsVisible(false);
-    localStorage.setItem('pwa_dismissed', 'true');
+    try {
+      localStorage.setItem('pwa_dismissed', 'true');
+    } catch (e) {
+      console.warn('Failed to save dismissal to localStorage:', e);
+    }
   };
 
   const handleInstall = async () => {
@@ -46,71 +52,71 @@ const InstallPWA = () => {
     setIsVisible(false);
   };
 
-  if (!isInstallable || !isVisible || !isMobile) return null;
-
   return (
     <AnimatePresence>
-      <MotionBox
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        position="fixed"
-        bottom="4"
-        left="4"
-        right="4"
-        zIndex={10000}
-      >
-        <Box
-          layerStyle="glassCard"
-          p={3}
-          maxW="md"
-          mx="auto"
-          position="relative"
-          _hover={{ transform: 'none' }} // Disable the hover lift for this specific popup
+      {isInstallable && isVisible && isMobile && (
+        <MotionBox
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 100, opacity: 0 }}
+          position="fixed"
+          bottom="4"
+          left="4"
+          right="4"
+          zIndex={10000}
         >
-          <Flex align="center" justify="space-between" gap={3}>
-            <HStack spacing={3} flex={1}>
-              <Box boxSize="40px" borderRadius="xl" overflow="hidden" flexShrink={0} bg="white" p={1} boxShadow="sm">
-                 <Image src="/logo_desa.png" boxSize="full" objectFit="contain" />
-              </Box>
+          <Box
+            layerStyle="glassCard"
+            p={3}
+            maxW="md"
+            mx="auto"
+            position="relative"
+            _hover={{ transform: 'none' }} // Disable the hover lift for this specific popup
+          >
+            <Flex align="center" justify="space-between" gap={3}>
+              <HStack spacing={3} flex={1}>
+                <Box boxSize="40px" borderRadius="xl" overflow="hidden" flexShrink={0} bg="white" p={1} boxShadow="sm">
+                   <Image src="/logo_desa.png" boxSize="full" objectFit="contain" />
+                </Box>
 
-              <Box overflow="hidden">
-                 <Text fontWeight="bold" fontSize="sm" color={textColor} isTruncated>
-                   Desa Ngawonggo App
-                 </Text>
-                 <Text fontSize="2xs" color={subTextColor} isTruncated>
-                   Akses lebih cepat & ringan
-                 </Text>
-              </Box>
-            </HStack>
+                <Box overflow="hidden">
+                   <Text fontWeight="bold" fontSize="sm" color={textColor} isTruncated>
+                     Desa Ngawonggo App
+                   </Text>
+                   <Text fontSize="2xs" color={subTextColor} isTruncated>
+                     Akses lebih cepat & ringan
+                   </Text>
+                </Box>
+              </HStack>
 
-            <Flex align="center" gap={1}>
-              <Button
-                colorScheme="brand"
-                size="xs"
-                leftIcon={<FaDownload fontSize="10px" />}
-                onClick={handleInstall}
-                borderRadius="full"
-                px={3}
-                fontSize="2xs"
-                h="28px"
-              >
-                 Pasang
-              </Button>
-              <IconButton
-                icon={<FaTimes size="12px" />}
-                size="xs"
-                variant="ghost"
-                onClick={handleDismiss}
-                aria-label="Tutup"
-                borderRadius="full"
-                h="28px"
-                w="28px"
-              />
+              <Flex align="center" gap={1}>
+                <Button
+                  colorScheme="brand"
+                  size="xs"
+                  leftIcon={<FaDownload fontSize="10px" />}
+                  onClick={handleInstall}
+                  borderRadius="full"
+                  px={3}
+                  fontSize="2xs"
+                  h="28px"
+                >
+                   Pasang
+                </Button>
+                <IconButton
+                  icon={<FaTimes size="12px" />}
+                  size="xs"
+                  variant="ghost"
+                  onClick={handleDismiss}
+                  aria-label="Tutup"
+                  borderRadius="full"
+                  h="28px"
+                  w="28px"
+                />
+              </Flex>
             </Flex>
-          </Flex>
-        </Box>
-      </MotionBox>
+          </Box>
+        </MotionBox>
+      )}
     </AnimatePresence>
   );
 };

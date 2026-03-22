@@ -1,33 +1,50 @@
 import { useState, useEffect } from 'react';
 
+// We store the prompt globally because the browser might fire it before our components mount.
+// This is critical since our App.js delays rendering the main UI (including InstallPWA)
+// until after Splash Screen and Human Verification.
+let globalDeferredPrompt = null;
+let isGloballyInstallable = false;
+const listeners = new Set();
+
+const notifyListeners = () => {
+  listeners.forEach((listener) => listener());
+};
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent the mini-infobar from appearing on mobile
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    globalDeferredPrompt = e;
+    isGloballyInstallable = true;
+    notifyListeners();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    console.log('INSTALL: Success');
+    globalDeferredPrompt = null;
+    isGloballyInstallable = false;
+    notifyListeners();
+  });
+}
+
 export const usePWA = () => {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isInstallable, setIsInstallable] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(globalDeferredPrompt);
+  const [isInstallable, setIsInstallable] = useState(isGloballyInstallable);
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e) => {
-      // Prevent the mini-infobar from appearing on mobile (and desktop)
-      // to use our own custom UI
-      e.preventDefault();
-
-      // Stash the event so it can be triggered later.
-      setDeferredPrompt(e);
-
-      // Update UI notify the user they can install the PWA
-      setIsInstallable(true);
+    const listener = () => {
+      setDeferredPrompt(globalDeferredPrompt);
+      setIsInstallable(isGloballyInstallable);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    window.addEventListener('appinstalled', () => {
-      // Log install to analytics
-      console.log('INSTALL: Success');
-      setIsInstallable(false);
-      setDeferredPrompt(null);
-    });
+    listeners.add(listener);
+    // Initial sync in case it changed between render and effect
+    listener();
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      listeners.delete(listener);
     };
   }, []);
 
@@ -42,8 +59,9 @@ export const usePWA = () => {
     console.log(`User response to the install prompt: ${outcome}`);
 
     // We've used the prompt, and can't use it again, throw it away
-    setDeferredPrompt(null);
-    setIsInstallable(false);
+    globalDeferredPrompt = null;
+    isGloballyInstallable = false;
+    notifyListeners();
   };
 
   return { isInstallable, installApp };
