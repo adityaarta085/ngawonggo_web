@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Loading from '../../components/Loading';
 import {
   Box,
@@ -25,6 +25,8 @@ import { SEO } from '../../components';
 
 const MotionBox = motion(Box);
 
+const CATEGORIES = ['pemerintahan', 'pendidikan', 'kesehatan', 'ekonomi', 'umum'];
+
 export default function NewsPage() {
   const [allNews, setAllNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,17 @@ export default function NewsPage() {
     fetchNews();
   }, []);
 
-  const categories = ['pemerintahan', 'pendidikan', 'kesehatan', 'ekonomi', 'umum'];
+  const newsByCategory = useMemo(() => {
+    const grouped = {};
+    CATEGORIES.forEach(cat => grouped[cat] = []);
+    allNews.forEach(news => {
+      const cat = news.category?.toLowerCase();
+      if (grouped[cat]) {
+        grouped[cat].push(news);
+      }
+    });
+    return grouped;
+  }, [allNews]);
 
   if (loading) return <Loading fullPage />;
 
@@ -99,7 +111,7 @@ export default function NewsPage() {
           }}>
             <HStack spacing={4}>
               <Icon as={FaLayerGroup} color="brand.400" mr={2} />
-              {['Semua Berita', ...categories].map(cat => (
+              {['Semua Berita', ...CATEGORIES].map(cat => (
                 <Button
                   key={cat}
                   as="a"
@@ -123,8 +135,8 @@ export default function NewsPage() {
           </Box>
 
           {/* News Feed by Category */}
-          {categories.map((category, idx) => {
-            const filteredNews = allNews.filter(n => n.category?.toLowerCase() === category);
+          {CATEGORIES.map((category, idx) => {
+            const filteredNews = newsByCategory[category];
             if (filteredNews.length === 0) return null;
 
             return (
