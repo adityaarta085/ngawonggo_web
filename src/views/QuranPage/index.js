@@ -195,11 +195,13 @@ const QuranPage = () => {
     setShowTafsir(prev => ({ ...prev, [index]: !prev[index] }));
   };
 
-  const filteredSurahs = useMemo(() =>
-    surahs.filter(s =>
-      s.name.transliteration.id.toLowerCase().includes(search.toLowerCase()) ||
+  const filteredSurahs = useMemo(() => {
+    const lowerSearch = search.toLowerCase();
+    return surahs.filter(s =>
+      s.name.transliteration.id.toLowerCase().includes(lowerSearch) ||
       s.number.toString().includes(search)
-    ), [surahs, search]);
+    );
+  }, [surahs, search]);
 
   const visibleVerses = useMemo(() => {
     if (!surahDetail) return [];
