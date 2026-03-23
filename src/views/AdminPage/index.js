@@ -33,6 +33,7 @@ import {
   FaBars,
   FaMapMarkedAlt,
   FaEnvelope,
+  FaUsers,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -47,6 +48,7 @@ import CommentManager from './components/CommentManager';
 import SettingsManager from './components/SettingsManager';
 import DusunManager from './components/DusunManager';
 import BroadcastManager from './components/BroadcastManager';
+import PemerintahanManager from './components/PemerintahanManager';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -68,6 +70,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Komentar', icon: FaComments },
     { name: 'Broadcast Email', icon: FaEnvelope },
     { name: 'Pengaturan', icon: FaCog },
+    { name: 'Pemerintahan', icon: FaUsers },
   ];
 
   const handleLogout = async () => {
@@ -177,6 +180,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Komentar' && <CommentManager />}
           {activeTab === 'Broadcast Email' && <BroadcastManager />}
           {activeTab === 'Pengaturan' && <SettingsManager />}
+          {activeTab === 'Pemerintahan' && <PemerintahanManager />}
         </Box>
       </Box>
     </Box>

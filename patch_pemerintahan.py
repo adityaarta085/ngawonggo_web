@@ -1,4 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import re
+
+with open('src/views/PemerintahanPage/index.js', 'r') as f:
+    content = f.read()
+
+# Make it load from supabase
+new_content = """import React, { useState, useEffect } from 'react';
 import {
   Box,
   Heading,
@@ -52,18 +58,7 @@ export default function PemerintahanPage({ previewData }) {
         if (error) throw error;
 
         if (settingsData && settingsData.length > 0) {
-          const newData = {
-            staff: [
-              { role: 'Kepala Desa', name: 'Khoirur Faidah' },
-              { role: 'Sekertariat Desa', name: 'Bambang Dwi Hendriyono' },
-              { role: 'Kaur Pemerintahan', name: 'Yasin Sulthoni' },
-              { role: 'Ketua BPD', name: 'Perlu Konfirmasi Desa' },
-              { role: 'Ketua P3A', name: 'Rohmatul Faizin' },
-            ],
-            vision: "Meningkatkan kualitas pelayanan publik melalui transformasi digital dan transparansi tata kelola pemerintahan desa.",
-            mission: "Komitmen kami adalah menjadikan Desa Ngawonggo sebagai desa yang mandiri, inovatif, dan melayani dengan sepenuh hati."
-          };
-
+          const newData = { ...data };
           settingsData.forEach(item => {
             if (item.key === 'pemerintahan_staff' && item.value) {
               try { newData.staff = JSON.parse(item.value); } catch(e) {}
@@ -177,3 +172,7 @@ export default function PemerintahanPage({ previewData }) {
     </Box>
   );
 }
+"""
+
+with open('src/views/PemerintahanPage/index.js', 'w') as f:
+    f.write(new_content)
