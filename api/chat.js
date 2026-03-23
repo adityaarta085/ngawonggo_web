@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
           role: 'system',
           content: systemPrompt
         },
-        ...messages
+        ...messages.map(msg => ({ role: msg.role, content: msg.content }))
       ],
     }, {
       headers: {
