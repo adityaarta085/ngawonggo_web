@@ -51,24 +51,63 @@ const BMKGSection = () => {
   };
 
   useEffect(() => {
+    const CACHE_KEY = 'bmkg_data_cache';
+    const CACHE_TTL = 15 * 60 * 1000; // 15 minutes in milliseconds
+
     const fetchData = async () => {
       try {
+        // Try to get data from cache
+        try {
+          const cached = localStorage.getItem(CACHE_KEY);
+          if (cached) {
+            const { weatherData, eqData, timestamp } = JSON.parse(cached);
+            const now = new Date().getTime();
+
+            if (now - timestamp < CACHE_TTL) {
+              setWeather(weatherData);
+              setEarthquake(eqData);
+              setLoading(false);
+              return;
+            }
+          }
+        } catch (cacheError) {
+          console.warn('Cache read error:', cacheError);
+        }
+
         const weatherRes = await axios.get('https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=33.08.13.2002');
         const eqRes = await axios.get('https://cors-anywhere.herokuapp.com/https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json').catch(() => null);
 
+        let newWeather = null;
+        let newEarthquake = null;
+
         if (weatherRes.data && weatherRes.data.data && weatherRes.data.data[0]) {
             const current = weatherRes.data.data[0].cuaca[0][0];
-            setWeather({
+            newWeather = {
                 temp: current.t,
                 hu: current.hu,
                 ws: current.ws,
                 desc: current.weather_desc,
                 descText: current.weather_desc_en
-            });
+            };
+            setWeather(newWeather);
         }
 
         if (eqRes && eqRes.data && eqRes.data.Infogempa) {
-            setEarthquake(eqRes.data.Infogempa.gempa);
+            newEarthquake = eqRes.data.Infogempa.gempa;
+            setEarthquake(newEarthquake);
+        }
+
+        // Save to cache
+        try {
+          if (newWeather || newEarthquake) {
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+              weatherData: newWeather,
+              eqData: newEarthquake,
+              timestamp: new Date().getTime()
+            }));
+          }
+        } catch (cacheSaveError) {
+          console.warn('Cache save error:', cacheSaveError);
         }
       } catch (error) {
         console.error('Error fetching BMKG data:', error);
