@@ -47,7 +47,7 @@ const CardNews = ({ news }) => {
     >
       <Box position="relative" overflow="hidden" h="240px" bg="gray.100">
         <Image
-          src={news.image_url || fallbackImage}
+          src={news.image || news.image_url || fallbackImage}
           alt={news.title}
           objectFit="cover"
           w="full"
