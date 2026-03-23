@@ -1,4 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import re
+
+with open('src/views/PemerintahanPage/index.js', 'r') as f:
+    content = f.read()
+
+# Fix the useEffect logic: we shouldn't define `fetchData` inside `useEffect` if we have early return
+new_content = """import React, { useState, useEffect } from 'react';
 import {
   Box,
   Heading,
@@ -177,3 +183,7 @@ export default function PemerintahanPage({ previewData }) {
     </Box>
   );
 }
+"""
+
+with open('src/views/PemerintahanPage/index.js', 'w') as f:
+    f.write(new_content)
