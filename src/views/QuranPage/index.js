@@ -44,6 +44,7 @@ const QuranPage = () => {
   const [rangeStart, setRangeStart] = useState(1);
   const [rangeEnd, setRangeEnd] = useState(1);
   const [isAutoScroll, setIsAutoScroll] = useState(true);
+  const [audioLoading, setAudioLoading] = useState(false);
   const [showTafsir, setShowTafsir] = useState({});
   const [user, setUser] = useState(null);
 
@@ -167,11 +168,42 @@ const QuranPage = () => {
     setCurrentAyahIndex(index);
     const audioUrl = surahDetail.verses[index].audio.primary;
     if (audioRef.current) {
+        setAudioLoading(true);
         audioRef.current.src = audioUrl;
-        audioRef.current.play().catch(e => console.error("Audio play error:", e));
-        setIsPlaying(true);
-        if (isAutoScroll) scrollToAyah(index);
-        saveProgress(index + 1);
+
+        const handleCanPlay = () => {
+            setAudioLoading(false);
+            audioRef.current.removeEventListener('canplay', handleCanPlay);
+            audioRef.current.removeEventListener('error', handleError);
+            audioRef.current.play().catch(e => {
+                console.error("Audio play error:", e);
+                setIsPlaying(false);
+            });
+            setIsPlaying(true);
+            if (isAutoScroll) scrollToAyah(index);
+            saveProgress(index + 1);
+
+            // Preload next audio
+            const limit = mode === 'range' ? rangeEnd - 1 : surahDetail.numberOfVerses - 1;
+            if (index < limit && mode !== 'single') {
+                const nextAudioUrl = surahDetail.verses[index + 1].audio.primary;
+                const preloader = new Audio();
+                preloader.src = nextAudioUrl;
+                preloader.preload = 'auto';
+            }
+        };
+
+        const handleError = (e) => {
+            setAudioLoading(false);
+            audioRef.current.removeEventListener('canplay', handleCanPlay);
+            audioRef.current.removeEventListener('error', handleError);
+            console.error("Audio error:", e);
+            setIsPlaying(false);
+        };
+
+        audioRef.current.addEventListener('canplay', handleCanPlay);
+        audioRef.current.addEventListener('error', handleError);
+        audioRef.current.load();
     }
   };
 
@@ -583,6 +615,7 @@ const QuranPage = () => {
                       <Flex flex={1} justify="center" align="center" w="full">
                         <HStack spacing={3} bg="brand.500" p={1.5} pr={6} pl={1.5} borderRadius="full" color="white" boxShadow="lg" w={{ base: 'full', md: 'auto' }} justify="center">
                             <IconButton
+                                isLoading={audioLoading}
                                 icon={isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? <FaPause /> : <FaPlay />}
                                 bg="white"
                                 color="brand.500"
