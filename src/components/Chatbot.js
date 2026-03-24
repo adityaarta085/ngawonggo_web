@@ -71,10 +71,14 @@ const Chatbot = ({ isHidden = false, onHide }) => {
     <Portal>
       <Box
         position="fixed"
-        bottom={{ base: 20, md: 24 }}
-        right={0}
+        bottom={isDocked ? { base: 20, md: 24 } : 0}
+        right={isDocked ? 0 : 0}
+        left={isDocked ? "auto" : 0}
+        w={isDocked ? "auto" : "100vw"}
         zIndex={1001}
         pointerEvents="none"
+        display="flex"
+        justifyContent="center"
       >
         <AnimatePresence mode="wait">
           {isDocked ? (
@@ -120,21 +124,26 @@ const Chatbot = ({ isHidden = false, onHide }) => {
           ) : (
             <MotionBox
               key="expanded"
-              initial={{ x: 300, opacity: 0 }}
-              animate={{ x: -20, opacity: 1 }}
-              exit={{ x: 300, opacity: 0 }}
+              initial={{ y: "100%", opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               pointerEvents="auto"
-              w={{ base: '300px', md: '350px' }}
+              position="fixed"
+              bottom="0"
+              left="0"
+              right="0"
+              w="100vw"
+              h={{ base: '50vh', md: '40vh' }} maxW="100%" margin="0 auto"
               bg={bgColor}
-              borderRadius="2xl"
-              boxShadow="2xl"
-              border="1px solid"
+              borderTopRadius="3xl"
+              boxShadow="0 -10px 40px rgba(0,0,0,0.1)"
+              borderTop="1px solid"
               borderColor={borderColor}
               overflow="hidden"
               display="flex"
               flexDirection="column"
-              maxH="500px"
+              zIndex={1002}
             >
               {/* Header */}
               <Flex
