@@ -41,22 +41,12 @@ const AnimeWatch = () => {
       try {
         setLoading(true);
         let res;
-        switch (provider) {
-          case 'otakudesu':
-            res = await animeApi.otakudesu.episode(slug);
-            setEpisodeData(res.data.data);
-            break;
-          case 'samehadaku':
-            res = await animeApi.samehadaku.episode(slug);
-            setEpisodeData(res.data.data);
-            break;
-          case 'donghua':
-            res = await animeApi.donghua.episode(slug);
-            setEpisodeData(res.data.data);
-            break;
-          default:
+        if (!animeApi[provider] || !animeApi[provider].episode) {
             throw new Error("Provider tidak didukung.");
-        }
+          }
+          res = await animeApi[provider].episode(slug);
+          const extracted = res.data?.data?.data || res.data?.data || res.data;
+          setEpisodeData(extracted);
 
         // Save to local storage as watched
         try {

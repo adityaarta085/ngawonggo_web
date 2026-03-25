@@ -17,26 +17,13 @@ const AnimeDetail = () => {
       try {
         setLoading(true);
         let res;
-        switch (provider) {
-          case 'otakudesu':
-            res = await animeApi.otakudesu.detail(slug);
-            setAnimeData(res.data.data);
-            break;
-          case 'samehadaku':
-            res = await animeApi.samehadaku.detail(slug);
-            setAnimeData(res.data.data);
-            break;
-          case 'donghua':
-            res = await animeApi.donghua.detail(slug);
-            setAnimeData(res.data.data);
-            break;
-          case 'kusonime':
-            res = await animeApi.kusonime.detail(slug);
-            setAnimeData(res.data.data);
-            break;
-          default:
+        if (!animeApi[provider] || !animeApi[provider].detail) {
             throw new Error("Provider tidak didukung.");
-        }
+          }
+          res = await animeApi[provider].detail(slug);
+          // Try to handle nested data gracefully
+          const extracted = res.data?.data?.data || res.data?.data || res.data;
+          setAnimeData(extracted);
       } catch (err) {
         console.error("Failed to fetch anime detail:", err);
         setError("Gagal memuat detail anime.");
