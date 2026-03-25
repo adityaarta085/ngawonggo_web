@@ -12,10 +12,11 @@ import {
   Flex,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { FaGamepad, FaNetworkWired, FaQuestionCircle, FaPuzzlePiece, FaArrowLeft, FaBrain } from 'react-icons/fa';
+import { FaGamepad, FaNetworkWired, FaQuestionCircle, FaPuzzlePiece, FaArrowLeft, FaBrain, FaCube } from 'react-icons/fa';
 import NetworkGame from './NetworkGame';
 import QuizGame from './QuizGame';
 import SortGame from './SortGame';
+import Object3DGame from './3DObjectGame';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const MotionBox = motion(Box);
@@ -49,6 +50,14 @@ const EduGamePage = () => {
       icon: FaPuzzlePiece,
       color: 'orange',
       component: <SortGame onBack={() => setActiveGame(null)} />,
+    },
+    {
+      id: '3d-object',
+      title: 'Geometri 3D Explorer',
+      desc: 'Pelajari berbagai bentuk geometri ruang dalam tampilan 3D interaktif yang seru.',
+      icon: FaCube,
+      color: 'green',
+      component: <Object3DGame onBack={() => setActiveGame(null)} />,
     },
   ];
 
