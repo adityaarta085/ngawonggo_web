@@ -34,6 +34,13 @@ const QuickLinks = () => {
       description: language === 'id' ? 'Kenali sejarah dan visi misi kami' : 'Get to know our history'
     },
     {
+      label: language === 'id' ? 'Anime Baru' : 'New Anime',
+      icon: FaInfoCircle,
+      href: '/anime',
+      color: 'blue.500',
+      description: language === 'id' ? 'Nonton anime sub indo gratis' : 'Watch free anime sub indo'
+    },
+    {
       label: language === 'id' ? 'Layanan Publik' : 'Public Services',
       icon: FaHandHoldingHeart,
       href: '/layanan',
