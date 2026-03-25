@@ -18,6 +18,7 @@ import MediaPage from './views/MediaPage/index.js';
 import AnimePage from './views/AnimePage/index.js';
 import AnimeDetail from './views/AnimePage/Detail.js';
 import AnimeWatch from './views/AnimePage/Watch.js';
+import AnimeBatch from './views/AnimePage/Batch.js';
 
 import DusunPage from './views/DusunPage/index.js';
 import QuranPage from './views/QuranPage/index.js';
@@ -242,6 +243,7 @@ function App() {
               <Route path="/anime" element={<AnimePage />} />
               <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
               <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />
+              <Route path="/anime/:provider/batch/:batchId" element={<AnimeBatch />} />
               <Route path="/dusun/:slug" element={<DusunPage />} />
               <Route path="/quran" element={<QuranPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
