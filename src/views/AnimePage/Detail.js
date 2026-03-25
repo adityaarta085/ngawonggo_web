@@ -21,8 +21,10 @@ const AnimeDetail = () => {
         }
 
         const res = await animeApi.samehadaku.detail(slug);
-        if (res.data?.status === 'success' && res.data?.data) {
+        if (res.data?.data) {
           setAnimeData(res.data.data);
+        } else if (res.data) {
+          setAnimeData(res.data);
         } else {
           throw new Error("Data anime tidak valid.");
         }

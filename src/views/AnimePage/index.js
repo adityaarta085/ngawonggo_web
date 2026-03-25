@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Heading, SimpleGrid, Text, Spinner, Center, Badge, Image, LinkBox, LinkOverlay, VStack, Icon } from '@chakra-ui/react';
+import { Box, Container, Heading, SimpleGrid, Text, Spinner, Center, Badge, Image, LinkBox, LinkOverlay, VStack, Icon, Input, InputGroup, InputLeftElement, InputRightElement, IconButton } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import { FaFire, FaFilm, FaStar } from 'react-icons/fa';
+import { FaFire, FaFilm, FaStar, FaSearch, FaTimes } from 'react-icons/fa';
 import { SEO } from '../../components';
 import animeApi from '../../services/anime/api';
 
@@ -53,6 +53,10 @@ const AnimePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   useEffect(() => {
     let mounted = true;
     const loadHome = async () => {
@@ -60,11 +64,15 @@ const AnimePage = () => {
       setError(null);
       try {
         const res = await animeApi.samehadaku.home();
-        if (mounted && res?.data?.data) {
-            setData(res.data.data);
+        if (mounted) {
+            if (res?.data?.data) {
+                setData(res.data.data);
+            } else if (res?.data) {
+                setData(res.data);
+            }
         }
       } catch (err) {
-        if (mounted) setError("Gagal memuat portal Anime. Silakan coba lagi.");
+        if (mounted) setError("Gagal memuat portal Anime. Pastikan koneksi internet stabil.");
       } finally {
         if (mounted) setLoading(false);
       }
@@ -72,6 +80,32 @@ const AnimePage = () => {
     loadHome();
     return () => { mounted = false; };
   }, []);
+
+  const handleSearch = async (e) => {
+      e.preventDefault();
+      if (!searchQuery.trim()) return;
+
+      setIsSearching(true);
+      setError(null);
+      try {
+          const res = await animeApi.samehadaku.search(searchQuery);
+          if (res?.data?.data?.animeList) {
+              setSearchResults(res.data.data.animeList);
+          } else {
+              setSearchResults([]);
+          }
+      } catch (err) {
+          setError("Gagal mencari anime.");
+      } finally {
+          setIsSearching(false);
+      }
+  };
+
+  const clearSearch = () => {
+      setSearchQuery('');
+      setSearchResults([]);
+      setError(null);
+  };
 
   return (
     <Box pt={32} pb={20}>
@@ -85,10 +119,51 @@ const AnimePage = () => {
           <Text color="gray.500">Akses anime terlengkap sub Indo secara eksklusif.</Text>
         </VStack>
 
-        {loading && <Center h="40vh"><Spinner size="xl" color="brand.500" /></Center>}
-        {error && <Center h="40vh"><Text color="red.500">{error}</Text></Center>}
+        <Box mb={10} maxW="600px" mx="auto">
+            <form onSubmit={handleSearch}>
+                <InputGroup size="lg" boxShadow="md" borderRadius="full">
+                    <InputLeftElement pointerEvents="none">
+                        <Icon as={FaSearch} color="gray.400" />
+                    </InputLeftElement>
+                    <Input
+                        placeholder="Cari judul anime (contoh: One Piece)..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        bg="white"
+                        borderRadius="full"
+                        pr="4.5rem"
+                    />
+                    {searchQuery && (
+                        <InputRightElement w="4.5rem">
+                            <IconButton
+                                aria-label="Clear Search"
+                                icon={<FaTimes />}
+                                size="sm"
+                                borderRadius="full"
+                                variant="ghost"
+                                onClick={clearSearch}
+                            />
+                        </InputRightElement>
+                    )}
+                </InputGroup>
+            </form>
+        </Box>
 
-        {data && !loading && !error && (
+        {isSearching && <Center h="20vh"><Spinner size="xl" color="brand.500" /></Center>}
+        {error && <Center h="20vh"><Text color="red.500">{error}</Text></Center>}
+
+        {!isSearching && searchResults.length > 0 && (
+            <Box mb={12}>
+                <Heading size="lg" mb={6} display="flex" alignItems="center" gap={2}>
+                    <Icon as={FaSearch} color="blue.500" /> Hasil Pencarian: {searchQuery}
+                </Heading>
+                <AnimeGrid items={searchResults} showScore={true} />
+            </Box>
+        )}
+
+        {loading && !isSearching && <Center h="40vh"><Spinner size="xl" color="brand.500" /></Center>}
+
+        {!isSearching && searchResults.length === 0 && data && !loading && !error && (
             <Box>
                 {data.recent?.animeList && (
                     <Box mb={12}>

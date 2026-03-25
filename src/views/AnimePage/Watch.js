@@ -47,12 +47,13 @@ const AnimeWatch = () => {
 
         const res = await animeApi.samehadaku.episode(slug);
 
-        if (res.data?.status === 'success' && res.data?.data) {
-          setEpisodeData(res.data.data);
-          setStreamUrl(res.data.data.defaultStreamingUrl || '');
+        const extData = res.data?.data || res.data;
+        if (extData) {
+          setEpisodeData(extData);
+          setStreamUrl(extData.defaultStreamingUrl || '');
 
-          if (res.data.data.serverList?.length > 0) {
-              const defaultServer = res.data.data.serverList.find(s => s.serverId);
+          if (extData.serverList?.length > 0) {
+              const defaultServer = extData.serverList.find(s => s.serverId);
               if (defaultServer) {
                  setSelectedServerId(defaultServer.serverId);
               }
