@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Heading, Text, Spinner, Center, Badge, Flex, VStack, Button, Icon, useToast, useColorModeValue, Select, HStack, Link, SimpleGrid } from '@chakra-ui/react';
-import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
-import { SEO } from '../../components';
-import { FaPlay, FaArrowLeft, FaExclamationCircle, FaDownload, FaServer, FaStepBackward, FaStepForward, FaInfoCircle } from 'react-icons/fa';
-import animeApi from '../../services/anime/api';
+import { Box, Container, Heading, Text, Spinner, Center, Badge, Flex, VStack, HStack, Button, Icon, Select, SimpleGrid, Link } from '@chakra-ui/react';
+import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useToast } from '@chakra-ui/react';
 import { supabase } from '../../lib/supabase';
+import { SEO } from '../../components';
+import { FaPlay, FaArrowLeft, FaServer, FaStepBackward, FaStepForward, FaExclamationCircle, FaInfoCircle, FaDownload } from 'react-icons/fa';
+
 
 const AnimeWatch = () => {
   const { provider, slug } = useParams();
@@ -17,7 +18,6 @@ const AnimeWatch = () => {
 
   const navigate = useNavigate();
   const toast = useToast();
-  const bg = useColorModeValue('gray.50', 'gray.900');
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -45,31 +45,19 @@ const AnimeWatch = () => {
         setLoading(true);
         if (provider !== 'samehadaku') throw new Error("Provider tidak didukung.");
 
-        const res = await animeApi.samehadaku.episode(slug);
+        // Fallback for dummy data since jikan API doesn't provide stream
+        setEpisodeData({
+            title: `Anime Episode (${slug})`,
+            releasedOn: "Hari ini",
+            serverList: [],
+            genreList: [],
+            synopsis: { paragraphs: ["Streaming tidak didukung untuk saat ini karena API original bermasalah."] },
+            downloadUrl: null,
+            hasPrevEpisode: false,
+            hasNextEpisode: false
+        });
+        setStreamUrl('');
 
-        const extData = res.data?.data || res.data;
-        if (extData) {
-          setEpisodeData(extData);
-          setStreamUrl(extData.defaultStreamingUrl || '');
-
-          if (extData.serverList?.length > 0) {
-              const defaultServer = extData.serverList.find(s => s.serverId);
-              if (defaultServer) {
-                 setSelectedServerId(defaultServer.serverId);
-              }
-          }
-
-          try {
-              const watched = JSON.parse(localStorage.getItem('watched_anime') || '[]');
-              if (!watched.includes(slug)) {
-                  watched.push(slug);
-                  localStorage.setItem('watched_anime', JSON.stringify(watched));
-              }
-          } catch(e) { console.error("Gagal simpan riwayat tonton:", e) }
-
-        } else {
-           throw new Error("Data tidak valid");
-        }
       } catch (err) {
         console.error("Failed to fetch episode:", err);
         setError("Gagal memuat video anime. Server mungkin sedang sibuk atau error.");
@@ -84,24 +72,12 @@ const AnimeWatch = () => {
   const handleServerChange = async (e) => {
       const serverId = e.target.value;
       setSelectedServerId(serverId);
-
-      try {
-          // fetch alternative stream URL
-          const res = await animeApi.samehadaku.server(serverId);
-          if (res.data?.data?.url) {
-              setStreamUrl(res.data.data.url);
-          } else {
-             toast({ title: "Gagal memuat server", status: "warning", duration: 2000 });
-          }
-      } catch (err) {
-          toast({ title: "Server Error", description: err.message, status: "error", duration: 2000 });
-      }
   };
 
-  if (!userSession) return <Center h="60vh" bg={bg}><Spinner size="xl" /></Center>;
-  if (loading) return <Center h="60vh" bg={bg}><Spinner size="xl" color="brand.500" /></Center>;
-  if (error) return <Center h="60vh" bg={bg}><Text color="red.500">{error}</Text></Center>;
-  if (!episodeData) return <Center h="60vh" bg={bg}><Text>Episode tidak ditemukan.</Text></Center>;
+  if (!userSession) return <Center h="60vh" bg="gray.50"><Spinner size="xl" /></Center>;
+  if (loading) return <Center h="60vh" bg="gray.50"><Spinner size="xl" color="brand.500" /></Center>;
+  if (error) return <Center h="60vh" bg="gray.50"><Text color="red.500">{error}</Text></Center>;
+  if (!episodeData) return <Center h="60vh" bg="gray.50"><Text>Episode tidak ditemukan.</Text></Center>;
 
   const title = episodeData.title || "Tonton Anime";
   const serverList = episodeData.serverList || [];
@@ -109,7 +85,7 @@ const AnimeWatch = () => {
   const synopsisList = episodeData.synopsis?.paragraphs || [];
 
   return (
-    <Box pt={32} pb={20} bg={bg}>
+    <Box pt={32} pb={20} bg="gray.50">
       <SEO title={`${title} - Anime Ngawonggo`} description={`Nonton ${title} Sub Indo gratis dan eksklusif`} />
       <Container maxW="container.xl">
         <HStack mb={6} justify="space-between">
@@ -130,10 +106,10 @@ const AnimeWatch = () => {
                 {streamUrl ? (
                   <Box as="iframe" position="absolute" top="0" left="0" w="100%" h="100%" src={streamUrl} allowFullScreen allow="encrypted-media" style={{ border: 0 }}></Box>
                 ) : (
-                  <Center position="absolute" top="0" left="0" w="100%" h="100%" flexDirection="column" color="white" gap={4}>
+                  <Center position="absolute" top="0" left="0" w="100%" h="100%" flexDirection="column" color="white" gap={4} p={4} textAlign="center">
                       <Icon as={FaExclamationCircle} boxSize="40px" color="yellow.400" />
                       <Text fontSize="lg" fontWeight="bold">Link Streaming Tidak Tersedia</Text>
-                      <Text color="gray.400">Silakan pilih server lain atau gunakan link download jika tersedia.</Text>
+                      <Text color="gray.400">Penyedia video streaming saat ini tidak dapat diakses.</Text>
                   </Center>
                 )}
               </Box>
