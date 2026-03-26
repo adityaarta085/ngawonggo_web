@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://api.sankavollerei.com'; // using api. subdomain
+const BASE_URL = 'https://sankavollerei.com'; // using api. subdomain
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
