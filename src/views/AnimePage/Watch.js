@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Container, Heading, Text, Spinner, Center, Badge, Flex, VStack, HStack, Button, Icon, Select, SimpleGrid, Link } from '@chakra-ui/react';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import animeApi from '../../services/anime/api';
@@ -19,6 +19,24 @@ const AnimeWatch = () => {
 
   const navigate = useNavigate();
   const toast = useToast();
+
+  const fetchServerUrl = useCallback(async (serverId) => {
+      try {
+          const res = await animeApi.samehadaku.server(serverId);
+          if (res.data && res.data.url) {
+              setStreamUrl(res.data.url);
+          }
+      } catch (err) {
+          console.error("Failed to fetch server url:", err);
+          toast({
+              title: "Error",
+              description: "Gagal memuat URL server.",
+              status: "error",
+              duration: 3000,
+              isClosable: true,
+          });
+      }
+  }, [toast]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -51,10 +69,12 @@ const AnimeWatch = () => {
         let epData = data.data || data;
         setEpisodeData(epData);
 
-        if (epData.stream_url) {
+        if (epData.serverList && epData.serverList.length > 0) {
+            const initialServerId = epData.serverList[0].serverId;
+            setSelectedServerId(initialServerId);
+            fetchServerUrl(initialServerId);
+        } else if (epData.stream_url) {
             setStreamUrl(epData.stream_url);
-        } else if (epData.serverList && epData.serverList.length > 0) {
-            setStreamUrl(epData.serverList[0].iframe || '');
         }
 
       } catch (err) {
@@ -66,11 +86,16 @@ const AnimeWatch = () => {
     };
 
     fetchEpisode();
-  }, [provider, slug, userSession]);
+  }, [provider, slug, userSession, fetchServerUrl]);
+
+
 
   const handleServerChange = async (e) => {
       const serverId = e.target.value;
       setSelectedServerId(serverId);
+      if (serverId) {
+          fetchServerUrl(serverId);
+      }
   };
 
   if (!userSession) return <Center h="60vh" bg="gray.50"><Spinner size="xl" /></Center>;

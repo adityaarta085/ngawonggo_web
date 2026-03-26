@@ -63,8 +63,16 @@ const samehadaku = {
   },
 
   batchDetail: async (batchId) => ({ data: { data: {} } }),
-  server: async (serverId) => ({ data: { data: {} } }),
+  server: async (serverId) => {
+    try {
+      const res = await apiClient.get(`/server/${serverId}`);
+      return res.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
+
 
 const api = { samehadaku };
 
