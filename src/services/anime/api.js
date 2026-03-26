@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://www.sankavollerei.com/download/anime';
+const BASE_URL = 'https://www.sankavollerei.com/anime';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,

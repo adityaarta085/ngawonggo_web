@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Heading, Text, Spinner, Center, Badge, Flex, VStack, HStack, Button, Icon, Select, SimpleGrid, Link } from '@chakra-ui/react';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
+import animeApi from '../../services/anime/api';
 import { useToast } from '@chakra-ui/react';
 import { supabase } from '../../lib/supabase';
 import { SEO } from '../../components';
@@ -45,8 +46,7 @@ const AnimeWatch = () => {
         setLoading(true);
         if (provider !== 'samehadaku') throw new Error("Provider tidak didukung.");
 
-        const res = await fetch(`https://www.sankavollerei.com/download/anime/episode/${slug}`);
-        const data = await res.json();
+        const data = await animeApi.samehadaku.episode(slug);
 
         let epData = data.data || data;
         setEpisodeData(epData);
