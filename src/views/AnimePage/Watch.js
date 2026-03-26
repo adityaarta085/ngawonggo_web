@@ -45,18 +45,17 @@ const AnimeWatch = () => {
         setLoading(true);
         if (provider !== 'samehadaku') throw new Error("Provider tidak didukung.");
 
-        // Fallback for dummy data since jikan API doesn't provide stream
-        setEpisodeData({
-            title: `Anime Episode (${slug})`,
-            releasedOn: "Hari ini",
-            serverList: [],
-            genreList: [],
-            synopsis: { paragraphs: ["Streaming tidak didukung untuk saat ini karena API original bermasalah."] },
-            downloadUrl: null,
-            hasPrevEpisode: false,
-            hasNextEpisode: false
-        });
-        setStreamUrl('');
+        const res = await fetch(`https://www.sankavollerei.com/download/anime/episode/${slug}`);
+        const data = await res.json();
+
+        let epData = data.data || data;
+        setEpisodeData(epData);
+
+        if (epData.stream_url) {
+            setStreamUrl(epData.stream_url);
+        } else if (epData.serverList && epData.serverList.length > 0) {
+            setStreamUrl(epData.serverList[0].iframe || '');
+        }
 
       } catch (err) {
         console.error("Failed to fetch episode:", err);

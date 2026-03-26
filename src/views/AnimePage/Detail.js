@@ -42,12 +42,12 @@ const AnimeDetail = () => {
   if (error) return <Center h="60vh"><Text color="red.500">{error}</Text></Center>;
   if (!animeData) return <Center h="60vh"><Text>Anime tidak ditemukan.</Text></Center>;
 
-  const title = animeData.title || animeData.japanese || "Tanpa Judul";
-  const synopsisList = animeData.synopsis?.paragraphs || [];
-  const image = animeData.poster;
-  const episodesList = animeData.episodeList || [];
-  const batchList = animeData.batchList || [];
-  const genres = animeData.genreList || [];
+  const title = animeData.title || animeData.japanese || animeData.judul || "Tanpa Judul";
+  const synopsisList = animeData.synopsis?.paragraphs || (animeData.sinopsis ? [animeData.sinopsis] : []);
+  const image = animeData.poster || animeData.gambar;
+  const episodesList = animeData.episodeList || animeData.episode_list || animeData.episodes || [];
+  const batchList = animeData.batchList || animeData.batch_link || [];
+  const genres = animeData.genreList || animeData.genre_list || animeData.genres || [];
 
   return (
     <Box pt={32} pb={20}>
@@ -78,7 +78,7 @@ const AnimeDetail = () => {
 
             <Flex gap={2} flexWrap="wrap">
                 {genres.map((g, i) => (
-                    <Badge key={i} colorScheme="gray" variant="subtle" px={2} py={1}>{g.title}</Badge>
+                    <Badge key={i} colorScheme="gray" variant="subtle" px={2} py={1}>{g.title || g.nama || g}</Badge>
                 ))}
             </Flex>
 
@@ -115,10 +115,10 @@ const AnimeDetail = () => {
                   <LinkBox key={idx} as="article" p={4} bg="white" borderRadius="lg" boxShadow="sm" border="1px solid" borderColor="gray.100" _hover={{ bg: 'brand.50', borderColor: 'brand.300', transform: 'translateY(-2px)' }} transition="all 0.2s">
                     <Flex align="center" justify="space-between">
                       <Box>
-                        <LinkOverlay as={RouterLink} to={`/anime/${provider}/episode/${encodeURIComponent(ep.episodeId)}`}>
-                            <Text fontWeight="bold" noOfLines={1}>{ep.title}</Text>
+                        <LinkOverlay as={RouterLink} to={`/anime/${provider}/episode/${encodeURIComponent(ep.episodeId || ep.id || ep.endpoint)}`}>
+                            <Text fontWeight="bold" noOfLines={1}>{ep.title || ep.judul}</Text>
                         </LinkOverlay>
-                        <Text fontSize="xs" color="gray.500" mt={1}>{ep.releasedOn}</Text>
+                        <Text fontSize="xs" color="gray.500" mt={1}>{ep.releasedOn || ep.tanggal}</Text>
                       </Box>
                       <Icon as={FaPlayCircle} color="brand.500" boxSize={6} />
                     </Flex>
