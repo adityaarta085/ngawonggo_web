@@ -165,30 +165,21 @@ const AnimePage = () => {
 
         {!isSearching && searchResults.length === 0 && data && !loading && !error && (
             <Box>
-                {data.recent?.animeList && (
+                {data.ongoing?.animeList && (
                     <Box mb={12}>
                         <Heading size="lg" mb={6} display="flex" alignItems="center" gap={2}>
-                            <Icon as={FaFire} color="orange.500" /> Rilisan Terbaru
+                            <Icon as={FaFire} color="orange.500" /> Anime Ongoing (Sedang Tayang)
                         </Heading>
-                        <AnimeGrid items={data.recent.animeList} />
+                        <AnimeGrid items={data.ongoing.animeList} />
                     </Box>
                 )}
 
-                {data.top10?.animeList && (
+                {data.completed?.animeList && (
                     <Box mb={12}>
                         <Heading size="lg" mb={6} display="flex" alignItems="center" gap={2}>
-                            <Icon as={FaStar} color="yellow.500" /> Top 10 Anime
+                            <Icon as={FaFilm} color="blue.500" /> Anime Tamat (Completed)
                         </Heading>
-                        <AnimeGrid items={data.top10.animeList} showScore={true} />
-                    </Box>
-                )}
-
-                {data.movie?.animeList && (
-                    <Box mb={12}>
-                        <Heading size="lg" mb={6} display="flex" alignItems="center" gap={2}>
-                            <Icon as={FaFilm} color="blue.500" /> Anime Movie
-                        </Heading>
-                        <AnimeGrid items={data.movie.animeList} />
+                        <AnimeGrid items={data.completed.animeList} showScore={true} />
                     </Box>
                 )}
             </Box>
