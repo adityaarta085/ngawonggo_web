@@ -14,7 +14,12 @@ import JelajahiPage from './views/JelajahiPage/index.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
-import EduGamePage from './views/EduGamePage/index.js';
+
+import AnimePage from './views/AnimePage/index.js';
+import AnimeDetail from './views/AnimePage/Detail.js';
+import AnimeWatch from './views/AnimePage/Watch.js';
+import AnimeBatch from './views/AnimePage/Batch.js';
+
 import DusunPage from './views/DusunPage/index.js';
 import QuranPage from './views/QuranPage/index.js';
 import NewsDetail from './views/NewsPage/NewsDetail.js';
@@ -235,7 +240,10 @@ function App() {
               <Route path="/transparansi" element={<TransparansiPage />} />
               <Route path="/kontak" element={<KontakPage />} />
               <Route path="/media" element={<MediaPage />} />
-              <Route path="/game-edukasi" element={<EduGamePage />} />
+              <Route path="/anime" element={<AnimePage />} />
+              <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
+              <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />
+              <Route path="/anime/:provider/batch/:batchId" element={<AnimeBatch />} />
               <Route path="/dusun/:slug" element={<DusunPage />} />
               <Route path="/quran" element={<QuranPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
