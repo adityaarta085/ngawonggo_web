@@ -20,25 +20,10 @@ const samehadaku = {
     }
   },
 
-  // The API doesn't have a direct search endpoint based on the prompt.
-  // Let's create a client-side filter using /unlimited, or wait for the prompt details.
-  // Actually, wait, let's just fetch /unlimited and filter it if needed, or if it's too big, just wait.
   search: async (q) => {
     try {
-      const res = await apiClient.get('/unlimited');
-      if (res.data?.data?.animeList) {
-        const filtered = res.data.data.animeList.filter(item =>
-          item.title.toLowerCase().includes(q.toLowerCase())
-        );
-        return {
-          data: {
-            data: {
-              animeList: filtered
-            }
-          }
-        };
-      }
-      return { data: { data: { animeList: [] } } };
+      const res = await apiClient.get(`/search/${q}`);
+      return res;
     } catch (error) {
       throw error;
     }
