@@ -72,10 +72,26 @@ const AnimeWatch = () => {
 
         let initialServerId = null;
         if (epData.server?.qualities) {
+            let allServers = [];
             for (const quality of epData.server.qualities) {
                 if (quality.serverList?.length > 0) {
-                    initialServerId = quality.serverList[0].serverId;
-                    break;
+                    allServers = allServers.concat(quality.serverList);
+                }
+            }
+
+            if (allServers.length > 0) {
+                const megaServer = allServers.find(s => s.title && s.title.toLowerCase() === 'mega');
+                const ondesuServer = allServers.find(s => s.title && s.title.toLowerCase() === 'ondesu');
+                const filedonServer = allServers.find(s => s.title && s.title.toLowerCase() === 'filedon');
+
+                if (megaServer) {
+                    initialServerId = megaServer.serverId;
+                } else if (ondesuServer) {
+                    initialServerId = ondesuServer.serverId;
+                } else if (filedonServer) {
+                    initialServerId = filedonServer.serverId;
+                } else {
+                    initialServerId = allServers[0].serverId;
                 }
             }
         }
