@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Heading, SimpleGrid, Text, Spinner, Center, Badge, Image, LinkBox, LinkOverlay, VStack, Icon, Input, InputGroup, InputLeftElement, InputRightElement, IconButton } from '@chakra-ui/react';
+import './AnimeStyles.css';
+import { Box, Container, Heading, SimpleGrid, Text,  Center, Badge, Image, LinkBox, LinkOverlay, VStack, Icon, Input, InputGroup, InputLeftElement, InputRightElement, IconButton } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { FaFire, FaFilm, FaStar, FaSearch, FaTimes } from 'react-icons/fa';
 import { SEO } from '../../components';
@@ -108,7 +109,7 @@ const AnimePage = () => {
   };
 
   return (
-    <Box pt={32} pb={20}>
+    <Box pt={24} pb={20}>
       <SEO title="Portal Anime (Samehadaku)" description="Nonton Anime Sub Indo Terlengkap eksklusif dari Samehadaku" />
       <Container maxW="container.xl">
         <VStack spacing={4} mb={10} textAlign="center">
@@ -149,7 +150,7 @@ const AnimePage = () => {
             </form>
         </Box>
 
-        {isSearching && <Center h="20vh"><Spinner size="xl" color="brand.500" /></Center>}
+        {isSearching && <Center h="20vh"><div className="custom-loader"></div></Center>}
         {error && <Center h="20vh"><Text color="red.500">{error}</Text></Center>}
 
         {!isSearching && searchResults.length > 0 && (
@@ -161,7 +162,7 @@ const AnimePage = () => {
             </Box>
         )}
 
-        {loading && !isSearching && <Center h="40vh"><Spinner size="xl" color="brand.500" /></Center>}
+        {loading && !isSearching && <Center h="40vh"><div className="custom-loader"></div></Center>}
 
         {!isSearching && searchResults.length === 0 && data && !loading && !error && (
             <Box>
