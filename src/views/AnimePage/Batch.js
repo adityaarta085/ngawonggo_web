@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Heading, Text, Spinner, Center, Badge, Flex, VStack, Button, Icon, useColorModeValue, SimpleGrid, Link, HStack } from '@chakra-ui/react';
+import './AnimeStyles.css';
+import { Box, Container, Heading, Text,  Center, Badge, Flex, VStack, Button, Icon, useColorModeValue, SimpleGrid, Link, HStack } from '@chakra-ui/react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { SEO } from '../../components';
 import { FaArrowLeft, FaFolderOpen, FaInfoCircle, FaDownload } from 'react-icons/fa';
@@ -39,7 +40,7 @@ const AnimeBatch = () => {
   }, [provider, batchId]);
 
 
-  if (loading) return <Center h="60vh" bg={bg}><Spinner size="xl" color="green.500" /></Center>;
+  if (loading) return <Center h="60vh" bg={bg}><div className="custom-loader"></div></Center>;
   if (error) return <Center h="60vh" bg={bg}><Text color="red.500">{error}</Text></Center>;
   if (!batchData) return <Center h="60vh" bg={bg}><Text>Batch tidak ditemukan.</Text></Center>;
 
@@ -48,7 +49,7 @@ const AnimeBatch = () => {
   const synopsisList = batchData.synopsis?.paragraphs || [];
 
   return (
-    <Box pt={32} pb={20} bg={bg}>
+    <Box pt={24} pb={20} bg={bg}>
       <SEO title={`${title} - Anime Ngawonggo`} description={`Download Batch ${title} Sub Indo gratis dan eksklusif`} />
       <Container maxW="container.xl">
         <HStack mb={6} justify="space-between">

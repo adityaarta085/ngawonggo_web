@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Heading, Text, Spinner, Center, Badge, Image, Flex, VStack, SimpleGrid, Button, LinkBox, LinkOverlay, Icon, Divider } from '@chakra-ui/react';
+import './AnimeStyles.css';
+import { Box, Container, Heading, Text,  Center, Badge, Image, Flex, VStack, SimpleGrid, Button, LinkBox, LinkOverlay, Icon, Divider } from '@chakra-ui/react';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import { SEO } from '../../components';
 import { FaPlayCircle, FaInfoCircle, FaStar, FaFolderOpen, FaClock, FaCalendarAlt, FaFilm } from 'react-icons/fa';
@@ -38,7 +39,7 @@ const AnimeDetail = () => {
     fetchDetail();
   }, [provider, slug]);
 
-  if (loading) return <Center h="60vh"><Spinner size="xl" color="brand.500" /></Center>;
+  if (loading) return <Center h="60vh"><div className="custom-loader"></div></Center>;
   if (error) return <Center h="60vh"><Text color="red.500">{error}</Text></Center>;
   if (!animeData) return <Center h="60vh"><Text>Anime tidak ditemukan.</Text></Center>;
 
@@ -50,7 +51,7 @@ const AnimeDetail = () => {
   const genres = animeData.genreList || animeData.genre_list || animeData.genres || [];
 
   return (
-    <Box pt={32} pb={20}>
+    <Box pt={24} pb={20}>
       <SEO title={`${title} - Anime Ngawonggo`} description={synopsisList.length > 0 ? synopsisList[0].slice(0, 150) : "Tonton anime sub indo terlengkap."} />
       <Container maxW="container.xl">
         <Button mb={6} variant="outline" onClick={() => navigate(-1)}>&larr; Kembali</Button>
@@ -116,7 +117,13 @@ const AnimeDetail = () => {
                     <Flex align="center" justify="space-between">
                       <Box>
                         <LinkOverlay as={RouterLink} to={`/anime/${provider}/episode/${encodeURIComponent(ep.episodeId || ep.id || ep.endpoint)}`}>
-                            <Text fontWeight="bold" noOfLines={1}>{ep.title || ep.judul}</Text>
+                            <Text fontWeight="bold" noOfLines={1}>
+                                {(() => {
+                                    const title = ep.title || ep.judul;
+                                    const match = title.match(/Episode\s*\d+/i) || title.match(/Eps\s*\d+/i);
+                                    return match ? match[0] : title;
+                                })()}
+                            </Text>
                         </LinkOverlay>
                         <Text fontSize="xs" color="gray.500" mt={1}>{ep.releasedOn || ep.tanggal}</Text>
                       </Box>

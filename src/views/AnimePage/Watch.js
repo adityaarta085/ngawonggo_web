@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Container, Heading, Text, Spinner, Center, Badge, Flex, VStack, HStack, Button, Icon, Select, SimpleGrid, Link } from '@chakra-ui/react';
+import './AnimeStyles.css';
+import { Box, Container, Heading, Text,  Center, Badge, Flex, VStack, HStack, Button, Icon, Select, SimpleGrid, Link } from '@chakra-ui/react';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import animeApi from '../../services/anime/api';
 import { useToast } from '@chakra-ui/react';
@@ -124,8 +125,8 @@ const AnimeWatch = () => {
       }
   };
 
-  if (!userSession) return <Center h="60vh" bg="gray.50"><Spinner size="xl" /></Center>;
-  if (loading) return <Center h="60vh" bg="gray.50"><Spinner size="xl" color="brand.500" /></Center>;
+  if (!userSession) return <Center h="60vh" bg="gray.50"><div className="custom-loader"></div></Center>;
+  if (loading) return <Center h="60vh" bg="gray.50"><div className="custom-loader"></div></Center>;
   if (error) return <Center h="60vh" bg="gray.50"><Text color="red.500">{error}</Text></Center>;
   if (!episodeData) return <Center h="60vh" bg="gray.50"><Text>Episode tidak ditemukan.</Text></Center>;
 
@@ -141,7 +142,7 @@ const AnimeWatch = () => {
   const synopsisList = episodeData.synopsis?.paragraphs || [];
 
   return (
-    <Box pt={32} pb={20} bg="gray.50">
+    <Box pt={24} pb={20} bg="gray.50">
       <SEO title={`${title} - Anime Ngawonggo`} description={`Nonton ${title} Sub Indo gratis dan eksklusif`} />
       <Container maxW="container.xl">
         <HStack mb={6} justify="space-between">
