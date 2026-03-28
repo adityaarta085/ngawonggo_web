@@ -40,6 +40,6 @@ test('renders Al-Quran heading', async () => {
   );
 
   await waitFor(() => {
-    expect(screen.getByText(/Al-Qur'anul Karim/i)).toBeInTheDocument();
+    expect(screen.getByText(/Al-Quran Digital/i)).toBeInTheDocument();
   });
 });

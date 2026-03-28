@@ -7,7 +7,7 @@
     "@chakra-ui/react": "^2.8.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@marsidev/react-turnstile": "^1.4.2",
+    "@marsidev/react-turnstile": "^1.4.1",
     "@playwright/test": "^1.58.2",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
@@ -15,7 +15,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
-    "axios": "^1.13.6",
+    "axios": "^0.27.2",
     "cheerio": "^1.2.0",
     "dotenv": "^17.3.1",
     "framer-motion": "^6.5.1",
@@ -60,5 +60,10 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "/node_modules/(?!axios|@marsidev)/"
+    ]
   }
 }
