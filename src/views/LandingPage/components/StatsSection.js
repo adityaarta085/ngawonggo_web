@@ -113,14 +113,14 @@ const StatsSection = () => {
                     bg={cardBg}
                     p={10}
                     borderRadius="3xl"
-                    border="1px solid"
+                    border="2px solid"
                     borderColor={borderColor}
                     textAlign="center"
                     _hover={{
                         bg: cardHoverBg,
                         borderColor: "brand.200",
-                        transform: "translateY(-10px)",
-                        boxShadow: "2xl"
+                        transform: "translateY(-12px) scale(1.02)",
+                        boxShadow: "0 30px 60px -15px rgba(0,0,0,0.15)"
                     }}
                   >
                     <Flex
