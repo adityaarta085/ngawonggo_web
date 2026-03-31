@@ -117,8 +117,8 @@ const BMKGSection = () => {
                 bg={cardBg}
                 p={{ base: 8, md: 10 }}
                 borderRadius="3xl"
-                boxShadow="soft"
-                border="1px solid"
+                boxShadow="2xl"
+                border="2px solid"
                 borderColor={borderColor}
                 position="relative"
                 overflow="hidden"
@@ -151,7 +151,7 @@ const BMKGSection = () => {
 
                 <SimpleGrid columns={2} spacing={10} position="relative" zIndex={1}>
                   <HStack spacing={4}>
-                    <Flex w={14} h={14} bg="blue.50" color="brand.500" borderRadius="2xl" align="center" justify="center" boxShadow="sm">
+                    <Flex w={14} h={14} bg="blue.50" color="brand.500" borderRadius="2xl" align="center" justify="center" boxShadow="md">
                       <Icon as={FaTint} w={6} h={6} />
                     </Flex>
                     <VStack align="start" spacing={0}>
@@ -160,7 +160,7 @@ const BMKGSection = () => {
                     </VStack>
                   </HStack>
                   <HStack spacing={4}>
-                    <Flex w={14} h={14} bg="green.50" color="green.500" borderRadius="2xl" align="center" justify="center" boxShadow="sm">
+                    <Flex w={14} h={14} bg="green.50" color="green.500" borderRadius="2xl" align="center" justify="center" boxShadow="md">
                       <Icon as={FaWind} w={6} h={6} />
                     </Flex>
                     <VStack align="start" spacing={0}>
@@ -179,8 +179,8 @@ const BMKGSection = () => {
                 bg={eqCardBg}
                 p={{ base: 8, md: 10 }}
                 borderRadius="3xl"
-                boxShadow="soft"
-                border="1px solid"
+                boxShadow="2xl"
+                border="2px solid"
                 borderColor={eqBorderColor}
                 position="relative"
                 overflow="hidden"
@@ -205,7 +205,7 @@ const BMKGSection = () => {
 
                 <VStack align="stretch" spacing={8} position="relative" zIndex={1}>
                   <Flex align="center" gap={8}>
-                    <Box textAlign="center" bg="white" p={6} borderRadius="3xl" boxShadow="sm" border="1px solid" borderColor="red.100">
+                    <Box textAlign="center" bg="white" p={6} borderRadius="3xl" boxShadow="md" border="2px solid" borderColor="red.100">
                         <Text fontSize="5xl" fontWeight="900" color="red.600" lineHeight="1">{earthquake?.Magnitude || '5.2'}</Text>
                         <Text fontSize="xs" fontWeight="900" color="gray.500" mt={2} letterSpacing="widest">MAGNITUDO</Text>
                     </Box>
@@ -224,7 +224,7 @@ const BMKGSection = () => {
                     </VStack>
                   </Flex>
 
-                  <Box p={6} bg={alertBg} borderRadius="2xl" borderLeft="6px solid" borderColor="red.500" boxShadow="sm">
+                  <Box p={6} bg={alertBg} borderRadius="2xl" borderLeft="6px solid" borderColor="red.500" boxShadow="md">
                     <Text fontSize="md" fontWeight="800" color="red.600" mb={1}>
                         Potensi: {earthquake?.Potensi || 'Tidak berpotensi tsunami'}
                     </Text>

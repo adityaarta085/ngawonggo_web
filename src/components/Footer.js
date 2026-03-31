@@ -19,7 +19,7 @@ import { Link as RouterLink } from 'react-router-dom';
 
 const Footer = ({ ml }) => {
   return (
-    <Box bg="accent.blue" color="gray.400" ml={ml} transition="margin 0.3s">
+    <Box bgGradient="linear(to-b, accent.blue, #080C16)" color="gray.400" ml={ml} transition="margin 0.3s">
       <Container maxW="container.xl" py={20}>
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={12}>
           <VStack align="start" spacing={8}>
@@ -80,7 +80,7 @@ const Footer = ({ ml }) => {
 
           <VStack align="start" spacing={6}>
             <Text color="white" fontWeight="900" fontSize="md" letterSpacing="widest">LOKASI KANTOR</Text>
-            <Box borderRadius="2xl" overflow="hidden" w="full" h="180px" border="1px solid" borderColor="whiteAlpha.200">
+            <Box borderRadius="2xl" overflow="hidden" w="full" h="180px" border="2px solid" borderColor="whiteAlpha.300" boxShadow="xl">
                <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3955.968025562562!2d110.104991021157!3d-7.468782779901082!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a9a9004c3dad5%3A0x9bfc61f6dbe64b03!2sBalai%20Desa%20Ngawonggo!5e0!3m2!1sid!2sid!4v1771797061918!5m2!1sid!2sid"
                 width="100%"
