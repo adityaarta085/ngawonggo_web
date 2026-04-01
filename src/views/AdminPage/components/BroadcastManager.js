@@ -25,7 +25,7 @@ import {
   InputGroup,
   InputLeftElement,
 } from '@chakra-ui/react';
-import { FaPaperPlane, FaSearch, FaUserCircle } from 'react-icons/fa';
+import { FaPaperPlane, FaSearch, FaUserCircle, FaMagic, FaSpinner } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -41,6 +41,10 @@ const BroadcastManager = () => {
   const [isSending, setIsSending] = useState(false);
   const [progress, setProgress] = useState(0);
   const [stats, setStats] = useState({ sent: 0, failed: 0, total: 0 });
+  const [customEmail, setCustomEmail] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+
   const [sendTest, setSendTest] = useState(false);
   const toast = useToast();
 
@@ -85,6 +89,35 @@ const BroadcastManager = () => {
 
   const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+
+  const handleAiBeautify = async () => {
+    setIsAiLoading(true);
+    try {
+      const promptToSend = aiPrompt.trim()
+        ? `Instruksi: ${aiPrompt}. Konten saat ini: ${content}`
+        : `Tolong percantik dan perbaiki tata bahasa dari email ini. Konten saat ini: ${content}`;
+
+      const response = await axios.post('/api/chat', {
+        messages: [{ role: 'user', content: promptToSend }],
+        customPrompt: 'Anda adalah asisten cerdas pembuat email untuk admin web. Tugas Anda adalah membuat atau mempercantik isi email (Subject: ' + subject + '). Berikan HANYA KODE HTML yang siap dimasukkan ke editor (tanpa tag <html>, <body>, atau markdown backticks seperti ```html). Hanya konten di dalamnya saja, gunakan tag p, br, strong, em, ul, li, dll.',
+      });
+
+      if (response.data?.choices?.[0]?.message?.content) {
+        let aiContent = response.data.choices[0].message.content;
+        aiContent = aiContent.replace(/```html/g, '').replace(/```/g, '').trim();
+        setContent(aiContent);
+        toast({ title: 'Email berhasil dipercantik dengan AI', status: 'success' });
+      } else {
+        throw new Error('Respons AI kosong');
+      }
+    } catch (error) {
+      toast({ title: 'Gagal menggunakan AI', description: error.message, status: 'error' });
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
+
   const handleSendEmail = async () => {
     if (!subject || !content) {
       toast({ title: 'Subject dan Konten tidak boleh kosong', status: 'warning' });
@@ -93,13 +126,13 @@ const BroadcastManager = () => {
 
     let targets = [];
     if (sendTest) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.email) {
-        targets = [user.email];
-      } else {
-        toast({ title: 'Gagal mendapatkan email admin. Pastikan Anda sudah login ke Portal Warga.', status: 'error' });
+      targets = ['adityaarta085@gmail.com'];
+    } else if (recipientType === 'manual') {
+      if (!customEmail) {
+        toast({ title: 'Email manual tidak boleh kosong', status: 'warning' });
         return;
       }
+      targets = [customEmail];
     } else if (recipientType === 'all') {
       targets = users.map(u => u.email).filter(Boolean);
     } else {
@@ -189,6 +222,31 @@ const BroadcastManager = () => {
 
             <FormControl isRequired>
               <FormLabel>Email Content</FormLabel>
+
+              <Box mb={2} p={4} border="1px" borderColor="brand.100" borderRadius="md" bg="brand.50">
+                <Text fontSize="sm" fontWeight="bold" mb={2} color="brand.700">Tulis atau Percantik Email dengan AI</Text>
+                <HStack>
+                  <Input
+                    placeholder="Instruksi AI (contoh: Buatkan email undangan rapat desa...)"
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    bg="white"
+                    size="sm"
+                    isDisabled={isSending || isAiLoading}
+                  />
+                  <Button
+                    leftIcon={isAiLoading ? <FaSpinner className="fa-spin" /> : <FaMagic />}
+                    colorScheme="brand"
+                    size="sm"
+                    onClick={handleAiBeautify}
+                    isLoading={isAiLoading}
+                    loadingText="Memproses..."
+                  >
+                    Generate AI
+                  </Button>
+                </HStack>
+              </Box>
+
               <Box bg="white" color="black">
                 <ReactQuill
                   theme="snow"
@@ -207,9 +265,26 @@ const BroadcastManager = () => {
                 <Stack direction="row" spacing={5}>
                   <Radio value="all">Semua Pengguna ({users.length})</Radio>
                   <Radio value="selected">Pengguna Tertentu ({selectedUsers.length})</Radio>
+                  <Radio value="manual">Email Spesifik (Manual)</Radio>
                 </Stack>
               </RadioGroup>
             </FormControl>
+
+
+            {recipientType === 'manual' && (
+              <Box border="1px" borderColor="gray.100" borderRadius="lg" p={4}>
+                <FormControl isRequired>
+                  <FormLabel>Alamat Email</FormLabel>
+                  <Input
+                    type="email"
+                    placeholder="contoh@email.com"
+                    value={customEmail}
+                    onChange={(e) => setCustomEmail(e.target.value)}
+                    isDisabled={isSending}
+                  />
+                </FormControl>
+              </Box>
+            )}
 
             {recipientType === 'selected' && (
               <Box border="1px" borderColor="gray.100" borderRadius="lg" p={4}>
