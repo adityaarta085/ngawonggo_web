@@ -104,7 +104,7 @@ const BroadcastManager = () => {
 
       if (response.data?.choices?.[0]?.message?.content) {
         let aiContent = response.data.choices[0].message.content;
-        aiContent = aiContent.replace(/\`\`\`html/g, '').replace(/\`\`\`/g, '').trim();
+        aiContent = aiContent.replace(/```html/g, '').replace(/```/g, '').trim();
         setContent(aiContent);
         toast({ title: 'Email berhasil dipercantik dengan AI', status: 'success' });
       } else {
