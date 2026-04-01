@@ -4,14 +4,14 @@
   "description": "Aplikasi Resmi Desa Ngawonggo - Kecamatan Kaliangkrik, Kabupaten Magelang",
   "icons": [
     {
-      "src": "logo_desa.png",
-      "type": "image/jpeg",
+      "src": "logo192.png",
+      "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "logo_desa.png",
-      "type": "image/jpeg",
+      "src": "logo512.png",
+      "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }

@@ -26,7 +26,7 @@ const InstallPWA = () => {
   useEffect(() => {
     // Detect mobile
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isMobileDevice = /iphone|ipad|ipod|android|blackberry|windows phone/g.test(userAgent);
+    const isMobileDevice = /iphone|ipad|ipod|android|blackberry|windows phone/.test(userAgent);
 
     // Check if app is already running in standalone mode (installed)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
