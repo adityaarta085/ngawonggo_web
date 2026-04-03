@@ -42,10 +42,23 @@ module.exports = async (req, res) => {
     // Default System Prompt
     let systemPrompt = defaultPromptSetting?.value || 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.';
 
+
     // Use customPrompt if provided (used by Takedown Page)
     if (customPrompt) {
         systemPrompt = customPrompt;
     }
+
+    // Append Escalation Instructions
+    systemPrompt += `
+IMPORTANT INSTRUCTION FOR ESCALATION:
+Jika user meminta berbicara dengan Customer Service (CS) / manusia, ATAU jika Anda tidak mampu menjawab pertanyaan karena terlalu kompleks atau di luar pengetahuan Anda, Anda WAJIB membalas HANYA dengan JSON berikut (tanpa markdown, tanpa teks lain):
+{
+  "escalate": true,
+  "summary": "<ringkasan singkat masalah user>",
+  "reason": "<alasan kenapa butuh CS, misal 'User meminta CS' atau 'Pertanyaan terlalu kompleks'>"
+}
+Jika tidak perlu eskalasi, jawablah seperti biasa dengan teks biasa.`;
+
 
     // 2. Call Groq API
     const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
