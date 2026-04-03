@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Box, Flex, VStack, HStack, Heading, Text, Badge, Button, Input, IconButton,
-  Avatar, Divider, useToast
+  Avatar, Divider, useToast, Switch
 } from '@chakra-ui/react';
 import { FaPaperPlane, FaSignOutAlt, FaUser, FaClock, FaCheckCircle } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
@@ -13,9 +13,27 @@ const CSDashboard = ({ csSession, setCsSession }) => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMsg, setInputMsg] = useState('');
+  const [isOnline, setIsOnline] = useState(csSession?.status === 'online');
   const scrollRef = useRef(null);
   const toast = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Listen for my own status changes (e.g. forced offline by admin)
+    const mySub = supabase.channel('cs_my_status')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'usersCS', filter: `id=eq.${csSession.id}` }, payload => {
+          setIsOnline(payload.new.status === 'online');
+
+          // Update local storage session
+          const updatedSession = { ...csSession, ...payload.new };
+          localStorage.setItem('csSession', JSON.stringify(updatedSession));
+          setCsSession(updatedSession);
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(mySub); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [csSession, setCsSession]);
 
   useEffect(() => {
     fetchChats();
@@ -93,6 +111,19 @@ const CSDashboard = ({ csSession, setCsSession }) => {
       });
   };
 
+  const handleToggleStatus = async (e) => {
+      const newStatus = e.target.checked ? 'online' : 'offline';
+      setIsOnline(e.target.checked);
+
+      const { error } = await supabase.from('usersCS').update({ status: newStatus }).eq('id', csSession.id);
+      if (error) {
+          toast({ title: 'Gagal mengubah status', description: error.message, status: 'error' });
+          setIsOnline(!e.target.checked); // revert
+      } else {
+          toast({ title: `Status: ${newStatus}`, status: 'info', duration: 1000 });
+      }
+  };
+
   const handleLogout = async () => {
       await supabase.from('usersCS').update({ status: 'offline' }).eq('id', csSession.id);
       localStorage.removeItem('csSession');
@@ -110,10 +141,15 @@ const CSDashboard = ({ csSession, setCsSession }) => {
                     <Avatar size="sm" src={csSession.avatar_url} name={csSession.name} />
                     <VStack align="start" spacing={0}>
                         <Text fontWeight="bold" fontSize="sm">{csSession.name}</Text>
-                        <Badge colorScheme="green" fontSize="10px">CS Online</Badge>
+                        <Badge colorScheme={isOnline ? 'green' : 'gray'} fontSize="10px">
+                            CS {isOnline ? 'Online' : 'Offline'}
+                        </Badge>
                     </VStack>
                 </HStack>
-                <IconButton size="xs" icon={<FaSignOutAlt />} colorScheme="red" variant="ghost" onClick={handleLogout} aria-label="logout" />
+                <HStack spacing={4}>
+                    <Switch colorScheme="green" isChecked={isOnline} onChange={handleToggleStatus} size="sm" />
+                    <IconButton size="xs" icon={<FaSignOutAlt />} colorScheme="red" variant="ghost" onClick={handleLogout} aria-label="logout" />
+                </HStack>
             </Flex>
          </Box>
 
