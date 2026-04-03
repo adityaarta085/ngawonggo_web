@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  Box, VStack, HStack, Text, Heading, Table, Thead, Tbody, Tr, Th, Td,
+import { Box, VStack, HStack, Text, Heading, Table, Thead, Tbody, Tr, Th, Td,
   Button, IconButton, useToast, Modal, ModalOverlay, ModalContent,
   ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure,
-  FormControl, FormLabel, Input, Tooltip, InputGroup, InputLeftElement
-} from '@chakra-ui/react';
+  FormControl, FormLabel, Input, Tooltip, InputGroup, InputLeftElement, Tabs, TabList, TabPanels, Tab, TabPanel, Textarea } from '@chakra-ui/react';
 import { FaTrash, FaEnvelope, FaPlus, FaSearch, FaUserShield, FaExclamationTriangle, FaMagic } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import axios from 'axios';
@@ -299,16 +297,46 @@ const UserManager = () => {
               </Box>
 
               <FormControl isRequired>
-                <FormLabel>Isi Email (HTML Didukung, Bisa Diedit Sesuka Hati)</FormLabel>
-                <Box bg="white" color="black">
-                  <ReactQuill
-                    theme="snow"
-                    value={emailContent}
-                    onChange={setEmailContent}
-                    modules={quillModules}
-                    style={{ height: '300px', marginBottom: '50px' }}
-                  />
-                </Box>
+                <FormLabel>Isi Email</FormLabel>
+                <Tabs variant="enclosed" colorScheme="brand">
+                  <TabList>
+                    <Tab>Visual Editor</Tab>
+                    <Tab>HTML Editor</Tab>
+                    <Tab>Preview</Tab>
+                  </TabList>
+                  <TabPanels bg="white" color="black" border="1px" borderColor="gray.200" borderTop="none" borderBottomRadius="md">
+                    <TabPanel p={0}>
+                      <ReactQuill
+                        theme="snow"
+                        value={emailContent}
+                        onChange={setEmailContent}
+                        modules={quillModules}
+                        style={{ height: '300px', marginBottom: '40px' }}
+                      />
+                    </TabPanel>
+                    <TabPanel>
+                      <Textarea
+                        value={emailContent}
+                        onChange={(e) => setEmailContent(e.target.value)}
+                        placeholder="Ketik atau paste kode HTML di sini..."
+                        height="300px"
+                        fontFamily="monospace"
+                        fontSize="sm"
+                      />
+                    </TabPanel>
+                    <TabPanel>
+                      <Box
+                        height="300px"
+                        overflowY="auto"
+                        p={4}
+                        border="1px solid"
+                        borderColor="gray.100"
+                        borderRadius="md"
+                        dangerouslySetInnerHTML={{ __html: emailContent || '<p color="gray">Pratinjau kosong</p>' }}
+                      />
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
               </FormControl>
             </VStack>
           </ModalBody>
