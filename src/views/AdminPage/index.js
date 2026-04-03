@@ -50,6 +50,8 @@ import DusunManager from './components/DusunManager';
 import BroadcastManager from './components/BroadcastManager';
 import PemerintahanManager from './components/PemerintahanManager';
 import UserManager from './components/UserManager';
+import CsManager from './components/CsManager';
+import { FaHeadset } from 'react-icons/fa';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -71,6 +73,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Komentar', icon: FaComments },
     { name: 'Broadcast Email', icon: FaEnvelope },
     { name: 'Pengaturan', icon: FaCog },
+    { name: 'Customer Service', icon: FaHeadset },
     { name: 'Pengguna', icon: FaUsers },
     { name: 'Pemerintahan', icon: FaUsers },
   ];
@@ -183,6 +186,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Broadcast Email' && <BroadcastManager />}
           {activeTab === 'Pengaturan' && <SettingsManager />}
           {activeTab === 'Pemerintahan' && <PemerintahanManager />}
+          {activeTab === 'Customer Service' && <CsManager />}
           {activeTab === 'Pengguna' && <UserManager />}
         </Box>
       </Box>

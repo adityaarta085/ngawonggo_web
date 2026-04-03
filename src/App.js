@@ -26,6 +26,7 @@ import NewsDetail from './views/NewsPage/NewsDetail.js';
 import LoginPromo from './components/LoginPromo.js';
 import AdminPage from './views/AdminPage/index.js';
 import Login from './views/AdminPage/Login.js';
+import CSApp from './views/AdminPage/cs';
 import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
 import TermsConditions from './views/Legal/TermsConditions.js';
 import CreditsPage from './views/CreditsPage/index.js';
@@ -265,6 +266,7 @@ function App() {
                 }
               />
               <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
+              <Route path="/admin/cs/*" element={<CSApp />} />
 
               <Route path="*" element={<PageNotFound />} />
             </Routes>
