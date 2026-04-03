@@ -115,10 +115,17 @@ const UserManager = () => {
     setIsAiLoading(true);
     try {
       const response = await axios.post('/api/chat', {
-        messages: [{ role: 'user', content: `Buatkan HTML email menarik dan profesional berdasarkan instruksi berikut: ${aiPrompt}. HANYA BERIKAN KODE HTML SAJA TANPA MARKDOWN.` }]
+        messages: [{ role: 'user', content: `Buatkan HTML email menarik dan profesional berdasarkan instruksi berikut: ${aiPrompt}. HANYA BERIKAN KODE HTML SAJA TANPA MARKDOWN (tanpa tag <html>, <body>, atau markdown backticks seperti \`\`\`html). Hanya konten di dalamnya saja.` }]
       });
-      setEmailContent(response.data.message);
-      toast({ title: 'Email digenerate dengan AI', status: 'success' });
+
+      if (response.data?.choices?.[0]?.message?.content) {
+        let aiContent = response.data.choices[0].message.content;
+        aiContent = aiContent.replace(/```html/g, '').replace(/```/g, '').trim();
+        setEmailContent(aiContent);
+        toast({ title: 'Email digenerate dengan AI', status: 'success' });
+      } else {
+        throw new Error('Respons AI kosong');
+      }
     } catch (error) {
       toast({ title: 'Gagal menggunakan AI', description: error.message, status: 'error' });
     } finally {
