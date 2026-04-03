@@ -34,6 +34,8 @@ const SettingsManager = () => {
     groq_model: 'groq/compound',
     default_ai_prompt: '',
     is_takedown: 'false',
+        is_blocked: 'false',
+    is_blocked: 'false',
     takedown_message: '',
     takedown_image: '',
     takedown_ai_prompt: '',
@@ -177,6 +179,42 @@ const SettingsManager = () => {
                   Prompt ini digunakan sebagai instruksi utama AI untuk menjawab pengunjung, wajib menyertakan watermark AI dan email.
                 </Text>
               </FormControl>
+            </VStack>
+          </CardBody>
+        </Card>
+
+
+        {/* Blocked Mode Settings */}
+        <Card variant="outline" borderRadius="xl" borderLeft="4px solid" borderLeftColor="orange.500">
+          <CardBody>
+            <VStack spacing={6} align="stretch">
+              <Flex justify="space-between" align="center">
+                <Box>
+                  <Heading size="xs" color="orange.600" textTransform="uppercase">Mode Situs Diblokir (Internet Baik)</Heading>
+                  <Text fontSize="xs" color="gray.500">Aktifkan untuk memblokir situs karena pelanggaran peraturan dan alihkan ke halaman Internet Baik.</Text>
+                </Box>
+                <FormControl display="flex" alignItems="center" w="auto">
+                  <Switch
+                    id="blocked-mode"
+                    colorScheme="orange"
+                    size="lg"
+                    isChecked={settings.is_blocked === 'true'}
+                    onChange={(e) => handleChange('is_blocked', String(e.target.checked))}
+                  />
+                </FormControl>
+              </Flex>
+
+              {settings.is_blocked === 'true' && (
+                <Alert status="warning" borderRadius="lg" variant="subtle">
+                  <AlertIcon />
+                  <Box>
+                    <AlertTitle>Situs Sedang Diblokir!</AlertTitle>
+                    <AlertDescription fontSize="sm">
+                      Seluruh halaman (kecuali Admin) dialihkan ke halaman peringatan Internet Baik.
+                    </AlertDescription>
+                  </Box>
+                </Alert>
+              )}
             </VStack>
           </CardBody>
         </Card>
