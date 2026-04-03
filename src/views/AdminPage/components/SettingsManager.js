@@ -35,7 +35,6 @@ const SettingsManager = () => {
     default_ai_prompt: '',
     is_takedown: 'false',
         is_blocked: 'false',
-    is_blocked: 'false',
     takedown_message: '',
     takedown_image: '',
     takedown_ai_prompt: '',

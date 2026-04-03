@@ -21,3 +21,6 @@ src/views/AdminPage/components/SettingsManager.js
   Line 38:5:  Duplicate key 'is_blocked'  no-dupe-keys
 
 webpack compiled with 1 warning
+Compiling...
+Compiled successfully!
+webpack compiled successfully
