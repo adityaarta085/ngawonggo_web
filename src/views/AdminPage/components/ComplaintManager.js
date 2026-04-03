@@ -21,6 +21,7 @@ import {
 import { FaReply, FaTrash, FaCheck, FaPaperPlane, FaImage, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import { uploadDeline } from '../../../lib/uploader';
+import axios from 'axios';
 
 const ComplaintManager = () => {
   const [complaints, setComplaints] = useState([]);
@@ -100,6 +101,19 @@ const ComplaintManager = () => {
       toast({ title: 'Selesai', status: 'success' });
       fetchComplaints();
       if(selectedComplaint?.id === id) setSelectedComplaint({...selectedComplaint, status: 'resolved'});
+
+      const comp = complaints.find(c => c.id === id);
+      if (comp && comp.contact && comp.contact.includes('@')) {
+        try {
+          await axios.post('/api/broadcast', {
+            to: comp.contact,
+            subject: 'Pengaduan Selesai - Desa Ngawonggo',
+            content: `<h2>Halo ${comp.name},</h2><p>Pengaduan Anda dengan ID <b>${id}</b> telah selesai ditindaklanjuti. Terima kasih atas partisipasi Anda.</p>`
+          });
+        } catch (err) {
+          console.error('Failed to send completion email:', err);
+        }
+      }
     }
   };
 

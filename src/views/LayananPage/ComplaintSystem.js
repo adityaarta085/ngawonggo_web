@@ -25,6 +25,7 @@ import { FaPaperPlane, FaImage, FaSync, FaSignOutAlt, FaCheckCircle, FaLock } fr
 import { supabase } from '../../lib/supabase';
 import { uploadDeline } from '../../lib/uploader';
 import { Link as RouterLink } from 'react-router-dom';
+import axios from 'axios';
 
 const generateComplaintId = () => {
   return 'NGA-' + Math.random().toString(36).substr(2, 5).toUpperCase();
@@ -152,6 +153,19 @@ const ComplaintSystem = () => {
       setComplaintId(newId);
       localStorage.setItem('complaint_id', newId);
       setNewMessage('');
+
+      if (contact.includes('@')) {
+        try {
+          await axios.post('/api/broadcast', {
+            to: contact,
+            subject: 'Pengaduan Diterima - Desa Ngawonggo',
+            content: `<h2>Halo ${name},</h2><p>Pengaduan Anda dengan ID <b>${newId}</b> kategori <b>${category}</b> telah kami terima dan akan segera ditindaklanjuti.</p><p>Terima kasih!</p>`
+          });
+        } catch(err) {
+          console.error("Failed to send auto email:", err);
+        }
+      }
+
     } catch (err) {
       toast({ title: 'Gagal membuat pengaduan', description: err.message, status: 'error' });
     } finally {

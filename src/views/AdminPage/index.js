@@ -49,6 +49,7 @@ import SettingsManager from './components/SettingsManager';
 import DusunManager from './components/DusunManager';
 import BroadcastManager from './components/BroadcastManager';
 import PemerintahanManager from './components/PemerintahanManager';
+import UserManager from './components/UserManager';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -70,6 +71,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Komentar', icon: FaComments },
     { name: 'Broadcast Email', icon: FaEnvelope },
     { name: 'Pengaturan', icon: FaCog },
+    { name: 'Pengguna', icon: FaUsers },
     { name: 'Pemerintahan', icon: FaUsers },
   ];
 
@@ -181,6 +183,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Broadcast Email' && <BroadcastManager />}
           {activeTab === 'Pengaturan' && <SettingsManager />}
           {activeTab === 'Pemerintahan' && <PemerintahanManager />}
+          {activeTab === 'Pengguna' && <UserManager />}
         </Box>
       </Box>
     </Box>
