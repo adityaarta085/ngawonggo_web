@@ -37,6 +37,7 @@ import Chatbot from './components/Chatbot.js';
 import RunningText from './components/RunningText.js';
 import PopupNotification from './components/PopupNotification.js';
 import TakedownPage from './views/TakedownPage/index.js';
+import BlockedPage from './views/BlockedPage/index.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
 import { FaMoon } from 'react-icons/fa';
@@ -97,6 +98,7 @@ function App() {
   const isAdmin = location.pathname.startsWith('/admin');
   const isAuth = location.pathname.startsWith('/auth');
   const isDownPage = location.pathname === '/down';
+  const isBlockedPage = location.pathname === '/blocked';
 
   const [adminSession, setAdminSession] = useState(() => {
     try {
@@ -113,6 +115,7 @@ function App() {
   const [isVerified, setIsVerified] = useState(false); // Verification reset on refresh
 
   const [isTakedown, setIsTakedown] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   const [isFloatingHidden, setIsFloatingHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -138,14 +141,13 @@ function App() {
   useEffect(() => {
     const checkTakedown = async () => {
       try {
-        const { data } = await supabase
-          .from('site_settings')
-          .select('value')
-          .eq('key', 'is_takedown')
-          .single();
+        const { data } = await supabase.from('site_settings').select('key, value').in('key', ['is_takedown', 'is_blocked']);
 
-        if (data && data.value === 'true') {
-          setIsTakedown(true);
+        if (data) {
+          const takedownSetting = data.find((d) => d.key === 'is_takedown');
+          const blockedSetting = data.find((d) => d.key === 'is_blocked');
+          if (takedownSetting && takedownSetting.value === 'true') setIsTakedown(true);
+          if (blockedSetting && blockedSetting.value === 'true') setIsBlocked(true);
         }
       } catch (err) {
         console.error('Takedown check failed:', err);
@@ -177,6 +179,14 @@ function App() {
 
   const isBypassed = (!showSplash && isVerified) || userSession;
 
+  if (isBlocked && !isAdmin && !isBlockedPage) {
+    return <Navigate to="/blocked" replace />;
+  }
+
+  if (!isBlocked && isBlockedPage) {
+    return <Navigate to="/" replace />;
+  }
+
   if (isTakedown && !isAdmin && !isDownPage) {
     return <Navigate to="/down" replace />;
   }
@@ -187,7 +197,7 @@ function App() {
 
   return (
     <Box overflowX="hidden" maxW="100vw">
-      {!isBypassed && !isAdmin && !isAuth && !isDownPage ? (
+      {!isBypassed && !isAdmin && !isAuth && !isDownPage && !isBlockedPage ? (
         <>
           {showSplash ? (
             <SplashScreen onComplete={() => setShowSplash(false)} />
@@ -199,7 +209,7 @@ function App() {
         </>
       ) : (
         <>
-          {!isAdmin && !isAuth && !isDownPage && (
+          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
             <>
               <Box
                 h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
@@ -224,9 +234,9 @@ function App() {
             </>
           )}
 
-          {!isAdmin && !isAuth && !isDownPage && <PopupNotification />}
+          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <PopupNotification />}
 
-          {!isAdmin && !isAuth && !isDownPage && <LoginPromo user={userSession?.user} />}
+          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <LoginPromo user={userSession?.user} />}
           <ScrollToTop />
 
           <Box pt={0} minH="80vh">
@@ -252,6 +262,7 @@ function App() {
               <Route path="/credits" element={<CreditsPage />} />
 
               <Route path="/down" element={<TakedownPage />} />
+              <Route path="/blocked" element={<BlockedPage />} />
 
               <Route path="/auth" element={<AuthPage />} />
               <Route
@@ -272,7 +283,7 @@ function App() {
             </Routes>
           </Box>
 
-          {!isAdmin && !isAuth && !showSplash && isVerified && !isDownPage && (
+          {!isAdmin && !isAuth && !showSplash && isVerified && !isDownPage && !isBlockedPage && (
             <>
               <Chatbot
                 isHidden={isFloatingHidden}
@@ -302,8 +313,8 @@ function App() {
             </>
           )}
 
-          {!isAdmin && !isAuth && !isDownPage && <InstallPWA />}
-          {!isAdmin && !isAuth && !isDownPage && <Footer />}
+          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <InstallPWA />}
+          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <Footer />}
         </>
       )}
     </Box>
