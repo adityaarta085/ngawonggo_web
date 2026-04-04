@@ -1,16 +1,6 @@
-import React from 'react';
-import { Box } from '@chakra-ui/react';
-import SEO from '../../components/SEO';
+const fs = require('fs');
 
-const BlockedPage = () => {
-  return (
-    <Box minH="100vh" w="100vw" overflow="hidden">
-      <SEO
-        title="Internet Baik"
-        description="Situs ini telah diblokir."
-      />
-      <iframe
-        srcDoc={`<!DOCTYPE html>
+const rawHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -321,12 +311,28 @@ const BlockedPage = () => {
         </div>
     </footer>
 </body>
-</html>`}
-        style={{ width: '100%', height: '100vh', border: 'none', background: '#f8f9fa' }}
-        title="Internet Baik"
-      />
-    </Box>
-  );
-};
+</html>`;
 
-export default BlockedPage;
+const componentCode = "import React from 'react';\n" +
+"import { Box } from '@chakra-ui/react';\n" +
+"import SEO from '../../components/SEO';\n" +
+"\n" +
+"const BlockedPage = () => {\n" +
+"  return (\n" +
+"    <Box minH=\"100vh\" w=\"100vw\" overflow=\"hidden\">\n" +
+"      <SEO\n" +
+"        title=\"Internet Baik\"\n" +
+"        description=\"Situs ini telah diblokir.\"\n" +
+"      />\n" +
+"      <iframe\n" +
+"        srcDoc={`" + rawHtml.replace(/`/g, "\\`") + "`}\n" +
+"        style={{ width: '100%', height: '100vh', border: 'none', background: '#f8f9fa' }}\n" +
+"        title=\"Internet Baik\"\n" +
+"      />\n" +
+"    </Box>\n" +
+"  );\n" +
+"};\n" +
+"\n" +
+"export default BlockedPage;\n";
+
+fs.writeFileSync('src/views/BlockedPage/index.js', componentCode);
