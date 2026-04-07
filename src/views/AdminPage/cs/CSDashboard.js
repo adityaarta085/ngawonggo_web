@@ -38,13 +38,19 @@ const CSDashboard = ({ csSession, setCsSession }) => {
   useEffect(() => {
     fetchChats();
 
+    // Fallback polling strictly for bulletproof realtime consistency
+    const pollInterval = setInterval(fetchChats, 3000);
+
     const chatsSub = supabase.channel('cs_chats')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'chatsCS' }, payload => {
           fetchChats();
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(chatsSub); };
+    return () => {
+        clearInterval(pollInterval);
+        supabase.removeChannel(chatsSub);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [csSession]);
 

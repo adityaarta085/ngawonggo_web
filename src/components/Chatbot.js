@@ -10,6 +10,7 @@ import {
   Tooltip,
   VStack,
   Spinner,
+  Button,
 } from '@chakra-ui/react';
 import { FaRobot, FaTimes, FaMinus, FaPaperPlane, FaHeadset } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
@@ -210,15 +211,18 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   };
 
   const handleEscalation = async (summary, reason) => {
-      if (!sessionUser) {
-          setMessages(prev => [...prev, { role: 'assistant', content: 'Anda perlu login terlebih dahulu untuk berbicara dengan Customer Service.' }]);
+      setIsLoading(true);
+      // Check CS availability first
+      const { data: onlineCs, error: csError } = await supabase.from('usersCS').select('id').eq('status', 'online');
+      if (csError || !onlineCs || onlineCs.length === 0) {
+          setMessages(prev => [...prev, { role: 'assistant', content: 'Mohon maaf, saat ini tidak ada Customer Service yang online. Silakan coba lagi nanti.' }]);
           setIsLoading(false);
           return;
       }
 
       try {
           const { data: newChat, error } = await supabase.from('chatsCS').insert({
-              user_id: sessionUser.id,
+              user_id: sessionUser ? sessionUser.id : null,
               summary: summary || 'Permintaan CS',
               reason: reason || 'User meminta eskalasi',
               status: 'waiting'
@@ -254,7 +258,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
         right={isDocked ? 0 : 0}
         left={isDocked ? "auto" : 0}
         w={isDocked ? "auto" : "100vw"}
-        zIndex={1001}
+        zIndex={9998}
         pointerEvents="none"
         display="flex"
         justifyContent="center"
@@ -322,7 +326,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
               overflow="hidden"
               display="flex"
               flexDirection="column"
-              zIndex={1002}
+              zIndex={9999}
             >
               {/* Header */}
               <Flex
@@ -430,6 +434,22 @@ const Chatbot = ({ isHidden = false, onHide }) => {
                   )}
                 </VStack>
               </Box>
+
+              {/* Quick Replies */}
+              {csStatus === 'none' && !isLoading && (
+                <Flex px={4} pb={2} overflowX="auto" gap={2} css={{ '&::-webkit-scrollbar': { display: 'none' } }}>
+                  <Button
+                    size="xs"
+                    rounded="full"
+                    colorScheme="green"
+                    variant="outline"
+                    onClick={() => handleEscalation("User meminta dihubungkan ke CS melalui Quick Reply", "Tombol Quick Reply")}
+                    flexShrink={0}
+                  >
+                    Saya ingin terhubung dengan CS
+                  </Button>
+                </Flex>
+              )}
 
               {/* Input Area */}
               <Box p={3} borderTop="1px solid" borderColor={borderColor}>
