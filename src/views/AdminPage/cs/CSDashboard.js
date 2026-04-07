@@ -75,9 +75,9 @@ const CSDashboard = ({ csSession, setCsSession }) => {
 
   const fetchChats = async () => {
       try {
-          const { data: waiting, error: errWait } = await supabase.from('chatsCS').select('*, auth_users:user_id(email)').eq('status', 'waiting').order('created_at', { ascending: true });
+          const { data: waiting, error: errWait } = await supabase.from('chatsCS').select('*').eq('status', 'waiting').order('created_at', { ascending: true });
           if (errWait) console.error("Error fetching waiting chats:", errWait);
-          const { data: active, error: errAct } = await supabase.from('chatsCS').select('*, auth_users:user_id(email)').eq('status', 'active').eq('assigned_to', csSession.id).order('created_at', { ascending: false });
+          const { data: active, error: errAct } = await supabase.from('chatsCS').select('*').eq('status', 'active').eq('assigned_to', csSession.id).order('created_at', { ascending: false });
           if (errAct) console.error("Error fetching active chats:", errAct);
 
           if (waiting) setQueue(waiting);
@@ -167,7 +167,7 @@ const CSDashboard = ({ csSession, setCsSession }) => {
                 {activeChats.map(c => (
                     <Box key={c.chat_id} p={3} bg={selectedChat?.chat_id === c.chat_id ? 'blue.50' : 'white'} borderRadius="md" border="1px solid" borderColor="gray.100" cursor="pointer" onClick={() => setSelectedChat(c)}>
                         <HStack justify="space-between">
-                            <Text fontSize="sm" fontWeight="bold" isTruncated>{c.auth_users?.email || 'User'}</Text>
+                            <Text fontSize="sm" fontWeight="bold" isTruncated>{c.user_id ? 'Pengguna Terdaftar' : 'User Anonim'}</Text>
                             <Badge colorScheme="blue">Active</Badge>
                         </HStack>
                         <Text fontSize="xs" color="gray.500" isTruncated mt={1}>{c.summary}</Text>
@@ -181,7 +181,7 @@ const CSDashboard = ({ csSession, setCsSession }) => {
             <VStack align="stretch" spacing={2}>
                 {queue.map(c => (
                     <Box key={c.chat_id} p={3} bg="white" borderRadius="md" border="1px solid" borderColor="gray.200">
-                        <Text fontSize="sm" fontWeight="bold" isTruncated>{c.auth_users?.email || 'User'}</Text>
+                        <Text fontSize="sm" fontWeight="bold" isTruncated>{c.user_id ? 'Pengguna Terdaftar' : 'User Anonim'}</Text>
                         <Text fontSize="xs" color="gray.500" mt={1}>Keluhan: {c.summary}</Text>
                         <Text fontSize="xs" color="red.400" mt={1}>Alasan: {c.reason}</Text>
                         <HStack mt={2} justify="space-between">
@@ -202,7 +202,7 @@ const CSDashboard = ({ csSession, setCsSession }) => {
               <Box p={4} borderBottom="1px solid" borderColor="gray.200" bg="white">
                   <Flex justify="space-between" align="center">
                       <VStack align="start" spacing={0}>
-                          <Heading size="md">{selectedChat.auth_users?.email || 'User'}</Heading>
+                          <Heading size="md">{selectedChat.user_id ? 'Pengguna Terdaftar' : 'User Anonim'}</Heading>
                           <Text fontSize="xs" color="gray.500">Summary: {selectedChat.summary}</Text>
                       </VStack>
                       <Button size="sm" colorScheme="red" leftIcon={<FaCheckCircle />} onClick={handleCloseChat}>Akhiri Chat</Button>
