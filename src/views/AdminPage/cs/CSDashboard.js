@@ -69,8 +69,10 @@ const CSDashboard = ({ csSession, setCsSession }) => {
 
   const fetchChats = async () => {
       try {
-          const { data: waiting } = await supabase.from('chatsCS').select('*, auth_users:user_id(email)').eq('status', 'waiting').order('created_at', { ascending: true });
-          const { data: active } = await supabase.from('chatsCS').select('*, auth_users:user_id(email)').eq('status', 'active').eq('assigned_to', csSession.id).order('created_at', { ascending: false });
+          const { data: waiting, error: errWait } = await supabase.from('chatsCS').select('*, auth_users:user_id(email)').eq('status', 'waiting').order('created_at', { ascending: true });
+          if (errWait) console.error("Error fetching waiting chats:", errWait);
+          const { data: active, error: errAct } = await supabase.from('chatsCS').select('*, auth_users:user_id(email)').eq('status', 'active').eq('assigned_to', csSession.id).order('created_at', { ascending: false });
+          if (errAct) console.error("Error fetching active chats:", errAct);
 
           if (waiting) setQueue(waiting);
           if (active) setActiveChats(active);

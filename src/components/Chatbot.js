@@ -179,7 +179,14 @@ const Chatbot = ({ isHidden = false, onHide }) => {
       // Try to parse if it's an escalation JSON
       let isEscalation = false;
       try {
-          const parsed = JSON.parse(botMessage.content);
+          // Remove markdown JSON formatting if present
+          let cleanContent = botMessage.content.trim();
+          if (cleanContent.startsWith('```json')) {
+              cleanContent = cleanContent.replace(/^```json\n/, '').replace(/\n```$/, '');
+          } else if (cleanContent.startsWith('```')) {
+              cleanContent = cleanContent.replace(/^```\n/, '').replace(/\n```$/, '');
+          }
+          const parsed = JSON.parse(cleanContent);
           if (parsed.escalate) {
               isEscalation = true;
               handleEscalation(parsed.summary, parsed.reason);
@@ -302,13 +309,13 @@ const Chatbot = ({ isHidden = false, onHide }) => {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               pointerEvents="auto"
               position="fixed"
-              bottom="0"
+              top="0" bottom="0"
               left="0"
               right="0"
               w="100vw"
-              h={{ base: '50vh', md: '40vh' }} maxW="100%" margin="0 auto"
+              h="100vh" maxW="100%" margin="0"
               bg={bgColor}
-              borderTopRadius="3xl"
+              borderTopRadius="0"
               boxShadow="0 -10px 40px rgba(0,0,0,0.1)"
               borderTop="1px solid"
               borderColor={borderColor}
@@ -339,7 +346,19 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   )}
                   </VStack>
                 </Flex>
-                <Flex gap={1}>
+                <Flex gap={2}>
+                  {csStatus === 'none' && (
+                    <Tooltip label="Hubungi Manusia (CS)" placement="bottom-end">
+                      <IconButton
+                        size="xs"
+                        icon={<FaHeadset />}
+                        variant="solid"
+                        colorScheme="green"
+                        onClick={() => handleEscalation("User meminta eskalasi langsung ke CS", "Permintaan Manual melalui tombol")}
+                        aria-label="Hubungi CS"
+                      />
+                    </Tooltip>
+                  )}
                   <IconButton
                     size="xs"
                     icon={<FaMinus />}
