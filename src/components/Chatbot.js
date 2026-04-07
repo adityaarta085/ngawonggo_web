@@ -10,6 +10,7 @@ import {
   Tooltip,
   VStack,
   Spinner,
+  Button,
 } from '@chakra-ui/react';
 import { FaRobot, FaTimes, FaMinus, FaPaperPlane, FaHeadset } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
@@ -30,6 +31,8 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   const [chatSession, setChatSession] = useState(null); // The CS chat session ID
   const [csStatus, setCsStatus] = useState('none'); // none, waiting, active
   const [csAssigned, setCsAssigned] = useState(null); // Assigned CS info
+  const [queuePosition, setQueuePosition] = useState(0); // Position in queue
+  const [csIsTyping, setCsIsTyping] = useState(false);
   const navigate = useNavigate(); // eslint-disable-line no-unused-vars
 
   useEffect(() => {
@@ -92,6 +95,36 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   useEffect(() => {
     if (!chatSession) return;
 
+    const fetchQueuePosition = async () => {
+        if (csStatus !== 'waiting') return;
+        const { data } = await supabase
+            .from('chatsCS')
+            .select('created_at')
+            .eq('status', 'waiting')
+            .order('created_at', { ascending: true });
+
+        if (data) {
+            // Find my own chat session by querying my own session created_at
+            const { data: myChat } = await supabase.from('chatsCS').select('created_at').eq('chat_id', chatSession).single();
+            if (myChat) {
+                const pos = data.findIndex(c => c.created_at === myChat.created_at) + 1;
+                setQueuePosition(pos);
+            }
+        }
+    };
+
+    if (csStatus === 'waiting') {
+        fetchQueuePosition();
+        // Since we can't easily listen to all queue changes efficiently without complex sub,
+        // we use a simple interval polling when waiting
+        const qInt = setInterval(fetchQueuePosition, 5000);
+        return () => clearInterval(qInt);
+    }
+  }, [chatSession, csStatus]);
+
+  useEffect(() => {
+    if (!chatSession) return;
+
     const messageSub = supabase
       .channel('messagesCS_channel')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messagesCS', filter: `chat_id=eq.${chatSession}` }, payload => {
@@ -99,6 +132,16 @@ const Chatbot = ({ isHidden = false, onHide }) => {
         if (newMsg.sender !== 'user') { // Only add non-user messages (we optimistically add user msgs)
            setMessages(prev => [...prev, { role: 'assistant', content: newMsg.message, realSender: newMsg.sender }]);
         }
+      })
+      .subscribe();
+
+    let typingTimer;
+    const typingSub = supabase
+      .channel(`typing:${chatSession}`)
+      .on('broadcast', { event: 'typing' }, payload => {
+          setCsIsTyping(true);
+          clearTimeout(typingTimer);
+          typingTimer = setTimeout(() => setCsIsTyping(false), 3000);
       })
       .subscribe();
 
@@ -122,6 +165,8 @@ const Chatbot = ({ isHidden = false, onHide }) => {
     return () => {
       supabase.removeChannel(messageSub);
       supabase.removeChannel(chatSub);
+      supabase.removeChannel(typingSub);
+      clearTimeout(typingTimer);
     };
   }, [chatSession]);
 
@@ -179,7 +224,14 @@ const Chatbot = ({ isHidden = false, onHide }) => {
       // Try to parse if it's an escalation JSON
       let isEscalation = false;
       try {
-          const parsed = JSON.parse(botMessage.content);
+          // Remove markdown JSON formatting if present
+          let cleanContent = botMessage.content.trim();
+          if (cleanContent.startsWith('```json')) {
+              cleanContent = cleanContent.replace(/^```json\n/, '').replace(/\n```$/, '');
+          } else if (cleanContent.startsWith('```')) {
+              cleanContent = cleanContent.replace(/^```\n/, '').replace(/\n```$/, '');
+          }
+          const parsed = JSON.parse(cleanContent);
           if (parsed.escalate) {
               isEscalation = true;
               handleEscalation(parsed.summary, parsed.reason);
@@ -203,15 +255,18 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   };
 
   const handleEscalation = async (summary, reason) => {
-      if (!sessionUser) {
-          setMessages(prev => [...prev, { role: 'assistant', content: 'Anda perlu login terlebih dahulu untuk berbicara dengan Customer Service.' }]);
+      setIsLoading(true);
+      // Check CS availability first
+      const { data: onlineCs, error: csError } = await supabase.from('usersCS').select('id').eq('status', 'online');
+      if (csError || !onlineCs || onlineCs.length === 0) {
+          setMessages(prev => [...prev, { role: 'assistant', content: 'Mohon maaf, saat ini tidak ada Customer Service yang online. Silakan coba lagi nanti.' }]);
           setIsLoading(false);
           return;
       }
 
       try {
           const { data: newChat, error } = await supabase.from('chatsCS').insert({
-              user_id: sessionUser.id,
+              user_id: sessionUser ? sessionUser.id : null,
               summary: summary || 'Permintaan CS',
               reason: reason || 'User meminta eskalasi',
               status: 'waiting'
@@ -231,6 +286,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
           });
 
           setMessages(prev => [...prev, { role: 'assistant', content: 'Mohon tunggu sebentar, Anda sedang disambungkan ke Customer Service. Anda berada di antrian.' }]);
+          setIsLoading(false);
       } catch (err) {
           console.error("Escalation error:", err);
           setMessages(prev => [...prev, { role: 'assistant', content: 'Gagal menghubungi CS. Silakan coba lagi.' }]);
@@ -247,7 +303,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
         right={isDocked ? 0 : 0}
         left={isDocked ? "auto" : 0}
         w={isDocked ? "auto" : "100vw"}
-        zIndex={1001}
+        zIndex={9998}
         pointerEvents="none"
         display="flex"
         justifyContent="center"
@@ -302,20 +358,20 @@ const Chatbot = ({ isHidden = false, onHide }) => {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               pointerEvents="auto"
               position="fixed"
-              bottom="0"
+              top="0" bottom="0"
               left="0"
               right="0"
               w="100vw"
-              h={{ base: '50vh', md: '40vh' }} maxW="100%" margin="0 auto"
+              h="100vh" maxW="100%" margin="0"
               bg={bgColor}
-              borderTopRadius="3xl"
+              borderTopRadius="0"
               boxShadow="0 -10px 40px rgba(0,0,0,0.1)"
               borderTop="1px solid"
               borderColor={borderColor}
               overflow="hidden"
               display="flex"
               flexDirection="column"
-              zIndex={1002}
+              zIndex={9999}
             >
               {/* Header */}
               <Flex
@@ -331,7 +387,9 @@ const Chatbot = ({ isHidden = false, onHide }) => {
                   <VStack align="start" spacing={0}>
                     <Text fontSize="xs" fontWeight="bold">ASISTEN AI DESA</Text>
                     {csStatus === 'waiting' ? (
-    <Text fontSize="10px" opacity={0.8} color="yellow.200">Menunggu CS...</Text>
+    <Text fontSize="10px" opacity={0.8} color="yellow.200">
+        Menunggu CS... {queuePosition > 0 ? `(Antrian ke-${queuePosition})` : ''}
+    </Text>
   ) : csStatus === 'active' ? (
     <Text fontSize="10px" opacity={0.8} color="green.200">Terhubung dengan CS {csAssigned}</Text>
   ) : (
@@ -339,7 +397,19 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   )}
                   </VStack>
                 </Flex>
-                <Flex gap={1}>
+                <Flex gap={2}>
+                  {csStatus === 'none' && (
+                    <Tooltip label="Hubungi Manusia (CS)" placement="bottom-end">
+                      <IconButton
+                        size="xs"
+                        icon={<FaHeadset />}
+                        variant="solid"
+                        colorScheme="green"
+                        onClick={() => handleEscalation("User meminta eskalasi langsung ke CS", "Permintaan Manual melalui tombol")}
+                        aria-label="Hubungi CS"
+                      />
+                    </Tooltip>
+                  )}
                   <IconButton
                     size="xs"
                     icon={<FaMinus />}
@@ -402,6 +472,15 @@ const Chatbot = ({ isHidden = false, onHide }) => {
                       </Box>
                     </Flex>
                   ))}
+                  {csIsTyping && csStatus === 'active' && (
+                    <Flex justify="flex-start">
+                      <Box bg={botBubbleBg} px={4} py={3} borderRadius="xl" borderBottomLeftRadius="2px" display="flex" alignItems="center" gap={1}>
+                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} style={{ width: 6, height: 6, backgroundColor: '#A0AEC0', borderRadius: '50%' }} />
+                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} style={{ width: 6, height: 6, backgroundColor: '#A0AEC0', borderRadius: '50%' }} />
+                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} style={{ width: 6, height: 6, backgroundColor: '#A0AEC0', borderRadius: '50%' }} />
+                      </Box>
+                    </Flex>
+                  )}
                   {isLoading && (
                     <Flex justify="flex-start">
                       <Box bg={botBubbleBg} px={3} py={2} borderRadius="xl" borderBottomLeftRadius="2px">
@@ -411,6 +490,22 @@ const Chatbot = ({ isHidden = false, onHide }) => {
                   )}
                 </VStack>
               </Box>
+
+              {/* Quick Replies */}
+              {csStatus === 'none' && !isLoading && (
+                <Flex px={4} pb={2} overflowX="auto" gap={2} css={{ '&::-webkit-scrollbar': { display: 'none' } }}>
+                  <Button
+                    size="xs"
+                    rounded="full"
+                    colorScheme="green"
+                    variant="outline"
+                    onClick={() => handleEscalation("User meminta dihubungkan ke CS melalui Quick Reply", "Tombol Quick Reply")}
+                    flexShrink={0}
+                  >
+                    Saya ingin terhubung dengan CS
+                  </Button>
+                </Flex>
+              )}
 
               {/* Input Area */}
               <Box p={3} borderTop="1px solid" borderColor={borderColor}>

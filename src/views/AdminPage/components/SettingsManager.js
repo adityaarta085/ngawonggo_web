@@ -31,7 +31,7 @@ import ImageUploadInput from './ImageUploadInput';
 const SettingsManager = () => {
   const [settings, setSettings] = useState({
     groq_api_key: '',
-    groq_model: 'groq/compound',
+    groq_model: 'llama3-8b-8192',
     default_ai_prompt: '',
     is_takedown: 'false',
         is_blocked: 'false',
@@ -53,7 +53,7 @@ const SettingsManager = () => {
 
       const mapped = {
         groq_api_key: '',
-        groq_model: 'groq/compound',
+        groq_model: 'llama3-8b-8192',
         default_ai_prompt: '',
         is_takedown: 'false',
         takedown_message: '',
@@ -156,12 +156,12 @@ const SettingsManager = () => {
                 <FormLabel fontWeight="bold">Groq Model</FormLabel>
                 <Input
                   type="text"
-                  placeholder="Contoh: groq/compound"
+                  placeholder="Contoh: llama3-8b-8192"
                   value={settings.groq_model}
                   onChange={(e) => handleChange('groq_model', e.target.value)}
                 />
                 <Text mt={2} fontSize="xs" color="gray.500">
-                  Pilih model AI yang akan digunakan (default: groq/compound).
+                  Pilih model AI yang akan digunakan (default: llama3-8b-8192). Jika salah mengisi, Groq dapat menggunakan model fallback otomatis (seperti gpt-oss-120b).
                 </Text>
               </FormControl>
 
