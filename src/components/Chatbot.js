@@ -31,6 +31,8 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   const [chatSession, setChatSession] = useState(null); // The CS chat session ID
   const [csStatus, setCsStatus] = useState('none'); // none, waiting, active
   const [csAssigned, setCsAssigned] = useState(null); // Assigned CS info
+  const [queuePosition, setQueuePosition] = useState(0); // Position in queue
+  const [csIsTyping, setCsIsTyping] = useState(false);
   const navigate = useNavigate(); // eslint-disable-line no-unused-vars
 
   useEffect(() => {
@@ -93,6 +95,36 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   useEffect(() => {
     if (!chatSession) return;
 
+    const fetchQueuePosition = async () => {
+        if (csStatus !== 'waiting') return;
+        const { data } = await supabase
+            .from('chatsCS')
+            .select('created_at')
+            .eq('status', 'waiting')
+            .order('created_at', { ascending: true });
+
+        if (data) {
+            // Find my own chat session by querying my own session created_at
+            const { data: myChat } = await supabase.from('chatsCS').select('created_at').eq('chat_id', chatSession).single();
+            if (myChat) {
+                const pos = data.findIndex(c => c.created_at === myChat.created_at) + 1;
+                setQueuePosition(pos);
+            }
+        }
+    };
+
+    if (csStatus === 'waiting') {
+        fetchQueuePosition();
+        // Since we can't easily listen to all queue changes efficiently without complex sub,
+        // we use a simple interval polling when waiting
+        const qInt = setInterval(fetchQueuePosition, 5000);
+        return () => clearInterval(qInt);
+    }
+  }, [chatSession, csStatus]);
+
+  useEffect(() => {
+    if (!chatSession) return;
+
     const messageSub = supabase
       .channel('messagesCS_channel')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messagesCS', filter: `chat_id=eq.${chatSession}` }, payload => {
@@ -100,6 +132,16 @@ const Chatbot = ({ isHidden = false, onHide }) => {
         if (newMsg.sender !== 'user') { // Only add non-user messages (we optimistically add user msgs)
            setMessages(prev => [...prev, { role: 'assistant', content: newMsg.message, realSender: newMsg.sender }]);
         }
+      })
+      .subscribe();
+
+    let typingTimer;
+    const typingSub = supabase
+      .channel(`typing:${chatSession}`)
+      .on('broadcast', { event: 'typing' }, payload => {
+          setCsIsTyping(true);
+          clearTimeout(typingTimer);
+          typingTimer = setTimeout(() => setCsIsTyping(false), 3000);
       })
       .subscribe();
 
@@ -123,6 +165,8 @@ const Chatbot = ({ isHidden = false, onHide }) => {
     return () => {
       supabase.removeChannel(messageSub);
       supabase.removeChannel(chatSub);
+      supabase.removeChannel(typingSub);
+      clearTimeout(typingTimer);
     };
   }, [chatSession]);
 
@@ -242,6 +286,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
           });
 
           setMessages(prev => [...prev, { role: 'assistant', content: 'Mohon tunggu sebentar, Anda sedang disambungkan ke Customer Service. Anda berada di antrian.' }]);
+          setIsLoading(false);
       } catch (err) {
           console.error("Escalation error:", err);
           setMessages(prev => [...prev, { role: 'assistant', content: 'Gagal menghubungi CS. Silakan coba lagi.' }]);
@@ -342,7 +387,9 @@ const Chatbot = ({ isHidden = false, onHide }) => {
                   <VStack align="start" spacing={0}>
                     <Text fontSize="xs" fontWeight="bold">ASISTEN AI DESA</Text>
                     {csStatus === 'waiting' ? (
-    <Text fontSize="10px" opacity={0.8} color="yellow.200">Menunggu CS...</Text>
+    <Text fontSize="10px" opacity={0.8} color="yellow.200">
+        Menunggu CS... {queuePosition > 0 ? `(Antrian ke-${queuePosition})` : ''}
+    </Text>
   ) : csStatus === 'active' ? (
     <Text fontSize="10px" opacity={0.8} color="green.200">Terhubung dengan CS {csAssigned}</Text>
   ) : (
@@ -425,6 +472,15 @@ const Chatbot = ({ isHidden = false, onHide }) => {
                       </Box>
                     </Flex>
                   ))}
+                  {csIsTyping && csStatus === 'active' && (
+                    <Flex justify="flex-start">
+                      <Box bg={botBubbleBg} px={4} py={3} borderRadius="xl" borderBottomLeftRadius="2px" display="flex" alignItems="center" gap={1}>
+                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0 }} style={{ width: 6, height: 6, backgroundColor: '#A0AEC0', borderRadius: '50%' }} />
+                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} style={{ width: 6, height: 6, backgroundColor: '#A0AEC0', borderRadius: '50%' }} />
+                        <motion.div animate={{ y: [0, -5, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} style={{ width: 6, height: 6, backgroundColor: '#A0AEC0', borderRadius: '50%' }} />
+                      </Box>
+                    </Flex>
+                  )}
                   {isLoading && (
                     <Flex justify="flex-start">
                       <Box bg={botBubbleBg} px={3} py={2} borderRadius="xl" borderBottomLeftRadius="2px">

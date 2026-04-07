@@ -244,7 +244,16 @@ const CSDashboard = ({ csSession, setCsSession }) => {
                       <Input
                           placeholder="Ketik balasan..."
                           value={inputMsg}
-                          onChange={(e) => setInputMsg(e.target.value)}
+                          onChange={(e) => {
+                              setInputMsg(e.target.value);
+                              if (selectedChat) {
+                                  supabase.channel(`typing:${selectedChat.chat_id}`).send({
+                                      type: 'broadcast',
+                                      event: 'typing',
+                                      payload: {}
+                                  });
+                              }
+                          }}
                           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                           bg="gray.50"
                       />
