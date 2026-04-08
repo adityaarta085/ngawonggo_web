@@ -1,4 +1,6 @@
-const crypto = require('crypto');
+import sys
+
+content = """const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
@@ -90,3 +92,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ result: false, message: 'Internal Server Error' });
   }
 }
+"""
+
+with open("api/vipayment.js", "w") as f:
+    f.write(content)
