@@ -7,6 +7,7 @@ import NewsPage from './views/NewsPage/index.js';
 import InstallPWA from "./components/InstallPWA";
 import Footer from './components/Footer.js';
 import ProfilPage from './views/ProfilPage/index.js';
+import TopupPage from './views/TopupPage/index.js';
 import PageNotFound from './views/PageNotFound/index.js';
 import PemerintahanPage from './views/PemerintahanPage/index.js';
 import LayananPage from './views/LayananPage/index.js';
@@ -251,6 +252,7 @@ function App() {
               <Route path="/transparansi" element={<TransparansiPage />} />
               <Route path="/kontak" element={<KontakPage />} />
               <Route path="/media" element={<MediaPage />} />
+              <Route path="/topup" element={<TopupPage />} />
               <Route path="/anime" element={<AnimePage />} />
               <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
               <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />
