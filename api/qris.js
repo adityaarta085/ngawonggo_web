@@ -7,21 +7,8 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 module.exports = async (req, res) => {
   try {
-    // Fetch token from site_settings
-    const { data: settings, error: settingsError } = await supabase
-      .from('site_settings')
-      .select('value')
-      .eq('key', 'qrispy_api_token')
-      .single();
-
-    if (settingsError || !settings) {
-      return res.status(500).json({ error: 'QRIS API token not configured' });
-    }
-
-    const apiToken = settings.value;
+    const apiToken = 'cki_gM3Rdw6QPhO8eaWRqSZjRXmnf5K2rYvJYjvPrr11voERsUBm';
     const API_URL = 'https://api.qrispy.id';
-    console.log('Sending request to', API_URL, 'with token length:', apiToken ? apiToken.length : 0);
-
 
     const { action } = req.query;
 
@@ -96,7 +83,7 @@ module.exports = async (req, res) => {
           headers: { 'X-API-Token': apiToken }
         });
 
-        const statusData = response.data.data; // check API docs if this is correct structure. Let's assume response.data.data.status exists
+        const statusData = response.data.data;
         let currentStatus = statusData?.status || 'pending';
 
         // Update DB if paid or expired
