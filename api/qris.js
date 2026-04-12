@@ -34,7 +34,15 @@ module.exports = async (req, res) => {
           })
         });
 
-        const data = await fetchResponse.json();
+        const text = await fetchResponse.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch(e) {
+          console.error('Invalid JSON from QRIS:', text);
+          return res.status(500).json({ error: 'Gagal membuat QRIS', details: 'Format response QRIS tidak valid: ' + text.substring(0, 100) });
+        }
+
         if (!fetchResponse.ok || data.status !== 'success') {
            throw new Error(data.message || 'Failed to generate from QRIS API');
         }
