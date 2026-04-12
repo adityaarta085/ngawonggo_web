@@ -20,6 +20,8 @@ module.exports = async (req, res) => {
 
     const apiToken = settings.value;
     const API_URL = 'https://api.qrispy.id';
+    console.log('Sending request to', API_URL, 'with token length:', apiToken ? apiToken.length : 0);
+
 
     const { action } = req.query;
 
@@ -30,16 +32,21 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Amount and donation_id are required' });
       }
 
-      // Call QRISPY generate
-      const response = await axios.post(`${API_URL}/api/payment/qris/generate`, {
-        amount,
-        payment_reference: `DON-${donation_id}-${Date.now()}`
-      }, {
-        headers: {
-          'X-API-Token': apiToken,
-          'Content-Type': 'application/json'
-        }
-      });
+      let response;
+      try {
+        response = await axios.post(`${API_URL}/api/payment/qris/generate`, {
+          amount,
+          payment_reference: `DON-${donation_id}-${Date.now()}`
+        }, {
+          headers: {
+            'X-API-Token': apiToken,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (err) {
+        console.error('QRIS Generate error details:', err.response?.data || err.message);
+        return res.status(err.response?.status || 500).json({ error: 'Gagal membuat QRIS', details: err.response?.data, rawError: err.message, tokenPreview: apiToken ? apiToken.substring(0, 8) + '...' : 'NONE' });
+      }
 
       const qrisData = response.data.data;
 
