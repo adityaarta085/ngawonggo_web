@@ -14,34 +14,42 @@ module.exports = async (req, res) => {
 
     if (req.method === 'POST' && action === 'generate') {
       const { amount, donation_id, donor_name, donor_msg } = req.body;
-      // Ensure amount is parsed securely to Number
       const parsedAmount = parseInt(amount, 10);
 
-      if (!amount || !donation_id) {
+      if (!parsedAmount || !donation_id) {
         return res.status(400).json({ error: 'Amount and donation_id are required' });
       }
 
       let qrisData;
       try {
-        const response = await axios.post(`${API_URL}/api/payment/qris/generate`, {
-          amount: parsedAmount,
-          payment_reference: `DON-${donation_id}-${Date.now()}`
-        }, {
+        const fetchResponse = await fetch(`${API_URL}/api/payment/qris/generate`, {
+          method: 'POST',
           headers: {
             'X-API-Token': apiToken,
-            'Content-Type': 'application/json'
-          }
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            amount: parsedAmount,
+            payment_reference: `DON-${donation_id}-${Date.now()}`
+          })
         });
 
-        qrisData = response.data.data;
+        const data = await fetchResponse.json();
+
+        if (!fetchResponse.ok || data.status !== 'success') {
+           throw new Error(data.message || 'Failed to generate from QRIS API');
+        }
+
+        qrisData = data.data;
         if (qrisData && qrisData.qris_image_url) {
            qrisData.qris_image_url = qrisData.qris_image_url.replace(/\\\//g, '/');
         }
       } catch (err) {
-        console.error('QRIS Generate Error:', err.response?.data || err.message);
-        return res.status(err.response?.status || 500).json({
+        console.error('QRIS Generate Error:', err);
+        return res.status(500).json({
             error: 'Gagal membuat QRIS',
-            details: err.response?.data || err.message
+            details: err.message
         });
       }
 
@@ -87,11 +95,16 @@ module.exports = async (req, res) => {
 
       // Call QRISPY status
       try {
-        const response = await axios.get(`${API_URL}/api/payment/qris/${qris_id}/status`, {
-          headers: { 'X-API-Token': apiToken }
+        const fetchResponse = await fetch(`${API_URL}/api/payment/qris/${qris_id}/status`, {
+          method: 'GET',
+          headers: {
+              'X-API-Token': apiToken,
+              'Accept': 'application/json'
+          }
         });
 
-        const statusData = response.data.data;
+        const responseData = await fetchResponse.json();
+        const statusData = responseData.data || responseData;
         let currentStatus = statusData?.payment_status || statusData?.status || 'pending';
 
         // Update DB if paid or expired
@@ -105,7 +118,7 @@ module.exports = async (req, res) => {
 
         return res.status(200).json({ success: true, status: currentStatus, data: statusData });
       } catch (err) {
-         console.error('Status Error:', err.response?.data || err.message);
+         console.error('Status Error:', err);
          return res.status(500).json({ error: 'Failed to check status from QRISPY' });
       }
     }
