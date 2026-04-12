@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const axios = require('axios');
+// Using node-fetch globally is not strictly needed in next.js environments but we can use native fetch if available or keep axios. Let's strictly follow the user's example using native fetch.
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
@@ -21,21 +22,24 @@ module.exports = async (req, res) => {
 
       let response;
       try {
-        response = await axios.post(`${API_URL}/api/payment/qris/generate`, {
-          amount,
-          payment_reference: `DON-${donation_id}-${Date.now()}`
-        }, {
+        const fetchResponse = await fetch(`${API_URL}/api/payment/qris/generate`, {
+          method: 'POST',
           headers: {
             'X-API-Token': apiToken,
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify({
+             amount,
+             payment_reference: `DON-${donation_id}-${Date.now()}`
+          })
         });
-      } catch (err) {
-        console.error('QRIS Generate error details:', err.response?.data || err.message);
-        return res.status(err.response?.status || 500).json({ error: 'Gagal membuat QRIS', details: err.response?.data, rawError: err.message, tokenPreview: apiToken ? apiToken.substring(0, 8) + '...' : 'NONE' });
-      }
 
-      const qrisData = response.data.data;
+        const data = await fetchResponse.json();
+        if (!fetchResponse.ok || data.status !== 'success') {
+           throw new Error(data.message || 'Failed to generate from QRIS API');
+        }
+
+        const qrisData = data.data;
 
       // Save to donation_transactions
       const { data: txData, error: txError } = await supabase
@@ -59,6 +63,11 @@ module.exports = async (req, res) => {
       }
 
       return res.status(200).json({ success: true, transaction: txData, qris: qrisData });
+
+      } catch(err) {
+         console.error('QRIS Generation Error:', err);
+         return res.status(500).json({ error: err.message });
+      }
     }
 
     if (req.method === 'GET' && action === 'status') {
@@ -79,12 +88,14 @@ module.exports = async (req, res) => {
 
       // Call QRISPY status
       try {
-        const response = await axios.get(`${API_URL}/api/payment/qris/${qris_id}/status`, {
+        const fetchResponse = await fetch(`${API_URL}/api/payment/qris/${qris_id}/status`, {
+          method: 'GET',
           headers: { 'X-API-Token': apiToken }
         });
 
-        const statusData = response.data.data;
-        let currentStatus = statusData?.status || 'pending';
+        const responseData = await fetchResponse.json();
+        const statusData = responseData.data || responseData;
+        let currentStatus = statusData?.payment_status || statusData?.status || 'pending';
 
         // Update DB if paid or expired
         if (currentStatus === 'paid' && txInfo && txInfo.status !== 'paid') {
