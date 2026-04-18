@@ -38,6 +38,8 @@ const SettingsManager = () => {
     takedown_message: '',
     takedown_image: '',
     takedown_ai_prompt: '',
+        whatsapp_api_key: '',
+        whatsapp_session_id: '',
   });
   const [showKey, setShowKey] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,6 +61,8 @@ const SettingsManager = () => {
         takedown_message: '',
         takedown_image: '',
         takedown_ai_prompt: '',
+        whatsapp_api_key: '',
+        whatsapp_session_id: '',
       };
       data.forEach(item => {
         if (mapped.hasOwnProperty(item.key)) {
@@ -183,7 +187,53 @@ const SettingsManager = () => {
         </Card>
 
 
+
+        {/* WhatsApp API Settings */}
+        <Card variant="outline" borderRadius="xl" borderLeft="4px solid" borderLeftColor="green.500">
+          <CardBody>
+            <VStack spacing={4} align="stretch">
+              <Heading size="xs" color="green.600" textTransform="uppercase">Konfigurasi WhatsApp API</Heading>
+
+              <FormControl>
+                <FormLabel fontWeight="bold">WhatsApp API Key (YoBase)</FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    pr="4.5rem"
+                    type={showKey ? 'text' : 'password'}
+                    placeholder="Masukkan API Key YoBase"
+                    value={settings.whatsapp_api_key}
+                    onChange={(e) => handleChange('whatsapp_api_key', e.target.value)}
+                  />
+                  <InputRightElement width="4.5rem">
+                    <IconButton
+                      h="1.75rem"
+                      size="sm"
+                      onClick={() => setShowKey(!showKey)}
+                      icon={showKey ? <FaEyeSlash /> : <FaEye />}
+                      variant="ghost"
+                    />
+                  </InputRightElement>
+                </InputGroup>
+                <Text mt={2} fontSize="xs" color="gray.500">
+                  Digunakan untuk pengiriman OTP WhatsApp.
+                </Text>
+              </FormControl>
+
+              <FormControl mt={4}>
+                <FormLabel fontWeight="bold">WhatsApp Session ID</FormLabel>
+                <Input
+                  type="text"
+                  placeholder="Contoh: sess_1"
+                  value={settings.whatsapp_session_id}
+                  onChange={(e) => handleChange('whatsapp_session_id', e.target.value)}
+                />
+              </FormControl>
+            </VStack>
+          </CardBody>
+        </Card>
+
         {/* Blocked Mode Settings */}
+
         <Card variant="outline" borderRadius="xl" borderLeft="4px solid" borderLeftColor="orange.500">
           <CardBody>
             <VStack spacing={6} align="stretch">
