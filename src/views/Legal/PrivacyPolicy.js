@@ -110,7 +110,29 @@ const PrivacyPolicy = () => {
                   </Box>
                 </Box>
 
-                <Box>
+
+            <Box>
+              <Flex align="center" mb={4} gap={3}>
+                <Icon as={FaBullhorn} color="brand.500" boxSize={6} />
+                <Heading size="md">Integrasi WhatsApp dan Komunikasi</Heading>
+              </Flex>
+              <Text lineHeight="tall" color="gray.700" mb={4}>
+                Pengguna memiliki opsi untuk memverifikasi nomor WhatsApp di Portal Desa. Verifikasi ini bersifat sukarela dan bukan syarat utama untuk mengakses layanan. Jika pengguna memilih untuk memverifikasi:
+              </Text>
+              <UnorderedList spacing={3} color="gray.700" pl={5}>
+                <ListItem>
+                  <Text as="span" fontWeight="bold">Tujuan Penggunaan:</Text> Nomor WhatsApp akan digunakan oleh admin untuk mengirimkan notifikasi penting, seperti pembaruan status pengaduan/laporan, dan pengumuman layanan desa.
+                </ListItem>
+                <ListItem>
+                  <Text as="span" fontWeight="bold">Keamanan Data:</Text> Nomor WhatsApp disimpan dengan aman di database kami dan tidak akan disalahgunakan, dibagikan, atau dijual kepada pihak ketiga di luar kepentingan administratif desa.
+                </ListItem>
+                <ListItem>
+                  <Text as="span" fontWeight="bold">Komunikasi Positif:</Text> Kami berhak menggunakan nomor WhatsApp yang terverifikasi untuk tujuan "Positive Communication" (pengumuman resmi) sebagaimana kami mengelola komunikasi melalui email.
+                </ListItem>
+              </UnorderedList>
+            </Box>
+
+<Box>
                   <Flex align="center" mb={4} gap={3}>
                     <Icon as={FaAd} color="brand.500" boxSize={6} />
                     <Heading size="md">4. Kebijakan Transparansi Iklan</Heading>
