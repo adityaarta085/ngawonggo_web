@@ -34,6 +34,7 @@ import {
   FaMapMarkedAlt,
   FaEnvelope,
   FaUsers,
+  FaHandHoldingHeart,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -46,6 +47,7 @@ import PopupManager from './components/PopupManager';
 import ComplaintManager from './components/ComplaintManager';
 import CommentManager from './components/CommentManager';
 import SettingsManager from './components/SettingsManager';
+import DonationManager from './components/DonationManager';
 import DusunManager from './components/DusunManager';
 import BroadcastManager from './components/BroadcastManager';
 import PemerintahanManager from './components/PemerintahanManager';
@@ -72,6 +74,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Pengaduan', icon: FaExclamationCircle },
     { name: 'Komentar', icon: FaComments },
     { name: 'Broadcast Email', icon: FaEnvelope },
+    { name: 'Donasi', icon: FaHandHoldingHeart },
     { name: 'Pengaturan', icon: FaCog },
     { name: 'Customer Service', icon: FaHeadset },
     { name: 'Pengguna', icon: FaUsers },
@@ -185,6 +188,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Komentar' && <CommentManager />}
           {activeTab === 'Broadcast Email' && <BroadcastManager />}
           {activeTab === 'Pengaturan' && <SettingsManager />}
+          {activeTab === 'Donasi' && <DonationManager />}
           {activeTab === 'Pemerintahan' && <PemerintahanManager />}
           {activeTab === 'Customer Service' && <CsManager />}
           {activeTab === 'Pengguna' && <UserManager />}

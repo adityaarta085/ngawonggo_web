@@ -1,18 +1,28 @@
-1. **Understand the Goal**: The user wants to add an option to the Broadcast Email manager to send an email to a specifically typed email address (not just registered users) and they want a feature (maybe AI?) to help fill or beautify the email. Also, they want the test email functionality to send to `adityaarta085@gmail.com` specifically instead of the currently logged-in admin email.
-2. **Current state of `BroadcastManager.js`**:
-   - `recipientType` has 'all' and 'selected'. We need a third option: 'manual' (or 'custom').
-   - When 'manual' is selected, show an input to enter a custom email address.
-   - For "send test email", change the logic to send it to `adityaarta085@gmail.com`.
-   - Add an AI button/feature next to the subject/content to "beautify" or generate the email content. Since there's an AI API in `api/chat.js` or via GROQ, we can make an API call to generate or improve the text.
-3. **Changes to `BroadcastManager.js`**:
-   - Add a new state `customEmail` (string).
-   - Update `RadioGroup` for `recipientType` to include `<Radio value="custom">Email Spesifik (Manual)</Radio>`.
-   - If `recipientType === 'custom'`, show an `<Input>` to let the admin type any email address.
-   - Update `handleSendEmail`:
-     - If `sendTest` is true, set `targets = ['adityaarta085@gmail.com']`.
-     - Else if `recipientType === 'custom'`, set `targets = [customEmail]`.
-     - Else if `recipientType === 'all'`...
-   - To handle the "AI Beautify" request:
-     - Add an "AI Assistant" button near the ReactQuill editor.
-     - When clicked, it takes the current `subject` and `content` (plain text or html), sends a request to the AI endpoint (`/api/chat` probably, or we can use another AI tool if available), and replaces the content with the enhanced HTML version. Let's check `api/chat.js` to see how it works.
-4. **Explore `api/chat.js`**: Check how we can call the AI to beautify the email.
+1.  **Database Configuration**:
+    *   Created `donations` and `donation_transactions` tables via Supabase query.
+    *   Saved QRIS API Token into `site_settings`.
+    *   Created RPC function `increment_donation_amount` to securely update amounts.
+
+2.  **API Integration (`api/qris.js`)**:
+    *   Created an endpoint that correctly utilizes the QRISPY API for generation (`/generate`).
+    *   Created an endpoint for polling QRIS status (`/status`).
+
+3.  **UI Component: Navigation & Routing**:
+    *   Modified `src/components/Navbar.js` to hide `/admin` from the list and replace it with `/donasi`.
+    *   Need to add `DonasiPage` routing in `src/App.js`.
+
+4.  **UI Component: DonasiPage (User Facing)**:
+    *   Create a view `src/views/DonasiPage/index.js`.
+    *   It should fetch active donations from Supabase.
+    *   Provide a UI displaying campaigns (like Kitabisa).
+    *   When clicking a campaign, open a donation form/modal to enter Name, Message, and Amount.
+    *   Generate QRIS code via `/api/qris?action=generate` and show it in a modal.
+    *   Continuously poll `/api/qris?action=status` while the modal is open to auto-close/confirm when "paid".
+
+5.  **UI Component: AdminPanel (Admin Facing)**:
+    *   Update `src/views/AdminPage/index.js` to add "Donasi" to `menuItems`.
+    *   Create `src/views/AdminPage/components/DonasiManager.js`.
+    *   Allow creating/editing/deleting donation campaigns.
+    *   Show a table of all campaigns and another tab for `donation_transactions` to track who donated and the status.
+
+6.  **Pre-commit checks**: Run `pre_commit_instructions` and test.
