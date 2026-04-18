@@ -17,6 +17,8 @@ import {
   Badge,
   Flex,
   Image,
+  Checkbox,
+  Tooltip,
 } from '@chakra-ui/react';
 import { FaReply, FaTrash, FaCheck, FaPaperPlane, FaImage, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
@@ -29,6 +31,19 @@ const ComplaintManager = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [notifyUser, setNotifyUser] = useState(true);
+  const [adminName, setAdminName] = useState('Admin');
+
+  useEffect(() => {
+    const session = localStorage.getItem('adminSession');
+    if (session) {
+      try {
+        const parsed = JSON.parse(session);
+        if (parsed && parsed.username) setAdminName(parsed.username);
+      } catch (e) {}
+    }
+  }, []);
+
   const toast = useToast();
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -70,6 +85,7 @@ const ComplaintManager = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+
   const handleSendMessage = async (imgUrl = null) => {
     if (!newMessage && !imgUrl) return;
     const { error } = await supabase
@@ -80,7 +96,39 @@ const ComplaintManager = () => {
         message: newMessage,
         image_url: imgUrl
       }]);
-    if (!error) setNewMessage('');
+
+    if (!error) {
+       // Optional notification to user
+       if (notifyUser && selectedComplaint) {
+          // Check if contact is WA number (digits)
+          const isPhone = /^[0-9]+$/.test(selectedComplaint.contact) || selectedComplaint.contact.startsWith('+');
+          if (isPhone) {
+             try {
+               await fetch('/api/whatsapp', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify({
+                   to: selectedComplaint.contact,
+                   message: `Halo ${selectedComplaint.name},\n\nPengaduan Anda (ID: ${selectedComplaint.id}) mendapat respon dari Admin (${adminName}):\n\n"${newMessage}"\n\nSilakan cek Portal Desa untuk detail lebih lanjut.`
+                 })
+               });
+               toast({ title: 'Notifikasi WA Terkirim', status: 'success', duration: 3000 });
+             } catch (e) {
+               console.error('WA Notify Error', e);
+             }
+          } else if (selectedComplaint.contact.includes('@')) {
+             try {
+                await axios.post('/api/broadcast', {
+                  to: selectedComplaint.contact,
+                  subject: 'Respon Pengaduan - Desa Ngawonggo',
+                  content: `<h2>Halo ${selectedComplaint.name},</h2><p>Pengaduan Anda mendapat respon dari Admin (<b>${adminName}</b>):</p><p><i>"${newMessage}"</i></p><p>Silakan kunjungi portal desa untuk melihat lampiran dan informasi selengkapnya.</p>`
+                });
+                toast({ title: 'Notifikasi Email Terkirim', status: 'success', duration: 3000 });
+             } catch (e) {}
+          }
+       }
+       setNewMessage('');
+    }
   };
 
   const handleFileUpload = async (e) => {
@@ -95,6 +143,7 @@ const ComplaintManager = () => {
     }
   };
 
+
   const markResolved = async (id) => {
     const { error } = await supabase.from('complaints').update({ status: 'resolved' }).eq('id', id);
     if (!error) {
@@ -103,15 +152,28 @@ const ComplaintManager = () => {
       if(selectedComplaint?.id === id) setSelectedComplaint({...selectedComplaint, status: 'resolved'});
 
       const comp = complaints.find(c => c.id === id);
-      if (comp && comp.contact && comp.contact.includes('@')) {
-        try {
-          await axios.post('/api/broadcast', {
-            to: comp.contact,
-            subject: 'Pengaduan Selesai - Desa Ngawonggo',
-            content: `<h2>Halo ${comp.name},</h2><p>Pengaduan Anda dengan ID <b>${id}</b> telah selesai ditindaklanjuti. Terima kasih atas partisipasi Anda.</p>`
-          });
-        } catch (err) {
-          console.error('Failed to send completion email:', err);
+      if (comp && comp.contact) {
+        if (/^[0-9]+$/.test(comp.contact) || comp.contact.startsWith('+')) {
+            try {
+               await fetch('/api/whatsapp', {
+                 method: 'POST',
+                 headers: { 'Content-Type': 'application/json' },
+                 body: JSON.stringify({
+                   to: comp.contact,
+                   message: `Halo ${comp.name},\n\nPengaduan Anda (ID: ${id}) telah ditandai SELESAI oleh Admin (${adminName}).\nTerima kasih atas laporan Anda.\n\n- Pemerintah Desa Ngawonggo`
+                 })
+               });
+            } catch (err) {}
+        } else if (comp.contact.includes('@')) {
+            try {
+              await axios.post('/api/broadcast', {
+                to: comp.contact,
+                subject: 'Pengaduan Selesai - Desa Ngawonggo',
+                content: `<h2>Halo ${comp.name},</h2><p>Pengaduan Anda dengan ID <b>${id}</b> telah selesai ditindaklanjuti oleh <b>${adminName}</b>. Terima kasih atas partisipasi Anda.</p>`
+              });
+            } catch (err) {
+              console.error('Failed to send completion email:', err);
+            }
         }
       }
     }
@@ -169,7 +231,14 @@ const ComplaintManager = () => {
           <input type="file" hidden ref={fileInputRef} onChange={handleFileUpload} />
           <IconButton icon={<FaImage />} onClick={() => fileInputRef.current.click()} isLoading={uploading} />
           <IconButton icon={<FaPaperPlane />} colorScheme="blue" onClick={() => handleSendMessage()} />
+
+          <Tooltip label="Kirim Notifikasi ke Pengguna" placement="top">
+             <Checkbox isChecked={notifyUser} onChange={(e) => setNotifyUser(e.target.checked)} colorScheme="whatsapp" mr={2}>
+                Beritahu Pengguna
+             </Checkbox>
+          </Tooltip>
           {selectedComplaint.status !== 'resolved' && (
+
             <Button colorScheme="green" leftIcon={<FaCheck />} onClick={() => markResolved(selectedComplaint.id)}>Selesaikan</Button>
           )}
         </HStack>
