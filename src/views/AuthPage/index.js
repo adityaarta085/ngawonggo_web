@@ -24,7 +24,7 @@ import {
   Link,
   Badge,
 } from '@chakra-ui/react';
-import { FaGoogle, FaFacebook, FaDiscord, FaTwitter, FaSpotify, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+import { FaGoogle, FaFacebook, FaDiscord, FaTwitter, FaSpotify, FaWhatsapp, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 
@@ -34,6 +34,10 @@ const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [step, setStep] = useState(1);
+  const [expectedCode, setExpectedCode] = useState('');
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -52,6 +56,84 @@ const AuthPage = () => {
       });
     }
   }, [location, toast]);
+
+  const generateCode = () => Math.floor(100000 + Math.random() * 900000).toString();
+
+  const handleWhatsappLogin = async () => {
+    if (!whatsappNumber) {
+      toast({ title: 'Masukkan nomor WhatsApp', status: 'warning', duration: 3000 });
+      return;
+    }
+    setLoading(true);
+    const code = generateCode();
+    setExpectedCode(code);
+
+    try {
+      const response = await fetch('/api/whatsapp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: whatsappNumber,
+          message: `Kode verifikasi Portal Warga Desa Ngawonggo Anda adalah: ${code}`
+        })
+      });
+      if (!response.ok) throw new Error('Gagal mengirim pesan');
+
+      setStep(2);
+      toast({
+        title: 'Kode Terkirim',
+        description: 'Silakan cek WhatsApp Anda',
+        status: 'success',
+        duration: 3000,
+      });
+    } catch (error) {
+      toast({ title: 'Error', description: error.message, status: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const handleVerifyCode = async () => {
+    if (verificationCode !== expectedCode) {
+      toast({ title: 'Kode salah', status: 'error', duration: 3000 });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const dummyEmail = `${whatsappNumber}@whatsapp.ngawonggo.com`;
+      const dummyPassword = `${whatsappNumber}-WA-LOGIN-SECURE`;
+
+      let { error } = await supabase.auth.signUp({
+        email: dummyEmail,
+        password: dummyPassword,
+        options: {
+          data: {
+            phone: whatsappNumber
+          }
+        }
+      });
+
+      if (error && error.message.includes('User already registered')) {
+         const { error: signInError } = await supabase.auth.signInWithPassword({
+            email: dummyEmail,
+            password: dummyPassword,
+         });
+         if (signInError) throw signInError;
+      } else if (error) {
+        throw error;
+      }
+
+      toast({ title: 'Berhasil login!', status: 'success', duration: 3000 });
+      navigate('/portal');
+    } catch (error) {
+      toast({ title: 'Error', description: error.message, status: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -310,7 +392,35 @@ const AuthPage = () => {
             layerStyle="glassCard"
             bg="white"
           >
+            {step === 1 ? (
+            <>
             <VStack spacing={3} w='full' mb={6}>
+              <Button
+                w='full'
+                variant='outline'
+                leftIcon={<FaWhatsapp color="#25D366" />}
+                onClick={() => setStep('whatsapp_input')}
+                borderRadius='xl'
+                h='50px'
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'green.50', borderColor: 'green.200' }}
+                position='relative'
+              >
+                Lanjutkan dengan WhatsApp
+                <Badge
+                  colorScheme='green'
+                  variant='solid'
+                  position='absolute'
+                  right='-2'
+                  top='-2'
+                  borderRadius='full'
+                  fontSize='2xs'
+                  px={2}
+                >
+                  NEW
+                </Badge>
+              </Button>
               <Button
                 w='full'
                 variant='outline'
@@ -351,6 +461,7 @@ const AuthPage = () => {
                   NEW
                 </Badge>
               </Button>
+
               <Button
                 w='full'
                 variant='outline'
@@ -544,7 +655,73 @@ const AuthPage = () => {
                 </TabPanel>
               </TabPanels>
             </Tabs>
+            </>
+            ) : step === 'whatsapp_input' ? (
+               <VStack spacing={4}>
+                  <Text fontWeight="bold">Login dengan WhatsApp</Text>
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm">Nomor WhatsApp</FormLabel>
+                    <Input
+                        type="tel"
+                        placeholder="62812xxx"
+                        value={whatsappNumber}
+                        onChange={(e) => setWhatsappNumber(e.target.value)}
+                        borderRadius='xl'
+                    />
+                  </FormControl>
+                  <Button
+                    colorScheme="brand"
+                    w='full'
+                    h='50px'
+                    isLoading={loading}
+                    borderRadius='xl'
+                    onClick={handleWhatsappLogin}
+                  >
+                    Kirim Kode OTP
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    w='full'
+                    onClick={() => setStep(1)}
+                  >
+                    Kembali
+                  </Button>
+               </VStack>
+            ) : step === 2 ? (
+                <VStack spacing={4}>
+                  <Text fontWeight="bold">Verifikasi WhatsApp</Text>
+                  <Text fontSize="sm" color="gray.500">Kode telah dikirim ke {whatsappNumber}</Text>
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm">Kode OTP</FormLabel>
+                    <Input
+                        type="text"
+                        placeholder="Masukkan 6 digit kode"
+                        value={verificationCode}
+                        onChange={(e) => setVerificationCode(e.target.value)}
+                        borderRadius='xl'
+                    />
+                  </FormControl>
+                  <Button
+                    colorScheme="brand"
+                    w='full'
+                    h='50px'
+                    isLoading={loading}
+                    borderRadius='xl'
+                    onClick={handleVerifyCode}
+                  >
+                    Verifikasi Kode
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    w='full'
+                    onClick={() => setStep(1)}
+                  >
+                    Ganti Metode Login
+                  </Button>
+                </VStack>
+            ) : null}
           </Box>
+
 
           <Text fontSize="xs" color="gray.500" textAlign="center">
             Dengan masuk, Anda setuju dengan <Link as={RouterLink} to="/terms-conditions" color="brand.500">Ketentuan</Link> & <Link as={RouterLink} to="/privacy-policy" color="brand.500">Kebijakan</Link> kami.
