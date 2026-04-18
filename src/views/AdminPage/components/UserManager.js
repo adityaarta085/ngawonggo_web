@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, VStack, HStack, Text, Heading, Table, Thead, Tbody, Tr, Th, Td,
-  Button, IconButton, useToast, Modal, ModalOverlay, ModalContent,
+  Button, IconButton, Badge, useToast, Modal, ModalOverlay, ModalContent,
   ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure,
   FormControl, FormLabel, Input, Tooltip, InputGroup, InputLeftElement, Tabs, TabList, TabPanels, Tab, TabPanel, Textarea } from '@chakra-ui/react';
 import { FaTrash, FaEnvelope, FaPlus, FaSearch, FaUserShield, FaExclamationTriangle, FaMagic } from 'react-icons/fa';
@@ -190,7 +190,7 @@ const UserManager = () => {
             <Thead bg="gray.50">
               <Tr>
                 <Th>ID</Th>
-                <Th>Email</Th>
+                <Th>Email & Kontak</Th>
                 <Th>Login Terakhir</Th>
                 <Th>Aksi Email</Th>
                 <Th>Aksi Manajemen</Th>
@@ -200,7 +200,16 @@ const UserManager = () => {
               {filteredUsers.map(user => (
                 <Tr key={user.id}>
                   <Td fontSize="xs" maxWidth="100px" isTruncated>{user.id}</Td>
-                  <Td fontWeight="bold">{user.email}</Td>
+                                    <Td>
+                    <VStack align="start" spacing={1}>
+                      <Text fontWeight="bold">{user.email}</Text>
+                      {user.raw_user_meta_data?.whatsapp_verified && (
+                        <Badge colorScheme="whatsapp" variant="subtle" fontSize="xs">
+                          WA: {user.raw_user_meta_data.whatsapp_number}
+                        </Badge>
+                      )}
+                    </VStack>
+                  </Td>
                   <Td>
                     {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : 'Belum Pernah'}
                   </Td>

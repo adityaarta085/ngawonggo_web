@@ -19,6 +19,11 @@ import {
   Skeleton,
   Flex,
   useToast,
+  AccordionIcon,
+  AccordionPanel,
+  AccordionButton,
+  AccordionItem,
+  Accordion,
   Modal,
 
   Tooltip,
@@ -514,44 +519,46 @@ const PortalPage = () => {
 
 
           {/* Data Management Section */}
-          <Box
-            p={{ base: 6, md: 8 }}
-            borderRadius="3xl"
-            bg="white"
-            boxShadow="sm"
-            border="1px solid"
-            borderColor="red.100"
-          >
-            <VStack align="start" spacing={4}>
-                <HStack>
+          <Accordion allowToggle w="full" bg="white" borderRadius="3xl" border="1px solid" borderColor="red.100" overflow="hidden" boxShadow="sm">
+            <AccordionItem border="none">
+              <h2>
+                <AccordionButton py={6} px={{ base: 6, md: 8 }} _hover={{ bg: 'red.50' }}>
+                  <HStack flex="1" spacing={3}>
                     <Icon as={FaExclamationTriangle} color="red.500" boxSize={6} />
-                    <Heading size="md" color="gray.800">Manajemen Data & Privasi</Heading>
-                </HStack>
-                <Text fontSize="sm" color="gray.600">
-                    Anda memegang kendali atas data Anda. Penghapusan data memerlukan verifikasi demi keamanan. Apabila perangkat Anda tidak aktif, silakan gunakan metode fallback email atau hubungi administrator melalui kontak di bagian bawah halaman.
-                </Text>
+                    <Heading size="sm" color="gray.800">Manajemen Data & Privasi</Heading>
+                  </HStack>
+                  <AccordionIcon color="gray.500" />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={8} px={{ base: 6, md: 8 }}>
+                <VStack align="start" spacing={6}>
+                  <Text fontSize="sm" color="gray.600">
+                      Anda memegang kendali atas data Anda. Penghapusan data memerlukan verifikasi demi keamanan. Apabila perangkat Anda tidak aktif, silakan gunakan metode email. Jika masih tidak bisa, hubungi administrator melalui email: <b>desangawonggoku@gmail.com</b>. Jika berhasil menghapus, data akan benar-benar terhapus.
+                  </Text>
 
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
-                    <Button
-                        colorScheme="red"
-                        variant="outline"
-                        onClick={() => openDeletionModal('whatsapp')}
-                        isDisabled={!user?.user_metadata?.whatsapp_verified}
-                        h="50px"
-                    >
-                        Hapus Verifikasi WhatsApp
-                    </Button>
-                    <Button
-                        colorScheme="red"
-                        variant="solid"
-                        onClick={() => openDeletionModal('account')}
-                        h="50px"
-                    >
-                        Hapus Akun Permanen
-                    </Button>
-                </SimpleGrid>
-            </VStack>
-          </Box>
+                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
+                      <Button
+                          colorScheme="red"
+                          variant="outline"
+                          onClick={() => openDeletionModal('whatsapp')}
+                          isDisabled={!user?.user_metadata?.whatsapp_verified}
+                          h="50px"
+                      >
+                          Hapus Verifikasi WhatsApp
+                      </Button>
+                      <Button
+                          colorScheme="red"
+                          variant="solid"
+                          onClick={() => openDeletionModal('account')}
+                          h="50px"
+                      >
+                          Hapus Akun Permanen
+                      </Button>
+                  </SimpleGrid>
+                </VStack>
+              </AccordionPanel>
+            </AccordionItem>
+          </Accordion>
 
           {/* Benefits Info Card */}
           <Box

@@ -34,6 +34,26 @@ const ComplaintManager = () => {
   const [notifyUser, setNotifyUser] = useState(true);
   const [adminName, setAdminName] = useState('Admin');
 
+  const [verifiedUsers, setVerifiedUsers] = useState({});
+
+  useEffect(() => {
+     const fetchVerified = async () => {
+        const { data } = await supabase.rpc('get_all_users');
+        if (data) {
+           const mapping = {};
+           data.forEach(u => {
+              const meta = u.raw_user_meta_data || {};
+              if (meta.whatsapp_verified && meta.whatsapp_number) {
+                 mapping[u.id] = meta.whatsapp_number;
+              }
+           });
+           setVerifiedUsers(mapping);
+        }
+     };
+     fetchVerified();
+  }, []);
+
+
   useEffect(() => {
     const session = localStorage.getItem('adminSession');
     if (session) {
@@ -100,15 +120,14 @@ const ComplaintManager = () => {
     if (!error) {
        // Optional notification to user
        if (notifyUser && selectedComplaint) {
-          // Check if contact is WA number (digits)
-          const isPhone = /^[0-9]+$/.test(selectedComplaint.contact) || selectedComplaint.contact.startsWith('+');
-          if (isPhone) {
+          const verifiedWa = verifiedUsers[selectedComplaint.user_id];
+          if (verifiedWa) {
              try {
                await fetch('/api/whatsapp', {
                  method: 'POST',
                  headers: { 'Content-Type': 'application/json' },
                  body: JSON.stringify({
-                   to: selectedComplaint.contact,
+                   to: verifiedWa,
                    message: `Halo ${selectedComplaint.name},\n\nPengaduan Anda (ID: ${selectedComplaint.id}) mendapat respon dari Admin (${adminName}):\n\n"${newMessage}"\n\nSilakan cek Portal Desa untuk detail lebih lanjut.`
                  })
                });
@@ -116,7 +135,7 @@ const ComplaintManager = () => {
              } catch (e) {
                console.error('WA Notify Error', e);
              }
-          } else if (selectedComplaint.contact.includes('@')) {
+          } else if (selectedComplaint.contact && selectedComplaint.contact.includes('@')) {
              try {
                 await axios.post('/api/broadcast', {
                   to: selectedComplaint.contact,
@@ -152,19 +171,20 @@ const ComplaintManager = () => {
       if(selectedComplaint?.id === id) setSelectedComplaint({...selectedComplaint, status: 'resolved'});
 
       const comp = complaints.find(c => c.id === id);
-      if (comp && comp.contact) {
-        if (/^[0-9]+$/.test(comp.contact) || comp.contact.startsWith('+')) {
+      if (comp) {
+        const verifiedWa = verifiedUsers[comp.user_id];
+        if (verifiedWa) {
             try {
                await fetch('/api/whatsapp', {
                  method: 'POST',
                  headers: { 'Content-Type': 'application/json' },
                  body: JSON.stringify({
-                   to: comp.contact,
+                   to: verifiedWa,
                    message: `Halo ${comp.name},\n\nPengaduan Anda (ID: ${id}) telah ditandai SELESAI oleh Admin (${adminName}).\nTerima kasih atas laporan Anda.\n\n- Pemerintah Desa Ngawonggo`
                  })
                });
             } catch (err) {}
-        } else if (comp.contact.includes('@')) {
+        } else if (comp.contact && comp.contact.includes('@')) {
             try {
               await axios.post('/api/broadcast', {
                 to: comp.contact,
