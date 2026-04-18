@@ -95,15 +95,14 @@ module.exports = async (req, res) => {
 
       // Call QRISPY status
       try {
-        const fetchResponse = await fetch(`${API_URL}/api/payment/qris/${qris_id}/status`, {
-          method: 'GET',
+        const response = await axios.get(`${API_URL}/api/payment/qris/${qris_id}/status`, {
           headers: {
               'X-API-Token': apiToken,
-              'Accept': 'application/json'
+              'Accept': 'application/json',
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
           }
         });
-
-        const responseData = await fetchResponse.json();
+        const responseData = response.data;
         const statusData = responseData.data || responseData;
         let currentStatus = statusData?.payment_status || statusData?.status || 'pending';
 
