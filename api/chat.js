@@ -37,17 +37,7 @@ module.exports = async (req, res) => {
 
     const GROQ_API_KEY = groqKeySetting.value;
 
-    let GROQ_MODEL = groqModelSetting?.value;
-    if (!GROQ_MODEL || GROQ_MODEL.trim() === '') {
-        GROQ_MODEL = 'llama3-8b-8192'; // A safe fallback if nothing is set
-    }
-    // Clean up model string just in case it's accidentally parsed wrong or hardcoded in their env somewhere
-    if (!GROQ_MODEL || GROQ_MODEL.trim() === '') {
-        GROQ_MODEL = 'groq/compound';
-    }
-    // Note: 'groq/compound' might not be a valid Groq model name, usually it's 'llama3-8b-8192'.
-    // If Groq rejects it or rewrites it, that's up to them, but we will pass exactly what is in the DB.
-    console.log("Using Groq Model:", GROQ_MODEL);
+    const GROQ_MODEL = groqModelSetting?.value || 'groq/compound';
 
     // Default System Prompt
     let systemPrompt = defaultPromptSetting?.value || 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.';
