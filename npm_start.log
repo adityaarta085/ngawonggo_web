@@ -47,3 +47,101 @@ webpack compiled with 1 warning
 Compiling...
 Compiled successfully!
 webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Failed to compile.
+
+[eslint]
+src/views/PortalPage/index.js
+  Line 402:31:  'FaExclamationTriangle' is not defined  no-undef
+  Line 413:40:  'openDeletionModal' is not defined      no-undef
+  Line 422:40:  'openDeletionModal' is not defined      no-undef
+
+Search for the keywords to learn more about each error.
+ERROR in [eslint]
+src/views/PortalPage/index.js
+  Line 402:31:  'FaExclamationTriangle' is not defined  no-undef
+  Line 413:40:  'openDeletionModal' is not defined      no-undef
+  Line 422:40:  'openDeletionModal' is not defined      no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error
+Compiling...
+Failed to compile.
+
+[eslint]
+src/views/PortalPage/index.js
+  Line 409:31:  'FaExclamationTriangle' is not defined  no-undef
+  Line 420:40:  'openDeletionModal' is not defined      no-undef
+  Line 429:40:  'openDeletionModal' is not defined      no-undef
+
+Search for the keywords to learn more about each error.
+WARNING in [eslint]
+src/views/PortalPage/index.js
+  Line 24:3:  'useDisclosure' is defined but never used     no-unused-vars
+  Line 25:3:  'ModalCloseButton' is defined but never used  no-unused-vars
+  Line 26:3:  'ModalBody' is defined but never used         no-unused-vars
+  Line 27:3:  'ModalFooter' is defined but never used       no-unused-vars
+  Line 28:3:  'ModalHeader' is defined but never used       no-unused-vars
+  Line 29:3:  'ModalContent' is defined but never used      no-unused-vars
+  Line 30:3:  'ModalOverlay' is defined but never used      no-unused-vars
+
+ERROR in [eslint]
+src/views/PortalPage/index.js
+  Line 409:31:  'FaExclamationTriangle' is not defined  no-undef
+  Line 420:40:  'openDeletionModal' is not defined      no-undef
+  Line 429:40:  'openDeletionModal' is not defined      no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error and 1 warning
+Compiling...
+Failed to compile.
+
+[eslint]
+src/views/PortalPage/index.js
+  Line 525:31:  'FaExclamationTriangle' is not defined  no-undef
+  Line 595:8:   'Modal' is not defined                  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+ERROR in [eslint]
+src/views/PortalPage/index.js
+  Line 525:31:  'FaExclamationTriangle' is not defined  no-undef
+  Line 595:8:   'Modal' is not defined                  react/jsx-no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error
+Compiling...
+Failed to compile.
+
+[eslint]
+src/views/PortalPage/index.js
+  Line 526:31:  'FaExclamationTriangle' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+ERROR in [eslint]
+src/views/PortalPage/index.js
+  Line 526:31:  'FaExclamationTriangle' is not defined  no-undef
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error
+Compiling...
+Compiled successfully!
+webpack compiled successfully
