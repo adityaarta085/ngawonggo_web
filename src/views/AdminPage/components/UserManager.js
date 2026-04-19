@@ -3,7 +3,7 @@ import { Box, VStack, HStack, Text, Heading, Table, Thead, Tbody, Tr, Th, Td,
   Button, IconButton, Badge, useToast, Modal, ModalOverlay, ModalContent,
   ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure,
   FormControl, FormLabel, Input, Tooltip, InputGroup, InputLeftElement, Tabs, TabList, TabPanels, Tab, TabPanel, Textarea } from '@chakra-ui/react';
-import { FaTrash, FaEnvelope, FaPlus, FaSearch, FaUserShield, FaExclamationTriangle, FaMagic } from 'react-icons/fa';
+import { FaTrash, FaEnvelope, FaPlus, FaSearch, FaUserShield, FaExclamationTriangle, FaMagic, FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import axios from 'axios';
 import ReactQuill from 'react-quill';
@@ -12,6 +12,7 @@ import 'react-quill/dist/quill.snow.css';
 const UserManager = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showWaOnly, setShowWaOnly] = useState(false);
   const [, setIsLoading] = useState(false);
   const toast = useToast();
 
@@ -151,7 +152,12 @@ const UserManager = () => {
     toast({ title: 'Fitur 2FA (MFA) segera hadir/membutuhkan konfigurasi khusus', status: 'info' });
   };
 
-  const filteredUsers = users.filter(u => u.email?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredUsers = users.filter(u => {
+    const matchSearch = u.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    const isWaVerified = u.raw_user_meta_data?.whatsapp_verified;
+    if (showWaOnly) return matchSearch && isWaVerified;
+    return matchSearch;
+  });
 
   const quillModules = {
     toolbar: [
@@ -176,14 +182,25 @@ const UserManager = () => {
           </HStack>
         </HStack>
 
-        <InputGroup>
-          <InputLeftElement children={<FaSearch color="gray.300" />} />
-          <Input
-            placeholder="Cari email user..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </InputGroup>
+        <HStack w="full">
+          <InputGroup flex={1}>
+            <InputLeftElement children={<FaSearch color="gray.300" />} />
+            <Input
+              placeholder="Cari email user..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </InputGroup>
+          <Button
+            colorScheme={showWaOnly ? 'whatsapp' : 'gray'}
+            variant={showWaOnly ? 'solid' : 'outline'}
+            onClick={() => setShowWaOnly(!showWaOnly)}
+            leftIcon={<FaWhatsapp />}
+            size="md"
+          >
+            {showWaOnly ? 'Semua User' : 'Filter WA Verif'}
+          </Button>
+        </HStack>
 
         <Box overflowX="auto">
           <Table variant="simple" size="sm">

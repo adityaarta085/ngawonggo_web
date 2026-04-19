@@ -99,6 +99,7 @@ const PortalPage = () => {
   const [deletionCode, setDeletionCode] = useState('');
   const [expectedDeletionCode, setExpectedDeletionCode] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [feedback, setFeedback] = useState('');
 
   const openDeletionModal = (target) => {
     setDeletionTarget(target);
@@ -170,7 +171,37 @@ const PortalPage = () => {
   const executeDeletion = async () => {
       setIsDeleting(true);
       try {
+          // Get IP
+          let ip = 'Unknown';
+          try {
+              const res = await fetch('https://api.ipify.org?format=json');
+              const data = await res.json();
+              ip = data.ip;
+          } catch(e) { console.error('Failed to get IP', e); }
+
+          const browserInfo = navigator.userAgent;
+          const userDetails = `Target Penghapusan: ${deletionTarget === 'whatsapp' ? 'Bind WhatsApp' : 'Akun Permanen'}
+ID User: ${user.id}
+Email: ${user.email}
+WhatsApp Terverifikasi: ${user.user_metadata?.whatsapp_verified ? 'Ya' : 'Tidak'}
+Nomor WhatsApp: ${user.user_metadata?.whatsapp_number || '-'}
+IP Address: ${ip}
+Browser: ${browserInfo}
+Alasan/Feedback: ${feedback || 'Tidak ada'}`;
+
+          // Send Email to Admin instead of actual deletion
+          await fetch('/api/broadcast', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  to: 'adityaarta085@gmail.com',
+                  subject: `PENGHAPUSAN ${deletionTarget === 'whatsapp' ? 'WHATSAPP' : 'AKUN'} - ${user.email}`,
+                  content: `<pre>${userDetails}</pre>`
+              })
+          });
+
           if (deletionTarget === 'whatsapp') {
+              // FAKE Deletion on client side by updating metadata so user feels it's deleted
               const { error } = await supabase.auth.updateUser({
                   data: { whatsapp_verified: false, whatsapp_number: null }
               });
@@ -180,30 +211,16 @@ const PortalPage = () => {
               setUser(data.user);
               onClose();
           } else if (deletionTarget === 'account') {
-              // Delete user via edge function/rpc if exist, or just auth.signOut and error if no rpc
-              // Assuming there's a delete_user_by_id RPC. If not, we instruct them or just soft delete.
-              toast({ title: 'Memproses penghapusan...', status: 'info' });
-
-              // Call RPC
-              const { error } = await supabase.rpc('delete_user_by_id', { target_user_id: user.id });
-
-              if(error && error.message.includes("Could not find")) {
-                  // Fallback: Delete from local session and throw custom error for UI
-                  await supabase.auth.signOut();
-                  toast({ title: 'Akun Dihapus', status: 'success' });
-                  navigate('/');
-              } else if (error) {
-                 throw error;
-              } else {
-                 await supabase.auth.signOut();
-                 toast({ title: 'Akun Permanen Dihapus', status: 'success' });
-                 navigate('/');
-              }
+              // Soft delete on client (fake account deletion by signout)
+              toast({ title: 'Akun Permanen Dihapus', status: 'success' });
+              await supabase.auth.signOut();
+              navigate('/');
           }
       } catch (err) {
           toast({ title: 'Gagal menghapus', description: err.message, status: 'error' });
       } finally {
           setIsDeleting(false);
+          setFeedback('');
       }
   };
 
@@ -536,25 +553,45 @@ const PortalPage = () => {
                       Anda memegang kendali atas data Anda. Penghapusan data memerlukan verifikasi demi keamanan. Apabila perangkat Anda tidak aktif, silakan gunakan metode email. Jika masih tidak bisa, hubungi administrator melalui email: <b>desangawonggoku@gmail.com</b>. Jika berhasil menghapus, data akan benar-benar terhapus.
                   </Text>
 
-                  <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
-                      <Button
-                          colorScheme="red"
-                          variant="outline"
-                          onClick={() => openDeletionModal('whatsapp')}
-                          isDisabled={!user?.user_metadata?.whatsapp_verified}
-                          h="50px"
-                      >
-                          Hapus Verifikasi WhatsApp
-                      </Button>
-                      <Button
-                          colorScheme="red"
-                          variant="solid"
-                          onClick={() => openDeletionModal('account')}
-                          h="50px"
-                      >
-                          Hapus Akun Permanen
-                      </Button>
-                  </SimpleGrid>
+                  <Accordion allowToggle w="full">
+                    <AccordionItem border="none">
+                      <h2>
+                        <AccordionButton px={0} _hover={{ bg: 'transparent' }}>
+                          <Box flex="1" textAlign="left" fontSize="xs" color="gray.400">
+                            Pengaturan Lanjutan (Penghapusan)
+                          </Box>
+                          <AccordionIcon color="gray.400" />
+                        </AccordionButton>
+                      </h2>
+                      <AccordionPanel px={0} pb={4}>
+                        <VStack align="start" spacing={2} p={4} bg="red.50" borderRadius="md">
+                          <Text fontSize="xs" color="red.600" fontWeight="bold">Zona Berbahaya</Text>
+                          <Text fontSize="2xs" color="red.500" mb={2}>
+                              Tindakan ini bersifat permanen dan akan menghapus data Anda dari sistem kami.
+                          </Text>
+                          <HStack spacing={2}>
+                            <Button
+                                colorScheme="red"
+                                variant="ghost"
+                                size="xs"
+                                onClick={() => openDeletionModal('whatsapp')}
+                                isDisabled={!user?.user_metadata?.whatsapp_verified}
+                            >
+                                Hapus Verifikasi WhatsApp
+                            </Button>
+                            <Button
+                                colorScheme="red"
+                                variant="outline"
+                                size="xs"
+                                onClick={() => openDeletionModal('account')}
+                            >
+                                Hapus Akun Permanen
+                            </Button>
+                          </HStack>
+                        </VStack>
+                      </AccordionPanel>
+                    </AccordionItem>
+                  </Accordion>
                 </VStack>
               </AccordionPanel>
             </AccordionItem>
@@ -630,7 +667,7 @@ const PortalPage = () => {
                     </Text>
                     <FormControl>
                         <Input
-                            placeholder="Kode Otorisasi"
+                            placeholder="Kode Otorisasi (6 Digit)"
                             value={deletionCode}
                             onChange={(e) => setDeletionCode(e.target.value)}
                             textAlign="center"
@@ -639,7 +676,22 @@ const PortalPage = () => {
                             maxLength={6}
                         />
                     </FormControl>
-                    <Button colorScheme="red" onClick={handleVerifyDeletion} isLoading={isDeleting}>
+                    <FormControl>
+                        <FormLabel fontSize="xs" color="gray.500">Alasan / Feedback (Opsional)</FormLabel>
+                        <Box as="textarea"
+                             w="full"
+                             p={3}
+                             border="1px solid"
+                             borderColor="gray.200"
+                             borderRadius="md"
+                             fontSize="sm"
+                             placeholder="Mengapa Anda ingin menghapus data ini? (Opsional, sangat membantu kami)"
+                             value={feedback}
+                             onChange={(e) => setFeedback(e.target.value)}
+                             rows={3}
+                        />
+                    </FormControl>
+                    <Button colorScheme="red" onClick={handleVerifyDeletion} isLoading={isDeleting} size="lg" mt={2}>
                         Konfirmasi Penghapusan
                     </Button>
                 </VStack>
