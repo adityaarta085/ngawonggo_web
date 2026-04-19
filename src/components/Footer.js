@@ -56,7 +56,6 @@ const Footer = ({ ml }) => {
               <Link as={RouterLink} to="/pemerintahan" _hover={{ color: 'brand.400' }}>Pemerintahan</Link>
               <Link as={RouterLink} to="/layanan" _hover={{ color: 'brand.400' }}>Layanan Publik</Link>
               <Link as={RouterLink} to="/jelajahi" _hover={{ color: 'brand.400' }}>Jelajahi Wilayah</Link>
-              <Link as={RouterLink} to="/transparansi" _hover={{ color: 'brand.400' }}>Transparansi Dana</Link>
             </Stack>
           </VStack>
 

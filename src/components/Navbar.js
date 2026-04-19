@@ -41,18 +41,28 @@ const Navbar = ({ user, isScrolled }) => {
       children: [
         { label: 'Sejarah Desa', subLabel: 'Asal usul Desa Ngawonggo', href: '/profil#sejarah' },
         { label: 'Visi & Misi', subLabel: 'Tujuan & cita-cita desa', href: '/profil#visimisi' },
-        { label: 'Wilayah Desa', subLabel: 'Data geografis & administratif', href: '/profil#wilayah' },
+        { label: 'Wilayah Administratif', subLabel: 'Data geografis & administratif', href: '/profil#wilayah' },
+        { label: 'Informasi Dusun', subLabel: 'Jelajahi dusun di desa', href: '/dusun/kajangkoso' },
       ],
       href: '/profil'
     },
-    { label: t.government || 'Pemerintahan', href: '/pemerintahan' },
+    {
+        label: t.government || 'Pemerintahan',
+        href: '/pemerintahan',
+    },
     { label: t.services || 'Layanan', href: '/layanan' },
-    { label: t.explore || 'Jelajahi', href: '/jelajahi' },
-    { label: t.news || 'Berita', href: '/news' },
-    { label: t.media || 'Media', href: '/media' },
-    { label: t.anime || 'Anime (NEW)', href: '/anime' },
-    { label: t.contact || 'Kontak', href: '/kontak' },
-    { label: t.admin || 'Admin', href: '/admin', isSpecial: true },
+    {
+      label: t.explore || 'Jelajahi',
+      children: [
+        { label: 'Berita Terkini', subLabel: 'Kabar terbaru dari desa', href: '/news' },
+        { label: 'Media Desa & Radio', subLabel: 'Tonton dan dengarkan siaran', href: '/media' },
+        { label: 'Al-Quran Digital', subLabel: 'Baca Al-Quran online', href: '/quran' },
+        { label: 'Edu Game', subLabel: 'Bermain sambil belajar', href: '/game/math' },
+        { label: 'Hiburan: Anime', subLabel: 'Tonton anime favorit', href: '/anime' },
+      ],
+      href: '#'
+    },
+    { label: t.contact || 'Kontak & Pengaduan', href: '/kontak' },
   ];
 
   const navBg = useColorModeValue(
@@ -161,7 +171,7 @@ const Navbar = ({ user, isScrolled }) => {
                         transform: 'translateY(-2px)'
                       }}
                     >
-                      MASUK
+                      AKUN/MASUK
                     </Button>
                 </Tooltip>
              )}
@@ -317,7 +327,7 @@ const MobileNav = ({ navItems, user, onClose }) => {
             borderRadius="xl"
             onClick={onClose}
         >
-            Masuk Portal Warga
+            Akun/Masuk
         </Button>
       )}
 
