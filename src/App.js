@@ -11,7 +11,7 @@ import PageNotFound from './views/PageNotFound/index.js';
 import PemerintahanPage from './views/PemerintahanPage/index.js';
 import LayananPage from './views/LayananPage/index.js';
 import JelajahiPage from './views/JelajahiPage/index.js';
-import TransparansiPage from './views/TransparansiPage/index.js';
+
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
 
@@ -47,9 +47,9 @@ import AuthPage from './views/AuthPage/index.js';
 import EduGameRouter from './views/EduGamePage/EduGameRouter';
 import PortalPage from './views/PortalPage/index.js';
 
-const TopBar = ({ isScrolled }) => {
+const TopBar = () => {
   return (
-    <Collapse in={!isScrolled} animateOpacity>
+    <Box>
         <Box
           layerStyle="liquidGlass" borderBottom="1px solid" borderColor="whiteAlpha.300" bg="rgba(255, 255, 255, 0.4)"
           py={1}
@@ -58,7 +58,7 @@ const TopBar = ({ isScrolled }) => {
           position="relative"
           zIndex={1100}
           boxShadow="none"
-          aria-hidden={isScrolled}
+
         >
           <Flex justify="space-between" align="center" gap={{ base: 2, md: 4 }}>
             <HStack flex={1} spacing={{ base: 2, md: 4 }} maxW={{ base: "65%", md: "75%" }}>
@@ -90,7 +90,7 @@ const TopBar = ({ isScrolled }) => {
             />
           </Flex>
         </Box>
-    </Collapse>
+    </Box>
   );
 };
 
@@ -213,7 +213,7 @@ function App() {
           {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
             <>
               <Box
-                h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
+                h={{ base: scrolled ? '112px' : '40px', md: scrolled ? '124px' : '48px' }}
                 transition="height 0.35s ease"
               />
               <Box
@@ -224,13 +224,16 @@ function App() {
                 left={0}
                 right={0}
               >
-                <TopBar isScrolled={scrolled} />
-                <Box
-                  transition="padding 0.35s ease"
-                  pt={scrolled ? 2 : 0}
-                >
-                  <Navbar user={userSession?.user} isScrolled={scrolled} />
-                </Box>
+                <TopBar />
+                <Collapse in={scrolled} animateOpacity>
+                  <Box
+                    transition="padding 0.35s ease"
+                    pt={2}
+                    pb={2}
+                  >
+                    <Navbar user={userSession?.user} isScrolled={true} />
+                  </Box>
+                </Collapse>
               </Box>
             </>
           )}
@@ -249,7 +252,6 @@ function App() {
               <Route path="/pemerintahan" element={<PemerintahanPage />} />
               <Route path="/layanan" element={<LayananPage />} />
               <Route path="/jelajahi" element={<JelajahiPage />} />
-              <Route path="/transparansi" element={<TransparansiPage />} />
               <Route path="/kontak" element={<KontakPage />} />
               <Route path="/media" element={<MediaPage />} />
               <Route path="/anime" element={<AnimePage />} />

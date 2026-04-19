@@ -35,7 +35,7 @@ const Navbar = ({ user, isScrolled }) => {
   const { language } = useLanguage();
   const t = (translations[language] && translations[language].nav) ? translations[language].nav : {};
 
-  const NAV_ITEMS = [
+    const NAV_ITEMS = [
     {
       label: t.profile || 'Profil',
       children: [
@@ -47,10 +47,17 @@ const Navbar = ({ user, isScrolled }) => {
     },
     { label: t.government || 'Pemerintahan', href: '/pemerintahan' },
     { label: t.services || 'Layanan', href: '/layanan' },
-    { label: t.explore || 'Jelajahi', href: '/jelajahi' },
-    { label: t.news || 'Berita', href: '/news' },
-    { label: t.media || 'Media', href: '/media' },
-    { label: t.anime || 'Anime (NEW)', href: '/anime' },
+    {
+      label: t.explore || 'Jelajahi',
+      children: [
+        { label: 'Berita', subLabel: 'Kabar terkini desa', href: '/news' },
+        { label: 'Media', subLabel: 'Radio & TV Desa', href: '/media' },
+        { label: 'Al-Quran Digital', subLabel: 'Baca & Dengarkan Al-Quran', href: '/quran' },
+        { label: 'Edu Game', subLabel: 'Game edukasi 3D interaktif', href: '/game/' },
+        { label: 'Anime', subLabel: 'Hiburan streaming', href: '/anime' },
+      ],
+      href: '/jelajahi'
+    },
     { label: t.contact || 'Kontak', href: '/kontak' },
     { label: t.admin || 'Admin', href: '/admin', isSpecial: true },
   ];
