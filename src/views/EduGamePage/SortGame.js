@@ -24,7 +24,7 @@ const items = [
   { name: "E-Mail", type: "digital", icon: FaEnvelope },
 ];
 
-const SortGame = ({ onBack }) => {
+const SortGame = ({ onFinish }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
@@ -41,7 +41,16 @@ const SortGame = ({ onBack }) => {
     if (currentIndex < items.length - 1) {
       setCurrentIndex(currentIndex + 1);
     } else {
-      setIsFinished(true);
+      const finalScore = choice === items[currentIndex].type ? score + 1 : score;
+      if (typeof onFinish === 'function') {
+        onFinish({
+          score: finalScore,
+          maxScore: items.length,
+          message: finalScore === items.length ? 'Ketelitianmu luar biasa!' : 'Hebat! Yuk tingkatkan lagi fokusmu.'
+        });
+      } else {
+        setIsFinished(true);
+      }
     }
   };
 
@@ -55,7 +64,7 @@ const SortGame = ({ onBack }) => {
           setScore(0);
           setIsFinished(false);
         }}>Main Lagi</Button>
-        <Button variant="ghost" onClick={onBack}>Kembali ke Menu</Button>
+        {/* Controlled externally */}
       </VStack>
     );
   }
@@ -109,7 +118,7 @@ const SortGame = ({ onBack }) => {
           <Text fontWeight="bold">Progres: {currentIndex + 1} / {items.length}</Text>
         </HStack>
 
-        <Button variant="ghost" onClick={onBack} size="sm">Kembali</Button>
+        {/* Controlled externally */}
       </VStack>
     </Box>
   );

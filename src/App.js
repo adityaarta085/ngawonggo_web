@@ -44,6 +44,7 @@ import { FaMoon } from 'react-icons/fa';
 
 // User Portal Views
 import AuthPage from './views/AuthPage/index.js';
+import EduGameRouter from './views/EduGamePage/EduGameRouter';
 import PortalPage from './views/PortalPage/index.js';
 
 const TopBar = ({ isScrolled }) => {
@@ -260,6 +261,7 @@ function App() {
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-conditions" element={<TermsConditions />} />
               <Route path="/credits" element={<CreditsPage />} />
+              <Route path="/game/*" element={<EduGameRouter />} />
 
               <Route path="/down" element={<TakedownPage />} />
               <Route path="/blocked" element={<BlockedPage />} />

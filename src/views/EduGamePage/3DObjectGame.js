@@ -95,7 +95,7 @@ const levels = [
   }
 ];
 
-const Object3DGame = ({ onBack }) => {
+const Object3DGame = ({ onFinish }) => {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
@@ -138,7 +138,16 @@ const Object3DGame = ({ onBack }) => {
         setSelectedAnswer(null);
         setIsCorrect(null);
       } else {
-        setGameOver(true);
+        const finalScore = correct ? score + 10 : score;
+        if (typeof onFinish === 'function') {
+           onFinish({
+             score: finalScore,
+             maxScore: levels.length * 10,
+             message: "Luar biasa! Kamu telah menguasai konsep Geometri 3D!"
+           });
+        } else {
+           setGameOver(true);
+        }
       }
     }, 5000);
   };
@@ -166,7 +175,7 @@ const Object3DGame = ({ onBack }) => {
           <Button size="lg" colorScheme="brand" onClick={restartGame} leftIcon={<FaRedo />} borderRadius="xl">
             Main Lagi
           </Button>
-          <Button size="lg" variant="outline" onClick={onBack} borderRadius="xl">
+          <Button size="lg" variant="outline"  borderRadius="xl">
             Kembali ke Menu
           </Button>
         </Flex>
