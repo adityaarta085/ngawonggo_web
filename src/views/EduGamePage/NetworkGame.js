@@ -21,7 +21,7 @@ const TARGET_NODES = [
   { r: 4, c: 4, label: "Dusun C" },
 ];
 
-const NetworkGame = ({ onBack }) => {
+const NetworkGame = ({ onFinish }) => {
   const [grid, setGrid] = useState(Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(false)));
   const [moves, setMoves] = useState(12);
   const [isWon, setIsWon] = useState(false);
@@ -59,8 +59,18 @@ const NetworkGame = ({ onBack }) => {
 
     setConnectedTargets(reachable);
     if (reachable.length === TARGET_NODES.length) {
-      setIsWon(true);
+      // Pass the state up instead of showing internal UI
+      if (typeof onFinish === 'function') {
+        onFinish({
+          score: moves * 10 + 50, // base score 50 + bonus for remaining moves
+          maxScore: 100,
+          message: "Hebat! Kamu menghubungkan semua dusun dengan efisien."
+        });
+      } else {
+        setIsWon(true);
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [grid]);
 
   useEffect(() => {
@@ -72,6 +82,13 @@ const NetworkGame = ({ onBack }) => {
 
     if (!grid[r][c] && moves <= 0) {
       toast({ title: "Kabel Habis!", status: "warning", duration: 2000 });
+      if (typeof onFinish === 'function') {
+         onFinish({
+           score: connectedTargets.length * 10,
+           maxScore: 100,
+           message: "Sayang sekali, stok kabelmu habis sebelum semua dusun terhubung."
+         });
+      }
       return;
     }
 
@@ -173,7 +190,7 @@ const NetworkGame = ({ onBack }) => {
           )
         )}
 
-        <Button variant="ghost" size="sm" onClick={onBack}>Kembali ke Menu</Button>
+        {/* Controlled externally */}
       </VStack>
     </Box>
   );

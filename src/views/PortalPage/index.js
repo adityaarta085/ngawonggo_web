@@ -462,7 +462,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                 subValue="Sesi dimainkan"
                 icon={FaGamepad}
                 color="orange"
-                onClick={() => navigate('/game-edukasi')}
+                onClick={() => navigate('/game')}
               />
             </SimpleGrid>
           </VStack>

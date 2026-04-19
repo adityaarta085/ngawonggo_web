@@ -68,7 +68,7 @@ const questionPool = [
   }
 ];
 
-const QuizGame = ({ onBack }) => {
+const QuizGame = ({ onFinish }) => {
   const [activeQuestions, setActiveQuestions] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [score, setScore] = useState(0);
@@ -114,8 +114,16 @@ const QuizGame = ({ onBack }) => {
       setCurrentStep(currentStep + 1);
       setSelected(null);
     } else {
-      setIsFinished(true);
-      saveScore(currentScore);
+      if (typeof onFinish === 'function') {
+        onFinish({
+          score: currentScore,
+          maxScore: activeQuestions.length,
+          message: currentScore === activeQuestions.length ? "Luar Biasa! Ahli Teknologi!" : "Bagus! Terus Belajar!"
+        });
+      } else {
+        setIsFinished(true);
+        saveScore(currentScore);
+      }
     }
   };
 
@@ -140,7 +148,7 @@ const QuizGame = ({ onBack }) => {
         </Badge>
         {user && <Text fontSize="xs" color="green.500">Skor Anda telah disimpan ke Portal Warga!</Text>}
         <Button colorScheme="brand" onClick={handleReset}>Main Lagi</Button>
-        <Button variant="ghost" onClick={onBack}>Kembali ke Menu</Button>
+        {/* Controlled externally */}
       </VStack>
     );
   }
@@ -179,7 +187,7 @@ const QuizGame = ({ onBack }) => {
         <Button colorScheme="brand" size="lg" onClick={handleNext} borderRadius="xl">
           {currentStep === activeQuestions.length - 1 ? "Lihat Hasil" : "Lanjut"}
         </Button>
-        <Button variant="ghost" onClick={onBack}>Menyerah</Button>
+        {/* Managed externally */}
       </VStack>
     </Box>
   );
