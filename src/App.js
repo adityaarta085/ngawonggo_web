@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Flex, Image, Tooltip, HStack, Text, Badge, Icon, Collapse } from '@chakra-ui/react';
+import { Box, Flex, Image, Tooltip, HStack, Collapse } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -40,7 +40,6 @@ import TakedownPage from './views/TakedownPage/index.js';
 import BlockedPage from './views/BlockedPage/index.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
-import { FaMoon } from 'react-icons/fa';
 
 // User Portal Views
 import AuthPage from './views/AuthPage/index.js';
@@ -62,21 +61,7 @@ const TopBar = ({ isScrolled }) => {
         >
           <Flex justify="space-between" align="center" gap={{ base: 2, md: 4 }}>
             <HStack flex={1} spacing={{ base: 2, md: 4 }} maxW={{ base: "65%", md: "75%" }}>
-              <Badge
-                display={{ base: "none", sm: "flex" }}
-                colorScheme="yellow"
-                variant="subtle"
-                alignItems="center"
-                gap={1.5}
-                px={3}
-                py={1}
-                borderRadius="full"
-                border="1px solid"
-                borderColor="yellow.200"
-              >
-                <Icon as={FaMoon} aria-hidden="true" />
-                <Text fontSize="2xs" fontWeight="800">IDUL FITRI 1447H</Text>
-              </Badge>
+
               <Box flex={1} overflow="hidden">
                 <RunningText isEmbedded={true} />
               </Box>
