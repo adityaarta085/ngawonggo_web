@@ -48,6 +48,7 @@ const DusunManager = () => {
     description: '',
     population: '',
     area: '',
+    family_count: '',
     houses: '',
     image_url: '',
     map_link: '',
@@ -86,6 +87,7 @@ const DusunManager = () => {
       description: '',
       population: '',
       area: '',
+      family_count: '',
       houses: '',
       image_url: '',
       map_link: '',
@@ -220,10 +222,11 @@ const DusunManager = () => {
                         <FormControl isRequired><FormLabel>Slug (URL)</FormLabel><Input value={formData.slug} onChange={(e) => setFormData({...formData, slug: e.target.value})} /></FormControl>
                       </SimpleGrid>
                       <FormControl isRequired><FormLabel>Deskripsi Dusun</FormLabel><Textarea value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} /></FormControl>
-                      <SimpleGrid columns={3} spacing={4} w="full">
+                      <SimpleGrid columns={4} spacing={4} w="full">
                         <FormControl><FormLabel>Populasi</FormLabel><Input value={formData.population} onChange={(e) => setFormData({...formData, population: e.target.value})} /></FormControl>
                         <FormControl><FormLabel>Luas Wilayah</FormLabel><Input value={formData.area} onChange={(e) => setFormData({...formData, area: e.target.value})} /></FormControl>
                         <FormControl><FormLabel>Jumlah Rumah</FormLabel><Input value={formData.houses} onChange={(e) => setFormData({...formData, houses: e.target.value})} /></FormControl>
+                        <FormControl><FormLabel>Jumlah KK</FormLabel><Input value={formData.family_count} onChange={(e) => setFormData({...formData, family_count: e.target.value})} /></FormControl>
                       </SimpleGrid>
                       <FormControl >
                         <FormLabel>Gambar Utama Dusun</FormLabel>

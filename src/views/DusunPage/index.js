@@ -15,7 +15,7 @@ import {
   Flex,
   useColorModeValue,
 } from '@chakra-ui/react';
-import { FaMapMarkerAlt, FaUsers, FaArrowLeft, FaInfoCircle, FaMosque } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaUsers, FaArrowLeft, FaInfoCircle, FaMosque, FaIdCard } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { GoogleMap, Loading, SEO } from '../../components';
 
@@ -138,6 +138,7 @@ const DusunPage = () => {
                 <Heading size="md" mb={6} color="gray.800">Statistik Dusun</Heading>
                 <VStack spacing={4} align="stretch">
                   <StatRow icon={FaUsers} label="Penduduk" value={data.population} />
+                  <StatRow icon={FaIdCard} label="Jumlah KK" value={data.family_count} />
                   <StatRow icon={FaMapMarkerAlt} label="Luas Wilayah" value={data.area} />
                   <StatRow icon={FaInfoCircle} label="Jumlah Rumah" value={data.houses} />
                 </VStack>
