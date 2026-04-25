@@ -98,7 +98,14 @@ function App() {
 
   const [userSession, setUserSession] = useState(null);
   const [showSplash, setShowSplash] = useState(true);
-  const [isVerified, setIsVerified] = useState(false); // Verification reset on refresh
+  const [isVerified, setIsVerified] = useState(() => {
+    try {
+      return sessionStorage.getItem('humanVerified') === 'true';
+    } catch (e) {
+      console.error('Failed to access sessionStorage:', e);
+      return false;
+    }
+  });
 
   const [isTakedown, setIsTakedown] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
@@ -189,6 +196,11 @@ function App() {
             <SplashScreen onComplete={() => setShowSplash(false)} />
           ) : (
             <HumanVerification onVerified={() => {
+              try {
+                sessionStorage.setItem('humanVerified', 'true');
+              } catch (e) {
+                console.error('Failed to access sessionStorage:', e);
+              }
               setIsVerified(true);
             }} />
           )}
