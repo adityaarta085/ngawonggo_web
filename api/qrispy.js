@@ -57,11 +57,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid action' });
     }
 
-    const apiRes = await fetch(url, {
+    const options = {
       method,
-      headers,
-      body
-    });
+      headers
+    };
+
+    if (body) {
+      options.body = body;
+    }
+
+    const apiRes = await fetch(url, options);
 
     const text = await apiRes.text();
     console.log("RAW:", text);
