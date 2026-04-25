@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, VStack, Heading, Text, Avatar, Button, Input, useColorModeValue, Center, Spinner, useToast } from '@chakra-ui/react';
 import { supabase } from '../../../lib/supabase';
-import { FaArrowLeft, FaSave } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaUpload } from 'react-icons/fa';
 
 const AvatarCustomization = ({ session, setScreen }) => {
   const [profile, setProfile] = useState(null);
@@ -9,6 +9,8 @@ const AvatarCustomization = ({ session, setScreen }) => {
   const [username, setUsername] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const bg = useColorModeValue('gray.800', 'gray.900');
   const cardBg = useColorModeValue('gray.700', 'gray.800');
@@ -38,6 +40,40 @@ const AvatarCustomization = ({ session, setScreen }) => {
 
     fetchProfile();
   }, [session]);
+
+  const handleUploadAvatar = async (event) => {
+    try {
+      setUploading(true);
+      if (!event.target.files || event.target.files.length === 0) {
+        throw new Error('Anda harus memilih gambar.');
+      }
+
+      const file = event.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${session.user.id}/avatar_${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+
+      if (data?.publicUrl) {
+          setAvatarUrl(data.publicUrl);
+          toast({ title: 'Gambar berhasil diunggah!', status: 'success', isClosable: true });
+      }
+
+    } catch (error) {
+      toast({ title: 'Gagal mengunggah gambar', description: error.message, status: 'error', isClosable: true });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!session?.user?.id) return;
@@ -78,7 +114,25 @@ const AvatarCustomization = ({ session, setScreen }) => {
         <VStack spacing={6} bg={cardBg} p={8} borderRadius="xl" shadow="xl" w="full" maxW="md">
           <Heading size="md">Kustomisasi Profil</Heading>
 
-          <Avatar size="2xl" src={avatarUrl} name={username} />
+          <VStack>
+            <Avatar size="2xl" src={avatarUrl} name={username} />
+            <input
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              ref={fileInputRef}
+              onChange={handleUploadAvatar}
+              disabled={uploading}
+            />
+            <Button
+                size="sm"
+                leftIcon={<FaUpload />}
+                onClick={() => fileInputRef.current.click()}
+                isLoading={uploading}
+            >
+                Ubah Gambar
+            </Button>
+          </VStack>
 
           <Box w="full">
             <Text mb={2}>Username</Text>
@@ -87,17 +141,6 @@ const AvatarCustomization = ({ session, setScreen }) => {
               onChange={(e) => setUsername(e.target.value)}
               bg="gray.800"
               borderColor="gray.600"
-            />
-          </Box>
-
-          <Box w="full">
-            <Text mb={2}>URL Avatar (Opsional)</Text>
-            <Input
-              value={avatarUrl}
-              onChange={(e) => setAvatarUrl(e.target.value)}
-              bg="gray.800"
-              borderColor="gray.600"
-              placeholder="https://..."
             />
           </Box>
 
