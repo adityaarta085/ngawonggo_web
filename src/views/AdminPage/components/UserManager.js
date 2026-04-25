@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, VStack, HStack, Text, Heading, Table, Thead, Tbody, Tr, Th, Td,
-  Button, IconButton, Badge, useToast, Modal, ModalOverlay, ModalContent,
+  Button, IconButton,  useToast, Modal, ModalOverlay, ModalContent,
   ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure,
   FormControl, FormLabel, Input, Tooltip, InputGroup, InputLeftElement, Tabs, TabList, TabPanels, Tab, TabPanel, Textarea } from '@chakra-ui/react';
-import { FaTrash, FaEnvelope, FaPlus, FaSearch, FaUserShield, FaExclamationTriangle, FaMagic, FaWhatsapp } from 'react-icons/fa';
+import { FaTrash, FaEnvelope, FaPlus, FaSearch, FaUserShield, FaExclamationTriangle, FaMagic } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import axios from 'axios';
 import ReactQuill from 'react-quill';
@@ -12,8 +12,7 @@ import 'react-quill/dist/quill.snow.css';
 const UserManager = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showWaOnly, setShowWaOnly] = useState(false);
-  const [, setIsLoading] = useState(false);
+    const [, setIsLoading] = useState(false);
   const toast = useToast();
 
   // Modal states
@@ -154,8 +153,6 @@ const UserManager = () => {
 
   const filteredUsers = users.filter(u => {
     const matchSearch = u.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    const isWaVerified = u.raw_user_meta_data?.whatsapp_verified;
-    if (showWaOnly) return matchSearch && isWaVerified;
     return matchSearch;
   });
 
@@ -191,15 +188,7 @@ const UserManager = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </InputGroup>
-          <Button
-            colorScheme={showWaOnly ? 'whatsapp' : 'gray'}
-            variant={showWaOnly ? 'solid' : 'outline'}
-            onClick={() => setShowWaOnly(!showWaOnly)}
-            leftIcon={<FaWhatsapp />}
-            size="md"
-          >
-            {showWaOnly ? 'Semua User' : 'Filter WA Verif'}
-          </Button>
+
         </HStack>
 
         <Box overflowX="auto">
@@ -220,11 +209,7 @@ const UserManager = () => {
                                     <Td>
                     <VStack align="start" spacing={1}>
                       <Text fontWeight="bold">{user.email}</Text>
-                      {user.raw_user_meta_data?.whatsapp_verified && (
-                        <Badge colorScheme="whatsapp" variant="subtle" fontSize="xs">
-                          WA: {user.raw_user_meta_data.whatsapp_number}
-                        </Badge>
-                      )}
+
                     </VStack>
                   </Td>
                   <Td>

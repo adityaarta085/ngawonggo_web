@@ -719,6 +719,27 @@ const AuthPage = () => {
           </Box> )}
 
 
+
+          <Box
+            p={8}
+            mb={8}
+            borderRadius="3xl"
+            bg="brand.500"
+            color="white"
+            position="relative"
+            overflow="hidden"
+            boxShadow="xl"
+            w="full"
+          >
+             <VStack align="start" spacing={4} position="relative" zIndex={1}>
+                <Badge bg="white" color="brand.500" borderRadius="full" px={3} py={1}>INFO LOGIN</Badge>
+                <Heading size="md">Kenapa Login Lebih Baik?</Heading>
+                <Text fontSize="sm" opacity={0.9}>
+                    Dengan masuk ke akun Anda, SplashScreen dan Verifikasi Robot akan otomatis dilewati saat Anda kembali. Kami juga menyimpan progres bacaan Quran dan skor permainan Anda secara otomatis.
+                </Text>
+             </VStack>
+          </Box>
+
           <Text fontSize="xs" color="gray.500" textAlign="center">
             Dengan masuk, Anda setuju dengan <Link as={RouterLink} to="/terms-conditions" color="brand.500">Ketentuan</Link> & <Link as={RouterLink} to="/privacy-policy" color="brand.500">Kebijakan</Link> kami.
           </Text>

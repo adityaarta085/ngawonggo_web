@@ -34,24 +34,6 @@ const ComplaintManager = () => {
   const [notifyUser, setNotifyUser] = useState(true);
   const [adminName, setAdminName] = useState('Admin');
 
-  const [verifiedUsers, setVerifiedUsers] = useState({});
-
-  useEffect(() => {
-     const fetchVerified = async () => {
-        const { data } = await supabase.rpc('get_all_users');
-        if (data) {
-           const mapping = {};
-           data.forEach(u => {
-              const meta = u.raw_user_meta_data || {};
-              if (meta.whatsapp_verified && meta.whatsapp_number) {
-                 mapping[u.id] = meta.whatsapp_number;
-              }
-           });
-           setVerifiedUsers(mapping);
-        }
-     };
-     fetchVerified();
-  }, []);
 
 
   useEffect(() => {
@@ -120,22 +102,7 @@ const ComplaintManager = () => {
     if (!error) {
        // Optional notification to user
        if (notifyUser && selectedComplaint) {
-          const verifiedWa = verifiedUsers[selectedComplaint.user_id];
-          if (verifiedWa) {
-             try {
-               await fetch('/api/whatsapp', {
-                 method: 'POST',
-                 headers: { 'Content-Type': 'application/json' },
-                 body: JSON.stringify({
-                   to: verifiedWa,
-                   message: `Halo ${selectedComplaint.name},\n\nPengaduan Anda (ID: ${selectedComplaint.id}) mendapat respon dari Admin (${adminName}):\n\n"${newMessage}"\n\nSilakan cek Portal Desa untuk detail lebih lanjut.`
-                 })
-               });
-               toast({ title: 'Notifikasi WA Terkirim', status: 'success', duration: 3000 });
-             } catch (e) {
-               console.error('WA Notify Error', e);
-             }
-          } else if (selectedComplaint.contact && selectedComplaint.contact.includes('@')) {
+          if (selectedComplaint.contact && selectedComplaint.contact.includes('@')) {
              try {
                 await axios.post('/api/broadcast', {
                   to: selectedComplaint.contact,
@@ -172,19 +139,7 @@ const ComplaintManager = () => {
 
       const comp = complaints.find(c => c.id === id);
       if (comp) {
-        const verifiedWa = verifiedUsers[comp.user_id];
-        if (verifiedWa) {
-            try {
-               await fetch('/api/whatsapp', {
-                 method: 'POST',
-                 headers: { 'Content-Type': 'application/json' },
-                 body: JSON.stringify({
-                   to: verifiedWa,
-                   message: `Halo ${comp.name},\n\nPengaduan Anda (ID: ${id}) telah ditandai SELESAI oleh Admin (${adminName}).\nTerima kasih atas laporan Anda.\n\n- Pemerintah Desa Ngawonggo`
-                 })
-               });
-            } catch (err) {}
-        } else if (comp.contact && comp.contact.includes('@')) {
+        if (comp.contact && comp.contact.includes('@')) {
             try {
               await axios.post('/api/broadcast', {
                 to: comp.contact,
@@ -253,7 +208,7 @@ const ComplaintManager = () => {
           <IconButton icon={<FaPaperPlane />} colorScheme="blue" onClick={() => handleSendMessage()} />
 
           <Tooltip label="Kirim Notifikasi ke Pengguna" placement="top">
-             <Checkbox isChecked={notifyUser} onChange={(e) => setNotifyUser(e.target.checked)} colorScheme="whatsapp" mr={2}>
+             <Checkbox isChecked={notifyUser} onChange={(e) => setNotifyUser(e.target.checked)} colorScheme="green" mr={2}>
                 Beritahu Pengguna
              </Checkbox>
           </Tooltip>
