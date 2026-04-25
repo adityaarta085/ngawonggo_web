@@ -147,7 +147,7 @@ const DonasiDetail = () => {
             .insert([{
                 campaign_id: parseInt(id),
                 name: formData.isAnonymous ? 'Hamba Allah' : formData.name,
-                amount: trxData.amount,
+                amount: Math.round(parseFloat(trxData.amount)),
                 message: formData.message,
                 is_anonymous: formData.isAnonymous,
                 trx_id: trxData.qris_id || trxData.payment_reference,
