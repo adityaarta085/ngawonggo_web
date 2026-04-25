@@ -145,7 +145,13 @@ const DonasiManager = () => {
 
   const fetchWalletProfile = async () => {
     try {
-      const res = await fetch('/api/qrispy?action=check_profile');
+      const res = await fetch('https://api.qrispy.id/api/payment/balance', {
+        headers: {
+            "X-API-Token": "cki_Z9G03nQ2wBKuHlQZrYGAJ52wqWNHWqCxquq8xh089cJod4Zb",
+            "Content-Type": "application/json",
+            Accept: "application/json"
+        }
+      });
       const data = await res.json();
       if (data.status === 'success' || data.status === true) {
         setWalletInfo(data.data);

@@ -77,7 +77,13 @@ const DonasiDetail = () => {
           if (!paymentData || paymentStatus !== 'pending') return;
 
           try {
-              const res = await fetch(`/api/qrispy?action=checkstatus&qris_id=${paymentData.trx_id}`);
+              const res = await fetch(`https://api.qrispy.id/api/payment/qris/${paymentData.trx_id}/status`, {
+                headers: {
+                    "X-API-Token": "cki_Z9G03nQ2wBKuHlQZrYGAJ52wqWNHWqCxquq8xh089cJod4Zb",
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                }
+              });
               const data = await res.json();
 
               if (data.status && data.data) {
@@ -117,7 +123,19 @@ const DonasiDetail = () => {
     setIsSubmitting(true);
     try {
       // 1. Create payment via API
-      const res = await fetch(`/api/qrispy?action=createpayment&amount=${amount}`, { method: 'POST' });
+      const res = await fetch(`https://api.qrispy.id/api/payment/qris/generate`, {
+        method: 'POST',
+        headers: {
+            "X-API-Token": "cki_Z9G03nQ2wBKuHlQZrYGAJ52wqWNHWqCxquq8xh089cJod4Zb",
+            "Content-Type": "application/json",
+            Accept: "application/json"
+        },
+        body: JSON.stringify({
+            amount: parseInt(amount, 10),
+            payment_reference: "INV-" + Date.now(),
+            return_url: window.location.href
+        })
+      });
       const data = await res.json();
 
       if (data.status === 'success') {
