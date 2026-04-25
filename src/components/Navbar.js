@@ -48,6 +48,7 @@ const Navbar = ({ user, isScrolled }) => {
     { label: t.government || 'Pemerintahan', href: '/pemerintahan' },
     { label: t.services || 'Layanan', href: '/layanan' },
     { label: t.explore || 'Jelajahi', href: '/jelajahi' },
+    { label: 'Donasi', href: '/donasi' },
     { label: t.news || 'Berita', href: '/news' },
     { label: t.media || 'Media', href: '/media' },
     { label: t.anime || 'Anime (NEW)', href: '/anime' },
