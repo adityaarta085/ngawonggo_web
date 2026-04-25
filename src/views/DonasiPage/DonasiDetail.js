@@ -90,9 +90,9 @@ const DonasiDetail = () => {
         const { error } = await supabase
             .from('donations')
             .insert([{
-                campaign_id: id,
+                campaign_id: parseInt(id),
                 name: formData.isAnonymous ? 'Hamba Allah' : formData.name,
-                amount: parseInt(amount),
+                amount: trxData.amount,
                 message: formData.message,
                 is_anonymous: formData.isAnonymous,
                 trx_id: trxData.trx_id,
@@ -101,7 +101,7 @@ const DonasiDetail = () => {
                 status: 'pending'
             }]);
 
-        if (error) throw error;
+        if (error) { console.error('Supabase Error:', error); throw error; }
         setPaymentData(trxData);
       } else {
           toast({ title: 'Gagal membuat pembayaran', description: data.msg, status: 'error' });
@@ -228,7 +228,7 @@ const DonasiDetail = () => {
 
                         <Box bg="gray.50" p={4} borderRadius="lg" w="full">
                             <Text fontSize="sm" color="gray.500">Nominal</Text>
-                            <Heading size="md" mb={2}>{formatRupiah(amount)}</Heading>
+                            <Heading size="md" mb={2}>{formatRupiah(paymentData.amount)}</Heading>
                             <Text fontSize="sm" color="gray.500">ID Transaksi</Text>
                             <Text fontWeight="bold">{paymentData.trx_id}</Text>
                         </Box>

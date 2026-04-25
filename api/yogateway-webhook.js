@@ -2,22 +2,22 @@ import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return new Response('Method Not Allowed', { status: 405 });
+    return res.status(405).send('Method Not Allowed');
   }
 
   const apiKey = process.env.YOGATEWAY_API_KEY || "yo_sec_da1ecad21d5d8a6a880383ea24a7c206";
-  const signature = req.headers.get('x-yogateway-signature') || req.headers['x-yogateway-signature'];
+  const signature = req.headers['x-yogateway-signature'];
 
   if (signature !== apiKey) {
-    return new Response('Unauthorized', { status: 401 });
+    return res.status(401).send('Unauthorized');
   }
 
   try {
-    const payload = await req.json();
-    const { trx_id, status, amount } = payload;
+    const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { trx_id, status } = payload;
 
     if (!trx_id || !status) {
-      return new Response('Invalid payload', { status: 400 });
+      return res.status(400).send('Invalid payload');
     }
 
     const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
 
     if (!supabaseUrl || !supabaseServiceKey) {
         console.error("Supabase credentials missing in webhook");
-        return new Response('Server Config Error', { status: 500 });
+        return res.status(500).send('Server Config Error');
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
 
     if (updateError) {
       console.error('Error updating donation:', updateError);
-      return new Response('Database Error', { status: 500 });
+      return res.status(500).send('Database Error');
     }
 
     // 2. If Success, update Campaign Current Amount
@@ -64,13 +64,10 @@ export default async function handler(req, res) {
        }
     }
 
-    return new Response(JSON.stringify({ message: 'Webhook processed successfully' }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return res.status(200).json({ message: 'Webhook processed successfully' });
 
   } catch (error) {
     console.error('Webhook processing error:', error);
-    return new Response('Internal Server Error', { status: 500 });
+    return res.status(500).send('Internal Server Error');
   }
 }
