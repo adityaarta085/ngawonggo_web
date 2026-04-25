@@ -45,6 +45,7 @@ import { supabase } from './lib/supabase';
 import AuthPage from './views/AuthPage/index.js';
 import EduGameRouter from './views/EduGamePage/EduGameRouter';
 import PortalPage from './views/PortalPage/index.js';
+import DonasiRouter from './views/DonasiPage/index.js';
 
 const TopBar = ({ isScrolled }) => {
   return (
@@ -259,6 +260,7 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/credits" element={<CreditsPage />} />
+            <Route path="/donasi/*" element={<DonasiRouter />} />
             <Route path="/game/*" element={<EduGameRouter />} />
 
             <Route path="/down" element={<TakedownPage />} />

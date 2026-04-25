@@ -51,7 +51,8 @@ import BroadcastManager from './components/BroadcastManager';
 import PemerintahanManager from './components/PemerintahanManager';
 import UserManager from './components/UserManager';
 import CsManager from './components/CsManager';
-import { FaHeadset } from 'react-icons/fa';
+import { FaHeadset, FaHeart } from 'react-icons/fa';
+import DonasiManager from './components/DonasiManager';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -62,6 +63,7 @@ const AdminPage = ({ setSession }) => {
 
   const menuItems = [
     { name: 'Dashboard', icon: FaHome },
+    { name: 'Donasi', icon: FaHeart },
     { name: 'Berita', icon: FaNewspaper },
     { name: '10 Dusun', icon: FaMapMarkedAlt },
     { name: 'Instansi', icon: FaImage },
@@ -175,6 +177,7 @@ const AdminPage = ({ setSession }) => {
 
         <Box>
           {activeTab === 'Dashboard' && <DashboardStats />}
+          {activeTab === 'Donasi' && <DonasiManager />}
           {activeTab === 'Berita' && <NewsManager />}
           {activeTab === '10 Dusun' && <DusunManager />}
           {activeTab === 'Instansi' && <InstitutionManager />}
