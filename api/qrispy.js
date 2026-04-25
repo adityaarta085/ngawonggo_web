@@ -10,7 +10,10 @@ export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'Content-Type, Authorization, X-API-Token'
+  );
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
@@ -18,8 +21,7 @@ export default async function handler(req, res) {
 
   const headers = {
     "X-API-Token": apiKey,
-    "Content-Type": "application/json",
-    Accept: "application/json"
+    "Content-Type": "application/json"
   };
 
   try {
@@ -27,7 +29,7 @@ export default async function handler(req, res) {
     let method = 'GET';
     let body = null;
 
-    if (action === 'createpayment') {
+    if (action === 'createpayment' && req.method === 'POST') {
       const parsedAmount = parseInt(amount, 10);
 
       if (!parsedAmount || isNaN(parsedAmount)) {
@@ -61,12 +63,20 @@ export default async function handler(req, res) {
       body
     });
 
-    const data = await apiRes.json();
+    const text = await apiRes.text();
+    console.log("RAW:", text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return res.status(500).json({ error: "Invalid JSON", raw: text });
+    }
 
     return res.status(apiRes.status).json(data);
 
   } catch (error) {
     console.error('Qrispy API Error:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: 'Internal Server Error', detail: error.message });
   }
 }
