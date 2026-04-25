@@ -8,6 +8,7 @@ const HumanVerification = ({ onVerified }) => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [token, setToken] = useState(null);
   const [verificationType, setVerificationType] = useState(0);
+  const [showUI, setShowUI] = useState(false);
   const toast = useToast();
 
   const SITE_KEY = '0x4AAAAAACrMKtrKbQoaiY_g';
@@ -23,16 +24,17 @@ const HumanVerification = ({ onVerified }) => {
     "Pastikan Anda bukan robot untuk menikmati pengalaman digital Desa Ngawonggo 2045."
   ];
 
-  const handleVerify = async () => {
-    if (!token) return;
+  const handleVerify = async (currentToken) => {
+    if (!currentToken) return;
 
     setIsVerifying(true);
     try {
-      const response = await axios.post('/api/verify-turnstile', { token });
+      const response = await axios.post('/api/verify-turnstile', { token: currentToken });
 
       if (response.data.success) {
         onVerified();
       } else {
+        setShowUI(true);
         toast({
           title: "Verifikasi Gagal",
           description: "Silakan coba lagi.",
@@ -44,6 +46,7 @@ const HumanVerification = ({ onVerified }) => {
       }
     } catch (error) {
       console.error('Verification error:', error);
+      setShowUI(true);
       toast({
         title: "Kesalahan Sistem",
         description: "Gagal memverifikasi status manusia. Silakan muat ulang halaman.",
@@ -62,91 +65,110 @@ const HumanVerification = ({ onVerified }) => {
       left={0}
       right={0}
       bottom={0}
-      bg="rgba(15, 23, 42, 0.9)"
-      backdropFilter="blur(15px)"
+      bg={showUI ? "rgba(15, 23, 42, 0.9)" : "transparent"}
+      backdropFilter={showUI ? "blur(15px)" : "none"}
       zIndex={10000}
-      display="flex"
+      display={showUI ? "flex" : "block"}
       alignItems="center"
       justifyContent="center"
       p={4}
+      pointerEvents={showUI ? "auto" : "none"}
     >
-      <ScaleFade initialScale={0.9} in={true}>
-        <VStack
-          bg="white"
-          p={{ base: 6, md: 8 }}
-          borderRadius="2xl"
-          spacing={6}
-          boxShadow="dark-lg"
-          maxW="420px"
-          textAlign="center"
-          position="relative"
-          overflow="hidden"
-        >
-          {/* Subtle decoration */}
-          <Box position="absolute" top={0} left={0} w="full" h="4px" bg="brand.500" />
+      {!showUI && (
+        <Box position="absolute" opacity={0} pointerEvents="none">
+          <Turnstile
+            siteKey={SITE_KEY}
+            onSuccess={(token) => {
+              setToken(token);
+              handleVerify(token);
+            }}
+            onError={() => setShowUI(true)}
+            onBeforeInteractive={() => setShowUI(true)}
+            options={{ appearance: 'interaction-only' }}
+          />
+        </Box>
+      )}
 
-          <Box boxSize="80px" borderRadius="full" bg="brand.50" display="flex" alignItems="center" justifyContent="center">
-             <Image src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png" h="50px" />
-          </Box>
+      {showUI && (
+        <ScaleFade initialScale={0.9} in={true}>
+          <VStack
+            bg="white"
+            p={{ base: 6, md: 8 }}
+            borderRadius="2xl"
+            spacing={6}
+            boxShadow="dark-lg"
+            maxW="420px"
+            textAlign="center"
+            position="relative"
+            overflow="hidden"
+            pointerEvents="auto"
+          >
+            {/* Subtle decoration */}
+            <Box position="absolute" top={0} left={0} w="full" h="4px" bg="brand.500" />
 
-          <VStack spacing={2}>
-            <Heading size="md" color="gray.800">Verifikasi Keamanan</Heading>
-            <Text color="gray.600" fontSize="sm">
-              {prompts[verificationType]}
+            <Box boxSize="80px" borderRadius="full" bg="brand.50" display="flex" alignItems="center" justifyContent="center">
+               <Image src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png" h="50px" />
+            </Box>
+
+            <VStack spacing={2}>
+              <Heading size="md" color="gray.800">Verifikasi Keamanan</Heading>
+              <Text color="gray.600" fontSize="sm">
+                {prompts[verificationType]}
+              </Text>
+            </VStack>
+
+            <Box
+              w="full"
+              display="flex"
+              justifyContent="center"
+              minH="65px"
+            >
+              {isVerifying ? (
+                <VStack>
+                  <Loading size={30} />
+                  <Text fontSize="xs" color="gray.500">Memproses verifikasi...</Text>
+                </VStack>
+              ) : (
+                <Turnstile
+                  siteKey={SITE_KEY}
+                  onSuccess={(token) => setToken(token)}
+                  onError={() => {
+                    toast({
+                      title: "Kesalahan Turnstile",
+                      description: "Gagal memuat sistem verifikasi.",
+                      status: "error",
+                      duration: 3000,
+                      isClosable: true,
+                    });
+                  }}
+                />
+              )}
+            </Box>
+
+            <Button
+              colorScheme="brand"
+              w="full"
+              size="lg"
+              h="56px"
+              isDisabled={!token || isVerifying}
+              isLoading={isVerifying}
+              onClick={() => handleVerify(token)}
+              boxShadow="0 4px 14px 0 rgba(0, 86, 179, 0.39)"
+              _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 20px rgba(0, 86, 179, 0.23)',
+              }}
+              transition="all 0.2s"
+            >
+              Lanjutkan ke Portal
+            </Button>
+
+            <Text fontSize="xs" color="gray.400">
+              Powered by Cloudflare Turnstile & Desa Digital Ngawonggo
             </Text>
           </VStack>
-
-          <Box
-            w="full"
-            display="flex"
-            justifyContent="center"
-            minH="65px"
-          >
-            {isVerifying ? (
-              <VStack>
-                <Loading size={30} />
-                <Text fontSize="xs" color="gray.500">Memproses verifikasi...</Text>
-              </VStack>
-            ) : (
-              <Turnstile
-                siteKey={SITE_KEY}
-                onSuccess={(token) => setToken(token)}
-                onError={() => {
-                  toast({
-                    title: "Kesalahan Turnstile",
-                    description: "Gagal memuat sistem verifikasi.",
-                    status: "error",
-                    duration: 3000,
-                    isClosable: true,
-                  });
-                }}
-              />
-            )}
-          </Box>
-
-          <Button
-            colorScheme="brand"
-            w="full"
-            size="lg"
-            h="56px"
-            isDisabled={!token || isVerifying}
-            isLoading={isVerifying}
-            onClick={handleVerify}
-            boxShadow="0 4px 14px 0 rgba(0, 86, 179, 0.39)"
-            _hover={{
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 20px rgba(0, 86, 179, 0.23)',
-            }}
-            transition="all 0.2s"
-          >
-            Lanjutkan ke Portal
-          </Button>
-
-          <Text fontSize="xs" color="gray.400">
-            Powered by Cloudflare Turnstile & Desa Digital Ngawonggo
-          </Text>
-        </VStack>
-      </ScaleFade>
+        </ScaleFade>
+      )}
     </Box>
   );
 };

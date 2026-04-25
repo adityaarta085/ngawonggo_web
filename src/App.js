@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Flex, Image, Tooltip, HStack, Text, Badge, Icon, Collapse } from '@chakra-ui/react';
+import { Box, Flex, Image, Tooltip, HStack, Collapse } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -40,7 +40,6 @@ import TakedownPage from './views/TakedownPage/index.js';
 import BlockedPage from './views/BlockedPage/index.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
-import { FaMoon } from 'react-icons/fa';
 
 // User Portal Views
 import AuthPage from './views/AuthPage/index.js';
@@ -62,21 +61,7 @@ const TopBar = ({ isScrolled }) => {
         >
           <Flex justify="space-between" align="center" gap={{ base: 2, md: 4 }}>
             <HStack flex={1} spacing={{ base: 2, md: 4 }} maxW={{ base: "65%", md: "75%" }}>
-              <Badge
-                display={{ base: "none", sm: "flex" }}
-                colorScheme="yellow"
-                variant="subtle"
-                alignItems="center"
-                gap={1.5}
-                px={3}
-                py={1}
-                borderRadius="full"
-                border="1px solid"
-                borderColor="yellow.200"
-              >
-                <Icon as={FaMoon} aria-hidden="true" />
-                <Text fontSize="2xs" fontWeight="800">IDUL FITRI 1447H</Text>
-              </Badge>
+
               <Box flex={1} overflow="hidden">
                 <RunningText isEmbedded={true} />
               </Box>
@@ -198,7 +183,7 @@ function App() {
 
   return (
     <Box overflowX="hidden" maxW="100vw">
-      {!isBypassed && !isAdmin && !isAuth && !isDownPage && !isBlockedPage ? (
+      {!isBypassed && !isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
         <>
           {showSplash ? (
             <SplashScreen onComplete={() => setShowSplash(false)} />
@@ -208,117 +193,119 @@ function App() {
             }} />
           )}
         </>
-      ) : (
-        <>
-          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
-            <>
+      )}
+
+      <>
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
+          <>
+            <Box
+              h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
+              transition="height 0.35s ease"
+            />
+            <Box
+              zIndex={1100}
+              w="full"
+              position="fixed"
+              top={0}
+              left={0}
+              right={0}
+            >
+              <TopBar isScrolled={scrolled} />
               <Box
-                h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
-                transition="height 0.35s ease"
-              />
-              <Box
-                zIndex={1100}
-                w="full"
-                position="fixed"
-                top={0}
-                left={0}
-                right={0}
+                transition="padding 0.35s ease"
+                pt={scrolled ? 2 : 0}
               >
-                <TopBar isScrolled={scrolled} />
-                <Box
-                  transition="padding 0.35s ease"
-                  pt={scrolled ? 2 : 0}
-                >
-                  <Navbar user={userSession?.user} isScrolled={scrolled} />
-                </Box>
+                <Navbar user={userSession?.user} isScrolled={scrolled} />
               </Box>
-            </>
-          )}
+            </Box>
+          </>
+        )}
 
-          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <PopupNotification />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <PopupNotification />}
 
-          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <LoginPromo user={userSession?.user} />}
-          <ScrollToTop />
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <LoginPromo user={userSession?.user} />}
+        <ScrollToTop />
 
-          <Box pt={0} minH="80vh">
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/news" element={<NewsPage />} />
-              <Route path="/news/:id" element={<NewsDetail />} />
-              <Route path="/profil" element={<ProfilPage />} />
-              <Route path="/pemerintahan" element={<PemerintahanPage />} />
-              <Route path="/layanan" element={<LayananPage />} />
-              <Route path="/jelajahi" element={<JelajahiPage />} />
-              <Route path="/transparansi" element={<TransparansiPage />} />
-              <Route path="/kontak" element={<KontakPage />} />
-              <Route path="/media" element={<MediaPage />} />
-              <Route path="/anime" element={<AnimePage />} />
-              <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
-              <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />
-              <Route path="/anime/:provider/batch/:batchId" element={<AnimeBatch />} />
-              <Route path="/dusun/:slug" element={<DusunPage />} />
-              <Route path="/quran" element={<QuranPage />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-conditions" element={<TermsConditions />} />
-              <Route path="/credits" element={<CreditsPage />} />
-              <Route path="/game/*" element={<EduGameRouter />} />
+        <Box pt={0} minH="80vh">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/:id" element={<NewsDetail />} />
+            <Route path="/profil" element={<ProfilPage />} />
+            <Route path="/pemerintahan" element={<PemerintahanPage />} />
+            <Route path="/layanan" element={<LayananPage />} />
+            <Route path="/jelajahi" element={<JelajahiPage />} />
+            <Route path="/transparansi" element={<TransparansiPage />} />
+            <Route path="/kontak" element={<KontakPage />} />
+            <Route path="/media" element={<MediaPage />} />
+            <Route path="/anime" element={<AnimePage />} />
+            <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
+            <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />
+            <Route path="/anime/:provider/batch/:batchId" element={<AnimeBatch />} />
+            <Route path="/dusun/:slug" element={<DusunPage />} />
+            <Route path="/quran" element={<QuranPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-conditions" element={<TermsConditions />} />
+            <Route path="/credits" element={<CreditsPage />} />
+            <Route path="/game/*" element={<EduGameRouter />} />
 
-              <Route path="/down" element={<TakedownPage />} />
-              <Route path="/blocked" element={<BlockedPage />} />
+            <Route path="/down" element={<TakedownPage />} />
+            <Route path="/blocked" element={<BlockedPage />} />
 
-              <Route path="/auth" element={<AuthPage />} />
-              <Route
-                  path="/portal"
-                  element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
-              />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route
+                path="/portal"
+                element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
+            />
 
-              <Route
-                path="/admin"
-                element={
-                  adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
-                }
-              />
-              <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
-              <Route path="/admin/cs/*" element={<CSApp />} />
+            <Route
+              path="/admin"
+              element={
+                adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
+              }
+            />
+            <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
+            <Route path="/admin/cs/*" element={<CSApp />} />
 
-              <Route path="*" element={<PageNotFound />} />
-            </Routes>
-          </Box>
+            <Route path="*" element={<PageNotFound />} />
+          </Routes>
+        </Box>
 
-          {!isAdmin && !isAuth && !showSplash && isVerified && !isDownPage && !isBlockedPage && (
-            <>
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
+          <>
+            {isVerified && (
               <Chatbot
                 isHidden={isFloatingHidden}
                 onHide={() => setIsFloatingHidden(true)}
               />
+            )}
 
-              {isFloatingHidden && (
-                <Tooltip label="Tampilkan Panel" placement="left" aria-label="Restore Panels">
-                  <Box
-                    position="fixed"
-                    right={0}
-                    top="50%"
-                    transform="translateY(-50%)"
-                    w="8px"
-                    h="120px"
-                    bg="brand.500"
-                    cursor="pointer"
-                    zIndex={2000}
-                    borderLeftRadius="full"
-                    onClick={() => setIsFloatingHidden(false)}
-                    _hover={{ w: '12px', bg: 'brand.400' }}
-                    transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                    boxShadow="lg"
-                  />
-                </Tooltip>
-              )}
-            </>
-          )}
+            {isFloatingHidden && isVerified && (
+              <Tooltip label="Tampilkan Panel" placement="left" aria-label="Restore Panels">
+                <Box
+                  position="fixed"
+                  right={0}
+                  top="50%"
+                  transform="translateY(-50%)"
+                  w="8px"
+                  h="120px"
+                  bg="brand.500"
+                  cursor="pointer"
+                  zIndex={2000}
+                  borderLeftRadius="full"
+                  onClick={() => setIsFloatingHidden(false)}
+                  _hover={{ w: '12px', bg: 'brand.400' }}
+                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                  boxShadow="lg"
+                />
+              </Tooltip>
+            )}
+          </>
+        )}
 
-          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <InstallPWA />}
-          {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <Footer />}
-        </>
-      )}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <InstallPWA />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <Footer />}
+      </>
     </Box>
   );
 }
