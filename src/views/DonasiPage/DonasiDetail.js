@@ -117,7 +117,7 @@ const DonasiDetail = () => {
     setIsSubmitting(true);
     try {
       // 1. Create payment via API
-      const res = await fetch(`/api/qrispy?action=createpayment&amount=${amount}`);
+      const res = await fetch(`/api/qrispy?action=createpayment&amount=${amount}`, { method: 'POST' });
       const data = await res.json();
 
       if (data.status === 'success') {
