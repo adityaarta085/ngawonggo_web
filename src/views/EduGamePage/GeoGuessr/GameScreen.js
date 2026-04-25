@@ -1,19 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Text, VStack } from '@chakra-ui/react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Box, Button, Text, VStack, Spinner, Center, HStack, Heading } from '@chakra-ui/react';
 import { GoogleMap, StreetViewPanorama, LoadScript, Marker, Polyline } from '@react-google-maps/api';
-import { getRandomLocation, mapData } from './data';
+import { getRandomLocationInBounds, mapData } from './data';
 
-const containerStyle = {
-  width: '100%',
-  height: '100%'
-};
-
-const mapContainerStyle = {
-  width: '320px',
-  height: '240px',
-  borderRadius: '8px',
-  border: '2px solid white'
-};
+const MAX_ROUNDS = 5;
 
 // Calculate distance between two coordinates in km
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -34,17 +24,53 @@ function deg2rad(deg) {
 }
 
 const GameScreen = ({ mapId, difficulty, onFinishGame }) => {
+  const [round, setRound] = useState(1);
+  const [totalScore, setTotalScore] = useState(0);
+
   const [guess, setGuess] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [distance, setDistance] = useState(0);
-  const [score, setScore] = useState(0);
+  const [roundScore, setRoundScore] = useState(0);
   const [targetLocation, setTargetLocation] = useState(null);
+  const [loadingLoc, setLoadingLoc] = useState(true);
+  const svService = useRef(null);
 
-  useEffect(() => {
-    setTargetLocation(getRandomLocation(mapId));
+  const findValidPanorama = useCallback((bounds, attempts = 0) => {
+    if (!svService.current) {
+        svService.current = new window.google.maps.StreetViewService();
+    }
+
+    if (attempts > 20) {
+        // Fallback to center if can't find one
+        setTargetLocation(mapData[mapId].center);
+        setLoadingLoc(false);
+        return;
+    }
+
+    const randomLoc = getRandomLocationInBounds(bounds);
+    const radius = mapId === 'jateng' ? 10000 : 5000;
+
+    svService.current.getPanorama({ location: randomLoc, radius, preference: window.google.maps.StreetViewPreference.NEAREST }, (data, status) => {
+        if (status === 'OK') {
+            setTargetLocation({ lat: data.location.latLng.lat(), lng: data.location.latLng.lng() });
+            setLoadingLoc(false);
+        } else {
+            findValidPanorama(bounds, attempts + 1);
+        }
+    });
   }, [mapId]);
 
-  if (!targetLocation) return null;
+  useEffect(() => {
+    // Only search if maps API is loaded. Handled by child component mounting or LoadScript onLoad.
+  }, [round, mapId]);
+
+  const handleMapsLoaded = useCallback(() => {
+    setLoadingLoc(true);
+    setGuess(null);
+    setShowResult(false);
+    findValidPanorama(mapData[mapId].bounds);
+  }, [mapId, findValidPanorama]);
+
 
   const handleMapClick = (e) => {
     if (!showResult) {
@@ -58,17 +84,22 @@ const GameScreen = ({ mapId, difficulty, onFinishGame }) => {
     setDistance(dist);
 
     // Max 5000 per round. Adjust tolerance based on map.
-    const maxDist = mapId === 'jateng' ? 500 : mapId === 'magelang' ? 50 : 5;
+    const maxDist = mapData[mapId].maxDistance;
     let s = Math.max(0, Math.floor(5000 * (1 - (dist / maxDist))));
     if (dist < (maxDist * 0.05)) s = 5000; // Perfect score
 
-    setScore(s);
+    setRoundScore(s);
+    setTotalScore(prev => prev + s);
     setShowResult(true);
   };
 
   const nextRound = () => {
-    // End game after 1 round for now (Free trial logic or simple mode)
-    onFinishGame({ score, maxScore: 5000, message: "Game Finished! You scored " + score + " points." });
+    if (round >= MAX_ROUNDS) {
+        onFinishGame({ score: totalScore, maxScore: MAX_ROUNDS * 5000, message: "Game Selesai! Skor Total: " + totalScore });
+    } else {
+        setRound(r => r + 1);
+        handleMapsLoaded(); // Find next loc
+    }
   };
 
   const mapOptions = {
@@ -94,39 +125,79 @@ const GameScreen = ({ mapId, difficulty, onFinishGame }) => {
   const center = mapData[mapId]?.center || mapData['ngawonggo'].center;
 
   return (
-    <Box w="full" h="full" position="relative">
-      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''}>
+    <Box w="full" h="full" position="relative" bg="gray.900">
+      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''} onLoad={handleMapsLoaded}>
+        {loadingLoc ? (
+            <Center h="full" w="full" position="absolute" zIndex={20} bg="rgba(0,0,0,0.8)" color="white" flexDir="column">
+                <Spinner size="xl" color="teal.500" mb={4} />
+                <Text>Mencari lokasi panorama...</Text>
+            </Center>
+        ) : null}
+
+        {/* HUD */}
+        <HStack position="absolute" top={4} left={4} zIndex={10} bg="rgba(0,0,0,0.6)" color="white" p={3} borderRadius="md" spacing={6}>
+            <VStack align="start" spacing={0}>
+                <Text fontSize="xs" color="gray.400">Round</Text>
+                <Heading size="md">{round} / {MAX_ROUNDS}</Heading>
+            </VStack>
+            <VStack align="start" spacing={0}>
+                <Text fontSize="xs" color="gray.400">Total Score</Text>
+                <Heading size="md" color="teal.300">{totalScore}</Heading>
+            </VStack>
+        </HStack>
+
         {/* Street View Background */}
         <Box w="full" h="full" position="absolute" top={0} left={0} zIndex={1}>
-          <GoogleMap mapContainerStyle={containerStyle} center={targetLocation} zoom={14}>
-            <StreetViewPanorama options={streetViewOptions} visible={true} />
-          </GoogleMap>
+          {targetLocation && (
+              <GoogleMap mapContainerStyle={{width: '100%', height: '100%'}} center={targetLocation} zoom={14}>
+                <StreetViewPanorama options={streetViewOptions} visible={true} />
+              </GoogleMap>
+          )}
         </Box>
 
         {/* Mini Map Overlay */}
-        <Box position="absolute" bottom={8} right={8} zIndex={10} bg="rgba(0,0,0,0.5)" p={2} borderRadius="md" _hover={{ transform: showResult ? 'none' : 'scale(1.5)', transformOrigin: 'bottom right', transition: '0.3s' }}>
-          <GoogleMap
-            mapContainerStyle={showResult ? {width: '600px', height: '400px'} : mapContainerStyle}
-            center={center}
-            zoom={showResult ? 10 : 12}
-            onClick={handleMapClick}
-            options={mapOptions}
-          >
-            {guess && <Marker position={guess} />}
-            {showResult && <Marker position={targetLocation} icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }} />}
-            {showResult && guess && <Polyline path={[guess, targetLocation]} options={{ strokeColor: '#FF0000', strokeWeight: 2 }} />}
-          </GoogleMap>
+        {targetLocation && (
+            <Box
+                position="absolute"
+                bottom={{base: 4, md: 8}}
+                right={{base: 4, md: 8}}
+                zIndex={10}
+                bg="rgba(0,0,0,0.5)"
+                p={2}
+                borderRadius="md"
+                transition="all 0.3s"
+                _hover={!showResult ? { transform: {md: 'scale(1.5)'}, transformOrigin: 'bottom right' } : {}}
+            >
+            <GoogleMap
+                mapContainerStyle={{
+                    width: showResult ? (window.innerWidth < 768 ? '300px' : '600px') : '250px',
+                    height: showResult ? (window.innerWidth < 768 ? '250px' : '400px') : '200px',
+                    borderRadius: '8px',
+                    border: '2px solid white'
+                }}
+                center={showResult ? center : (guess || center)}
+                zoom={showResult ? (mapId === 'jateng' ? 7 : 10) : 11}
+                onClick={handleMapClick}
+                options={mapOptions}
+            >
+                {guess && <Marker position={guess} />}
+                {showResult && <Marker position={targetLocation} icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }} />}
+                {showResult && guess && <Polyline path={[guess, targetLocation]} options={{ strokeColor: '#FF0000', strokeWeight: 2 }} />}
+            </GoogleMap>
 
-          {!showResult ? (
-            <Button mt={2} w="full" colorScheme="teal" onClick={handleGuess} isDisabled={!guess}>Tebak</Button>
-          ) : (
-            <VStack mt={2} bg="gray.800" p={4} borderRadius="md" color="white">
-                <Text>Jarak: {distance.toFixed(2)} km</Text>
-                <Text fontSize="2xl" fontWeight="bold">Skor: {score}</Text>
-                <Button colorScheme="blue" onClick={nextRound} w="full">Selesai</Button>
-            </VStack>
-          )}
-        </Box>
+            {!showResult ? (
+                <Button mt={2} w="full" colorScheme="teal" onClick={handleGuess} isDisabled={!guess || loadingLoc}>Tebak Lokasi</Button>
+            ) : (
+                <VStack mt={2} bg="gray.800" p={4} borderRadius="md" color="white">
+                    <Text>Jarak: {distance.toFixed(2)} km</Text>
+                    <Text fontSize="2xl" fontWeight="bold" color="teal.300">Skor: +{roundScore}</Text>
+                    <Button colorScheme="blue" onClick={nextRound} w="full">
+                        {round >= MAX_ROUNDS ? 'Lihat Hasil Akhir' : 'Lanjut Ronde Berikutnya'}
+                    </Button>
+                </VStack>
+            )}
+            </Box>
+        )}
       </LoadScript>
     </Box>
   );

@@ -1,38 +1,48 @@
-// Mock data for locations in different maps
-// Would ideally come from Supabase or JSON file
 export const mapData = {
     ngawonggo: {
+        bounds: {
+            north: -7.4850,
+            south: -7.5000,
+            east: 110.2300,
+            west: 110.2150
+        },
         center: { lat: -7.4912, lng: 110.2223 },
-        locations: [
-            { lat: -7.4912, lng: 110.2223, desc: 'Balai Desa Ngawonggo' },
-            { lat: -7.4890, lng: 110.2200, desc: 'Jalan Utama Dusun' }
-        ]
+        maxDistance: 5 // km
     },
     kaliangkrik: {
+        bounds: {
+            north: -7.4000,
+            south: -7.5000,
+            east: 110.2000,
+            west: 110.1000
+        },
         center: { lat: -7.4658, lng: 110.1555 },
-        locations: [
-            { lat: -7.4658, lng: 110.1555, desc: 'Pasar Kaliangkrik' },
-            { lat: -7.4500, lng: 110.1600, desc: 'Nepal Van Java' }
-        ]
+        maxDistance: 20 // km
     },
     magelang: {
+        bounds: {
+            north: -7.3000,
+            south: -7.7000,
+            east: 110.4000,
+            west: 110.1000
+        },
         center: { lat: -7.5028, lng: 110.2245 },
-        locations: [
-            { lat: -7.6056, lng: 110.2038, desc: 'Candi Borobudur' },
-            { lat: -7.5028, lng: 110.2245, desc: 'Alun-alun Magelang' }
-        ]
+        maxDistance: 50 // km
     },
     jateng: {
+        bounds: {
+            north: -6.5000,
+            south: -8.3000,
+            east: 111.7000,
+            west: 108.5000
+        },
         center: { lat: -7.1509, lng: 110.1402 },
-        locations: [
-            { lat: -6.9932, lng: 110.4203, desc: 'Lawang Sewu, Semarang' },
-            { lat: -7.5816, lng: 110.8252, desc: 'Keraton Surakarta' }
-        ]
+        maxDistance: 500 // km
     }
 };
 
-export const getRandomLocation = (mapId) => {
-    const map = mapData[mapId] || mapData['ngawonggo'];
-    const locs = map.locations;
-    return locs[Math.floor(Math.random() * locs.length)];
+export const getRandomLocationInBounds = (bounds) => {
+    const lat = Math.random() * (bounds.north - bounds.south) + bounds.south;
+    const lng = Math.random() * (bounds.east - bounds.west) + bounds.west;
+    return { lat, lng };
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, VStack, Heading, Button, Text, useColorModeValue } from '@chakra-ui/react';
 
-const DifficultySelect = ({ setDifficulty, setScreen }) => {
+const DifficultySelect = ({ setDifficulty, setScreen, nextScreen }) => {
   const bg = useColorModeValue('gray.800', 'gray.900');
 
   const diffs = [
@@ -26,7 +26,7 @@ const DifficultySelect = ({ setDifficulty, setScreen }) => {
             p={4}
             onClick={() => {
               setDifficulty(d.id);
-              setScreen('playing');
+              setScreen(nextScreen || 'playing');
             }}
           >
             <Text fontSize="xl" fontWeight="bold">{d.name}</Text>
