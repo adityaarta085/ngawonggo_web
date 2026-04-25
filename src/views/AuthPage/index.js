@@ -28,6 +28,14 @@ import {
   TabPanel,
   Link,
   Badge,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { FaGoogle, FaFacebook, FaDiscord, FaTwitter, FaSpotify, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
@@ -39,6 +47,12 @@ const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const { isOpen: isResetOpen, onOpen: onResetOpen, onClose: onResetClose } = useDisclosure();
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
           const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,6 +61,10 @@ const AuthPage = () => {
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const error = query.get('error_description');
+    const type = query.get('type');
+    if (type === 'recovery') {
+      setIsUpdateMode(true);
+    }
     if (error) {
       toast({
         title: 'Gagal Login',
@@ -61,6 +79,79 @@ const AuthPage = () => {
 
 
 
+
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    if (!resetEmail) {
+        toast({
+            title: 'Email diperlukan',
+            description: 'Silakan masukkan email Anda',
+            status: 'warning',
+            duration: 3000,
+        });
+        return;
+    }
+    setIsResetting(true);
+    try {
+        const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+            redirectTo: `${window.location.origin}/auth?type=recovery`,
+        });
+        if (error) throw error;
+        toast({
+            title: 'Email Terkirim',
+            description: 'Silakan cek email Anda untuk tautan reset password',
+            status: 'success',
+            duration: 5000,
+        });
+        onResetClose();
+    } catch (error) {
+        toast({
+            title: 'Gagal',
+            description: error.message,
+            status: 'error',
+            duration: 3000,
+        });
+    } finally {
+        setIsResetting(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+        toast({
+            title: 'Password tidak cocok',
+            status: 'error',
+            duration: 3000,
+        });
+        return;
+    }
+    setLoading(true);
+    try {
+        const { error } = await supabase.auth.updateUser({
+            password: newPassword
+        });
+        if (error) throw error;
+        toast({
+            title: 'Password Berhasil Diubah',
+            description: 'Anda sekarang dapat menggunakan password baru.',
+            status: 'success',
+            duration: 3000,
+        });
+        setIsUpdateMode(false);
+        navigate('/portal');
+    } catch (error) {
+        toast({
+            title: 'Gagal',
+            description: error.message,
+            status: 'error',
+            duration: 3000,
+        });
+    } finally {
+        setLoading(false);
+    }
+  };
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -312,6 +403,8 @@ const AuthPage = () => {
             <Text color="gray.500" fontSize="sm">Desa Ngawonggo, Magelang</Text>
           </VStack>
 
+
+          {isUpdateMode ? (
           <Box
             w='full'
             p={8}
@@ -319,6 +412,80 @@ const AuthPage = () => {
             layerStyle="glassCard"
             bg="white"
           >
+            <VStack spacing={6} position="relative" zIndex={1}>
+              <Box textAlign="center">
+                <Heading size="lg" color="gray.800" mb={2}>Buat Password Baru</Heading>
+                <Text color="gray.500" fontSize="sm">Silakan masukkan password baru Anda.</Text>
+              </Box>
+
+              <form onSubmit={handleUpdatePassword} style={{ width: '100%' }}>
+                <VStack spacing={4}>
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm" color="gray.600">Password Baru</FormLabel>
+                    <InputGroup h='50px'>
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Masukkan password baru"
+                        bg="white"
+                        borderRadius='xl'
+                        h='50px'
+                        focusBorderColor="brand.500"
+                      />
+                      <InputRightElement h='50px'>
+                        <IconButton
+                          variant="ghost"
+                          icon={showPassword ? <FaEyeSlash /> : <FaEye />}
+                          onClick={() => setShowPassword(!showPassword)}
+                          aria-label="Toggle password"
+                          _hover={{ bg: 'transparent' }}
+                        />
+                      </InputRightElement>
+                    </InputGroup>
+                  </FormControl>
+
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm" color="gray.600">Konfirmasi Password</FormLabel>
+                    <InputGroup h='50px'>
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Ulangi password baru"
+                        bg="white"
+                        borderRadius='xl'
+                        h='50px'
+                        focusBorderColor="brand.500"
+                      />
+                    </InputGroup>
+                  </FormControl>
+
+                  <Button
+                    type="submit"
+                    colorScheme="brand"
+                    w="full"
+                    size="lg"
+                    isLoading={loading}
+                    borderRadius='xl'
+                    h='50px'
+                    mt={2}
+                  >
+                    Simpan Password
+                  </Button>
+                </VStack>
+              </form>
+            </VStack>
+          </Box>
+          ) : (
+          <Box
+            w='full'
+            p={8}
+            borderRadius="2xl"
+            layerStyle="glassCard"
+            bg="white"
+          >
+
 
             <>
             <VStack spacing={4} w="full">
@@ -446,7 +613,10 @@ const AuthPage = () => {
                       </FormControl>
 
                       <FormControl isRequired>
-                        <FormLabel fontSize="sm" color="gray.600">Password</FormLabel>
+                        <HStack justify="space-between" mb={2}>
+                          <FormLabel fontSize="sm" color="gray.600" mb={0}>Password</FormLabel>
+                          <Link fontSize="xs" color="brand.500" onClick={onResetOpen} _hover={{ textDecoration: 'underline' }}>Lupa Password?</Link>
+                        </HStack>
                         <InputGroup h='50px'>
                           <Input
                             type={showPassword ? 'text' : 'password'}
@@ -546,13 +716,47 @@ const AuthPage = () => {
             </Tabs>
             </>
 
-          </Box>
+          </Box> )}
 
 
           <Text fontSize="xs" color="gray.500" textAlign="center">
             Dengan masuk, Anda setuju dengan <Link as={RouterLink} to="/terms-conditions" color="brand.500">Ketentuan</Link> & <Link as={RouterLink} to="/privacy-policy" color="brand.500">Kebijakan</Link> kami.
           </Text>
         </VStack>
+
+      <Modal isOpen={isResetOpen} onClose={onResetClose} isCentered>
+        <ModalOverlay backdropFilter="blur(4px)" />
+        <ModalContent borderRadius="2xl">
+          <ModalHeader>Reset Password</ModalHeader>
+          <ModalCloseButton />
+          <form onSubmit={handleResetPassword}>
+            <ModalBody>
+              <Text fontSize="sm" color="gray.600" mb={4}>
+                  Masukkan email yang terdaftar, kami akan mengirimkan tautan untuk mengatur ulang password Anda.
+              </Text>
+              <FormControl isRequired>
+                  <FormLabel fontSize="sm" color="gray.600">Email</FormLabel>
+                  <Input
+                      type="email"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="Masukkan email Anda"
+                      borderRadius="xl"
+                      h="50px"
+                      focusBorderColor="brand.500"
+                  />
+              </FormControl>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="ghost" onClick={onResetClose} mr={3}>Batal</Button>
+              <Button type="submit" colorScheme="brand" isLoading={isResetting}>
+                  Kirim Tautan
+              </Button>
+            </ModalFooter>
+          </form>
+        </ModalContent>
+      </Modal>
+
       </Container>
     </Box>
   );
