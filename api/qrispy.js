@@ -27,24 +27,18 @@ export default async function handler(req, res) {
     let method = 'GET';
     let body = null;
 
-    if (action === 'createpayment' && req.method === 'POST') {
+    if (action === 'createpayment') {
       const parsedAmount = parseInt(amount, 10);
 
-      if (!parsedAmount || parsedAmount <= 0) {
-        return res.status(400).json({ error: "Invalid amount" });
+      if (!parsedAmount || isNaN(parsedAmount)) {
+        return res.status(400).json({ error: "Amount invalid" });
       }
-
-      const reqBody = typeof req.body === 'string' && req.body
-        ? JSON.parse(req.body)
-        : (req.body || {});
 
       url = `${apiUrl}/api/payment/qris/generate`;
       method = 'POST';
 
       body = JSON.stringify({
-        amount: parsedAmount,
-        payment_reference: reqBody.payment_reference || ("INV-" + Date.now()),
-        return_url: reqBody.return_url || "https://ngawonggo.com/donasi"
+        amount: parsedAmount
       });
 
     } else if (action === 'checkstatus' && qris_id) {
