@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     const checkUrl = `https://api.qrispy.id/api/payment/qris/${trx_id}/status`;
     const checkRes = await fetch(checkUrl, {
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "X-API-Token": apiKey,
         Accept: 'application/json'
       }
     });

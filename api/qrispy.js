@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   const headers = {
-    Authorization: `Bearer ${apiKey}`,
+    "X-API-Token": apiKey,
     "Content-Type": "application/json",
     Accept: "application/json"
   };
