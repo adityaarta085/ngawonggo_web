@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+/* eslint-disable no-unused-vars */
 import {
   Box,
   Container,
@@ -50,7 +51,6 @@ import {
     FaArrowRight,
     FaCalendarAlt,
     FaClipboardList,
-    FaWhatsapp,
     FaCheckCircle,
     FaExclamationTriangle,
 } from 'react-icons/fa';
@@ -90,85 +90,23 @@ const StatCard = ({ title, value, subValue, icon, color, onClick }) => {
 };
 
 const PortalPage = () => {
-  const [waNumber, setWaNumber] = useState('');
-  const [waLoading, setWaLoading] = useState(false);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [deletionTarget, setDeletionTarget] = useState(null);
   const [deletionStep, setDeletionStep] = useState('select_method'); // 'select_method', 'verify_wa', 'verify_email', 'confirm'
-  const [deletionCode, setDeletionCode] = useState('');
-  const [expectedDeletionCode, setExpectedDeletionCode] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
+      const [isDeleting, setIsDeleting] = useState(false);
   const [feedback, setFeedback] = useState('');
 
   const openDeletionModal = (target) => {
     setDeletionTarget(target);
-    if (target === 'whatsapp' || (target === 'account' && user?.user_metadata?.whatsapp_verified)) {
-        setDeletionStep('select_method');
-    } else {
-        // Only email/google available
-        setDeletionStep('verify_email');
-        sendEmailCode();
-    }
     onOpen();
   };
 
-  const generateDelCode = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-  const sendWaCode = async () => {
-    setIsDeleting(true);
-    const code = generateDelCode();
-    setExpectedDeletionCode(code);
-    try {
-      await fetch('/api/whatsapp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: user.user_metadata.whatsapp_number,
-          message: `Kode Otorisasi Penghapusan Data Anda adalah: ${code}\n\nAbaikan pesan ini jika Anda tidak memintanya.`
-        })
-      });
-      setDeletionStep('verify_wa');
-      toast({ title: 'Kode Otorisasi Terkirim', description: 'Silakan cek WhatsApp Anda', status: 'success' });
-    } catch (e) {
-      toast({ title: 'Gagal mengirim WhatsApp', status: 'error' });
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
-  const sendEmailCode = async () => {
-    setIsDeleting(true);
-    const code = generateDelCode();
-    setExpectedDeletionCode(code);
-    try {
-      await fetch('/api/broadcast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: user.email,
-          subject: 'Kode Otorisasi Penghapusan Data',
-          content: `<h2>Kode Otorisasi Anda</h2><p>Gunakan kode berikut untuk memverifikasi penghapusan data: <b>${code}</b></p><p>Abaikan pesan ini jika Anda tidak memintanya.</p>`
-        })
-      });
-      setDeletionStep('verify_email');
-      toast({ title: 'Kode Otorisasi Terkirim', description: 'Silakan cek Email Anda', status: 'success' });
-    } catch (e) {
-      toast({ title: 'Gagal mengirim Email', status: 'error' });
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
-  const handleVerifyDeletion = async () => {
-      if (deletionCode !== expectedDeletionCode) {
-          toast({ title: 'Kode salah atau kadaluarsa', status: 'error' });
-          return;
-      }
-      executeDeletion();
-  };
 
-  const executeDeletion = async () => {
+    const handleDeletionRequest = async () => {
       setIsDeleting(true);
       try {
           // Get IP
@@ -180,11 +118,9 @@ const PortalPage = () => {
           } catch(e) { console.error('Failed to get IP', e); }
 
           const browserInfo = navigator.userAgent;
-          const userDetails = `Target Penghapusan: ${deletionTarget === 'whatsapp' ? 'Bind WhatsApp' : 'Akun Permanen'}
-ID User: ${user.id}
-Email: ${user.email}
-WhatsApp Terverifikasi: ${user.user_metadata?.whatsapp_verified ? 'Ya' : 'Tidak'}
-Nomor WhatsApp: ${user.user_metadata?.whatsapp_number || '-'}
+          const userDetails = `Target Penghapusan: Akun Permanen
+ID User: ${user?.id || 'Unknown'}
+Email: ${user?.email || 'Unknown'}
 IP Address: ${ip}
 Browser: ${browserInfo}
 Alasan/Feedback: ${feedback || 'Tidak ada'}`;
@@ -195,34 +131,21 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                   to: 'adityaarta085@gmail.com',
-                  subject: `PENGHAPUSAN ${deletionTarget === 'whatsapp' ? 'WHATSAPP' : 'AKUN'} - ${user.email}`,
+                  subject: `PENGHAPUSAN AKUN - ${user?.email || 'Unknown'}`,
                   content: `<pre>${userDetails}</pre>`
               })
           });
 
-          if (deletionTarget === 'whatsapp') {
-              // FAKE Deletion on client side by updating metadata so user feels it's deleted
-              const { error } = await supabase.auth.updateUser({
-                  data: { whatsapp_verified: false, whatsapp_number: null }
-              });
-              if (error) throw error;
-              toast({ title: 'Verifikasi WhatsApp Dihapus', status: 'success' });
-              const { data } = await supabase.auth.getUser();
-              setUser(data.user);
-              onClose();
-          } else if (deletionTarget === 'account') {
-              // Soft delete on client (fake account deletion by signout)
-              toast({ title: 'Akun Permanen Dihapus', status: 'success' });
-              await supabase.auth.signOut();
-              navigate('/');
-          }
-      } catch (err) {
-          toast({ title: 'Gagal menghapus', description: err.message, status: 'error' });
+          toast({ title: 'Permintaan Diterima', description: 'Permintaan penghapusan akun sedang diproses oleh Admin. Anda akan dihubungi jika diperlukan.', status: 'info', duration: 7000, isClosable: true });
+          onClose();
+
+      } catch (error) {
+          toast({ title: 'Terjadi Kesalahan', description: error.message, status: 'error' });
       } finally {
           setIsDeleting(false);
-          setFeedback('');
       }
   };
+
 
 
 
@@ -269,12 +192,9 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                 // Verify WA
                 const { error } = await supabase.auth.updateUser({
                     data: {
-                        whatsapp_verified: true,
-                        whatsapp_number: savedNumber
                     }
                 });
                 if (!error) {
-                    toast({ title: 'WhatsApp berhasil diverifikasi!', status: 'success', duration: 5000 });
                     localStorage.removeItem('wa_verification_token');
                     localStorage.removeItem('wa_verification_number');
                     // Refresh user data
@@ -283,7 +203,6 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                     // Remove query param
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else {
-                    toast({ title: 'Gagal verifikasi WhatsApp', description: error.message, status: 'error', duration: 5000 });
                 }
             } else {
                 toast({ title: 'Link verifikasi tidak valid atau kadaluarsa', status: 'error', duration: 5000 });
@@ -299,56 +218,6 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
     getUserData();
   }, [navigate, toast]);
 
-  const handleSendWaLink = async () => {
-    if (!waNumber) {
-        toast({ title: 'Masukkan nomor WhatsApp', status: 'warning', duration: 3000 });
-        return;
-    }
-
-    // Check 3 hours limit
-    const lastSent = localStorage.getItem('wa_last_sent');
-    if (lastSent) {
-        const timeDiff = new Date().getTime() - parseInt(lastSent);
-        const hoursDiff = timeDiff / (1000 * 3600);
-        if (hoursDiff < 3) {
-            toast({ title: 'Tunggu 3 Jam', description: 'Anda baru saja meminta link verifikasi. Silakan tunggu 3 jam untuk meminta lagi.', status: 'warning', duration: 5000 });
-            return;
-        }
-    }
-
-    setWaLoading(true);
-    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    localStorage.setItem('wa_verification_token', token);
-    localStorage.setItem('wa_verification_number', waNumber);
-    localStorage.setItem('wa_last_sent', new Date().getTime().toString());
-
-    const verifyLink = `${window.location.origin}/portal?verify_wa=${token}`;
-
-    try {
-      const response = await fetch('/api/whatsapp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: waNumber,
-          message: `Halo! Klik link berikut untuk memverifikasi nomor WhatsApp Anda di Portal Desa Ngawonggo:\n\n${verifyLink}\n\nAbaikan pesan ini jika Anda tidak memintanya.`
-        })
-      });
-      if (!response.ok) throw new Error('Gagal mengirim pesan');
-
-      toast({
-        title: 'Link Terkirim!',
-        description: 'Silakan cek WhatsApp Anda dan klik link yang diberikan.',
-        status: 'success',
-        duration: 5000,
-      });
-    } catch (error) {
-      toast({ title: 'Error', description: error.message, status: 'error' });
-      // Reset limit so they can try again if it fails
-      localStorage.removeItem('wa_last_sent');
-    } finally {
-      setWaLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -467,74 +336,6 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
             </SimpleGrid>
           </VStack>
 
-          {/* WhatsApp Verification Card */}
-          <Box
-            p={{ base: 6, md: 8 }}
-            borderRadius="3xl"
-            bg="white"
-            boxShadow="sm"
-            border="1px solid"
-            borderColor="gray.100"
-          >
-            <VStack align="start" spacing={4}>
-                <HStack>
-                    <Icon as={FaWhatsapp} color="#25D366" boxSize={6} />
-                    <Heading size="md" color="gray.800">Verifikasi WhatsApp</Heading>
-                </HStack>
-
-                {user?.user_metadata?.whatsapp_verified ? (
-                    <Alert status="success" borderRadius="xl">
-                        <AlertIcon as={FaCheckCircle} />
-                        <Box>
-                            <AlertTitle>Nomor Terverifikasi</AlertTitle>
-                            <AlertDescription fontSize="sm">
-                                Nomor WhatsApp Anda ({user?.user_metadata?.whatsapp_number}) telah berhasil dihubungkan.
-                            </AlertDescription>
-                        </Box>
-                    </Alert>
-                ) : (
-                    <Box w="full">
-                        <Text fontSize="sm" color="gray.600" mb={4}>
-                            Verifikasi nomor WhatsApp opsional untuk meningkatkan fungsionalitas dan keamanan akun Anda. Keuntungan:
-                            <UnorderedList mt={2} pl={4}>
-                                <ListItem>Peningkatan lapisan keamanan (Verifikasi 2 Langkah).</ListItem>
-                                <ListItem>Notifikasi sistem otomatis.</ListItem>
-                                <ListItem>Akses fitur tambahan Portal Desa.</ListItem>
-                            </UnorderedList>
-                        </Text>
-                        <Flex direction={{ base: 'column', md: 'row' }} gap={4} align={{ base: 'stretch', md: 'flex-end' }}>
-                            <FormControl flex={1}>
-                                <FormLabel fontSize="sm" color="gray.600">Nomor WhatsApp</FormLabel>
-                                <Input
-                                    type="tel"
-                                    placeholder="Contoh: 62812xxxx"
-                                    value={waNumber}
-                                    onChange={(e) => setWaNumber(e.target.value)}
-                                    borderRadius="xl"
-                                    h="50px"
-                                />
-                            </FormControl>
-                            <Button
-                                colorScheme="whatsapp"
-                                h="50px"
-                                borderRadius="xl"
-                                px={8}
-                                isLoading={waLoading}
-                                onClick={handleSendWaLink}
-                                leftIcon={<FaWhatsapp />}
-                            >
-                                Kirim Link Verifikasi
-                            </Button>
-                        </Flex>
-                        <Text fontSize="xs" color="gray.400" mt={3}>
-                            *Batas permintaan link verifikasi adalah 1 kali per 3 jam untuk menghindari spam.
-                        </Text>
-                    </Box>
-                )}
-            </VStack>
-          </Box>
-
-
           {/* Data Management Section */}
           <Accordion allowToggle w="full" bg="white" borderRadius="3xl" border="1px solid" borderColor="red.100" overflow="hidden" boxShadow="sm">
             <AccordionItem border="none">
@@ -572,15 +373,6 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                           <HStack spacing={2}>
                             <Button
                                 colorScheme="red"
-                                variant="ghost"
-                                size="xs"
-                                onClick={() => openDeletionModal('whatsapp')}
-                                isDisabled={!user?.user_metadata?.whatsapp_verified}
-                            >
-                                Hapus Verifikasi WhatsApp
-                            </Button>
-                            <Button
-                                colorScheme="red"
                                 variant="outline"
                                 size="xs"
                                 onClick={() => openDeletionModal('account')}
@@ -597,45 +389,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
             </AccordionItem>
           </Accordion>
 
-          {/* Benefits Info Card */}
-          <Box
-            p={8}
-            borderRadius="3xl"
-            bg="brand.500"
-            color="white"
-            position="relative"
-            overflow="hidden"
-            boxShadow="xl"
-          >
-             <Box
-                position="absolute"
-                right="-20px"
-                bottom="-20px"
-                opacity={0.15}
-                transform="rotate(-15deg)"
-            >
-                <Icon as={FaUserCircle} boxSize="200px" />
-             </Box>
-             <VStack align="start" spacing={4} maxW="md" position="relative" zIndex={1}>
-                <Badge bg="white" color="brand.500" borderRadius="full" px={3} py={1}>INFO LOGIN</Badge>
-                <Heading size="md">Kenapa Login Lebih Baik?</Heading>
-                <Text fontSize="sm" opacity={0.9}>
-                    Dengan masuk ke akun Anda, SplashScreen dan Verifikasi Robot akan otomatis dilewati saat Anda kembali. Kami juga menyimpan progres bacaan Quran dan skor permainan Anda secara otomatis.
-                </Text>
-                <Button
-                    bg="white"
-                    color="brand.500"
-                    _hover={{ bg: 'gray.100' }}
-                    size="sm"
-                    borderRadius="full"
-                    as={RouterLink}
-                    to="/"
-                >
-                    Jelajahi Portal Sekarang
-                </Button>
-             </VStack>
-          </Box>
-        </VStack>
+          </VStack>
 
       {/* Deletion Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
@@ -644,58 +398,29 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
           <ModalHeader>Verifikasi Penghapusan Data</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {deletionStep === 'select_method' && (
-                <VStack spacing={4} align="stretch">
-                    <Text fontSize="sm" color="gray.600">
-                        Demi keamanan, pilih metode pengiriman kode otorisasi:
-                    </Text>
-                    <Button colorScheme="whatsapp" onClick={sendWaCode} isLoading={isDeleting}>
-                        Kirim ke WhatsApp
-                    </Button>
-                    <Button variant="outline" onClick={sendEmailCode} isLoading={isDeleting}>
-                        Kirim ke Email (Fallback)
-                    </Button>
-                    <Text fontSize="xs" color="gray.400" textAlign="center" mt={2}>
-                        Jika keduanya tidak aktif, harap hubungi Kontak Desa di bagian bawah website.
-                    </Text>
-                </VStack>
-            )}
-            {(deletionStep === 'verify_wa' || deletionStep === 'verify_email') && (
-                <VStack spacing={4} align="stretch">
-                    <Text fontSize="sm" color="gray.600">
-                        Masukkan 6 digit kode yang telah dikirim ke {deletionStep === 'verify_wa' ? 'WhatsApp' : 'Email'} Anda.
-                    </Text>
-                    <FormControl>
-                        <Input
-                            placeholder="Kode Otorisasi (6 Digit)"
-                            value={deletionCode}
-                            onChange={(e) => setDeletionCode(e.target.value)}
-                            textAlign="center"
-                            letterSpacing="widest"
-                            size="lg"
-                            maxLength={6}
-                        />
-                    </FormControl>
-                    <FormControl>
-                        <FormLabel fontSize="xs" color="gray.500">Alasan / Feedback (Opsional)</FormLabel>
-                        <Box as="textarea"
-                             w="full"
-                             p={3}
-                             border="1px solid"
-                             borderColor="gray.200"
-                             borderRadius="md"
-                             fontSize="sm"
-                             placeholder="Mengapa Anda ingin menghapus data ini? (Opsional, sangat membantu kami)"
-                             value={feedback}
-                             onChange={(e) => setFeedback(e.target.value)}
-                             rows={3}
-                        />
-                    </FormControl>
-                    <Button colorScheme="red" onClick={handleVerifyDeletion} isLoading={isDeleting} size="lg" mt={2}>
-                        Konfirmasi Penghapusan
-                    </Button>
-                </VStack>
-            )}
+            <VStack spacing={4} align="stretch">
+                <Text fontSize="sm" color="gray.600">
+                    Apakah Anda yakin ingin menghapus akun ini secara permanen?
+                </Text>
+                <FormControl>
+                    <FormLabel fontSize="xs" color="gray.500">Alasan / Feedback (Opsional)</FormLabel>
+                    <Box as="textarea"
+                            w="full"
+                            p={3}
+                            border="1px solid"
+                            borderColor="gray.200"
+                            borderRadius="md"
+                            fontSize="sm"
+                            placeholder="Mengapa Anda ingin menghapus data ini? (Opsional, sangat membantu kami)"
+                            value={feedback}
+                            onChange={(e) => setFeedback(e.target.value)}
+                            rows={3}
+                    />
+                </FormControl>
+                <Button colorScheme="red" onClick={handleDeletionRequest} isLoading={isDeleting} size="lg" mt={2}>
+                    Konfirmasi Penghapusan
+                </Button>
+            </VStack>
           </ModalBody>
           <ModalFooter>
              <Button variant="ghost" onClick={onClose} isDisabled={isDeleting}>Batal</Button>

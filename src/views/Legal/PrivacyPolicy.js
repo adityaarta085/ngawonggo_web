@@ -112,42 +112,7 @@ const PrivacyPolicy = () => {
 
 
             <Box>
-              <Flex align="center" mb={4} gap={3}>
-                <Icon as={FaBullhorn} color="brand.500" boxSize={6} />
-                <Heading size="md">Integrasi WhatsApp dan Komunikasi</Heading>
-              </Flex>
-              <Text lineHeight="tall" color="gray.700" mb={4}>
-                Pengguna memiliki opsi untuk memverifikasi nomor WhatsApp di Portal Desa. Verifikasi ini bersifat sukarela dan bukan syarat utama untuk mengakses layanan. Jika pengguna memilih untuk memverifikasi:
-              </Text>
-              <UnorderedList spacing={3} color="gray.700" pl={5}>
-                <ListItem>
-                  <Text as="span" fontWeight="bold">Fungsionalitas:</Text> Digunakan secara eksklusif untuk notifikasi sistem otomatis dan peningkatan keamanan.
-                </ListItem>
-                <ListItem>
-                  <Text as="span" fontWeight="bold">Keamanan Data:</Text> Disimpan dalam enkripsi pada basis data kami, tidak dibagikan atau dijual kepada entitas pihak ketiga.
-                </ListItem>
-                <ListItem>
-                  <Text as="span" fontWeight="bold">Pemberitahuan Esensial:</Text> Terbatas pada pembaruan layanan administratif yang relevan dan mendesak.
-                </ListItem>
-              </UnorderedList>
-            </Box>
-
-
-            <Box>
-              <Flex align="center" mb={4} gap={3}>
-                <Icon as={FaUserLock} color="brand.500" boxSize={6} />
-                <Heading size="md">Penghapusan Data & Manajemen Hak Privasi</Heading>
-              </Flex>
-              <Text lineHeight="tall" color="gray.700" mb={4}>
-                Anda memiliki kendali penuh atas data Anda, termasuk hak untuk menghapus data spesifik atau keseluruhan akun melalui dasbor Portal pengguna:
-              </Text>
-              <UnorderedList spacing={3} color="gray.700" pl={5}>
-                <ListItem>
-                  <Text as="span" fontWeight="bold">Prosedur Penghapusan:</Text> Permintaan penghapusan data (seperti nomor WhatsApp atau Akun Utama) memerlukan verifikasi berlapis sesuai metode yang terhubung untuk mencegah penghapusan tanpa otorisasi.
-                </ListItem>
-                <ListItem>
-                  <Text as="span" fontWeight="bold">Penghapusan Parsial:</Text> Jika menghapus data WhatsApp, verifikasi akan dikirimkan ke nomor tersebut. Jika nomor sudah tidak aktif, prosedur fallback melalui verifikasi Email tersedia.
-                </ListItem>
+              <UnorderedList spacing={3} pl={5} color="gray.700">
                 <ListItem>
                   <Text as="span" fontWeight="bold">Pusat Bantuan Administrasi:</Text> Apabila nomor telepon dan email tidak dapat diakses, permohonan dapat diajukan kepada administrator dengan menghubungi pusat kontak yang tercantum pada navigasi atau bagian bawah situs web. Administrator akan memberikan panduan pemulihan lebih lanjut sesuai prosedur identifikasi identitas.
                 </ListItem>
