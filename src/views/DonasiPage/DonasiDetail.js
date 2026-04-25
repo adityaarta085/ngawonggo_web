@@ -77,17 +77,19 @@ const DonasiDetail = () => {
           if (!paymentData || paymentStatus !== 'pending') return;
 
           try {
-              const res = await fetch(`/api/yogateway?action=check_public&trxid=${paymentData.trx_id}`);
+              const res = await fetch(`/api/qrispy?action=checkstatus&qris_id=${paymentData.trx_id}`);
               const data = await res.json();
 
               if (data.status && data.data) {
-                  const currentStatus = data.data.status.toLowerCase();
+                  let currentStatus = (data.data.payment_status || data.data.status || 'pending').toLowerCase();
+                  if (currentStatus === 'paid') currentStatus = 'success';
+                  if (currentStatus === 'cancelled') currentStatus = 'failed';
 
                   if (currentStatus === 'success' || currentStatus === 'expired' || currentStatus === 'failed') {
                       setPaymentStatus(currentStatus);
 
                       // Fast sync the status with our backend so the DB updates instantly
-                      await fetch('/api/yogateway-sync', {
+                      await fetch('/api/qrispy-sync', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ trx_id: paymentData.trx_id })
@@ -115,10 +117,10 @@ const DonasiDetail = () => {
     setIsSubmitting(true);
     try {
       // 1. Create payment via API
-      const res = await fetch(`/api/yogateway?action=createpayment&amount=${amount}`);
+      const res = await fetch(`/api/qrispy?action=createpayment&amount=${amount}`);
       const data = await res.json();
 
-      if (data.status) {
+      if (data.status === 'success') {
         const trxData = data.data;
 
         // 2. Save to Supabase
@@ -130,14 +132,14 @@ const DonasiDetail = () => {
                 amount: trxData.amount,
                 message: formData.message,
                 is_anonymous: formData.isAnonymous,
-                trx_id: trxData.trx_id,
-                payment_url: trxData.payment_url,
-                qr_image: trxData.qr_image,
+                trx_id: trxData.qris_id || trxData.payment_reference,
+                payment_url: trxData.checkout_url,
+                qr_image: trxData.qris_image_url,
                 status: 'pending'
             }]);
 
         if (error) { console.error('Supabase Error:', error); throw error; }
-        setPaymentData(trxData);
+        setPaymentData({ ...trxData, trx_id: trxData.qris_id || trxData.payment_reference, payment_url: trxData.checkout_url, qr_image: trxData.qris_image_url });
         setPaymentStatus('pending');
       } else {
           toast({ title: 'Gagal membuat pembayaran', description: data.msg, status: 'error' });

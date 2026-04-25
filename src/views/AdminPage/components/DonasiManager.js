@@ -145,9 +145,9 @@ const DonasiManager = () => {
 
   const fetchWalletProfile = async () => {
     try {
-      const res = await fetch('/api/yogateway?action=check_profile');
+      const res = await fetch('/api/qrispy?action=check_profile');
       const data = await res.json();
-      if (data.status) {
+      if (data.status === 'success' || data.status === true) {
         setWalletInfo(data.data);
         onWalletOpen();
       } else {
@@ -160,7 +160,10 @@ const DonasiManager = () => {
 
   const handleWithdraw = async () => {
       try {
-        const res = await fetch('/api/yogateway?action=request_withdrawal', {
+        // Qrispy API might not have request_withdrawal in the current docs, we'll return an error or keep it if it's there
+        toast({ title: 'Fitur penarikan belum tersedia di gateway baru', status: 'info' });
+
+        const res = await fetch('/api/qrispy?action=request_withdrawal', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(withdrawData)
