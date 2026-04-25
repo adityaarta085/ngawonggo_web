@@ -120,6 +120,9 @@ const GeoGuessrMain = ({ onFinish, partyCode: initialPartyCode, onAbort }) => {
           mapId={mapId}
           difficulty={difficulty}
           onFinishGame={handleFinishGame}
+          mode={mode}
+          session={session}
+          partyCode={partyCode}
         />
       )}
       {screen === 'avatar' && (

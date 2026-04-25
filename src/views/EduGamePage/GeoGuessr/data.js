@@ -1,48 +1,38 @@
+// Mock data with free 360 panorama images and coordinates
 export const mapData = {
     ngawonggo: {
-        bounds: {
-            north: -7.4850,
-            south: -7.5000,
-            east: 110.2300,
-            west: 110.2150
-        },
         center: { lat: -7.4912, lng: 110.2223 },
-        maxDistance: 5 // km
+        maxDistance: 5,
+        locations: [
+            { lat: -7.4912, lng: 110.2223, pano: 'https://images.unsplash.com/photo-1557971370-e7298ea473fc?q=80&w=2560&auto=format&fit=crop' },
+            { lat: -7.4890, lng: 110.2200, pano: 'https://images.unsplash.com/photo-1623345805780-8f01f714e65f?q=80&w=2560&auto=format&fit=crop' }
+        ]
     },
     kaliangkrik: {
-        bounds: {
-            north: -7.4000,
-            south: -7.5000,
-            east: 110.2000,
-            west: 110.1000
-        },
         center: { lat: -7.4658, lng: 110.1555 },
-        maxDistance: 20 // km
+        maxDistance: 20,
+        locations: [
+            { lat: -7.4658, lng: 110.1555, pano: 'https://images.unsplash.com/photo-1580137189272-c9379f8864fd?q=80&w=2560&auto=format&fit=crop' }
+        ]
     },
     magelang: {
-        bounds: {
-            north: -7.3000,
-            south: -7.7000,
-            east: 110.4000,
-            west: 110.1000
-        },
         center: { lat: -7.5028, lng: 110.2245 },
-        maxDistance: 50 // km
+        maxDistance: 50,
+        locations: [
+            { lat: -7.6056, lng: 110.2038, pano: 'https://images.unsplash.com/photo-1600804889194-e6fbf08ddb39?q=80&w=2560&auto=format&fit=crop' }
+        ]
     },
     jateng: {
-        bounds: {
-            north: -6.5000,
-            south: -8.3000,
-            east: 111.7000,
-            west: 108.5000
-        },
         center: { lat: -7.1509, lng: 110.1402 },
-        maxDistance: 500 // km
+        maxDistance: 500,
+        locations: [
+            { lat: -6.9932, lng: 110.4203, pano: 'https://images.unsplash.com/photo-1574581297585-644917b1fb79?q=80&w=2560&auto=format&fit=crop' }
+        ]
     }
 };
 
-export const getRandomLocationInBounds = (bounds) => {
-    const lat = Math.random() * (bounds.north - bounds.south) + bounds.south;
-    const lng = Math.random() * (bounds.east - bounds.west) + bounds.west;
-    return { lat, lng };
+export const getRandomLocation = (mapId) => {
+    const map = mapData[mapId] || mapData['ngawonggo'];
+    const locs = map.locations;
+    return locs[Math.floor(Math.random() * locs.length)];
 };

@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Button, Text, VStack, Spinner, Center, HStack, Heading } from '@chakra-ui/react';
-import { GoogleMap, StreetViewPanorama, LoadScript, Marker, Polyline } from '@react-google-maps/api';
-import { getRandomLocationInBounds, mapData } from './data';
+import { getRandomLocation, mapData } from './data';
+import PanoramaViewer from './PanoramaViewer';
+import MiniMap from './MiniMap';
+import { supabase } from '../../../lib/supabase';
 
 const MAX_ROUNDS = 5;
 
-// Calculate distance between two coordinates in km
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-  var R = 6371; // Radius of the earth in km
+  var R = 6371;
   var dLat = deg2rad(lat2 - lat1);
   var dLon = deg2rad(lon2 - lon1);
   var a =
@@ -15,15 +16,12 @@ function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  var d = R * c; // Distance in km
-  return d;
+  return R * c;
 }
 
-function deg2rad(deg) {
-  return deg * (Math.PI / 180);
-}
+function deg2rad(deg) { return deg * (Math.PI / 180); }
 
-const GameScreen = ({ mapId, difficulty, onFinishGame }) => {
+const GameScreen = ({ mapId, difficulty, onFinishGame, mode, session, partyCode }) => {
   const [round, setRound] = useState(1);
   const [totalScore, setTotalScore] = useState(0);
 
@@ -33,64 +31,110 @@ const GameScreen = ({ mapId, difficulty, onFinishGame }) => {
   const [roundScore, setRoundScore] = useState(0);
   const [targetLocation, setTargetLocation] = useState(null);
   const [loadingLoc, setLoadingLoc] = useState(true);
-  const svService = useRef(null);
 
-  const findValidPanorama = useCallback((bounds, attempts = 0) => {
-    if (!svService.current) {
-        svService.current = new window.google.maps.StreetViewService();
-    }
-
-    if (attempts > 20) {
-        // Fallback to center if can't find one
-        setTargetLocation(mapData[mapId].center);
-        setLoadingLoc(false);
-        return;
-    }
-
-    const randomLoc = getRandomLocationInBounds(bounds);
-    const radius = mapId === 'jateng' ? 10000 : 5000;
-
-    svService.current.getPanorama({ location: randomLoc, radius, preference: window.google.maps.StreetViewPreference.NEAREST }, (data, status) => {
-        if (status === 'OK') {
-            setTargetLocation({ lat: data.location.latLng.lat(), lng: data.location.latLng.lng() });
-            setLoadingLoc(false);
-        } else {
-            findValidPanorama(bounds, attempts + 1);
-        }
-    });
-  }, [mapId]);
+  // Multiplayer state
+  const [otherPlayers, setOtherPlayers] = useState([]);
+  const [matchId, setMatchId] = useState(null);
+  const syncInterval = useRef(null);
+  const guessRef = useRef(null); // Keep ref for interval
 
   useEffect(() => {
-    // Only search if maps API is loaded. Handled by child component mounting or LoadScript onLoad.
-  }, [round, mapId]);
+    // Sync guess Ref
+    guessRef.current = guess;
+  }, [guess]);
 
-  const handleMapsLoaded = useCallback(() => {
+  useEffect(() => {
     setLoadingLoc(true);
     setGuess(null);
     setShowResult(false);
-    findValidPanorama(mapData[mapId].bounds);
-  }, [mapId, findValidPanorama]);
 
+    // Pick from predefined 360 data
+    const loc = getRandomLocation(mapId);
+    setTargetLocation(loc);
+    setLoadingLoc(false);
+  }, [round, mapId]);
 
-  const handleMapClick = (e) => {
+  useEffect(() => {
+      if (mode !== 'single' && session && partyCode) {
+          // Setup Realtime Sync
+          const setupMultiplayer = async () => {
+              const { data } = await supabase.from('geo_matches').select('id').eq('party_code', partyCode).single();
+              if (data) {
+                  setMatchId(data.id);
+
+                  // Initial fetch
+                  const fetchOthers = async () => {
+                      const { data: players } = await supabase.from('geo_players').select('*').eq('match_id', data.id).neq('user_id', session.user.id);
+                      if (players) setOtherPlayers(players);
+                  };
+                  fetchOthers();
+
+                  // Sync loop every 1 second
+                  syncInterval.current = setInterval(async () => {
+                      if (guessRef.current && !showResult) {
+                          await supabase.from('geo_players').update({
+                              guess_lat: guessRef.current.lat,
+                              guess_lng: guessRef.current.lng
+                          }).eq('match_id', data.id).eq('user_id', session.user.id);
+                      }
+                  }, 1000);
+
+                  // Subscribe to others
+                  const channel = supabase.channel(`match_${data.id}`)
+                    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'geo_players', filter: `match_id=eq.${data.id}` }, payload => {
+                        if (payload.new.user_id !== session.user.id) {
+                            setOtherPlayers(prev => {
+                                const idx = prev.findIndex(p => p.user_id === payload.new.user_id);
+                                if (idx >= 0) {
+                                    const next = [...prev];
+                                    next[idx] = payload.new;
+                                    return next;
+                                } else {
+                                    return [...prev, payload.new];
+                                }
+                            });
+                        }
+                    })
+                    .subscribe();
+
+                  return () => {
+                      clearInterval(syncInterval.current);
+                      supabase.removeChannel(channel);
+                  };
+              }
+          };
+          setupMultiplayer();
+      }
+      return () => {
+          if (syncInterval.current) clearInterval(syncInterval.current);
+      };
+  }, [mode, session, partyCode, showResult]);
+
+  const handleMapClick = (g) => {
     if (!showResult) {
-      setGuess({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+      setGuess(g);
     }
   };
 
-  const handleGuess = () => {
-    if (!guess) return;
+  const handleGuess = async () => {
+    if (!guess || !targetLocation) return;
     const dist = getDistanceFromLatLonInKm(targetLocation.lat, targetLocation.lng, guess.lat, guess.lng);
     setDistance(dist);
 
-    // Max 5000 per round. Adjust tolerance based on map.
-    const maxDist = mapData[mapId].maxDistance;
+    const maxDist = mapData[mapId].maxDistance || 50;
     let s = Math.max(0, Math.floor(5000 * (1 - (dist / maxDist))));
-    if (dist < (maxDist * 0.05)) s = 5000; // Perfect score
+    if (dist < (maxDist * 0.05)) s = 5000;
 
     setRoundScore(s);
     setTotalScore(prev => prev + s);
     setShowResult(true);
+
+    if (matchId && session) {
+         await supabase.from('geo_players').update({
+              score: totalScore + s,
+              status: 'ready' // indicate round done
+          }).eq('match_id', matchId).eq('user_id', session.user.id);
+    }
   };
 
   const nextRound = () => {
@@ -98,39 +142,17 @@ const GameScreen = ({ mapId, difficulty, onFinishGame }) => {
         onFinishGame({ score: totalScore, maxScore: MAX_ROUNDS * 5000, message: "Game Selesai! Skor Total: " + totalScore });
     } else {
         setRound(r => r + 1);
-        handleMapsLoaded(); // Find next loc
     }
-  };
-
-  const mapOptions = {
-    disableDefaultUI: true,
-    zoomControl: true,
-  };
-
-  const streetViewOptions = {
-    position: targetLocation,
-    pov: { heading: 100, pitch: 0 },
-    zoom: 1,
-    disableDefaultUI: true,
-    addressControl: false,
-    showRoadLabels: false,
-    clickToGo: difficulty === 'easy',
-    disableDoubleClickZoom: difficulty !== 'easy',
-    panControl: difficulty !== 'hardcore',
-    zoomControl: difficulty !== 'hardcore',
-    scrollwheel: difficulty !== 'hardcore',
-    linksControl: difficulty === 'easy'
   };
 
   const center = mapData[mapId]?.center || mapData['ngawonggo'].center;
 
   return (
     <Box w="full" h="full" position="relative" bg="gray.900">
-      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''} onLoad={handleMapsLoaded}>
         {loadingLoc ? (
             <Center h="full" w="full" position="absolute" zIndex={20} bg="rgba(0,0,0,0.8)" color="white" flexDir="column">
                 <Spinner size="xl" color="teal.500" mb={4} />
-                <Text>Mencari lokasi panorama...</Text>
+                <Text>Memuat Panorama...</Text>
             </Center>
         ) : null}
 
@@ -144,14 +166,18 @@ const GameScreen = ({ mapId, difficulty, onFinishGame }) => {
                 <Text fontSize="xs" color="gray.400">Total Score</Text>
                 <Heading size="md" color="teal.300">{totalScore}</Heading>
             </VStack>
+            {mode !== 'single' && (
+                <VStack align="start" spacing={0}>
+                    <Text fontSize="xs" color="gray.400">Players</Text>
+                    <Heading size="md" color="purple.300">{otherPlayers.length + 1}</Heading>
+                </VStack>
+            )}
         </HStack>
 
-        {/* Street View Background */}
+        {/* 360 Panorama Viewer */}
         <Box w="full" h="full" position="absolute" top={0} left={0} zIndex={1}>
           {targetLocation && (
-              <GoogleMap mapContainerStyle={{width: '100%', height: '100%'}} center={targetLocation} zoom={14}>
-                <StreetViewPanorama options={streetViewOptions} visible={true} />
-              </GoogleMap>
+              <PanoramaViewer url={targetLocation.pano} difficulty={difficulty} />
           )}
         </Box>
 
@@ -168,22 +194,16 @@ const GameScreen = ({ mapId, difficulty, onFinishGame }) => {
                 transition="all 0.3s"
                 _hover={!showResult ? { transform: {md: 'scale(1.5)'}, transformOrigin: 'bottom right' } : {}}
             >
-            <GoogleMap
-                mapContainerStyle={{
-                    width: showResult ? (window.innerWidth < 768 ? '300px' : '600px') : '250px',
-                    height: showResult ? (window.innerWidth < 768 ? '250px' : '400px') : '200px',
-                    borderRadius: '8px',
-                    border: '2px solid white'
-                }}
+            <MiniMap
+                isExpanded={showResult}
                 center={showResult ? center : (guess || center)}
                 zoom={showResult ? (mapId === 'jateng' ? 7 : 10) : 11}
-                onClick={handleMapClick}
-                options={mapOptions}
-            >
-                {guess && <Marker position={guess} />}
-                {showResult && <Marker position={targetLocation} icon={{ url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' }} />}
-                {showResult && guess && <Polyline path={[guess, targetLocation]} options={{ strokeColor: '#FF0000', strokeWeight: 2 }} />}
-            </GoogleMap>
+                onGuess={handleMapClick}
+                showResult={showResult}
+                targetLocation={targetLocation}
+                guess={guess}
+                otherPlayers={otherPlayers}
+            />
 
             {!showResult ? (
                 <Button mt={2} w="full" colorScheme="teal" onClick={handleGuess} isDisabled={!guess || loadingLoc}>Tebak Lokasi</Button>
@@ -198,7 +218,6 @@ const GameScreen = ({ mapId, difficulty, onFinishGame }) => {
             )}
             </Box>
         )}
-      </LoadScript>
     </Box>
   );
 };
