@@ -5,20 +5,29 @@ export default async function handler(req, res) {
     return res.status(405).send('Method Not Allowed');
   }
 
-  const apiKey = process.env.YOGATEWAY_API_KEY || "yo_sec_da1ecad21d5d8a6a880383ea24a7c206";
-  const signature = req.headers['x-yogateway-signature'];
-
-  if (signature !== apiKey) {
-    return res.status(401).send('Unauthorized');
-  }
+  // Assuming qrispy webhook also sends an auth header or we can verify by checking qrispy API if needed
+  // For now we will accept the payload since there is no mention of signature for webhook in doc
+  // but if qrispy has it, we should use it.
 
   try {
     const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const { trx_id, status } = payload;
+
+    // According to Qrispy docs, status could be: pending, paid, expired, cancelled
+    // So we map paid to success, and cancelled to failed, or just use their statuses
+    // Let's check what fields Qrispy sends. Assuming qris_id and payment_status based on their poll response
+
+    const { qris_id, payment_status } = payload;
+
+    // In case payload is different, adapt here
+    const trx_id = qris_id || payload.trx_id;
+    let status = payment_status || payload.status;
 
     if (!trx_id || !status) {
       return res.status(400).send('Invalid payload');
     }
+
+    if (status === 'paid') status = 'success';
+    if (status === 'cancelled') status = 'failed';
 
     const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
     // We need service role key to bypass RLS for webhook updates

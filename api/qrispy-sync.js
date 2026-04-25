@@ -11,19 +11,26 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Missing trx_id' });
   }
 
-  const apiKey = process.env.YOGATEWAY_API_KEY || "yo_sec_da1ecad21d5d8a6a880383ea24a7c206";
+  const apiKey = process.env.QRISPY_API_KEY || "cki_Z9G03nQ2wBKuHlQZrYGAJ52wqWNHWqCxquq8xh089cJod4Zb";
 
   try {
     // 1. Fetch authoritative status from gateway
-    const checkUrl = `https://yogateway.id/api.php?action=checkstatus&apikey=${apiKey}&trxid=${trx_id}`;
-    const checkRes = await fetch(checkUrl);
+    const checkUrl = `https://api.qrispy.id/api/payment/qris/${trx_id}/status`;
+    const checkRes = await fetch(checkUrl, {
+      headers: {
+        "X-API-Token": apiKey,
+        Accept: 'application/json'
+      }
+    });
     const checkData = await checkRes.json();
 
-    if (!checkData.status) {
+    if (checkData.status !== "success" || !checkData.data) {
         return res.status(400).json({ error: 'Failed to verify transaction from gateway' });
     }
 
-    const currentStatus = checkData.data.status.toLowerCase(); // success, pending, expired, failed
+    let currentStatus = checkData.data.payment_status.toLowerCase(); // paid, pending, expired, cancelled
+    if (currentStatus === 'paid') currentStatus = 'success';
+    if (currentStatus === 'cancelled') currentStatus = 'failed';
 
     // Initialize Supabase
     const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
@@ -77,7 +84,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, status: currentStatus });
 
   } catch (error) {
-    console.error('YogaGateway Sync Error:', error);
+    console.error('Qrispy Sync Error:', error);
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }

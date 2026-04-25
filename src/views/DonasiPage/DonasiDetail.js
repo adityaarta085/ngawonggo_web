@@ -77,17 +77,25 @@ const DonasiDetail = () => {
           if (!paymentData || paymentStatus !== 'pending') return;
 
           try {
-              const res = await fetch(`/api/yogateway?action=check_public&trxid=${paymentData.trx_id}`);
+              const res = await fetch(`https://api.qrispy.id/api/payment/qris/${paymentData.trx_id}/status`, {
+                headers: {
+                    "X-API-Token": "cki_Z9G03nQ2wBKuHlQZrYGAJ52wqWNHWqCxquq8xh089cJod4Zb",
+                    "Content-Type": "application/json",
+                    Accept: "application/json"
+                }
+              });
               const data = await res.json();
 
               if (data.status && data.data) {
-                  const currentStatus = data.data.status.toLowerCase();
+                  let currentStatus = (data.data.payment_status || data.data.status || 'pending').toLowerCase();
+                  if (currentStatus === 'paid') currentStatus = 'success';
+                  if (currentStatus === 'cancelled') currentStatus = 'failed';
 
                   if (currentStatus === 'success' || currentStatus === 'expired' || currentStatus === 'failed') {
                       setPaymentStatus(currentStatus);
 
                       // Fast sync the status with our backend so the DB updates instantly
-                      await fetch('/api/yogateway-sync', {
+                      await fetch('/api/qrispy-sync', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ trx_id: paymentData.trx_id })
@@ -115,10 +123,22 @@ const DonasiDetail = () => {
     setIsSubmitting(true);
     try {
       // 1. Create payment via API
-      const res = await fetch(`/api/yogateway?action=createpayment&amount=${amount}`);
+      const res = await fetch(`https://api.qrispy.id/api/payment/qris/generate`, {
+        method: 'POST',
+        headers: {
+            "X-API-Token": "cki_Z9G03nQ2wBKuHlQZrYGAJ52wqWNHWqCxquq8xh089cJod4Zb",
+            "Content-Type": "application/json",
+            Accept: "application/json"
+        },
+        body: JSON.stringify({
+            amount: parseInt(amount, 10),
+            payment_reference: "INV-" + Date.now(),
+            return_url: window.location.href
+        })
+      });
       const data = await res.json();
 
-      if (data.status) {
+      if (data.status === 'success') {
         const trxData = data.data;
 
         // 2. Save to Supabase
@@ -127,17 +147,17 @@ const DonasiDetail = () => {
             .insert([{
                 campaign_id: parseInt(id),
                 name: formData.isAnonymous ? 'Hamba Allah' : formData.name,
-                amount: trxData.amount,
+                amount: Math.round(parseFloat(trxData.amount)),
                 message: formData.message,
                 is_anonymous: formData.isAnonymous,
-                trx_id: trxData.trx_id,
-                payment_url: trxData.payment_url,
-                qr_image: trxData.qr_image,
+                trx_id: trxData.qris_id || trxData.payment_reference,
+                payment_url: trxData.checkout_url,
+                qr_image: trxData.qris_image_url,
                 status: 'pending'
             }]);
 
         if (error) { console.error('Supabase Error:', error); throw error; }
-        setPaymentData(trxData);
+        setPaymentData({ ...trxData, trx_id: trxData.qris_id || trxData.payment_reference, payment_url: trxData.checkout_url, qr_image: trxData.qris_image_url });
         setPaymentStatus('pending');
       } else {
           toast({ title: 'Gagal membuat pembayaran', description: data.msg, status: 'error' });
