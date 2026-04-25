@@ -1,6 +1,25 @@
-import { FaNetworkWired, FaQuestionCircle, FaPuzzlePiece, FaCube } from 'react-icons/fa';
+import { FaNetworkWired, FaQuestionCircle, FaPuzzlePiece, FaCube, FaGlobeAsia } from 'react-icons/fa';
 
 export const gamesData = [
+  {
+    id: 'geoguessr',
+    title: 'GeoExplorer Nusantara',
+    desc: 'Tebak lokasi berdasarkan panorama 360 derajat. Persis seperti GeoGuessr! Mainkan mode Singleplayer atau Multiplayer.',
+    longDesc: 'Eksplorasi dunia secara virtual! Mulai dari Ngawonggo, Magelang, hingga seluruh Jawa Tengah. Kumpulkan XP, kostumisasi avatarmu, dan panjat papan peringkat di berbagai mode (Classic, Battle Royale, Duels). Tersedia 1x Free Trial sebelum wajib login!',
+    icon: FaGlobeAsia,
+    color: 'teal',
+    highlight: true,
+    category: 'Eksplorasi & Geografi',
+    difficulty: 'Bervariasi',
+    howToPlay: [
+      'Pilih peta (Ngawonggo, Kaliangkrik, Kab. Magelang, Jawa Tengah).',
+      'Pilih mode permainan (Singleplayer / Multiplayer) dan tingkat kesulitan.',
+      'Perhatikan panorama 360° dengan seksama (bisa bergerak/zoom sesuai kesulitan).',
+      'Tandai tebakan lokasimu di peta mini, lalu klik "Tebak".',
+      'Dapatkan skor berdasarkan jarak tebakanmu dengan lokasi asli!'
+    ],
+    maxScore: 25000
+  },
   {
     id: 'network',
     title: 'Labirin Jaringan',
@@ -8,7 +27,7 @@ export const gamesData = [
     longDesc: 'Di masa depan (2045), Desa Ngawonggo memerlukan infrastruktur jaringan yang merata. Tugasmu adalah menghubungkan Pusat Data dengan dusun-dusun secara efisien menggunakan kabel fiber optik tanpa kehabisan stok kabel.',
     icon: FaNetworkWired,
     color: 'purple',
-    highlight: true,
+    highlight: false,
     category: 'Logika & Strategi',
     difficulty: 'Menengah',
     howToPlay: [

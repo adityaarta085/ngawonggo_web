@@ -16,6 +16,8 @@ const EduGameRouter = () => {
         <Route path="/" element={<GameList />} />
         <Route path="/dashboard" element={<GameDashboard />} />
         <Route path="/:id" element={<GameDetail />} />
+        {/* Support for multiplayer party codes */}
+        <Route path="/play/:id/code/:code" element={<Gameplay />} />
         <Route path="/play/:id" element={<Gameplay />} />
         <Route path="/result/:id" element={<GameResult />} />
         <Route path="*" element={<Navigate to="/game" replace />} />

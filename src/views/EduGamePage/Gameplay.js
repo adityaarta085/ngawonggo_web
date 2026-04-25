@@ -9,9 +9,10 @@ import NetworkGame from './NetworkGame';
 import QuizGame from './QuizGame';
 import SortGame from './SortGame';
 import Object3DGame from './3DObjectGame';
+import GeoGuessrMain from './GeoGuessr/index';
 
 const Gameplay = () => {
-  const { id } = useParams();
+  const { id, code } = useParams();
   const navigate = useNavigate();
 
   const game = useMemo(() => gamesData.find(g => g.id === id), [id]);
@@ -34,6 +35,9 @@ const Gameplay = () => {
 
   const renderGame = () => {
     switch (id) {
+      case 'geoguessr':
+        // Pass party code if exists
+        return <GeoGuessrMain onFinish={handleGameFinish} partyCode={code} onAbort={handleAbort} />;
       case 'network':
         return <NetworkGame onFinish={handleGameFinish} />;
       case 'quiz':
@@ -48,26 +52,35 @@ const Gameplay = () => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.900" position="relative" py={8} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
-      <Tooltip label="Keluar Permainan" placement="right">
-        <IconButton
-          icon={<FaTimes />}
-          position="absolute"
-          top={6}
-          left={6}
-          colorScheme="whiteAlpha"
-          variant="solid"
-          isRound
-          onClick={handleAbort}
-          aria-label="Abort Game"
-        />
-      </Tooltip>
+    <Box minH="100vh" bg="gray.900" position="relative" py={id === 'geoguessr' ? 0 : 8} display="flex" flexDirection="column" alignItems="center" justifyContent="center">
+      {id !== 'geoguessr' && (
+        <Tooltip label="Keluar Permainan" placement="right">
+          <IconButton
+            icon={<FaTimes />}
+            position="absolute"
+            top={6}
+            left={6}
+            colorScheme="whiteAlpha"
+            variant="solid"
+            isRound
+            onClick={handleAbort}
+            aria-label="Abort Game"
+            zIndex={100}
+          />
+        </Tooltip>
+      )}
 
-      <Container maxW="container.lg">
-        <Flex justify="center" w="full">
+      {id === 'geoguessr' ? (
+          <Box w="full" h="100vh">
             {renderGame()}
-        </Flex>
-      </Container>
+          </Box>
+      ) : (
+        <Container maxW="container.lg">
+          <Flex justify="center" w="full">
+              {renderGame()}
+          </Flex>
+        </Container>
+      )}
     </Box>
   );
 };
