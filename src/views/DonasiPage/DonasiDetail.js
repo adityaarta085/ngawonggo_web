@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Container, Grid, GridItem, Image, Text, VStack, Progress, Button,
   Heading, useColorModeValue, Flex, Icon, Divider, Input, Textarea,
-  FormControl, FormLabel, Checkbox, useToast, Skeleton, Alert, AlertIcon, AlertDescription
+  FormControl, FormLabel, Checkbox, useToast, Skeleton, Alert, AlertIcon, AlertDescription, Spinner
 } from '@chakra-ui/react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaHeart, FaCheckCircle, FaUsers, FaArrowLeft, FaQrcode } from 'react-icons/fa';
@@ -30,6 +30,7 @@ const DonasiDetail = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '', isAnonymous: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentData, setPaymentData] = useState(null);
+  const [paymentStatus, setPaymentStatus] = useState('pending');
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -70,10 +71,44 @@ const DonasiDetail = () => {
     setIsCustomAmount(true);
   };
 
+  useEffect(() => {
+      let interval;
+      const checkStatus = async () => {
+          if (!paymentData || paymentStatus !== 'pending') return;
+
+          try {
+              const res = await fetch(`/api/yogateway?action=check_public&trxid=${paymentData.trx_id}`);
+              const data = await res.json();
+
+              if (data.status && data.data) {
+                  const currentStatus = data.data.status.toLowerCase();
+
+                  if (currentStatus === 'success' || currentStatus === 'expired' || currentStatus === 'failed') {
+                      setPaymentStatus(currentStatus);
+
+                      // Fast sync the status with our backend so the DB updates instantly
+                      await fetch('/api/yogateway-sync', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ trx_id: paymentData.trx_id })
+                      });
+                  }
+              }
+          } catch (err) {
+              console.error('Polling error', err);
+          }
+      };
+
+      if (paymentData && paymentStatus === 'pending') {
+          interval = setInterval(checkStatus, 3000);
+      }
+      return () => clearInterval(interval);
+  }, [paymentData, paymentStatus]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!amount || amount < 10000) {
-      toast({ title: 'Minimal donasi Rp 10.000', status: 'warning' });
+    if (!amount || amount < 1000) {
+      toast({ title: 'Minimal donasi Rp 1.000', status: 'warning' });
       return;
     }
 
@@ -103,6 +138,7 @@ const DonasiDetail = () => {
 
         if (error) { console.error('Supabase Error:', error); throw error; }
         setPaymentData(trxData);
+        setPaymentStatus('pending');
       } else {
           toast({ title: 'Gagal membuat pembayaran', description: data.msg, status: 'error' });
       }
@@ -176,8 +212,8 @@ const DonasiDetail = () => {
 
                         <form onSubmit={handleSubmit}>
                             <VStack align="stretch" spacing={4}>
-                                <FormControl isRequired>
-                                    <FormLabel>Pilih Nominal Donasi</FormLabel>
+                                <FormControl>
+                                    <FormLabel>Pilih Nominal Donasi <Text as="span" color="red.500">*</Text></FormLabel>
                                     <Grid templateColumns="repeat(3, 1fr)" gap={2} mb={3}>
                                         {predefinedAmounts.map(val => (
                                             <Button
@@ -196,7 +232,7 @@ const DonasiDetail = () => {
                                         placeholder="Atau masukkan nominal lainnya"
                                         value={isCustomAmount ? amount : ''}
                                         onChange={handleCustomAmountChange}
-                                        min="10000"
+                                        min="1000"
                                     />
                                 </FormControl>
 
@@ -222,9 +258,29 @@ const DonasiDetail = () => {
                     </>
                 ) : (
                     <VStack align="center" spacing={6} textAlign="center" py={4}>
-                        <Icon as={FaCheckCircle} w={16} h={16} color="green.500" />
-                        <Heading size="md">Pembayaran Dibuat</Heading>
-                        <Text color="gray.600">Silakan selesaikan pembayaran Anda sebelum waktu habis.</Text>
+                        {paymentStatus === 'success' ? (
+                            <>
+                                <Icon as={FaCheckCircle} w={20} h={20} color="green.500" />
+                                <Heading size="lg" color="green.500">Pembayaran Berhasil!</Heading>
+                                <Text color="gray.600">Terima kasih atas donasi yang Anda berikan. Semoga menjadi berkah.</Text>
+                                <Button onClick={() => window.location.reload()} colorScheme="brand" w="full" mt={4}>
+                                    Donasi Lagi
+                                </Button>
+                            </>
+                        ) : paymentStatus === 'expired' || paymentStatus === 'failed' ? (
+                             <>
+                                <Icon as={FaCheckCircle} w={16} h={16} color="red.500" />
+                                <Heading size="md" color="red.500">Waktu Pembayaran Habis / Gagal</Heading>
+                                <Text color="gray.600">Silakan buat ulang transaksi donasi Anda.</Text>
+                                <Button onClick={() => window.location.reload()} colorScheme="brand" w="full" mt={4}>
+                                    Ulangi Transaksi
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Spinner size="xl" color="brand.500" thickness="4px" speed="0.65s" />
+                                <Heading size="md">Menunggu Pembayaran...</Heading>
+                                <Text color="gray.600">Silakan selesaikan pembayaran Anda sebelum waktu habis. Halaman akan otomatis refresh setelah pembayaran berhasil.</Text>
 
                         <Box bg="gray.50" p={4} borderRadius="lg" w="full">
                             <Text fontSize="sm" color="gray.500">Nominal</Text>
@@ -249,9 +305,11 @@ const DonasiDetail = () => {
                         <Alert status="info" borderRadius="md">
                             <AlertIcon />
                             <AlertDescription fontSize="sm">
-                                Sistem akan otomatis memverifikasi donasi Anda setelah pembayaran berhasil.
+                                Sistem sedang memantau pembayaran Anda secara real-time.
                             </AlertDescription>
                         </Alert>
+                            </>
+                        )}
                     </VStack>
                 )}
               </Box>
