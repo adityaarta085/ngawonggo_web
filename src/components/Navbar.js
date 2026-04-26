@@ -100,7 +100,7 @@ const Navbar = ({ user, isScrolled }) => {
           </Flex>
           <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} align="center">
             <HStack as={RouterLink} to="/" spacing={3} _hover={{ textDecoration: 'none' }} transition="transform 0.2s" _active={{ transform: 'scale(0.95)' }}>
-                <Image src="/logo_desa.png" h={{ base: "32px", md: "42px" }} alt="Logo" />
+                <Box bg="brand.600" p={1} borderRadius="md" display="flex" alignItems="center"><Image src="/logo_desa.png" h={{ base: "24px", md: "32px" }} alt="Logo" style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.5))" }} /></Box>
                 <VStack align="start" spacing={0} display={{ base: 'none', sm: 'flex' }}>
                    <Text
                     fontWeight="900"

@@ -398,7 +398,7 @@ const AuthPage = () => {
             />
 
           <VStack spacing={2} textAlign="center">
-            <Image src="/logo_desa.png" h="60px" fallbackSrc="https://via.placeholder.com/60" />
+            <Box bg="brand.600" p={2} borderRadius="xl" boxShadow="md" display="inline-block"><Image src="/logo_desa.png" h="50px" fallbackSrc="https://via.placeholder.com/60" style={{ filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.5))" }} /></Box>
             <Heading size="lg" color="brand.600">Portal Warga</Heading>
             <Text color="gray.500" fontSize="sm">Desa Ngawonggo, Magelang</Text>
           </VStack>
