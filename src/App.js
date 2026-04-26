@@ -95,6 +95,7 @@ function App() {
   });
 
   const [userSession, setUserSession] = useState(null);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
   const [showPreloader, setShowPreloader] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
   const [isVerified, setIsVerified] = useState(() => {
@@ -151,9 +152,9 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserSession(session);
       if (session) {
-        // We still let preloader run its course, but we can set verified true
         setIsVerified(true);
       }
+      setIsSessionLoading(false);
     });
 
     const {
@@ -163,6 +164,7 @@ function App() {
       if (session) {
         setIsVerified(true);
       }
+      setIsSessionLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -265,10 +267,10 @@ function App() {
             <Route path="/down" element={<TakedownPage />} />
             <Route path="/blocked" element={<BlockedPage />} />
 
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth" element={isSessionLoading ? null : (userSession ? <Navigate to="/portal" replace /> : <AuthPage />)} />
             <Route
                 path="/portal"
-                element={userSession ? <PortalPage /> : <Navigate to="/auth" replace />}
+                element={isSessionLoading ? null : (userSession ? <PortalPage /> : <Navigate to="/auth" replace />)}
             />
 
             <Route
