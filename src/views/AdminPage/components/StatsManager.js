@@ -58,7 +58,7 @@ const StatsManager = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Hapus statistik ini?')) {
+    if (window.confirm('Hapus data demografi ini?')) {
       const { error } = await supabase.from('village_stats').delete().eq('id', id);
       if (error) toast({ title: 'Error', status: 'error' });
       else { fetchStats(); toast({ title: 'Dihapus', status: 'success' }); }
@@ -81,8 +81,8 @@ const StatsManager = () => {
   return (
     <Box>
       <HStack justify="space-between" mb={6}>
-        <Text fontSize="xl" fontWeight="bold">Manajemen Statistik Desa</Text>
-        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={handleAddNew}>Tambah Statistik</Button>
+        <Text fontSize="xl" fontWeight="bold">Manajemen Demografi Penduduk</Text>
+        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={handleAddNew}>Tambah Data Demografi</Button>
       </HStack>
       <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
         <Table variant="simple">
@@ -118,7 +118,7 @@ const StatsManager = () => {
         <ModalOverlay />
         <ModalContent>
           <form onSubmit={handleSubmit}>
-            <ModalHeader>{editingStat ? 'Edit' : 'Tambah'} Statistik</ModalHeader>
+            <ModalHeader>{editingStat ? 'Edit' : 'Tambah'} Data Demografi</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <VStack spacing={4}>

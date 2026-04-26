@@ -71,7 +71,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Berita', icon: FaNewspaper },
     { name: '10 Dusun', icon: FaMapMarkedAlt },
     { name: 'Instansi', icon: FaImage },
-    { name: 'Statistik', icon: FaChartBar },
+    { name: 'Demografi', icon: FaChartBar },
     { name: 'Wisata', icon: FaMap },
     { name: 'Running Text', icon: FaBullhorn },
     { name: 'Google Doodles', icon: FaImage },
@@ -187,7 +187,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Berita' && <NewsManager />}
           {activeTab === '10 Dusun' && <DusunManager />}
           {activeTab === 'Instansi' && <InstitutionManager />}
-          {activeTab === 'Statistik' && <StatsManager />}
+          {activeTab === 'Demografi' && <StatsManager />}
           {activeTab === 'Running Text' && <AnnouncementManager />}
           {activeTab === 'Popup' && <PopupManager />}
           {activeTab === 'Pengaduan' && <ComplaintManager />}
