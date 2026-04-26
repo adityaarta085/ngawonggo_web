@@ -233,7 +233,7 @@ const DownloadSection = () => {
                  <NgawonggoLogo iconSize={10} fontSize="xs" />
                  <HStack spacing={6} justify="center">
                     <Image src="https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png" h="25px" objectFit="contain" />
-                    <Image src="https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png" h="25px" objectFit="contain" />
+
                  </HStack>
               </VStack>
             </Box>

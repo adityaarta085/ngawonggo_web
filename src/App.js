@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Box, Flex, Image, Tooltip, HStack, Collapse } from '@chakra-ui/react';
+import { Box, Flex, Tooltip, HStack, Collapse } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -35,6 +35,8 @@ import SplashScreen from './components/SplashScreen.js';
 import HumanVerification from './components/HumanVerification.js';
 import Chatbot from './components/Chatbot.js';
 import RunningText from './components/RunningText.js';
+import TopBarWeather from './components/TopBarWeather.js';
+
 import PopupNotification from './components/PopupNotification.js';
 import TakedownPage from './views/TakedownPage/index.js';
 import BlockedPage from './views/BlockedPage/index.js';
@@ -67,13 +69,7 @@ const TopBar = ({ isScrolled }) => {
                 <RunningText isEmbedded={true} />
               </Box>
             </HStack>
-            <Image
-              src="https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png"
-              h={{ base: "14px", md: "28px" }}
-              alt="Berakhlak - Bangga Melayani Bangsa"
-              flexShrink={0}
-              loading="lazy"
-            />
+            <TopBarWeather />
           </Flex>
         </Box>
     </Collapse>

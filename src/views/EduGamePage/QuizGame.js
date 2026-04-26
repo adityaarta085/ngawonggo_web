@@ -16,11 +16,7 @@ import {
 import { supabase } from '../../lib/supabase';
 
 const questionPool = [
-  {
-    question: "Apa singkatan dari SPBE?",
-    options: ["Sistem Pemerintahan Berbasis Elektronik", "Sistem Pengelolaan Berita Elektronik", "Sistem Pelayanan Bocah Edan", "Sistem Pembangunan Berbasis Ekonomi"],
-    answer: 0
-  },
+
   {
     question: "Tahun berapa Desa Ngawonggo ditargetkan menjadi model Desa Digital?",
     options: ["2025", "2030", "2045", "2100"],
