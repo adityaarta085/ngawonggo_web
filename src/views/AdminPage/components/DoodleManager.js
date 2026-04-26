@@ -71,7 +71,7 @@ const DoodleManager = () => {
     if (!file) return;
     try {
       setLoading(true);
-      const url = await uploadToSupabase(file, 'doodles');
+      const url = await uploadToSupabase(file);
       setFormData({ ...formData, image_url: url });
       toast({ title: 'Image uploaded', status: 'success' });
     } catch (error) {
