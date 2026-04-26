@@ -16,7 +16,7 @@ const formatRupiah = (number) => {
 const predefinedAmounts = [10000, 20000, 50000, 100000, 500000];
 
 const DonasiDetail = () => {
-  const { id } = useParams();
+  const { id, trx_id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
   const bg = useColorModeValue('white', 'gray.800');
@@ -31,9 +31,10 @@ const DonasiDetail = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentData, setPaymentData] = useState(null);
   const [paymentStatus, setPaymentStatus] = useState('pending');
+  const [timeLeft, setTimeLeft] = useState(15 * 60);
 
   useEffect(() => {
-    const fetchCampaign = async () => {
+    const fetchCampaignAndTransaction = async () => {
       const { data, error } = await supabase
         .from('donation_campaigns')
         .select('*')
@@ -55,11 +56,43 @@ const DonasiDetail = () => {
         .order('created_at', { ascending: false });
 
       if (donatorsData) setDonators(donatorsData);
+
+      if (trx_id) {
+        const { data: trxData, error: trxError } = await supabase
+          .from('donations')
+          .select('*')
+          .eq('trx_id', trx_id)
+          .single();
+
+        if (!trxError && trxData) {
+          setPaymentData({
+            trx_id: trxData.trx_id,
+            payment_url: trxData.payment_url,
+            qr_image: trxData.qr_image,
+            amount: trxData.amount,
+            created_at: trxData.created_at
+          });
+          setPaymentStatus(trxData.status);
+
+          if (trxData.status === 'pending') {
+            const createdAt = new Date(trxData.created_at).getTime();
+            const now = new Date().getTime();
+            const diffSeconds = Math.floor((createdAt + 15 * 60 * 1000 - now) / 1000);
+
+            if (diffSeconds > 0) {
+              setTimeLeft(diffSeconds);
+            } else {
+              setPaymentStatus('expired');
+            }
+          }
+        }
+      }
+
       setLoading(false);
     };
 
-    fetchCampaign();
-  }, [id, navigate, toast]);
+    fetchCampaignAndTransaction();
+  }, [id, trx_id, navigate, toast]);
 
   const handleAmountSelect = (val) => {
     setAmount(val);
@@ -71,6 +104,28 @@ const DonasiDetail = () => {
     setIsCustomAmount(true);
   };
 
+  // Countdown Timer
+  useEffect(() => {
+    let timer;
+    if (paymentData && paymentStatus === 'pending') {
+      timer = setInterval(() => {
+        const createdAt = new Date(paymentData.created_at || Date.now()).getTime();
+        const now = new Date().getTime();
+        const diffSeconds = Math.floor((createdAt + 15 * 60 * 1000 - now) / 1000);
+
+        if (diffSeconds > 0) {
+          setTimeLeft(diffSeconds);
+        } else {
+          setTimeLeft(0);
+          setPaymentStatus('expired');
+          clearInterval(timer);
+        }
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [paymentData, paymentStatus]);
+
+  // Polling Status
   useEffect(() => {
       let interval;
       const checkStatus = async () => {
@@ -157,8 +212,9 @@ const DonasiDetail = () => {
             }]);
 
         if (error) { console.error('Supabase Error:', error); throw error; }
-        setPaymentData({ ...trxData, trx_id: trxData.qris_id || trxData.payment_reference, payment_url: trxData.checkout_url, qr_image: trxData.qris_image_url });
-        setPaymentStatus('pending');
+
+        // Navigate to the transaction URL
+        navigate(`/donasi/${id}/${trxData.qris_id || trxData.payment_reference}`);
       } else {
           toast({ title: 'Gagal membuat pembayaran', description: data.msg, status: 'error' });
       }
@@ -283,7 +339,7 @@ const DonasiDetail = () => {
                                 <Icon as={FaCheckCircle} w={20} h={20} color="green.500" />
                                 <Heading size="lg" color="green.500">Pembayaran Berhasil!</Heading>
                                 <Text color="gray.600">Terima kasih atas donasi yang Anda berikan. Semoga menjadi berkah.</Text>
-                                <Button onClick={() => window.location.reload()} colorScheme="brand" w="full" mt={4}>
+                                <Button onClick={() => navigate('/donasi')} colorScheme="brand" w="full" mt={4}>
                                     Donasi Lagi
                                 </Button>
                             </>
@@ -292,7 +348,7 @@ const DonasiDetail = () => {
                                 <Icon as={FaCheckCircle} w={16} h={16} color="red.500" />
                                 <Heading size="md" color="red.500">Waktu Pembayaran Habis / Gagal</Heading>
                                 <Text color="gray.600">Silakan buat ulang transaksi donasi Anda.</Text>
-                                <Button onClick={() => window.location.reload()} colorScheme="brand" w="full" mt={4}>
+                                <Button onClick={() => navigate(`/donasi/${id}`)} colorScheme="brand" w="full" mt={4}>
                                     Ulangi Transaksi
                                 </Button>
                             </>
@@ -310,9 +366,17 @@ const DonasiDetail = () => {
                         </Box>
 
                         {paymentData.qr_image && (
-                            <Box border="1px solid" borderColor="gray.200" p={4} borderRadius="lg" bg="white">
+                            <Box border="1px solid" borderColor="gray.200" p={4} borderRadius="lg" bg="white" position="relative">
                                 <Text fontSize="sm" fontWeight="bold" mb={2}><Icon as={FaQrcode} /> Scan QRIS</Text>
                                 <Image src={paymentData.qr_image} alt="QRIS" boxSize="200px" objectFit="contain" />
+
+                                <Box mt={4} p={3} bg="red.50" color="red.600" borderRadius="md" fontWeight="bold">
+                                    <Text fontSize="sm" mb={1}>Selesaikan pembayaran dalam</Text>
+                                    <Text fontSize="xl">
+                                        {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:
+                                        {(timeLeft % 60).toString().padStart(2, '0')}
+                                    </Text>
+                                </Box>
                             </Box>
                         )}
 
