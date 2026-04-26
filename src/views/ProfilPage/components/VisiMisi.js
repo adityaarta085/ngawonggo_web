@@ -1,12 +1,25 @@
-import {
-  Flex,
-  ListItem,
-  Text,
-  OrderedList,
-  Box,
-} from '@chakra-ui/react';
+
+import { Flex, Text, Box } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../../../lib/supabase';
 
 const VisiMisi = () => {
+  const [visi, setVisi] = useState('');
+  const [misi, setMisi] = useState('');
+
+  useEffect(() => {
+    const fetch = async () => {
+      const {data} = await supabase.from('site_settings').select('key, value').in('key', ['profil_visi', 'profil_misi']);
+      if(data) {
+        data.forEach(d => {
+          if(d.key === 'profil_visi') setVisi(d.value);
+          if(d.key === 'profil_misi') setMisi(d.value);
+        });
+      }
+    };
+    fetch();
+  }, []);
+
   return (
     <Flex flexDirection="column">
       <Box my={5}>
@@ -16,31 +29,15 @@ const VisiMisi = () => {
         <Text fontFamily="heading" fontSize="25px">
           Visi
         </Text>
-        <Text fontFamily="heading">
-          “Mewujudkan Desa Ngawonggo yang Mandiri, Religius, dan Berbudaya Berbasis Potensi Lokal Menuju Era Digital 2045.”
-        </Text>
+        <Box fontFamily="heading" dangerouslySetInnerHTML={{ __html: visi }} />
       </Box>
       <Box>
         <Text fontFamily="heading" fontSize="25px">
           Misi
         </Text>
-        <OrderedList fontFamily="heading">
-          <ListItem>
-            Meningkatkan kualitas pelayanan publik melalui transformasi digital.
-          </ListItem>
-          <ListItem>
-            Mengoptimalkan potensi pertanian kopi dan hortikultura sebagai penggerak ekonomi desa.
-          </ListItem>
-          <ListItem>
-            Melestarikan nilai-nilai budaya lokal dan memperkuat identitas desa religius.
-          </ListItem>
-          <ListItem>
-            Membangun infrastruktur desa yang berkelanjutan dan ramah lingkungan.
-          </ListItem>
-        </OrderedList>
+        <Box fontFamily="heading" dangerouslySetInnerHTML={{ __html: misi }} />
       </Box>
     </Flex>
   );
 };
-
 export default VisiMisi;

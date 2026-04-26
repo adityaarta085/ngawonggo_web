@@ -1,13 +1,17 @@
-import {
-  Box,
-  Flex,
-  Text,
-  Divider,
-} from '@chakra-ui/react';
+
+import { Box, Flex, Text, Divider } from '@chakra-ui/react';
 import NgawonggoLogo from '../../../components/NgawonggoLogo';
 import DownloadSection from './DownloadSection';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '../../../lib/supabase';
 
 const LogoDesa = () => {
+  const [content, setContent] = useState('');
+  useEffect(() => {
+    supabase.from('site_settings').select('value').eq('key', 'profil_makna_logo').single()
+      .then(({data}) => { if(data) setContent(data.value) });
+  }, []);
+
   return (
     <Flex fontFamily="heading" flexDirection="column" gap={4}>
       <Text fontWeight="600" fontSize="35px">
@@ -23,18 +27,7 @@ const LogoDesa = () => {
       </Box>
       <Box>
         <Text fontSize="25px">Makna Logo Desa Ngawonggo</Text>
-        <Text mt={2}>
-          Logo resmi Desa Ngawonggo melambangkan identitas budaya, sejarah, dan kekayaan alam desa yang luhur.
-        </Text>
-        <Text mt={2}>
-          <b>Simbol Candi/Petirtaan:</b> Melambangkan Situs Ngawonggo sebagai warisan sejarah dan budaya peninggalan masa lalu yang menjadi identitas desa.
-        </Text>
-        <Text mt={2}>
-          <b>Tetesan Air:</b> Melambangkan kelimpahan sumber mata air (petirtaan) pegunungan yang jernih, suci, dan memberikan kehidupan bagi masyarakat.
-        </Text>
-        <Text mt={2}>
-          <b>Padi dan Lingkaran:</b> Melambangkan kemakmuran dalam sektor pertanian serta kesatuan dan semangat gotong royong warga Desa Ngawonggo.
-        </Text>
+        <Box mt={2} dangerouslySetInnerHTML={{ __html: content }} />
       </Box>
 
       <Divider my={10} />
@@ -43,5 +36,4 @@ const LogoDesa = () => {
     </Flex>
   );
 };
-
 export default LogoDesa;
