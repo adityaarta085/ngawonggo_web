@@ -12,9 +12,7 @@ const SplashScreen = ({ onComplete }) => {
   const logos = [
     { type: 'component', component: <NgawonggoLogo fontSize="4xl" iconSize={16} flexDirection="column" /> },
     { type: 'image', src: 'https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png', label: 'Kabupaten Magelang' },
-    { type: 'image', src: 'https://www.menpan.go.id/site/images/logo/berakhlak-bangga-melayani-bangsa.png', label: '' },
-    { type: 'image', src: 'https://but.co.id/wp-content/uploads/2023/09/Logo-SPBE.png', label: '' },
-  ];
+          ];
 
   useEffect(() => {
     if (step < logos.length) {

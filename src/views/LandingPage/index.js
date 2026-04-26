@@ -1,7 +1,6 @@
 import { InstallPWA, SEO, SpecialEventPoster } from "../../components";
 import { Box } from '@chakra-ui/react';
 import Hero from './components/Hero.js';
-import QuickLinks from './components/QuickLinks.js';
 import LatestNews from './components/LatestNews.js';
 import DusunSection from './components/DusunSection.js';
 import VideoPromo from './components/VideoPromo.js';
@@ -9,7 +8,6 @@ import Supports from './components/Supports.js';
 import StatsSection from './components/StatsSection.js';
 import PengaduanSection from './components/PengaduanSection.js';
 import QuranAccess from './components/QuranAccess.js';
-import BMKGSection from './components/BMKGSection.js';
 // Ramadan has ended
 // import RamadanSection from './components/RamadanSection.js';
 
@@ -25,8 +23,6 @@ export default function LandingPage() {
       <InstallPWA />
       {/* Ramadan ended */}
       {/* <RamadanSection /> */}
-      <BMKGSection />
-      <QuickLinks />
       <StatsSection />
       <DusunSection />
       <LatestNews />

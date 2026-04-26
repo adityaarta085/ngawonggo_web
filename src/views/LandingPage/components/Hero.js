@@ -1,24 +1,16 @@
 import React from 'react';
-import { Box, Container, Heading, Text, Button, Stack, useBreakpointValue, Icon } from '@chakra-ui/react';
+import { Box, Container, Stack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { Link as RouterLink } from 'react-router-dom';
-import { useLanguage } from '../../../contexts/LanguageContext';
-import { translations } from '../../../translations';
-import { FaArrowRight, FaPlay } from 'react-icons/fa';
+import NgawonggoLogo from '../../../components/NgawonggoLogo';
+import QuickLinks from './QuickLinks';
 
-const MotionHeading = motion(Heading);
-const MotionText = motion(Text);
-const MotionStack = motion(Stack);
 const MotionBox = motion(Box);
 
 const Hero = () => {
-  const { language } = useLanguage();
-  const t = translations[language].hero;
-
   return (
     <Box
       position="relative"
-      minH="100svh"
+      minH={{ base: "80svh", md: "100svh" }}
       display="flex"
       alignItems="center"
       justifyContent="center"
@@ -75,122 +67,22 @@ const Hero = () => {
       />
 
       <Container maxW="container.xl" zIndex={3} position="relative">
-        <Stack spacing={{ base: 6, md: 10 }} maxW="4xl" align="center" textAlign="center" mx="auto">
-          <MotionHeading
-            as="h1"
-            fontSize={useBreakpointValue({ base: '4xl', md: '6xl', lg: '8xl' })}
-            color="white"
-            lineHeight="1.1"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, delay: 0.2, type: "spring", stiffness: 50 }}
-            textShadow="0 15px 40px rgba(0,0,0,0.6)"
-            fontWeight="900"
-            bgClip="text"
-            bgGradient="linear(to-r, white, whiteAlpha.800)"
+        <Stack spacing={{ base: 10, md: 16 }} align="center" textAlign="center" mx="auto" w="full">
+          <MotionBox
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2, type: "spring", stiffness: 50 }}
+            _hover={{ scale: 1.05 }}
+            cursor="pointer"
           >
-            {t.title}
-          </MotionHeading>
+            <NgawonggoLogo fontSize={{ base: "4xl", md: "5xl" }} iconSize={{ base: 24, md: 32 }} flexDirection="column" color="white" />
+          </MotionBox>
 
-          <MotionText
-            fontSize={useBreakpointValue({ base: 'lg', md: '2xl' })}
-            color="whiteAlpha.900"
-            fontWeight="500"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.5, type: "spring", stiffness: 50 }}
-            textShadow="0 4px 15px rgba(0,0,0,0.4)"
-            maxW="2xl"
-            lineHeight="tall"
-          >
-            {t.subtitle}
-          </MotionText>
-
-          <MotionStack
-            direction={{ base: 'column', sm: 'row' }}
-            spacing={6}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.8, type: "spring", stiffness: 50 }}
-            pt={6}
-            justify="center"
-          >
-            <Button
-              as={RouterLink}
-              to="/profil"
-              size="xl"
-              bgGradient="linear(to-r, brand.400, brand.600)"
-              color="white"
-              px={12}
-              height="70px"
-              fontSize="lg"
-              boxShadow="0 15px 30px -10px rgba(19, 127, 236, 0.6)"
-              borderRadius="full"
-              rightIcon={<Icon as={FaArrowRight} />}
-              _hover={{
-                transform: 'translateY(-5px) scale(1.05)',
-                boxShadow: '0 25px 50px -10px rgba(19, 127, 236, 0.8)',
-                bgGradient: "linear(to-r, brand.300, brand.500)"
-              }}
-              transition="all 0.4s cubic-bezier(.4,0,.2,1)"
-            >
-              {t.cta}
-            </Button>
-            <Button
-              as={RouterLink}
-              to="/media"
-              size="xl"
-              variant="outline"
-              color="white"
-              _hover={{
-                bg: 'whiteAlpha.200',
-                transform: 'translateY(-5px)',
-                borderColor: 'white'
-              }}
-              px={12}
-              height="70px"
-              fontSize="lg"
-              borderColor="whiteAlpha.500"
-              borderRadius="full"
-              leftIcon={<Icon as={FaPlay} />}
-              backdropFilter="blur(15px)"
-              transition="all 0.4s cubic-bezier(.4,0,.2,1)"
-            >
-              {language === 'id' ? 'Galeri Media' : 'Media Gallery'}
-            </Button>
-          </MotionStack>
+          <Box w="full" maxW="4xl">
+            <QuickLinks isHero={true} />
+          </Box>
         </Stack>
       </Container>
-
-      {/* Enhanced Scroll Indicator */}
-      <MotionBox
-        position="absolute"
-        bottom="40px"
-        display={{ base: "none", md: "flex" }}
-        flexDirection="column"
-        alignItems="center"
-        left="50%"
-        transform="translateX(-50%)"
-        zIndex={10}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-      >
-        <Text color="whiteAlpha.700" fontSize="xs" fontWeight="bold" letterSpacing="widest" mb={3} textTransform="uppercase">Scroll</Text>
-        <MotionBox
-          animate={{
-            y: [0, 15, 0],
-            opacity: [0.4, 1, 0.4]
-          }}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <Box w="2px" h="60px" bgGradient="linear(to-b, whiteAlpha.900, transparent)" borderRadius="full" />
-        </MotionBox>
-      </MotionBox>
     </Box>
   );
 };
