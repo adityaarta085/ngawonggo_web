@@ -11,13 +11,24 @@ import {
   Card,
   CardBody,
   Input,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Divider,
+  Flex,
+  HStack,
 } from '@chakra-ui/react';
-import { FaSave } from 'react-icons/fa';
+import { FaSave, FaEye } from 'react-icons/fa';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { supabase } from '../../../lib/supabase';
 
 const ProfilManager = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [settings, setSettings] = useState({
@@ -50,9 +61,7 @@ const ProfilManager = () => {
       if (data) {
         const mapped = {};
         data.forEach(item => {
-          if (mapped.hasOwnProperty(item.key)) {
-            mapped[item.key] = item.value;
-          }
+          mapped[item.key] = item.value;
         });
         setSettings(prev => ({ ...prev, ...mapped }));
       }
@@ -183,22 +192,71 @@ const ProfilManager = () => {
           </CardBody>
         </Card>
 
-        <Button
-          leftIcon={<FaSave />}
-          colorScheme="brand"
-          size="lg"
-          onClick={handleSave}
-          isLoading={loading}
-          w="full"
-          maxW="300px"
-          alignSelf="center"
-          boxShadow="lg"
-        >
-          Simpan Profil Desa
-        </Button>
+
+        <HStack w="full" maxW="400px" alignSelf="center" spacing={4}>
+          <Button
+            leftIcon={<FaEye />}
+            colorScheme="gray"
+            size="lg"
+            onClick={onOpen}
+            w="full"
+            boxShadow="md"
+          >
+            Preview
+          </Button>
+          <Button
+            leftIcon={<FaSave />}
+            colorScheme="brand"
+            size="lg"
+            onClick={handleSave}
+            isLoading={loading}
+            w="full"
+            boxShadow="lg"
+          >
+            Simpan
+          </Button>
+        </HStack>
+
+        <Modal isOpen={isOpen} onClose={onClose} size="4xl" scrollBehavior="inside">
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Preview Profil Desa</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody pb={6}>
+              <Flex flexDirection="column" gap={8} fontFamily="heading">
+                <Box>
+                  <Text fontWeight="600" fontSize="35px" mb={4}>Sejarah Desa</Text>
+                  <Box dangerouslySetInnerHTML={{ __html: settings.profil_sejarah }} />
+                </Box>
+                <Divider />
+                <Box>
+                  <Text fontWeight="600" fontSize="35px" mb={4}>Visi Misi</Text>
+                  <Text fontSize="25px">Visi</Text>
+                  <Box dangerouslySetInnerHTML={{ __html: settings.profil_visi }} />
+                  <Text fontSize="25px" mt={4}>Misi</Text>
+                  <Box dangerouslySetInnerHTML={{ __html: settings.profil_misi }} />
+                </Box>
+                <Divider />
+                <Box>
+                  <Text fontWeight="600" fontSize="35px" mb={4}>Kondisi Geografis</Text>
+                  <Box dangerouslySetInnerHTML={{ __html: settings.profil_kondisi_geo }} />
+                </Box>
+                <Divider />
+                <Box>
+                  <Text fontWeight="600" fontSize="35px" mb={4}>Data Wilayah</Text>
+                  <Box dangerouslySetInnerHTML={{ __html: settings.profil_data_wilayah }} />
+                </Box>
+                <Divider />
+                <Box>
+                  <Text fontWeight="600" fontSize="35px" mb={4}>Makna Logo Desa</Text>
+                  <Box dangerouslySetInnerHTML={{ __html: settings.profil_makna_logo }} />
+                </Box>
+              </Flex>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
       </VStack>
     </Box>
   );
 };
-
 export default ProfilManager;
