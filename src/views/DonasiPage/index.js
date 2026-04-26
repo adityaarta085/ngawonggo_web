@@ -9,6 +9,7 @@ const DonasiRouter = () => {
     <Routes>
       <Route path="/" element={<DonasiList />} />
       <Route path="/:id" element={<DonasiDetail />} />
+      <Route path="/:id/:trx_id" element={<DonasiDetail />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

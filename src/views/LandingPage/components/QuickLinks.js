@@ -13,6 +13,12 @@ import {
   FaBullhorn,
   FaBookOpen,
   FaGamepad,
+  FaNewspaper,
+  FaDonate,
+  FaPhotoVideo,
+  FaPlayCircle,
+  FaPhoneAlt,
+  FaCompass,
 } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
@@ -29,49 +35,79 @@ const QuickLinks = ({ isHero }) => {
       icon: FaInfoCircle,
       href: '/profil',
       color: 'brand.400',
-      description: language === 'id' ? 'Sejarah & Visi Misi' : 'History & Vision'
     },
     {
       label: language === 'id' ? 'Layanan' : 'Services',
       icon: FaHandHoldingHeart,
       href: '/layanan',
       color: 'green.400',
-      description: language === 'id' ? 'Urus Dokumen' : 'Manage Docs'
     },
     {
       label: language === 'id' ? 'Pemerintahan' : 'Government',
       icon: FaGavel,
       href: '/pemerintahan',
       color: 'orange.400',
-      description: language === 'id' ? 'Struktur Organisasi' : 'Organization'
+    },
+    {
+      label: language === 'id' ? 'Berita' : 'News',
+      icon: FaNewspaper,
+      href: '/news',
+      color: 'blue.400',
+    },
+    {
+      label: language === 'id' ? 'Donasi' : 'Donation',
+      icon: FaDonate,
+      href: '/donasi',
+      color: 'pink.400',
     },
     {
         label: language === 'id' ? 'Al-Qur\'an' : 'Al-Quran',
         icon: FaBookOpen,
         href: '/quran',
         color: 'teal.400',
-        description: language === 'id' ? 'Digital & Murottal' : 'Digital & Audio'
     },
     {
       label: language === 'id' ? 'Edu Game' : 'Edu Game',
       icon: FaGamepad,
       href: '/game',
       color: 'purple.400',
-      description: language === 'id' ? 'Bermain & Belajar' : 'Play & Learn'
+    },
+    {
+      label: language === 'id' ? 'Media' : 'Media',
+      icon: FaPhotoVideo,
+      href: '/media',
+      color: 'cyan.400',
+    },
+    {
+      label: language === 'id' ? 'Anime' : 'Anime',
+      icon: FaPlayCircle,
+      href: '/anime',
+      color: 'red.400',
+    },
+    {
+      label: language === 'id' ? 'Jelajahi' : 'Explore',
+      icon: FaCompass,
+      href: '/jelajahi',
+      color: 'yellow.400',
     },
     {
       label: language === 'id' ? 'Pengaduan' : 'Complaints',
       icon: FaBullhorn,
       href: '#pengaduan',
-      color: 'red.400',
-      description: language === 'id' ? 'Sampaikan Laporan' : 'Submit Reports'
+      color: 'red.500',
+    },
+    {
+      label: language === 'id' ? 'Kontak' : 'Contact',
+      icon: FaPhoneAlt,
+      href: '/kontak',
+      color: 'gray.400',
     },
   ];
 
   if (isHero) {
       return (
         <Box w="full" px={{ base: 4, md: 0 }}>
-            <SimpleGrid columns={{ base: 3, md: 6 }} spacing={{ base: 4, md: 6 }}>
+            <SimpleGrid columns={{ base: 3, md: 4, lg: 6 }} spacing={{ base: 4, md: 6 }}>
               {links.map((link, index) => (
                 <Link
                   key={index}
