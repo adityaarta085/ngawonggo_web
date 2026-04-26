@@ -52,6 +52,7 @@ import PemerintahanManager from './components/PemerintahanManager';
 import UserManager from './components/UserManager';
 import ProfilManager from './components/ProfilManager';
 import DoodleManager from './components/DoodleManager';
+import LogoManager from './components/LogoManager';
 import CsManager from './components/CsManager';
 import { FaHeadset, FaHeart } from 'react-icons/fa';
 import DonasiManager from './components/DonasiManager';
@@ -74,6 +75,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Wisata', icon: FaMap },
     { name: 'Running Text', icon: FaBullhorn },
     { name: 'Google Doodles', icon: FaImage },
+    { name: 'Kustomisasi Logo', icon: FaImage },
     { name: 'Popup', icon: FaWindowMaximize },
     { name: 'Pengaduan', icon: FaExclamationCircle },
     { name: 'Komentar', icon: FaComments },
@@ -197,6 +199,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Pengguna' && <UserManager />}
           {activeTab === 'Profil Desa' && <ProfilManager />}
           {activeTab === 'Google Doodles' && <DoodleManager />}
+          {activeTab === 'Kustomisasi Logo' && <LogoManager />}
         </Box>
       </Box>
     </Box>

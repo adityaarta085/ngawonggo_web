@@ -48,7 +48,9 @@ const DoodleManager = () => {
     end_date: '',
     animation_type: 'float',
     easter_egg_action: 'confetti',
-    background_effect: 'aurora'
+    background_effect: 'aurora',
+    show_default_logo: false,
+    use_in_splash_screen: false
   });
 
   const fetchDoodles = async () => {
@@ -97,7 +99,9 @@ const DoodleManager = () => {
         end_date: formData.end_date || null,
         animation_type: formData.animation_type,
         easter_egg_action: formData.easter_egg_action,
-        background_effect: formData.background_effect
+        background_effect: formData.background_effect,
+        show_default_logo: formData.show_default_logo,
+        use_in_splash_screen: formData.use_in_splash_screen
       };
 
       if (editingId) {
@@ -152,7 +156,9 @@ const DoodleManager = () => {
         end_date: doodle.end_date || '',
         animation_type: doodle.animation_type || 'float',
         easter_egg_action: doodle.easter_egg_action || 'confetti',
-        background_effect: doodle.background_effect || 'aurora'
+        background_effect: doodle.background_effect || 'aurora',
+        show_default_logo: doodle.show_default_logo || false,
+        use_in_splash_screen: doodle.use_in_splash_screen || false
       });
     } else {
       setEditingId(null);
@@ -164,7 +170,9 @@ const DoodleManager = () => {
         end_date: '',
         animation_type: 'float',
         easter_egg_action: 'confetti',
-        background_effect: 'aurora'
+        background_effect: 'aurora',
+    show_default_logo: false,
+    use_in_splash_screen: false
       });
     }
     onOpen();
@@ -285,6 +293,17 @@ const DoodleManager = () => {
                   <option value="spin_fast">Berputar Cepat</option>
                   <option value="explode">Efek Pecah</option>
                 </Select>
+              </FormControl>
+
+
+              <FormControl display="flex" alignItems="center" mt={4}>
+                <FormLabel mb="0">Tampilkan Logo Default di depan Doodle?</FormLabel>
+                <Switch isChecked={formData.show_default_logo} onChange={(e) => setFormData({...formData, show_default_logo: e.target.checked})} colorScheme="brand" />
+              </FormControl>
+
+              <FormControl display="flex" alignItems="center" mt={4}>
+                <FormLabel mb="0">Tampilkan Doodle di Splash Screen?</FormLabel>
+                <Switch isChecked={formData.use_in_splash_screen} onChange={(e) => setFormData({...formData, use_in_splash_screen: e.target.checked})} colorScheme="brand" />
               </FormControl>
 
               <FormControl display="flex" alignItems="center" mt={4}>

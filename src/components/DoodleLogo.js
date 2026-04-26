@@ -105,6 +105,11 @@ const DoodleLogo = ({ doodleData }) => {
           whileTap={{ scale: 0.95 }}
           position="relative"
         >
+            {doodleData.show_default_logo && (
+              <Box position="absolute" bottom="-15px" right="-15px" zIndex={2} transform="scale(0.6)">
+                  <NgawonggoLogo fontSize="2xl" iconSize={12} flexDirection="row" color="white" />
+              </Box>
+            )}
             <MotionImage
               src={doodleData.image_url}
               alt={doodleData.title}
