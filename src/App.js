@@ -31,6 +31,7 @@ import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
 import TermsConditions from './views/Legal/TermsConditions.js';
 import CreditsPage from './views/CreditsPage/index.js';
 import ScrollToTop from './components/ScrollToTop.js';
+import Preloader from './components/Preloader.js';
 import SplashScreen from './components/SplashScreen.js';
 import HumanVerification from './components/HumanVerification.js';
 import Chatbot from './components/Chatbot.js';
@@ -94,6 +95,7 @@ function App() {
   });
 
   const [userSession, setUserSession] = useState(null);
+  const [showPreloader, setShowPreloader] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
   const [isVerified, setIsVerified] = useState(() => {
     try {
@@ -149,7 +151,7 @@ function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserSession(session);
       if (session) {
-        setShowSplash(false);
+        // We still let preloader run its course, but we can set verified true
         setIsVerified(true);
       }
     });
@@ -159,7 +161,6 @@ function App() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserSession(session);
       if (session) {
-        setShowSplash(false);
         setIsVerified(true);
       }
     });
@@ -167,7 +168,7 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const isBypassed = (!showSplash && isVerified) || userSession;
+  const isBypassed = (!showPreloader && !showSplash && isVerified) || (userSession && !showPreloader && !showSplash);
 
   if (isBlocked && !isAdmin && !isBlockedPage) {
     return <Navigate to="/blocked" replace />;
@@ -189,7 +190,9 @@ function App() {
     <Box overflowX="hidden" maxW="100vw">
       {!isBypassed && !isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
         <>
-          {showSplash ? (
+          {showPreloader ? (
+            <Preloader onComplete={() => setShowPreloader(false)} timeout={3000} />
+          ) : showSplash ? (
             <SplashScreen onComplete={() => setShowSplash(false)} />
           ) : (
             <HumanVerification onVerified={() => {

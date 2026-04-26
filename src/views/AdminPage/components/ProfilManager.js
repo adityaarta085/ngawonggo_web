@@ -39,6 +39,7 @@ const ProfilManager = () => {
     profil_data_wilayah: '',
     profil_data_wilayah_map: '',
     profil_makna_logo: '',
+    profil_demografi: '',
   });
 
   const fetchSettings = useCallback(async () => {
@@ -54,6 +55,7 @@ const ProfilManager = () => {
           'profil_data_wilayah',
           'profil_data_wilayah_map',
           'profil_makna_logo',
+          'profil_demografi',
         ]);
 
       if (error) throw error;
@@ -179,6 +181,16 @@ const ProfilManager = () => {
                 />
               </FormControl>
 
+
+              <FormControl>
+                <FormLabel fontWeight="bold">Demografi Penduduk</FormLabel>
+                <ReactQuill
+                  theme="snow"
+                  value={settings.profil_demografi}
+                  onChange={(val) => handleChange('profil_demografi', val)}
+                />
+              </FormControl>
+
               <FormControl>
                 <FormLabel fontWeight="bold">Makna Logo Desa</FormLabel>
                 <ReactQuill
@@ -245,6 +257,12 @@ const ProfilManager = () => {
                 <Box>
                   <Text fontWeight="600" fontSize="35px" mb={4}>Data Wilayah</Text>
                   <Box dangerouslySetInnerHTML={{ __html: settings.profil_data_wilayah }} />
+                </Box>
+                <Divider />
+
+                <Box>
+                  <Text fontWeight="600" fontSize="35px" mb={4}>Demografi Penduduk</Text>
+                  <Box dangerouslySetInnerHTML={{ __html: settings.profil_demografi }} />
                 </Box>
                 <Divider />
                 <Box>
