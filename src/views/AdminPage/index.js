@@ -50,6 +50,7 @@ import DusunManager from './components/DusunManager';
 import BroadcastManager from './components/BroadcastManager';
 import PemerintahanManager from './components/PemerintahanManager';
 import UserManager from './components/UserManager';
+import ProfilManager from './components/ProfilManager';
 import CsManager from './components/CsManager';
 import { FaHeadset, FaHeart } from 'react-icons/fa';
 import DonasiManager from './components/DonasiManager';
@@ -63,6 +64,7 @@ const AdminPage = ({ setSession }) => {
 
   const menuItems = [
     { name: 'Dashboard', icon: FaHome },
+    { name: 'Profil Desa', icon: FaNewspaper },
     { name: 'Donasi', icon: FaHeart },
     { name: 'Berita', icon: FaNewspaper },
     { name: '10 Dusun', icon: FaMapMarkedAlt },
@@ -191,6 +193,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Pemerintahan' && <PemerintahanManager />}
           {activeTab === 'Customer Service' && <CsManager />}
           {activeTab === 'Pengguna' && <UserManager />}
+          {activeTab === 'Profil Desa' && <ProfilManager />}
         </Box>
       </Box>
     </Box>
