@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Box, VStack, HStack, Text, Heading, Table, Thead, Tbody, Tr, Th, Td,
-  Button, IconButton,  useToast, Modal, ModalOverlay, ModalContent,
+  Button, IconButton,  useToast, Badge, Modal, ModalOverlay, ModalContent,
   ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure,
   FormControl, FormLabel, Input, Tooltip, InputGroup, InputLeftElement, Tabs, TabList, TabPanels, Tab, TabPanel, Textarea } from '@chakra-ui/react';
 import { FaTrash, FaEnvelope, FaPlus, FaSearch, FaUserShield, FaExclamationTriangle, FaMagic } from 'react-icons/fa';
@@ -198,6 +198,8 @@ const UserManager = () => {
                 <Th>ID</Th>
                 <Th>Email & Kontak</Th>
                 <Th>Login Terakhir</Th>
+                <Th>Level</Th>
+                <Th>Aset (Koin/Tik/Pts)</Th>
                 <Th>Aksi Email</Th>
                 <Th>Aksi Manajemen</Th>
               </Tr>
@@ -215,6 +217,8 @@ const UserManager = () => {
                   <Td>
                     {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : 'Belum Pernah'}
                   </Td>
+                  <Td><Badge colorScheme={user.tier_name === 'VIP' ? 'purple' : user.tier_name === 'Gold' ? 'yellow' : user.tier_name === 'Silver' ? 'gray' : 'green'}>{user.tier_name || 'Free'}</Badge></Td>
+                  <Td>{user.coins} / {user.tickets} / {user.points}</Td>
                   <Td>
                     <HStack spacing={2}>
                       <Tooltip label="Kirim Email Biasa">
