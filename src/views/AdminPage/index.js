@@ -46,6 +46,7 @@ import PopupManager from './components/PopupManager';
 import ComplaintManager from './components/ComplaintManager';
 import CommentManager from './components/CommentManager';
 import SettingsManager from './components/SettingsManager';
+import MonetizationManager from './components/MonetizationManager';
 import DusunManager from './components/DusunManager';
 import BroadcastManager from './components/BroadcastManager';
 import PemerintahanManager from './components/PemerintahanManager';
@@ -197,6 +198,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Pemerintahan' && <PemerintahanManager />}
           {activeTab === 'Customer Service' && <CsManager />}
           {activeTab === 'Pengguna' && <UserManager />}
+          {activeTab === 'Monetisasi' && <MonetizationManager />}
           {activeTab === 'Profil Desa' && <ProfilManager />}
           {activeTab === 'Google Doodles' && <DoodleManager />}
           {activeTab === 'Kustomisasi Logo' && <LogoManager />}

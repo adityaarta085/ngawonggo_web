@@ -55,6 +55,9 @@ import {
     FaExclamationTriangle,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
+import { useMonetization } from '../../contexts/MonetizationContext';
+import CurrencyDisplay from '../../components/CurrencyDisplay';
+import TopUpModal from './TopUpModal';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 const StatCard = ({ title, value, subValue, icon, color, onClick }) => {
@@ -92,6 +95,7 @@ const StatCard = ({ title, value, subValue, icon, color, onClick }) => {
 const PortalPage = () => {
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isTopUpOpen, onOpen: onTopUpOpen, onClose: onTopUpClose } = useDisclosure();
   const [deletionTarget, setDeletionTarget] = useState(null);
   const [deletionStep, setDeletionStep] = useState('select_method'); // 'select_method', 'verify_wa', 'verify_email', 'confirm'
       const [isDeleting, setIsDeleting] = useState(false);
@@ -240,6 +244,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
             <Skeleton h="150px" borderRadius="2xl" />
           </SimpleGrid>
         </VStack>
+      <TopUpModal isOpen={isTopUpOpen} onClose={onTopUpClose} />
       </Container>
     );
   }
@@ -428,6 +433,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
         </ModalContent>
       </Modal>
 
+      <TopUpModal isOpen={isTopUpOpen} onClose={onTopUpClose} />
       </Container>
     </Box>
   );
