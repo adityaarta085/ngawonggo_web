@@ -39,6 +39,7 @@ import RunningText from './components/RunningText.js';
 import TopBarWeather from './components/TopBarWeather.js';
 
 import PopupNotification from './components/PopupNotification.js';
+import DailyLoginPopup from './components/DailyLoginPopup';
 import TakedownPage from './views/TakedownPage/index.js';
 import BlockedPage from './views/BlockedPage/index.js';
 import usePageTracking from './hooks/usePageTracking';
@@ -236,6 +237,7 @@ function App() {
         )}
 
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <PopupNotification />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && userSession && <DailyLoginPopup />}
 
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <LoginPromo user={userSession?.user} />}
         <ScrollToTop />

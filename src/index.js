@@ -1,40 +1,40 @@
-import { HelmetProvider } from "react-helmet-async";
-import React, { StrictMode } from 'react';
-import * as ReactDOM from 'react-dom/client';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import App from './App';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
-import * as serviceWorker from './serviceWorker';
-import { ChakraProvider } from '@chakra-ui/react';
-import { BrowserRouter } from 'react-router-dom';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import theme from './theme';
+import { HelmetProvider } from 'react-helmet-async';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { MonetizationProvider } from './contexts/MonetizationContext';
+import { BrowserRouter } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const container = document.getElementById('root');
-const root = ReactDOM.createRoot(container);
+const root = createRoot(container);
 
 root.render(
-  <StrictMode>
+  <React.StrictMode>
     <ErrorBoundary>
       <HelmetProvider>
         <ChakraProvider theme={theme}>
+          <ColorModeScript initialColorMode={theme.config.initialColorMode} />
           <LanguageProvider>
             <BrowserRouter>
-              <App />
+              <AuthProvider>
+                <MonetizationProvider>
+                  <App />
+                </MonetizationProvider>
+              </AuthProvider>
             </BrowserRouter>
           </LanguageProvider>
         </ChakraProvider>
       </HelmetProvider>
     </ErrorBoundary>
-  </StrictMode>
+  </React.StrictMode>
 );
 
-// PWA Update handling
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
-  });
-}
-
-serviceWorker.register();
+serviceWorkerRegistration.register();
 reportWebVitals();
