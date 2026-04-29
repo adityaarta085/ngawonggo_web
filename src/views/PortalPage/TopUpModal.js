@@ -12,8 +12,8 @@ import {
   HStack,
   useToast,
   Box,
-  Image,
-  Spinner
+  Image
+
 } from '@chakra-ui/react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
