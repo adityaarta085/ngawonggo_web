@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Box, VStack, HStack, Text, Heading, Table, Thead, Tbody, Tr, Th, Td,
+import { Badge, Box, VStack, HStack, Text, Heading, Table, Thead, Tbody, Tr, Th, Td,
   Button, IconButton,  useToast, Modal, ModalOverlay, ModalContent,
   ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure,
   FormControl, FormLabel, Input, Tooltip, InputGroup, InputLeftElement, Tabs, TabList, TabPanels, Tab, TabPanel, Textarea } from '@chakra-ui/react';
@@ -35,9 +35,21 @@ const UserManager = () => {
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.rpc('get_all_users');
+      // Fetch base users
+      const { data: usersData, error } = await supabase.rpc('get_all_users');
       if (error) throw error;
-      setUsers(data || []);
+
+      // Fetch economy data
+      const { data: economyData } = await supabase.from('user_currencies').select('*');
+      const { data: tierData } = await supabase.from('user_tiers').select('*');
+
+      const merged = (usersData || []).map(u => {
+          const eco = economyData?.find(e => e.user_id === u.id) || { coins: 0, tickets: 0 };
+          const tier = tierData?.find(t => t.user_id === u.id) || { tier_name: 'Free' };
+          return { ...u, ...eco, ...tier };
+      });
+
+      setUsers(merged || []);
     } catch (error) {
       toast({ title: 'Gagal memuat pengguna', description: error.message, status: 'error' });
     } finally {
@@ -197,6 +209,7 @@ const UserManager = () => {
               <Tr>
                 <Th>ID</Th>
                 <Th>Email & Kontak</Th>
+                <Th>Tier & Dompet</Th>
                 <Th>Login Terakhir</Th>
                 <Th>Aksi Email</Th>
                 <Th>Aksi Manajemen</Th>
@@ -210,6 +223,18 @@ const UserManager = () => {
                     <VStack align="start" spacing={1}>
                       <Text fontWeight="bold">{user.email}</Text>
 
+                    </VStack>
+                  </Td>
+                  <Td>
+                    <VStack align="start" spacing={0}>
+                        <Badge colorScheme={user.tier_name === 'VIP' ? 'purple' : user.tier_name === 'Subscription' ? 'blue' : 'gray'}>{user.tier_name || 'Free'}</Badge>
+                        <Text fontSize="10px">Koin: {user.coins || 0} | Tiket: {user.tickets || 0}</Text>
+                    </VStack>
+                  </Td>
+                  <Td>
+                    <VStack align="start" spacing={0}>
+                        <Badge colorScheme={user.tier_name === 'VIP' ? 'purple' : user.tier_name === 'Subscription' ? 'blue' : 'gray'}>{user.tier_name || 'Free'}</Badge>
+                        <Text fontSize="10px">Koin: {user.coins || 0} | Tiket: {user.tickets || 0}</Text>
                     </VStack>
                   </Td>
                   <Td>
