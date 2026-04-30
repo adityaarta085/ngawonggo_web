@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, VStack, HStack, Heading, Text, Switch, Input, Button, Table, Thead, Tbody, Tr, Th, Td, IconButton, useToast, FormControl, FormLabel
+  Box, VStack, Heading, Text, Input, Button, useToast, FormControl, FormLabel
 } from '@chakra-ui/react';
-import { FaSave, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaSave } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 
 const MonetizationManager = () => {
