@@ -8,6 +8,7 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
 import theme from './theme';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { MonetizationProvider } from './contexts/MonetizationContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const container = document.getElementById('root');
@@ -19,9 +20,11 @@ root.render(
       <HelmetProvider>
         <ChakraProvider theme={theme}>
           <LanguageProvider>
+            <MonetizationProvider>
             <BrowserRouter>
               <App />
             </BrowserRouter>
+            </MonetizationProvider>
           </LanguageProvider>
         </ChakraProvider>
       </HelmetProvider>
