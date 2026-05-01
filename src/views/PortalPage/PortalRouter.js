@@ -8,10 +8,10 @@ import NotifikasiPage from './NotifikasiPage/index.js';
 const PortalRouter = () => {
     return (
         <Routes>
-            <Route path="/" element={<PortalPage />} />
-            <Route path="/toko" element={<TokoPage />} />
-            <Route path="/toko/gacha" element={<GachaPage />} />
-            <Route path="/notifikasi" element={<NotifikasiPage />} />
+            <Route index element={<PortalPage />} />
+            <Route path="toko" element={<TokoPage />} />
+            <Route path="toko/gacha" element={<GachaPage />} />
+            <Route path="notifikasi" element={<NotifikasiPage />} />
         </Routes>
     );
 };

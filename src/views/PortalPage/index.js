@@ -56,7 +56,7 @@ import {
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useMonetization } from '../../contexts/MonetizationContext';
-import { FaCoins, FaLock, FaBell, FaCrown, FaStore, FaPaintBrush, FaMedal, FaGift, FaTrophy, FaCreditCard } from 'react-icons/fa';
+import { FaCoins, FaLock, FaBell, FaCrown, FaStore, FaGift, FaTrophy, FaCreditCard } from "react-icons/fa";
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 const StatCard = ({ title, value, subValue, icon, color, onClick }) => {
@@ -99,9 +99,8 @@ const PortalPage = () => {
       const [isDeleting, setIsDeleting] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
-  const [gachaLoading, setGachaLoading] = useState(false);
-  const [claimLoading, setClaimLoading] = useState(false);
-  const { currency, tier, deductCurrency, gachaStats, claimDailyLogin, rollGacha, activateVipCard, purchaseVipDirect } = useMonetization();
+    const [claimLoading, setClaimLoading] = useState(false);
+  const { currency, tier, deductCurrency, gachaStats, claimDailyLogin } = useMonetization();
 
 
   const openDeletionModal = (target) => {

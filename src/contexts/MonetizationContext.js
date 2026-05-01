@@ -190,11 +190,11 @@ export const MonetizationProvider = ({ children }) => {
           toast({ title: "Koin tidak cukup", description: "Butuh 500 Koin", status: "warning" });
           return false;
       }
-      const { data } = await supabase.rpc("purchase_vip_direct", { p_user_id: user.id });
+      const { data } = await supabase.rpc("purchase_vip_card", { p_user_id: user.id });
       if (data) {
           setCurrency(prev => ({ coins: prev.coins - 500 }));
-          setTier({ name: "VIP", expires_at: null });
-          toast({ title: "Berhasil!", description: "VIP langsung diaktifkan (1 Bulan)", status: "success" });
+          setGachaStats(prev => ({ ...prev, vip_cards: prev.vip_cards + 1 }));
+          toast({ title: "Berhasil!", description: "VIP Card berhasil ditambahkan ke tas Anda.", status: "success" });
           return true;
       }
       return false;

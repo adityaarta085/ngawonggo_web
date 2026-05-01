@@ -55,7 +55,7 @@ const TokoPage = () => {
                             <Icon as={FaCrown} boxSize={10} color="purple.500" />
                             <Box>
                                 <Heading size="md" mb={2}>Beli VIP Langsung</Heading>
-                                <Text fontSize="sm" color="gray.500">Beli VIP Card (1 Bulan) tanpa gacha.</Text>
+                                <Text fontSize="sm" color="gray.500">Beli VIP Card (1 Bulan) tanpa gacha. Kartu akan masuk ke tas Anda.</Text>
                             </Box>
                             <Button w="full" colorScheme="purple" variant="outline" onClick={purchaseVipDirect}>
                                 Beli (500 Koin)
