@@ -56,7 +56,7 @@ import {
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useMonetization } from '../../contexts/MonetizationContext';
-import { FaCoins, FaLock, FaCrown, FaStore, FaPaintBrush, FaMedal, FaGift, FaTrophy, FaCreditCard } from 'react-icons/fa';
+import { FaCoins, FaLock, FaBell, FaCrown, FaStore, FaGift, FaTrophy, FaCreditCard } from "react-icons/fa";
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 const StatCard = ({ title, value, subValue, icon, color, onClick }) => {
@@ -99,10 +99,9 @@ const PortalPage = () => {
       const [isDeleting, setIsDeleting] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
-  const [gachaLoading, setGachaLoading] = useState(false);
-  const [claimLoading, setClaimLoading] = useState(false);
-  const { currency, tier, deductCurrency, gachaStats, claimDailyLogin, rollGacha, activateVipCard, purchaseVipDirect } = useMonetization();
-  const { isOpen: isStoreOpen, onOpen: onStoreOpen, onClose: onStoreClose } = useDisclosure();
+    const [claimLoading, setClaimLoading] = useState(false);
+  const { currency, tier, deductCurrency, gachaStats, claimDailyLogin } = useMonetization();
+
 
   const openDeletionModal = (target) => {
     setDeletionTarget(target);
@@ -320,6 +319,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
               <HStack>
                   <Icon as={FaStore} color="brand.500" />
                   <Heading size="sm" color="gray.700">Dompet & Status</Heading>
+                  <IconButton icon={<Icon as={FaBell} />} colorScheme="blue" variant="ghost" isRound onClick={() => navigate("/portal/notifikasi")} aria-label="Notifikasi" ml={4} />
               </HStack>
               {gachaStats?.canClaimDaily && (
                   <Button size="sm" colorScheme="yellow" leftIcon={<FaGift />} isLoading={claimLoading} onClick={async () => {
@@ -344,7 +344,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                     </HStack>
                     <Heading size="xl" color="purple.700">{tier?.name || 'Free'}</Heading>
                 </VStack>
-                <VStack p={4} bg="brand.50" borderRadius="xl" align="center" justify="center" as="button" onClick={onStoreOpen} _hover={{ bg: 'brand.100' }} transition="all 0.2s" border="1px solid" borderColor="brand.100">
+                <VStack p={4} bg="brand.50" borderRadius="xl" align="center" justify="center" as="button" onClick={() => navigate("/portal/toko")} _hover={{ bg: 'brand.100' }} transition="all 0.2s" border="1px solid" borderColor="brand.100">
                     <Icon as={FaStore} color="brand.500" boxSize={8} mb={1} />
                     <Text fontWeight="bold" color="brand.600" fontSize="md">Beli VIP & Gacha</Text>
                 </VStack>
@@ -396,7 +396,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                     <VStack spacing={3}>
                         <Icon as={FaLock} color="gray.400" boxSize={8} />
                         <Text color="gray.500" fontWeight="bold">Hanya untuk member VIP</Text>
-                        <Button size="sm" colorScheme="purple" onClick={onStoreOpen}>Upgrade ke VIP</Button>
+                        <Button size="sm" colorScheme="purple" onClick={() => navigate("/portal/toko")}>Upgrade ke VIP</Button>
                     </VStack>
                 </Center>
             ) : (
@@ -475,75 +475,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
           </VStack>
 
       {/* Store Modal */}
-      <Modal isOpen={isStoreOpen} onClose={onStoreClose} size="xl" isCentered>
-        <ModalOverlay backdropFilter="blur(4px)" />
-        <ModalContent borderRadius="2xl" bg="gray.50">
-          <ModalHeader>Toko & Gacha VIP</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <VStack spacing={6} align="stretch">
-                <HStack justify="space-between" bg="white" p={4} borderRadius="xl" boxShadow="sm">
-                    <Text fontWeight="bold">Koin Anda:</Text>
-                    <HStack color="yellow.500">
-                        <Icon as={FaCoins} />
-                        <Text fontWeight="bold" fontSize="lg">{currency?.coins || 0}</Text>
-                        <Button size="xs" colorScheme="yellow" onClick={() => navigate('/topup')}>Topup</Button>
-                    </HStack>
-                </HStack>
 
-                <Box p={5} bgGradient="linear(to-r, purple.500, blue.500)" color="white" borderRadius="xl" boxShadow="md">
-                    <VStack align="start" spacing={3}>
-                        <HStack justify="space-between" w="full">
-                            <HStack>
-                                <Icon as={FaGift} boxSize={5} />
-                                <Heading size="md">Lucky Box Gacha</Heading>
-                            </HStack>
-                            <Badge colorScheme="yellow">10 Koin / Pull</Badge>
-                        </HStack>
-                        <Text fontSize="sm" opacity={0.9}>Gacha untuk kesempatan mendapatkan VIP Card (1 Bulan). Kesempatan 2.5% setelah 30x percobaan. Dijamin dapat di percobaan ke-75!</Text>
-                        <HStack w="full" justify="space-between" pt={2}>
-                            <VStack align="start" spacing={0}>
-                                <Text fontSize="xs" fontWeight="bold">Total Percobaan Anda:</Text>
-                                <Text fontSize="lg" fontWeight="900">{gachaStats?.total_pulls || 0} / 75</Text>
-                            </VStack>
-                            <Button colorScheme="yellow" size="lg" isLoading={gachaLoading} onClick={async () => {
-                                setGachaLoading(true);
-                                await rollGacha();
-                                setGachaLoading(false);
-                            }}>Gacha Sekarang</Button>
-                        </HStack>
-                    </VStack>
-                </Box>
-
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                    <Box p={5} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.200" boxShadow="sm">
-                        <HStack mb={3}>
-                            <Icon as={FaCrown} color="yellow.500" boxSize={6} />
-                            <Heading size="sm">Beli VIP Langsung</Heading>
-                        </HStack>
-                        <Text fontSize="xs" color="gray.500" mb={4}>Tidak mau gacha? Beli tier VIP langsung selama 1 Bulan dengan koin.</Text>
-                        <Button w="full" colorScheme="yellow" variant="outline" onClick={async () => {
-                            await purchaseVipDirect();
-                            onStoreClose();
-                        }}>Beli (500 Koin)</Button>
-                    </Box>
-
-                    <Box p={5} bg="white" borderRadius="xl" border="1px solid" borderColor="gray.200" boxShadow="sm">
-                        <HStack mb={3}>
-                            <Icon as={FaCreditCard} color="purple.500" boxSize={6} />
-                            <Heading size="sm">Tukar VIP Card</Heading>
-                        </HStack>
-                        <Text fontSize="xs" color="gray.500" mb={4}>Gunakan tiket VIP Card dari hasil gacha Anda.</Text>
-                        <Button w="full" colorScheme="purple" isDisabled={!gachaStats?.vip_cards} onClick={async () => {
-                            await activateVipCard();
-                            onStoreClose();
-                        }}>Tukar ({gachaStats?.vip_cards || 0} Tiket)</Button>
-                    </Box>
-                </SimpleGrid>
-            </VStack>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
 
       {/* Deletion Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>

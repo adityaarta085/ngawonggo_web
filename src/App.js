@@ -47,7 +47,7 @@ import { supabase } from './lib/supabase';
 // User Portal Views
 import AuthPage from './views/AuthPage/index.js';
 import EduGameRouter from './views/EduGamePage/EduGameRouter';
-import PortalPage from './views/PortalPage/index.js';
+import PortalRouter from "./views/PortalPage/PortalRouter.js";
 import DonasiRouter from './views/DonasiPage/index.js';
 import TopupPage from './views/TopupPage/index.js';
 
@@ -271,8 +271,8 @@ function App() {
 
             <Route path="/auth" element={isSessionLoading ? null : (userSession ? <Navigate to="/portal" replace /> : <AuthPage />)} />
             <Route
-                path="/portal"
-                element={isSessionLoading ? null : (userSession ? <PortalPage /> : <Navigate to="/auth" replace />)}
+                path="/portal/*"
+                element={isSessionLoading ? null : (userSession ? <PortalRouter /> : <Navigate to="/auth" replace />)}
             />
 
             <Route
