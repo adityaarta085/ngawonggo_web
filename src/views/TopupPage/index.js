@@ -86,9 +86,10 @@ const TopupPage = () => {
       });
       const data = await res.json();
 
-      if (data.status === 'success' && data.data?.qr_url) {
+      if (data.status === 'success' && (data.data?.qris_image_url || data.data?.qris_url || data.data?.qr_url)) {
         setQrisData({
             ...data.data,
+            qr_url: data.data.qris_image_url || data.data.qris_url || data.data.qr_url,
             package: selectedPackage
         });
         setIsModalOpen(true);
