@@ -5,7 +5,8 @@ import { useToast } from '@chakra-ui/react';
 export const MonetizationContext = createContext();
 
 export const MonetizationProvider = ({ children }) => {
-  const [currency, setCurrency] = useState({ coins: 0, tickets: 0, points: 0 });
+  const [currency, setCurrency] = useState({ coins: 0 });
+  const [gachaStats, setGachaStats] = useState({ total_pulls: 0, vip_cards: 0, canClaimDaily: false });
   const [tier, setTier] = useState({ name: 'Free', expires_at: null });
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -27,8 +28,6 @@ export const MonetizationProvider = ({ children }) => {
         if (currencyData) {
           setCurrency({
             coins: currencyData.coins,
-            tickets: currencyData.tickets,
-            points: currencyData.points,
           });
         }
 
@@ -44,6 +43,17 @@ export const MonetizationProvider = ({ children }) => {
             name: tierData.tier_name,
             expires_at: tierData.tier_expires_at,
           });
+        }
+
+        // Fetch Gacha Stats
+        const { data: gData } = await supabase.from('user_gacha_stats').select('*').eq('user_id', user.id).single();
+        if (gData) {
+            const today = new Date().toISOString().split('T')[0];
+            setGachaStats({
+                total_pulls: gData.total_pulls || 0,
+                vip_cards: gData.vip_cards || 0,
+                canClaimDaily: gData.last_login_claim !== today
+            });
         }
       }
       setIsLoading(false);
@@ -120,6 +130,64 @@ export const MonetizationProvider = ({ children }) => {
       }
   };
 
+  const claimDailyLogin = async () => {
+      if (!user || !gachaStats.canClaimDaily) return false;
+      const { data } = await supabase.rpc('claim_daily_login', { p_user_id: user.id });
+      if (data) {
+          setCurrency(prev => ({ coins: prev.coins + 10 }));
+          setGachaStats(prev => ({ ...prev, canClaimDaily: false }));
+          toast({ title: 'Daily Login Berhasil', description: '+10 Koin gratis!', status: 'success' });
+          return true;
+      }
+      return false;
+  };
+
+  const rollGacha = async () => {
+      if (!user || currency.coins < 10) {
+          toast({ title: 'Koin tidak cukup', status: 'warning' });
+          return null;
+      }
+      const { data } = await supabase.rpc('roll_gacha', { p_user_id: user.id });
+      if (data && data.success) {
+          setCurrency(prev => ({ coins: prev.coins - 10 }));
+          if (data.won) {
+              setGachaStats(prev => ({ ...prev, total_pulls: 0, vip_cards: prev.vip_cards + 1 }));
+              toast({ title: 'SELAMAT! Anda mendapatkan VIP Card!', status: 'success', duration: 5000 });
+          } else {
+              setGachaStats(prev => ({ ...prev, total_pulls: data.pulls }));
+          }
+          return data;
+      }
+      return null;
+  };
+
+  const activateVipCard = async () => {
+      if (!user || gachaStats.vip_cards < 1) return false;
+      const { data } = await supabase.rpc('activate_vip_card', { p_user_id: user.id });
+      if (data) {
+          setGachaStats(prev => ({ ...prev, vip_cards: prev.vip_cards - 1 }));
+          setTier({ name: 'VIP', expires_at: null });
+          toast({ title: 'VIP Card Diaktifkan!', description: 'Anda sekarang adalah member VIP.', status: 'success' });
+          return true;
+      }
+      return false;
+  };
+
+  const purchaseVipDirect = async () => {
+      if (!user || currency.coins < 500) {
+          toast({ title: 'Koin tidak cukup', description: 'Butuh 500 Koin', status: 'warning' });
+          return false;
+      }
+      const { data } = await supabase.rpc('purchase_vip_direct', { p_user_id: user.id });
+      if (data) {
+          setCurrency(prev => ({ coins: prev.coins - 500 }));
+          setTier({ name: 'VIP', expires_at: null });
+          toast({ title: 'VIP Dibeli!', description: 'Anda sekarang adalah member VIP.', status: 'success' });
+          return true;
+      }
+      return false;
+  };
+
   const isVIP = tier.name === 'VIP';
   const isSubscription = tier.name === 'Subscription' || tier.name === 'VIP';
 
@@ -131,7 +199,12 @@ export const MonetizationProvider = ({ children }) => {
       isVIP,
       isSubscription,
       deductCurrency,
-      checkFeatureLimit
+      checkFeatureLimit,
+      gachaStats,
+      claimDailyLogin,
+      rollGacha,
+      activateVipCard,
+      purchaseVipDirect
     }}>
       {children}
     </MonetizationContext.Provider>

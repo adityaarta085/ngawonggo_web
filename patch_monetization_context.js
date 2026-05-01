@@ -4,79 +4,122 @@ const path = require('path');
 const filePath = path.join(__dirname, 'src/contexts/MonetizationContext.js');
 let content = fs.readFileSync(filePath, 'utf8');
 
-// Replace the old checkFeatureLimit with the new one calling the RPC
-const oldCheckFeatureLimit = `  const checkFeatureLimit = async (featureName, dailyLimit) => {
-      if (!user) return { allowed: false, count: 0 };
-      if (tier.name === 'VIP' || tier.name === 'Subscription') return { allowed: true, count: 0 }; // Unlimited for VIP/Sub
+// 1. Remove points/tickets references and initialize stats
+content = content.replace(
+    "const [currency, setCurrency] = useState({ coins: 0, tickets: 0, points: 0 });",
+    "const [currency, setCurrency] = useState({ coins: 0 });\n  const [gachaStats, setGachaStats] = useState({ total_pulls: 0, vip_cards: 0, canClaimDaily: false });"
+);
 
-      try {
-           // We increment right away to test if we passed limit.
-           // If we just check, there's a race condition.
-           // However, if we increment and we were over limit, we still incremented.
-           // Let's create a better RPC for check_and_increment or handle here.
+// 2. Fetch Gacha Stats
+const fetchSearch = `        if (tierData) {
+          setTier({
+            name: tierData.tier_name,
+            expires_at: tierData.tier_expires_at,
+          });
+        }`;
 
-           // For now, let's fetch current usage
-           const today = new Date().toISOString().split('T')[0];
-           let { data, error } = await supabase
-              .from('user_feature_usage')
-              .select('usage_count')
-              .eq('user_id', user.id)
-              .eq('feature_name', featureName)
-              .eq('usage_date', today)
-              .maybeSingle();
+const fetchReplace = `        if (tierData) {
+          setTier({
+            name: tierData.tier_name,
+            expires_at: tierData.tier_expires_at,
+          });
+        }
 
-           if(error) console.error(error);
-           let count = data ? data.usage_count : 0;
+        // Fetch Gacha Stats
+        const { data: gData } = await supabase.from('user_gacha_stats').select('*').eq('user_id', user.id).single();
+        if (gData) {
+            const today = new Date().toISOString().split('T')[0];
+            setGachaStats({
+                total_pulls: gData.total_pulls || 0,
+                vip_cards: gData.vip_cards || 0,
+                canClaimDaily: gData.last_login_claim !== today
+            });
+        }`;
 
-           if (count >= dailyLimit) {
-               return { allowed: false, count };
-           }
+content = content.replace(fetchSearch, fetchReplace);
 
-           // Increment
-           const { data: newCount, error: incError } = await supabase.rpc('increment_feature_usage', {
-               p_user_id: user.id,
-               p_feature_name: featureName
-           });
+// 3. Update Currency Fetch (Only select coins for state)
+content = content.replace(
+    `          setCurrency({
+            coins: currencyData.coins,
+            tickets: currencyData.tickets,
+            points: currencyData.points,
+          });`,
+    `          setCurrency({
+            coins: currencyData.coins,
+          });`
+);
 
-           if (!incError) {
-               return { allowed: true, count: newCount };
-           }
-           return { allowed: false, count };
+// 4. Add new RPC functions
+const addRpcSearch = `  const isVIP = tier.name === 'VIP';`;
 
-      } catch (err) {
-          console.error("Limit check error:", err);
-          return { allowed: false, count: 0 };
+const addRpcReplace = `  const claimDailyLogin = async () => {
+      if (!user || !gachaStats.canClaimDaily) return false;
+      const { data, error } = await supabase.rpc('claim_daily_login', { p_user_id: user.id });
+      if (data) {
+          setCurrency(prev => ({ coins: prev.coins + 10 }));
+          setGachaStats(prev => ({ ...prev, canClaimDaily: false }));
+          toast({ title: 'Daily Login Berhasil', description: '+10 Koin gratis!', status: 'success' });
+          return true;
       }
-  };`;
+      return false;
+  };
 
-const newCheckFeatureLimit = `  const checkFeatureLimit = async (featureName, limit, windowDays = 1) => {
-      if (!user) return { allowed: false };
-      if (tier.name === 'VIP' || tier.name === 'Subscription') return { allowed: true }; // Unlimited for VIP/Sub
-
-      try {
-           const { data: allowed, error } = await supabase.rpc('check_and_increment_usage', {
-               p_user_id: user.id,
-               p_feature_name: featureName,
-               p_limit: limit,
-               p_window_days: windowDays
-           });
-
-           if (error) throw error;
-           return { allowed };
-
-      } catch (err) {
-          console.error("Limit check error:", err);
-          return { allowed: false };
+  const rollGacha = async () => {
+      if (!user || currency.coins < 10) {
+          toast({ title: 'Koin tidak cukup', status: 'warning' });
+          return null;
       }
-  };`;
+      const { data, error } = await supabase.rpc('roll_gacha', { p_user_id: user.id });
+      if (data && data.success) {
+          setCurrency(prev => ({ coins: prev.coins - 10 }));
+          if (data.won) {
+              setGachaStats(prev => ({ ...prev, total_pulls: 0, vip_cards: prev.vip_cards + 1 }));
+              toast({ title: 'SELAMAT! Anda mendapatkan VIP Card!', status: 'success', duration: 5000 });
+          } else {
+              setGachaStats(prev => ({ ...prev, total_pulls: data.pulls }));
+          }
+          return data;
+      }
+      return null;
+  };
 
-if (content.includes(oldCheckFeatureLimit)) {
-    content = content.replace(oldCheckFeatureLimit, newCheckFeatureLimit);
-} else {
-    // If exact match fails, use regex or replace the function body
-    console.log("Warning: Exact match for checkFeatureLimit failed. Attempting targeted replace.");
-    content = content.replace(/const checkFeatureLimit = async \([\s\S]*?catch \(err\) {[\s\S]*?return { allowed: false, count: 0 };\n      }\n  };/, newCheckFeatureLimit);
-}
+  const activateVipCard = async () => {
+      if (!user || gachaStats.vip_cards < 1) return false;
+      const { data } = await supabase.rpc('activate_vip_card', { p_user_id: user.id });
+      if (data) {
+          setGachaStats(prev => ({ ...prev, vip_cards: prev.vip_cards - 1 }));
+          setTier({ name: 'VIP', expires_at: null });
+          toast({ title: 'VIP Card Diaktifkan!', description: 'Anda sekarang adalah member VIP.', status: 'success' });
+          return true;
+      }
+      return false;
+  };
+
+  const purchaseVipDirect = async () => {
+      if (!user || currency.coins < 500) {
+          toast({ title: 'Koin tidak cukup', description: 'Butuh 500 Koin', status: 'warning' });
+          return false;
+      }
+      const { data } = await supabase.rpc('purchase_vip_direct', { p_user_id: user.id });
+      if (data) {
+          setCurrency(prev => ({ coins: prev.coins - 500 }));
+          setTier({ name: 'VIP', expires_at: null });
+          toast({ title: 'VIP Dibeli!', description: 'Anda sekarang adalah member VIP.', status: 'success' });
+          return true;
+      }
+      return false;
+  };
+
+  const isVIP = tier.name === 'VIP';`;
+
+content = content.replace(addRpcSearch, addRpcReplace);
+
+// 5. Expose the functions in the provider
+content = content.replace(
+    `      isSubscription,\n      deductCurrency,\n      checkFeatureLimit\n    }}>\n      {children}\n    </MonetizationContext.Provider>`,
+    `      isSubscription,\n      deductCurrency,\n      checkFeatureLimit,\n      gachaStats,\n      claimDailyLogin,\n      rollGacha,\n      activateVipCard,\n      purchaseVipDirect\n    }}>\n      {children}\n    </MonetizationContext.Provider>`
+);
 
 fs.writeFileSync(filePath, content);
-console.log('MonetizationContext updated with windowed feature limits.');
+console.log('MonetizationContext patched.');
