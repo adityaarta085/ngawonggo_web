@@ -57,7 +57,8 @@ import CsManager from './components/CsManager';
 import { FaHeadset, FaHeart } from 'react-icons/fa';
 import DonasiManager from './components/DonasiManager';
 import MonetizationManager from './components/MonetizationManager';
-import { FaCoins } from 'react-icons/fa';
+import NotificationManager from './components/NotificationManager';
+import { FaCoins, FaBell } from 'react-icons/fa';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -82,6 +83,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Pengaduan', icon: FaExclamationCircle },
     { name: 'Komentar', icon: FaComments },
     { name: 'Broadcast Email', icon: FaEnvelope },
+    { name: 'Kirim Notifikasi', icon: FaBell },
     { name: 'Pengaturan', icon: FaCog },
     { name: 'Monetisasi & Limit', icon: FaCoins },
     { name: 'Customer Service', icon: FaHeadset },
@@ -196,6 +198,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Pengaduan' && <ComplaintManager />}
           {activeTab === 'Komentar' && <CommentManager />}
           {activeTab === 'Broadcast Email' && <BroadcastManager />}
+          {activeTab === 'Kirim Notifikasi' && <NotificationManager />}
           {activeTab === 'Pengaturan' && <SettingsManager />}
           {activeTab === 'Monetisasi & Limit' && <MonetizationManager />}
           {activeTab === 'Pemerintahan' && <PemerintahanManager />}

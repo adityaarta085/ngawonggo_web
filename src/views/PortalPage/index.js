@@ -157,6 +157,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
   const [stats, setStats] = useState({
     complaints: 0,
     gamesPlayed: 0,
@@ -319,7 +320,24 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
               <HStack>
                   <Icon as={FaStore} color="brand.500" />
                   <Heading size="sm" color="gray.700">Dompet & Status</Heading>
-                  <IconButton icon={<Icon as={FaBell} />} colorScheme="blue" variant="ghost" isRound onClick={() => navigate("/portal/notifikasi")} aria-label="Notifikasi" ml={4} />
+
+              <Box position="relative" ml={4}>
+                  <IconButton icon={<Icon as={FaBell} />} colorScheme="blue" variant="ghost" isRound onClick={() => navigate("/portal/notifikasi")} aria-label="Notifikasi" />
+                  {unreadNotifCount > 0 && (
+                      <Badge
+                          position="absolute"
+                          top="-1"
+                          right="-1"
+                          colorScheme="red"
+                          borderRadius="full"
+                          px={2}
+                          fontSize="xs"
+                      >
+                          {unreadNotifCount}
+                      </Badge>
+                  )}
+              </Box>
+
               </HStack>
               {gachaStats?.canClaimDaily && (
                   <Button size="sm" colorScheme="yellow" leftIcon={<FaGift />} isLoading={claimLoading} onClick={async () => {

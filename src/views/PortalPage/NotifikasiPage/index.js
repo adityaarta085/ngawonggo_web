@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container, VStack, Heading, Text, Button, Icon, HStack, Badge, Spinner, Center } from '@chakra-ui/react';
-import { FaBell, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaArrowLeft, FaGift } from 'react-icons/fa';
+import { Box, Container, VStack, Heading, Text, Button, Icon, HStack, Badge, Spinner, Center, IconButton } from '@chakra-ui/react';
+import { FaBell, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaArrowLeft, FaGift, FaTrash } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,6 +23,13 @@ const NotifikasiPage = () => {
             setNotifications(data);
         }
         setLoading(false);
+    };
+
+
+    const deleteNotification = async (id, e) => {
+        if (e) e.stopPropagation();
+        await supabase.from('user_notifications').delete().eq('id', id);
+        fetchNotifications();
     };
 
     const markAsRead = async (id) => {
@@ -54,7 +61,15 @@ const NotifikasiPage = () => {
                 },
                 (payload) => {
                     if (Notification.permission === 'granted') {
-                        new Notification(payload.new.title, { body: payload.new.message });
+                        if ('serviceWorker' in navigator) {
+                            navigator.serviceWorker.ready.then(registration => {
+                                registration.showNotification(payload.new.title, { body: payload.new.message, icon: '/logo192.png' });
+                            }).catch(() => {
+                                new Notification(payload.new.title, { body: payload.new.message });
+                            });
+                        } else {
+                            new Notification(payload.new.title, { body: payload.new.message });
+                        }
                     }
                     setNotifications(prev => [payload.new, ...prev]);
                 }
@@ -74,7 +89,15 @@ const NotifikasiPage = () => {
         } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then(permission => {
                 if (permission === "granted") {
-                    new Notification("Notifikasi Aktif!", { body: "Anda akan menerima notifikasi real-time dari sistem." });
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.ready.then(registration => {
+                            registration.showNotification("Notifikasi Aktif!", { body: "Anda akan menerima notifikasi real-time dari sistem.", icon: '/logo192.png' });
+                        }).catch(() => {
+                            new Notification("Notifikasi Aktif!", { body: "Anda akan menerima notifikasi real-time dari sistem." });
+                        });
+                    } else {
+                        new Notification("Notifikasi Aktif!", { body: "Anda akan menerima notifikasi real-time dari sistem." });
+                    }
                 }
             });
         }
@@ -100,7 +123,15 @@ const NotifikasiPage = () => {
                 </Button>
                 <Button size="sm" colorScheme="purple" variant="outline" onClick={() => {
                     if (Notification.permission === "granted") {
-                        new Notification("Test Notifikasi", { body: "Push notifikasi kamu berfungsi dengan baik!" });
+                        if ('serviceWorker' in navigator) {
+                            navigator.serviceWorker.ready.then(registration => {
+                                registration.showNotification("Test Notifikasi", { body: "Push notifikasi kamu berfungsi dengan baik!", icon: '/logo192.png' });
+                            }).catch(() => {
+                                new Notification("Test Notifikasi", { body: "Push notifikasi kamu berfungsi dengan baik!" });
+                            });
+                        } else {
+                            new Notification("Test Notifikasi", { body: "Push notifikasi kamu berfungsi dengan baik!" });
+                        }
                     } else {
                         alert("Izinkan notifikasi terlebih dahulu!");
                     }
@@ -152,8 +183,21 @@ const NotifikasiPage = () => {
                                         </Text>
                                     </HStack>
                                     <Text fontSize="sm" color="gray.600">{notif.message}</Text>
-                                    {!notif.is_read && <Badge colorScheme="blue" variant="subtle" mt={2}>Baru</Badge>}
+                                    {notif.action_link && (
+                                        <Button as="a" href={notif.action_link} target="_blank" size="xs" colorScheme="blue" variant="outline" mt={2}>
+                                            Lihat Detail
+                                        </Button>
+                                    )}
+                                    {!notif.is_read && <Badge colorScheme="blue" variant="subtle" mt={notif.action_link ? 1 : 2}>Baru</Badge>}
                                 </VStack>
+                                <IconButton
+                                    icon={<FaTrash />}
+                                    size="sm"
+                                    colorScheme="red"
+                                    variant="ghost"
+                                    onClick={(e) => deleteNotification(notif.id, e)}
+                                    aria-label="Hapus Notifikasi"
+                                />
                             </HStack>
                         </Box>
                     ))}
