@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://ngawonggo.desa.id/sitemap.xml
+Sitemap: https://ngawonggo.web.id/sitemap.xml
 
 # Disallow admin and auth routes
 Disallow: /admin/
