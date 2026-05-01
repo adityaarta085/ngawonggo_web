@@ -37,7 +37,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from '@chakra-ui/react';
-import { FaGoogle, FaFacebook, FaDiscord, FaTwitter, FaSpotify, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+import { FaGoogle, FaFacebook, FaDiscord, FaTwitter, FaSpotify, FaGithub, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate, Link as RouterLink, useLocation } from 'react-router-dom';
 
@@ -253,6 +253,37 @@ const AuthPage = () => {
       setLoading(false);
       toast({
         title: 'Gagal Login Facebook',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+
+  const handleGithubLogin = async () => {
+    setLoading(true);
+
+    toast({
+      title: 'Menghubungkan ke GitHub...',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+            redirectTo: `${window.location.origin}/portal`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: 'Gagal Login GitHub',
         description: error.message,
         status: 'error',
         duration: 5000,
@@ -514,6 +545,23 @@ const AuthPage = () => {
                   </h2>
                   <AccordionPanel pb={4} px={0}>
                     <VStack spacing={4}>
+
+                      <Button
+                        w='full'
+                        variant='outline'
+                        leftIcon={<FaGithub color="#333" />}
+                        onClick={handleGithubLogin}
+                        borderRadius='xl'
+                        h='50px'
+                        isLoading={loading}
+                        disabled={loading}
+                        _hover={{ bg: 'gray.50' }}
+                        position='relative'
+                      >
+                        Lanjutkan dengan GitHub
+                        <Badge colorScheme='green' variant='solid' position='absolute' right='-2' top='-2' borderRadius='full' fontSize='2xs' px={2}>NEW</Badge>
+                      </Button>
+
                       <Button
                         w='full'
                         variant='outline'
