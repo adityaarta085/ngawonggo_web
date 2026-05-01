@@ -72,9 +72,7 @@ const TopupPage = () => {
 
     setIsProcessing(true);
     try {
-      const response = await axios.post('/api/qrispy?action=createpayment', {
-        amount: selectedPackage.price
-      });
+      const response = await axios.post(`/api/qrispy?action=createpayment&amount=${selectedPackage.price}`);
 
       if (response.data?.data?.qr_url) {
         setQrisData({

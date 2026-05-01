@@ -333,7 +333,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                 <VStack p={4} bg="yellow.50" borderRadius="xl" align="start" border="1px solid" borderColor="yellow.100">
                     <HStack color="yellow.600" justify="space-between" w="full">
                         <HStack><Icon as={FaCoins} /><Text fontWeight="bold">Koin Desa</Text></HStack>
-                        <IconButton size="xs" colorScheme="yellow" variant="ghost" icon={<FaCreditCard />} onClick={() => navigate('/donasi')} aria-label="Topup Koin" />
+                        <IconButton size="xs" colorScheme="yellow" variant="ghost" icon={<FaCreditCard />} onClick={() => navigate('/topup')} aria-label="Topup Koin" />
                     </HStack>
                     <Heading size="2xl" color="yellow.700">{currency?.coins || 0}</Heading>
                 </VStack>
@@ -487,7 +487,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                     <HStack color="yellow.500">
                         <Icon as={FaCoins} />
                         <Text fontWeight="bold" fontSize="lg">{currency?.coins || 0}</Text>
-                        <Button size="xs" colorScheme="yellow" onClick={() => navigate('/donasi')}>Topup</Button>
+                        <Button size="xs" colorScheme="yellow" onClick={() => navigate('/topup')}>Topup</Button>
                     </HStack>
                 </HStack>
 
