@@ -5,7 +5,7 @@ import {
 } from '@chakra-ui/react';
 import { FaCoins, FaSearch, FaCheckCircle, FaQrcode, FaHistory } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
-import axios from 'axios';
+
 import { SEO } from '../../components';
 
 const TopupPage = () => {
@@ -72,11 +72,23 @@ const TopupPage = () => {
 
     setIsProcessing(true);
     try {
-      const response = await axios.post(`/api/qrispy?action=createpayment&amount=${selectedPackage.price}`);
+      const res = await fetch('https://api.qrispy.id/api/payment/qris/generate', {
+        method: 'POST',
+        headers: {
+            "X-API-Token": "cki_Z9G03nQ2wBKuHlQZrYGAJ52wqWNHWqCxquq8xh089cJod4Zb",
+            "Content-Type": "application/json",
+            Accept: "application/json"
+        },
+        body: JSON.stringify({
+            amount: parseInt(selectedPackage.price, 10),
+            payment_reference: "INV-COIN-" + Date.now(),
+        })
+      });
+      const data = await res.json();
 
-      if (response.data?.data?.qr_url) {
+      if (data.status === 'success' && data.data?.qr_url) {
         setQrisData({
-            ...response.data.data,
+            ...data.data,
             package: selectedPackage
         });
         setIsModalOpen(true);
@@ -97,9 +109,19 @@ const TopupPage = () => {
   const checkPaymentStatus = async () => {
     if (!qrisData) return;
     try {
-      const response = await axios.get(`/api/qrispy?action=checkstatus&qris_id=${qrisData.qris_id}`);
+      const res = await fetch(`https://api.qrispy.id/api/payment/qris/${qrisData.qris_id}/status`, {
+          headers: {
+              "X-API-Token": "cki_Z9G03nQ2wBKuHlQZrYGAJ52wqWNHWqCxquq8xh089cJod4Zb",
+              "Content-Type": "application/json",
+              Accept: "application/json"
+          }
+      });
+      const data = await res.json();
 
-      if (response.data?.data?.status === 'success') {
+      let currentStatus = (data.data?.payment_status || data.data?.status || 'pending').toLowerCase();
+      if (currentStatus === 'paid') currentStatus = 'success';
+
+      if (currentStatus === 'success') {
           // Grant coins
           const { error } = await supabase.rpc('process_topup_success', {
               p_user_id: targetUser.id,
