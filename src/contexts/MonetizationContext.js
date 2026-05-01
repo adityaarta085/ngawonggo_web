@@ -173,16 +173,28 @@ export const MonetizationProvider = ({ children }) => {
       return false;
   };
 
+  const giftVipCard = async (receiverEmail) => {
+      if (!user || gachaStats.vip_cards < 1) return false;
+      const { data } = await supabase.rpc("gift_vip_card", { p_sender_id: user.id, p_receiver_email: receiverEmail });
+      if (data) {
+          setGachaStats(prev => ({ ...prev, vip_cards: prev.vip_cards - 1 }));
+          toast({ title: "Berhasil!", description: "VIP Card berhasil dikirim ke " + receiverEmail, status: "success" });
+          return true;
+      }
+      toast({ title: "Gagal", description: "Email tidak ditemukan atau error.", status: "error" });
+      return false;
+  };
+
   const purchaseVipDirect = async () => {
       if (!user || currency.coins < 500) {
-          toast({ title: 'Koin tidak cukup', description: 'Butuh 500 Koin', status: 'warning' });
+          toast({ title: "Koin tidak cukup", description: "Butuh 500 Koin", status: "warning" });
           return false;
       }
-      const { data } = await supabase.rpc('purchase_vip_direct', { p_user_id: user.id });
+      const { data } = await supabase.rpc("purchase_vip_direct", { p_user_id: user.id });
       if (data) {
           setCurrency(prev => ({ coins: prev.coins - 500 }));
-          setTier({ name: 'VIP', expires_at: null });
-          toast({ title: 'VIP Dibeli!', description: 'Anda sekarang adalah member VIP.', status: 'success' });
+          setTier({ name: "VIP", expires_at: null });
+          toast({ title: "Berhasil!", description: "VIP langsung diaktifkan (1 Bulan)", status: "success" });
           return true;
       }
       return false;
@@ -204,7 +216,8 @@ export const MonetizationProvider = ({ children }) => {
       claimDailyLogin,
       rollGacha,
       activateVipCard,
-      purchaseVipDirect
+      purchaseVipDirect,
+      giftVipCard
     }}>
       {children}
     </MonetizationContext.Provider>

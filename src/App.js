@@ -271,8 +271,8 @@ function App() {
 
             <Route path="/auth" element={isSessionLoading ? null : (userSession ? <Navigate to="/portal" replace /> : <AuthPage />)} />
             <Route
-                path="/portal"
-                element={isSessionLoading ? null : (userSession ? <PortalPage /> : <Navigate to="/auth" replace />)}
+                path="/portal/*"
+                element={isSessionLoading ? null : (userSession ? <PortalRouter /> : <Navigate to="/auth" replace />)}
             />
 
             <Route
