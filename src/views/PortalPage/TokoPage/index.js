@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Container, VStack, Heading, Text, Button, useToast, Icon, HStack, Badge, SimpleGrid, Input } from '@chakra-ui/react';
+import { Box, Container, VStack, Heading, Text, Button, Icon, HStack, Badge, SimpleGrid, Input } from '@chakra-ui/react';
 import { FaCrown, FaCreditCard, FaGift, FaCoins, FaArrowLeft, FaShare } from 'react-icons/fa';
 import { useMonetization } from '../../../contexts/MonetizationContext';
 import { useNavigate } from 'react-router-dom';

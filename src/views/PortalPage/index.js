@@ -43,7 +43,7 @@ import {
   ListItem,
 } from '@chakra-ui/react';
 import {
-    FaHistory, FaBell,
+    FaHistory,
     FaBookOpen,
     FaGamepad,
     FaUserCircle,
@@ -56,7 +56,7 @@ import {
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useMonetization } from '../../contexts/MonetizationContext';
-import { FaCoins, FaLock, FaCrown, FaStore, FaPaintBrush, FaMedal, FaGift, FaTrophy, FaCreditCard } from 'react-icons/fa';
+import { FaCoins, FaLock, FaBell, FaCrown, FaStore, FaPaintBrush, FaMedal, FaGift, FaTrophy, FaCreditCard } from 'react-icons/fa';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
 const StatCard = ({ title, value, subValue, icon, color, onClick }) => {
@@ -102,7 +102,7 @@ const PortalPage = () => {
   const [gachaLoading, setGachaLoading] = useState(false);
   const [claimLoading, setClaimLoading] = useState(false);
   const { currency, tier, deductCurrency, gachaStats, claimDailyLogin, rollGacha, activateVipCard, purchaseVipDirect } = useMonetization();
-  const { isOpen: isStoreOpen, onOpen: onStoreOpen, onClose: onStoreClose } = useDisclosure();
+
 
   const openDeletionModal = (target) => {
     setDeletionTarget(target);
@@ -280,7 +280,10 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                   boxShadow="lg"
                 />
                 <VStack align="start" spacing={1}>
-
+                  <HStack>
+                    <Heading size="md" color="gray.800">Halo, Warga Digital!</Heading>
+                    <Badge colorScheme="brand" variant="subtle" borderRadius="full">Aktif</Badge>
+                  </HStack>
                   <Text color="gray.500" fontSize="sm">{user?.email}</Text>
                   <HStack spacing={3} mt={2}>
                     <Tooltip label="ID Pengguna">
@@ -314,13 +317,12 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                     {/* Economy & Status Section */}
           <Box p={{ base: 6, md: 8 }} borderRadius="3xl" bg="white" boxShadow="sm" border="1px solid" borderColor="gray.100">
             <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ base: 'start', md: 'center' }} gap={4} mb={6}>
-
               <HStack>
-<Icon as={FaStore} color="brand.500" />
-<Heading size="sm" color="gray.700">Dompet & Status</Heading>
-<IconButton icon={<Icon as={FaBell} />} colorScheme="blue" variant="ghost" isRound onClick={() => navigate("/portal/notifikasi")} aria-label="Notifikasi" ml={4} />
-</HStack>
-{gachaStats?.canClaimDaily && (
+                  <Icon as={FaStore} color="brand.500" />
+                  <Heading size="sm" color="gray.700">Dompet & Status</Heading>
+                  <IconButton icon={<Icon as={FaBell} />} colorScheme="blue" variant="ghost" isRound onClick={() => navigate("/portal/notifikasi")} aria-label="Notifikasi" ml={4} />
+              </HStack>
+              {gachaStats?.canClaimDaily && (
                   <Button size="sm" colorScheme="yellow" leftIcon={<FaGift />} isLoading={claimLoading} onClick={async () => {
                       setClaimLoading(true);
                       await claimDailyLogin();
@@ -331,11 +333,11 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
             <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                 <VStack p={4} bg="yellow.50" borderRadius="xl" align="start" border="1px solid" borderColor="yellow.100">
                     <HStack color="yellow.600" justify="space-between" w="full">
-<Icon as={FaCoins} />
-<Text fontWeight="bold">Koin Dompet</Text>
-</HStack>
-<Heading size="2xl" color="yellow.700">{currency?.coins || 0}</Heading>
-</VStack>
+                        <HStack><Icon as={FaCoins} /><Text fontWeight="bold">Koin Desa</Text></HStack>
+                        <IconButton size="xs" colorScheme="yellow" variant="ghost" icon={<FaCreditCard />} onClick={() => navigate('/topup')} aria-label="Topup Koin" />
+                    </HStack>
+                    <Heading size="2xl" color="yellow.700">{currency?.coins || 0}</Heading>
+                </VStack>
                 <VStack p={4} bg="purple.50" borderRadius="xl" align="start" border="1px solid" borderColor="purple.100">
                     <HStack color="purple.600">
                         <Icon as={FaCrown} />
@@ -352,7 +354,10 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
 
           {/* Activity Overview */}
           <VStack align="start" spacing={4}>
-
+            <HStack>
+                <Icon as={FaHistory} color="brand.500" />
+                <Heading size="sm" color="gray.700">Ringkasan Aktivitas</Heading>
+            </HStack>
             <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} w="full">
               <StatCard
                 title="Status Pengaduan"
@@ -399,7 +404,11 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                 <VStack align="stretch" spacing={3}>
                     {leaderboard.map((lb, i) => (
                         <Flex key={i} p={3} bg="gray.50" borderRadius="lg" justify="space-between" align="center">
-
+                            <HStack>
+                                <Badge colorScheme={i < 3 ? 'yellow' : 'gray'} borderRadius="full" w="24px" h="24px" display="flex" alignItems="center" justify="center">{i + 1}</Badge>
+                                <Text fontWeight="bold">{lb.name || lb.email.split('@')[0]}</Text>
+                                {lb.tier_name === 'VIP' && <Badge colorScheme="purple" fontSize="10px">VIP</Badge>}
+                            </HStack>
                             <HStack color="yellow.500">
                                 <Icon as={FaCoins} />
                                 <Text fontWeight="bold">{lb.coins}</Text>
@@ -467,6 +476,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
           </VStack>
 
       {/* Store Modal */}
+
 
       {/* Deletion Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>

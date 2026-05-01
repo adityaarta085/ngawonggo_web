@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Container, VStack, Heading, Text, Button, useToast, Icon, HStack, Badge, Center, keyframes } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Box, Container, VStack, Heading, Text, Button, Icon, HStack, Badge, keyframes } from '@chakra-ui/react';
 import { FaGift, FaCoins, FaCrown, FaArrowLeft, FaStar } from 'react-icons/fa';
 import { useMonetization } from '../../../contexts/MonetizationContext';
 import { useNavigate } from 'react-router-dom';
@@ -11,12 +11,11 @@ const spinAnimation = keyframes`
 `;
 
 const GachaPage = () => {
-    const { currency, gachaStats, rollGacha } = useMonetization();
+    const { rollGacha } = useMonetization();
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [isAnimating, setIsAnimating] = useState(false);
-    const toast = useToast();
-    const navigate = useNavigate();
+        const navigate = useNavigate();
 
     const handleGacha = async () => {
         setIsAnimating(true);

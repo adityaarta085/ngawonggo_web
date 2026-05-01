@@ -47,7 +47,7 @@ import { supabase } from './lib/supabase';
 // User Portal Views
 import AuthPage from './views/AuthPage/index.js';
 import EduGameRouter from './views/EduGamePage/EduGameRouter';
-import PortalPage from './views/PortalPage/index.js';
+import PortalRouter from "./views/PortalPage/PortalRouter.js";
 import DonasiRouter from './views/DonasiPage/index.js';
 import TopupPage from './views/TopupPage/index.js';
 
