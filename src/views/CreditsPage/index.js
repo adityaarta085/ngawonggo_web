@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -19,8 +21,10 @@ import {
   useDisclosure,
   Flex,
   Badge,
+  Center,
+  Icon,
 } from '@chakra-ui/react';
-import { FaFileAlt, FaCertificate } from 'react-icons/fa';
+import { FaFileAlt, FaCertificate, FaPlayCircle, FaLock } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 
 const teamMembers = [
@@ -227,6 +231,63 @@ const MemberCard = ({ member }) => {
   );
 };
 
+
+const DeveloperMediaList = () => {
+  const [medias, setMedias] = useState([]);
+  const navigate = useNavigate();
+  const cardBg = useColorModeValue('white', 'gray.800');
+
+  useEffect(() => {
+    fetchMedias();
+  }, []);
+
+  const fetchMedias = async () => {
+    const { data } = await supabase.from('developer_media').select('*').eq('is_active', true).order('created_at', { ascending: false });
+    if (data) setMedias(data);
+  };
+
+  if (medias.length === 0) return null;
+
+  return (
+    <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
+      {medias.map((media) => (
+        <Box
+          key={media.id}
+          bg={cardBg}
+          borderRadius="2xl"
+          overflow="hidden"
+          boxShadow="lg"
+          transition="all 0.3s"
+          _hover={{ transform: 'translateY(-5px)', boxShadow: 'xl' }}
+          cursor="pointer"
+          onClick={() => navigate(`/credits/media/${media.id}`)}
+          position="relative"
+        >
+          <Box h="200px" bg="gray.100" _dark={{ bg: 'gray.700' }} position="relative">
+            {media.media_type === 'image' && media.media_url ? (
+              <Image src={media.media_url} w="full" h="full" objectFit="cover" filter="blur(2px) brightness(0.7)" />
+            ) : (
+              <Center h="full" bgGradient="linear(to-br, brand.500, brand.700)">
+                <Icon as={media.media_type === 'video' ? FaPlayCircle : FaFileAlt} boxSize={16} color="whiteAlpha.500" />
+              </Center>
+            )}
+            <Center position="absolute" top={0} left={0} right={0} bottom={0}>
+              <Icon as={FaLock} boxSize={12} color="gold" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))" />
+            </Center>
+          </Box>
+          <VStack p={6} align="start" spacing={3}>
+            <Badge colorScheme={media.media_type === 'video' ? 'red' : 'blue'}>
+              {media.media_type.toUpperCase()} EKSKLUSIF
+            </Badge>
+            <Heading size="md" noOfLines={2}>{media.title}</Heading>
+            <Text color="gray.500" fontSize="sm" noOfLines={2}>{media.description}</Text>
+          </VStack>
+        </Box>
+      ))}
+    </SimpleGrid>
+  );
+};
+
 const CreditsPage = () => {
   const bgColor = useColorModeValue('gray.50', 'gray.900');
 
@@ -273,6 +334,17 @@ const CreditsPage = () => {
             <MemberCard key={index} member={member} />
           ))}
         </SimpleGrid>
+
+
+
+        {/* Developer Media Section */}
+        <Box mt={20}>
+          <VStack spacing={4} textAlign="center" mb={10}>
+            <Heading size="xl" fontWeight="900">Media Eksklusif Pengembang</Heading>
+            <Text color="gray.500">Konten spesial di balik layar (Khusus VIP / Akses Kode)</Text>
+          </VStack>
+          <DeveloperMediaList />
+        </Box>
 
         <Box mt={20} p={8} bg="brand.500" borderRadius="3xl" color="white" textAlign="center" boxShadow="2xl">
           <Heading size="md" mb={4}>SMK Muhammadiyah Bandongan</Heading>

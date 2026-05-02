@@ -58,6 +58,7 @@ import { FaHeadset, FaHeart } from 'react-icons/fa';
 import DonasiManager from './components/DonasiManager';
 import MonetizationManager from './components/MonetizationManager';
 import NotificationManager from './components/NotificationManager';
+import DeveloperMediaManager from './components/DeveloperMediaManager';
 import { FaCoins, FaBell } from 'react-icons/fa';
 
 const AdminPage = ({ setSession }) => {
@@ -78,6 +79,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Wisata', icon: FaMap },
     { name: 'Running Text', icon: FaBullhorn },
     { name: 'Google Doodles', icon: FaImage },
+    { name: 'Media Pengembang', icon: FaImage },
     { name: 'Kustomisasi Logo', icon: FaImage },
     { name: 'Popup', icon: FaWindowMaximize },
     { name: 'Pengaduan', icon: FaExclamationCircle },
@@ -206,6 +208,8 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Pengguna' && <UserManager />}
           {activeTab === 'Profil Desa' && <ProfilManager />}
           {activeTab === 'Google Doodles' && <DoodleManager />}
+          {activeTab === 'Media Pengembang' && <DeveloperMediaManager />}
+
           {activeTab === 'Kustomisasi Logo' && <LogoManager />}
         </Box>
       </Box>

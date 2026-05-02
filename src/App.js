@@ -30,6 +30,7 @@ import CSApp from './views/AdminPage/cs';
 import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
 import TermsConditions from './views/Legal/TermsConditions.js';
 import CreditsPage from './views/CreditsPage/index.js';
+import MediaDetail from './views/CreditsPage/MediaDetail';
 import ScrollToTop from './components/ScrollToTop.js';
 import Preloader from './components/Preloader.js';
 import SplashScreen from './components/SplashScreen.js';
@@ -267,6 +268,7 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/credits" element={<CreditsPage />} />
+            <Route path="/credits/media/:id" element={<MediaDetail />} />
             <Route path="/donasi/*" element={<DonasiRouter />} />
             <Route path="/topup" element={<TopupPage />} />
             <Route path="/game/*" element={<EduGameRouter />} />
