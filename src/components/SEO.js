@@ -4,19 +4,21 @@ import { Helmet } from 'react-helmet-async';
 const SEO = ({
   title,
   description,
-  name = "Desa Ngawonggo",
+  name = "Website Desa NGAWONGGO KALIANGKRIK",
   type = "website",
   image = "/logo_desa.png",
   url = "https://ngawonggo.desa.id" // Placeholder URL, update with actual domain if known
 }) => {
   const fullTitle = title ? `${title} | ${name}` : name;
-  const siteDescription = description || "Official Website Desa Ngawonggo - Kecamatan Kaliangkrik, Kabupaten Magelang. Informasi pelayanan, berita, dan profil desa.";
+  const siteDescription = description || "Kecamatan Kaliangkrik, Kabupaten Magelang, Propinsi Jawa Tengah.";
 
   return (
     <Helmet>
       {/* Standard metadata tags */}
       <title>{fullTitle}</title>
       <meta name='description' content={siteDescription} />
+
+      <meta name="keywords" content="Desa Ngawonggo, Ngawonggo, Ngawonggo kaliangkrik, Pemerintah Desa Ngawonggo, Kaliangkrik Magelang" />
 
       {/* Facebook tags */}
       <meta property="og:type" content={type} />
