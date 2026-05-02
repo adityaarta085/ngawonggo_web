@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 /* eslint-disable no-unused-vars */
 import {
   Box,
@@ -44,6 +44,8 @@ import {
 } from '@chakra-ui/react';
 import {
     FaHistory,
+    FaEdit,
+    FaCamera,
     FaBookOpen,
     FaGamepad,
     FaUserCircle,
@@ -56,6 +58,7 @@ import {
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useMonetization } from '../../contexts/MonetizationContext';
+import { uploadToSupabase } from '../../lib/uploader';
 import { FaCoins, FaLock, FaBell, FaCrown, FaStore, FaGift, FaTrophy, FaCreditCard } from "react-icons/fa";
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 
@@ -100,8 +103,50 @@ const PortalPage = () => {
   const [feedback, setFeedback] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
     const [claimLoading, setClaimLoading] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
+  const avatarInputRef = useRef(null);
   const { currency, tier, deductCurrency, gachaStats, claimDailyLogin } = useMonetization();
 
+
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploadingAvatar(true);
+    try {
+      const url = await uploadToSupabase(file);
+      const { data, error } = await supabase.auth.updateUser({
+        data: { avatar_url: url }
+      });
+      if (error) throw error;
+
+      setUser(data.user);
+      toast({ title: 'Foto Profil Berhasil Diperbarui!', status: 'success' });
+    } catch (err) {
+      toast({ title: 'Gagal Update Foto Profil', description: err.message, status: 'error' });
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleNameUpdate = async () => {
+    if (!newName.trim()) return;
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        data: { full_name: newName }
+      });
+      if (error) throw error;
+
+      setUser(data.user);
+      setIsEditingName(false);
+      toast({ title: 'Nama Berhasil Diperbarui!', status: 'success' });
+    } catch (err) {
+      toast({ title: 'Gagal Update Nama', description: err.message, status: 'error' });
+    }
+  };
 
   const openDeletionModal = (target) => {
     setDeletionTarget(target);
@@ -271,17 +316,96 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
           >
             <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ base: 'start', md: 'center' }} gap={6}>
               <HStack spacing={4}>
-                <Avatar
-                  size="xl"
-                  name={user?.email}
-                  src={user?.user_metadata?.avatar_url}
-                  bg="brand.500"
-                  color="white"
-                  boxShadow="lg"
-                />
+
+                <Box position="relative">
+                  <Avatar
+                    size="xl"
+                    name={user?.email}
+                    src={user?.user_metadata?.avatar_url}
+                    bg="brand.500"
+                    color="white"
+                    boxShadow="lg"
+                    border={tier?.name === 'VIP' ? "4px solid" : "none"}
+                    borderColor={tier?.name === 'VIP' ? "yellow.400" : "transparent"}
+                    css={tier?.name === 'VIP' ? {
+                       animation: "glow 2s infinite alternate",
+                       "@keyframes glow": {
+                         "from": { boxShadow: "0 0 10px #ecc94b, 0 0 20px #ecc94b" },
+                         "to": { boxShadow: "0 0 20px #ecc94b, 0 0 30px #ecc94b" }
+                       }
+                    } : {}}
+                  />
+                  {true && (
+                    <IconButton
+                      aria-label="Upload Avatar"
+                      icon={<FaCamera />}
+                      size="sm"
+                      colorScheme="yellow"
+                      isRound
+                      position="absolute"
+                      bottom="-2"
+                      right="-2"
+                      isLoading={isUploadingAvatar}
+                      onClick={() => {
+                        if (tier?.name === 'VIP') {
+                            avatarInputRef.current?.click();
+                        } else {
+                            toast({ title: "Khusus VIP", description: "Beli VIP untuk mengganti foto profil Anda.", status: "warning", isClosable: true });
+                            navigate('/portal/toko');
+                        }
+                      }}
+                    />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={avatarInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleAvatarUpload}
+                  />
+                </Box>
+
                 <VStack align="start" spacing={1}>
                   <HStack>
-                    <Heading size="md" color="gray.800">Halo, Warga Digital!</Heading>
+
+                    <Heading size="md" color="gray.800">
+                      {true ? (
+                        isEditingName ? (
+                          <HStack>
+                            <Input
+                              size="sm"
+                              value={newName}
+                              onChange={(e) => setNewName(e.target.value)}
+                              placeholder="Nama Asli"
+                              w="150px"
+                            />
+                            <Button size="sm" onClick={handleNameUpdate} colorScheme="green">Simpan</Button>
+                            <Button size="sm" onClick={() => setIsEditingName(false)}>Batal</Button>
+                          </HStack>
+                        ) : (
+                          <HStack>
+                            <Text>{user?.user_metadata?.full_name || 'VIP Member'}</Text>
+                            <IconButton
+                              icon={<FaEdit />}
+                              size="xs"
+                              variant="ghost"
+                              onClick={() => {
+                                if (tier?.name === 'VIP') {
+                                  setNewName(user?.user_metadata?.full_name || '');
+                                  setIsEditingName(true);
+                                } else {
+                                  toast({ title: "Khusus VIP", description: "Beli VIP untuk mengganti nama portal Anda.", status: "warning", isClosable: true });
+                                  navigate('/portal/toko');
+                                }
+                              }}
+                            />
+                          </HStack>
+                        )
+                      ) : (
+                        'Halo, Warga Digital!'
+                      )}
+                    </Heading>
+
                     <Badge colorScheme="brand" variant="subtle" borderRadius="full">Aktif</Badge>
                   </HStack>
                   <Text color="gray.500" fontSize="sm">{user?.email}</Text>

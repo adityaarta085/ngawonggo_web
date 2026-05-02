@@ -14,11 +14,13 @@ import {
   Container,
 } from '@chakra-ui/react';
 import { EmailIcon, InfoIcon, EditIcon } from '@chakra-ui/icons';
+import { useMonetization } from '../../contexts/MonetizationContext';
 import ComplaintSystem from './ComplaintSystem';
 import Supports from '../LandingPage/components/Supports';
 import { SEO } from '../../components';
 
 export default function LayananPage() {
+  const { isVIP } = useMonetization();
   const services = [
     {
       title: 'Kartu Keluarga (KK)',
@@ -45,23 +47,28 @@ export default function LayananPage() {
       />
       <Container maxW="container.xl" py={8}>
         <Box textAlign="center" mb={16}>
-          <Heading mb={5} size="2xl" color="accent.green">Layanan Publik</Heading>
+          <Heading mb={5} size="2xl" color="accent.green">Layanan Publik {isVIP && <Text as="span" color="yellow.500" fontSize="lg">★ VIP</Text>}</Heading>
           <Text fontSize="lg" color="gray.600" maxW="2xl" mx="auto">
-            Pemerintah Desa Ngawonggo berkomitmen memudahkan warga dalam mengurus administrasi kependudukan dan memberikan informasi layanan publik yang transparan.
+            {isVIP
+              ? "Akses prioritas layanan publik Desa Ngawonggo. Kami siap melayani Anda dengan lebih cepat."
+              : "Pemerintah Desa Ngawonggo berkomitmen memudahkan warga dalam mengurus administrasi kependudukan dan memberikan informasi layanan publik yang transparan."}
           </Text>
         </Box>
 
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} mb={20}>
+        <SimpleGrid columns={{ base: 1, md: isVIP ? 3 : 3 }} spacing={10} mb={20}>
           {services.map((service, index) => (
-            <Card key={index} variant="outline" layerStyle="glassCard" transition="all 0.3s" _hover={{ transform: 'translateY(-5px)', boxShadow: 'xl' }}>
+            <Card key={index} variant="outline" layerStyle="glassCard" transition="all 0.3s" _hover={{ transform: 'translateY(-5px)', boxShadow: 'xl' }}
+                  bg={isVIP ? "yellow.50" : "white"}
+                  borderColor={isVIP ? "yellow.200" : "gray.200"}
+            >
               <CardHeader pb={0}>
-                <Icon as={service.icon} w={8} h={8} color="brand.500" mb={4} />
-                <Heading size="md">{service.title}</Heading>
+                <Icon as={service.icon} w={8} h={8} color={isVIP ? "yellow.600" : "brand.500"} mb={4} />
+                <Heading size="md" color={isVIP ? "yellow.800" : "inherit"}>{service.title}</Heading>
               </CardHeader>
               <CardBody>
-                <Stack divider={<StackDivider />} spacing="4">
+                <Stack divider={<StackDivider borderColor={isVIP ? "yellow.200" : "gray.200"}/>} spacing="4">
                   <Box>
-                    <Text pt="2" fontSize="md" color="gray.600">
+                    <Text pt="2" fontSize="md" color={isVIP ? "yellow.700" : "gray.600"}>
                       {service.desc}
                     </Text>
                   </Box>

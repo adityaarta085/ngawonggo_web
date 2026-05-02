@@ -16,6 +16,9 @@ import {
 import { useParams, Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import CommentSection from './CommentSection';
+// eslint-disable-next-line no-unused-vars
+import TTSReader from '../../components/TTSReader';
+
 import sanitizeHtml from 'sanitize-html';
 
 const NewsDetail = () => {

@@ -24,7 +24,8 @@ import {
 import { FaPaperPlane, FaImage, FaSync, FaSignOutAlt, FaCheckCircle, FaLock } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { uploadDeline } from '../../lib/uploader';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useMonetization } from '../../contexts/MonetizationContext';
 import axios from 'axios';
 
 const generateComplaintId = () => {
@@ -43,6 +44,11 @@ const ComplaintSystem = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [user, setUser] = useState(null);
+  const { isVIP } = useMonetization();
+  const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
+  const [userComplaints, setUserComplaints] = useState([]);
+  const [complaintLimits, setComplaintLimits] = useState({ freeDays: 3, freeCount: 1, vipDays: 1, vipCount: 2 });
   const toast = useToast();
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -50,6 +56,25 @@ const ComplaintSystem = () => {
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const keys = ['layanan_free_limit_days', 'layanan_free_limit_count', 'layanan_vip_limit_days', 'layanan_vip_limit_count'];
+      const { data, error } = await supabase.from('site_settings').select('*').in('key', keys);
+      if (!error && data) {
+        const settings = {};
+        data.forEach(item => settings[item.key] = parseInt(item.value, 10));
+        setComplaintLimits(prev => ({
+          freeDays: settings.layanan_free_limit_days || prev.freeDays,
+          freeCount: settings.layanan_free_limit_count || prev.freeCount,
+          vipDays: settings.layanan_vip_limit_days || prev.vipDays,
+          vipCount: settings.layanan_vip_limit_count || prev.vipCount
+        }));
+      }
+    };
+    fetchSettings();
+  }, []);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -60,6 +85,25 @@ const ComplaintSystem = () => {
       }
     });
   }, []);
+
+
+  const fetchUserComplaints = useCallback(async (userId) => {
+    const { data, error } = await supabase
+      .from('complaints')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setUserComplaints(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserComplaints(user.id);
+    }
+  }, [user, fetchUserComplaints]);
 
   const fetchMessages = useCallback(async (id) => {
     const { data, error } = await supabase
@@ -120,9 +164,33 @@ const ComplaintSystem = () => {
     };
   }, [complaintId]);
 
+
   const handleStartComplaint = async (e) => {
     e.preventDefault();
     if (!name || !contact || !newMessage) return;
+
+    if (user) {
+       // Check Limit
+       const windowDays = isVIP ? complaintLimits.vipDays : complaintLimits.freeDays;
+       const limit = isVIP ? complaintLimits.vipCount : complaintLimits.freeCount;
+       const { data, error } = await supabase
+          .from('complaints')
+          .select('created_at')
+          .eq('user_id', user.id)
+          .gte('created_at', new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString());
+
+       if (!error && data && data.length >= limit) {
+           toast({
+               title: 'Limit Tercapai',
+               description: isVIP ? `Anda telah mencapai limit ${limit} pengaduan per ${windowDays} hari.` : `Anda telah mencapai limit ${limit} pengaduan per ${windowDays} hari. Ingin tambah limit? Langganan VIP!`,
+               status: 'warning',
+               duration: 6000,
+               isClosable: true,
+           });
+           if (!isVIP) navigate('/portal/toko');
+           return;
+       }
+    }
 
     setLoading(true);
     const newId = generateComplaintId();
@@ -153,6 +221,7 @@ const ComplaintSystem = () => {
       setComplaintId(newId);
       localStorage.setItem('complaint_id', newId);
       setNewMessage('');
+      if (user) fetchUserComplaints(user.id);
 
       if (contact.includes('@')) {
         try {
@@ -172,6 +241,7 @@ const ComplaintSystem = () => {
       setLoading(false);
     }
   };
+
 
   const handleSendMessage = async (imgUrl = null) => {
     if (!newMessage && !imgUrl) return;

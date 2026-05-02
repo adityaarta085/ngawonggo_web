@@ -37,6 +37,11 @@ import HumanVerification from './components/HumanVerification.js';
 import Chatbot from './components/Chatbot.js';
 import RunningText from './components/RunningText.js';
 import TopBarWeather from './components/TopBarWeather.js';
+// eslint-disable-next-line no-unused-vars
+import CustomContextMenu from './components/CustomContextMenu';
+// eslint-disable-next-line no-unused-vars
+import TTSReader from './components/TTSReader';
+
 
 import PopupNotification from './components/PopupNotification.js';
 import TakedownPage from './views/TakedownPage/index.js';
