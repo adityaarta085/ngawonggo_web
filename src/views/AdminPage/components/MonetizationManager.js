@@ -17,7 +17,9 @@ const MonetizationManager = () => {
 
   const fetchSettings = async () => {
     const keys = [
-      'layanan_free_limit_days', 'ai_free_daily_limit', 'quran_free_daily_limit',
+      'layanan_free_limit_days', 'layanan_free_limit_count',
+      'layanan_vip_limit_days', 'layanan_vip_limit_count',
+      'ai_free_daily_limit', 'quran_free_daily_limit',
       'fast_track_price', 'theme_premium_price', 'badge_vip_price', 'tafsir_ai_price'
     ];
 
@@ -61,11 +63,23 @@ const MonetizationManager = () => {
         <Heading size="md">Pengaturan Batas & Harga (Monetisasi)</Heading>
 
         <Box>
-            <Heading size="sm" mb={4} color="gray.600">Batas Penggunaan Gratis</Heading>
+            <Heading size="sm" mb={4} color="gray.600">Batas Penggunaan Layanan (Pengaduan)</Heading>
             <VStack spacing={4} align="stretch">
                 <FormControl>
-                    <FormLabel>Batas Limit Layanan (Hari)</FormLabel>
-                    <Input value={settings.layanan_free_limit_days || ''} onChange={(e) => handleChange('layanan_free_limit_days', e.target.value)} />
+                    <FormLabel>Tier Free - Batas Hari Limit Layanan</FormLabel>
+                    <Input value={settings.layanan_free_limit_days || ''} onChange={(e) => handleChange('layanan_free_limit_days', e.target.value)} placeholder="Contoh: 3" />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Tier Free - Jumlah Pengaduan</FormLabel>
+                    <Input value={settings.layanan_free_limit_count || ''} onChange={(e) => handleChange('layanan_free_limit_count', e.target.value)} placeholder="Contoh: 1" />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Tier VIP - Batas Hari Limit Layanan</FormLabel>
+                    <Input value={settings.layanan_vip_limit_days || ''} onChange={(e) => handleChange('layanan_vip_limit_days', e.target.value)} placeholder="Contoh: 1" />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Tier VIP - Jumlah Pengaduan</FormLabel>
+                    <Input value={settings.layanan_vip_limit_count || ''} onChange={(e) => handleChange('layanan_vip_limit_count', e.target.value)} placeholder="Contoh: 2" />
                 </FormControl>
                 <FormControl>
                     <FormLabel>Batas Tanya AI (Per Hari)</FormLabel>

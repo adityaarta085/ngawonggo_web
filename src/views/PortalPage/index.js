@@ -335,7 +335,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                        }
                     } : {}}
                   />
-                  {tier?.name === 'VIP' && (
+                  {true && (
                     <IconButton
                       aria-label="Upload Avatar"
                       icon={<FaCamera />}
@@ -346,7 +346,14 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                       bottom="-2"
                       right="-2"
                       isLoading={isUploadingAvatar}
-                      onClick={() => avatarInputRef.current?.click()}
+                      onClick={() => {
+                        if (tier?.name === 'VIP') {
+                            avatarInputRef.current?.click();
+                        } else {
+                            toast({ title: "Khusus VIP", description: "Beli VIP untuk mengganti foto profil Anda.", status: "warning", isClosable: true });
+                            navigate('/portal/toko');
+                        }
+                      }}
                     />
                   )}
                   <input
@@ -362,7 +369,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                   <HStack>
 
                     <Heading size="md" color="gray.800">
-                      {tier?.name === 'VIP' ? (
+                      {true ? (
                         isEditingName ? (
                           <HStack>
                             <Input
@@ -383,8 +390,13 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                               size="xs"
                               variant="ghost"
                               onClick={() => {
-                                setNewName(user?.user_metadata?.full_name || '');
-                                setIsEditingName(true);
+                                if (tier?.name === 'VIP') {
+                                  setNewName(user?.user_metadata?.full_name || '');
+                                  setIsEditingName(true);
+                                } else {
+                                  toast({ title: "Khusus VIP", description: "Beli VIP untuk mengganti nama portal Anda.", status: "warning", isClosable: true });
+                                  navigate('/portal/toko');
+                                }
                               }}
                             />
                           </HStack>
