@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+const fs = require('fs');
+const path = 'src/components/CustomContextMenu.js';
+
+let code = fs.readFileSync(path, 'utf8');
+
+// The regex replace failed. Let's write the whole file to be sure.
+const fullCode = `import React, { useState, useEffect, useRef } from 'react';
 import { Box, VStack, Text, HStack, Icon, useToast } from '@chakra-ui/react';
 import { FaCopy, FaCheckSquare, FaVolumeUp } from 'react-icons/fa';
 import axios from 'axios';
@@ -139,7 +145,7 @@ const CustomContextMenu = () => {
         toast({ title: "Memproses suara...", status: "info", duration: 2000 });
 
         try {
-            const res = await axios.get(`https://api.nexray.eu.cc/ai/gemini-tts?text=${encodeURIComponent(textToRead)}`);
+            const res = await axios.get(\`https://api.nexray.eu.cc/ai/gemini-tts?text=\${encodeURIComponent(textToRead)}\`);
             if (res.data && res.data.status && res.data.result) {
                 const audio = new Audio(res.data.result);
                 audio.onended = () => setIsPlaying(false);
@@ -164,8 +170,8 @@ const CustomContextMenu = () => {
 
     const menuStyle = {
         position: 'fixed',
-        top: `${contextData.y}px`,
-        left: `${contextData.x}px`,
+        top: \`\${contextData.y}px\`,
+        left: \`\${contextData.x}px\`,
         zIndex: 9999,
     };
 
@@ -216,3 +222,6 @@ const CustomContextMenu = () => {
 };
 
 export default CustomContextMenu;
+`;
+
+fs.writeFileSync(path, fullCode);

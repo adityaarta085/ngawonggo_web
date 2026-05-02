@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState, useEffect, useRef } from 'react';
 import { Box, VStack, Text, HStack, Icon, useToast } from '@chakra-ui/react';
 import { FaCopy, FaCheckSquare, FaVolumeUp } from 'react-icons/fa';
 import axios from 'axios';
@@ -14,14 +16,9 @@ const CustomContextMenu = () => {
 
     useEffect(() => {
         const handleContextMenu = (e) => {
-            const text = window.getSelection().toString().trim();
-
-            // Allow default context menu if no text is selected
-            if (!text || text.length === 0) {
-                return; // Let the browser handle the event normally
-            }
-
             e.preventDefault();
+
+            const text = window.getSelection().toString().trim();
 
             // Adjust coordinates to prevent menu from going off-screen
             const menuWidth = 200;
@@ -139,7 +136,7 @@ const CustomContextMenu = () => {
         toast({ title: "Memproses suara...", status: "info", duration: 2000 });
 
         try {
-            const res = await axios.get(`https://api.nexray.eu.cc/ai/gemini-tts?text=${encodeURIComponent(textToRead)}`);
+            const res = await axios.get(\`https://api.nexray.eu.cc/ai/gemini-tts?text=\${encodeURIComponent(textToRead)}\`);
             if (res.data && res.data.status && res.data.result) {
                 const audio = new Audio(res.data.result);
                 audio.onended = () => setIsPlaying(false);
@@ -164,8 +161,8 @@ const CustomContextMenu = () => {
 
     const menuStyle = {
         position: 'fixed',
-        top: `${contextData.y}px`,
-        left: `${contextData.x}px`,
+        top: \`\${contextData.y}px\`,
+        left: \`\${contextData.x}px\`,
         zIndex: 9999,
     };
 
@@ -216,3 +213,6 @@ const CustomContextMenu = () => {
 };
 
 export default CustomContextMenu;
+`;
+
+fs.writeFileSync('src/components/CustomContextMenu.js', code);

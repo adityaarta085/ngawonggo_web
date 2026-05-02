@@ -246,6 +246,7 @@ function App() {
 
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <LoginPromo user={userSession?.user} />}
         <ScrollToTop />
+        <CustomContextMenu />
 
         <Box pt={0} minH="80vh">
           <Routes>
