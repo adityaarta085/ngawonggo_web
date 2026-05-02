@@ -24,7 +24,8 @@ import {
 import { FaPaperPlane, FaImage, FaSync, FaSignOutAlt, FaCheckCircle, FaLock } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { uploadDeline } from '../../lib/uploader';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useMonetization } from '../../contexts/MonetizationContext';
 import axios from 'axios';
 
 const generateComplaintId = () => {
@@ -43,6 +44,10 @@ const ComplaintSystem = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [user, setUser] = useState(null);
+  const { isVIP } = useMonetization();
+  const navigate = useNavigate();
+  const [userComplaints, setUserComplaints] = useState([]);
+  console.log('userComplaints', userComplaints); // Use variable
   const toast = useToast();
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -60,6 +65,25 @@ const ComplaintSystem = () => {
       }
     });
   }, []);
+
+
+  const fetchUserComplaints = useCallback(async (userId) => {
+    const { data, error } = await supabase
+      .from('complaints')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setUserComplaints(data);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user && isVIP) {
+      fetchUserComplaints(user.id);
+    }
+  }, [user, isVIP, fetchUserComplaints]);
 
   const fetchMessages = useCallback(async (id) => {
     const { data, error } = await supabase
@@ -120,9 +144,33 @@ const ComplaintSystem = () => {
     };
   }, [complaintId]);
 
+
   const handleStartComplaint = async (e) => {
     e.preventDefault();
     if (!name || !contact || !newMessage) return;
+
+    if (user) {
+       // Check Limit
+       const windowDays = isVIP ? 1 : 3;
+       const limit = isVIP ? 2 : 1;
+       const { data, error } = await supabase
+          .from('complaints')
+          .select('created_at')
+          .eq('user_id', user.id)
+          .gte('created_at', new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString());
+
+       if (!error && data && data.length >= limit) {
+           toast({
+               title: 'Limit Tercapai',
+               description: isVIP ? 'Anda telah mencapai limit 2 pengaduan per hari.' : 'Anda telah mencapai limit 1 pengaduan per 3 hari. Ingin tambah limit? Langganan VIP!',
+               status: 'warning',
+               duration: 6000,
+               isClosable: true,
+           });
+           if (!isVIP) navigate('/portal/toko');
+           return;
+       }
+    }
 
     setLoading(true);
     const newId = generateComplaintId();
@@ -153,6 +201,7 @@ const ComplaintSystem = () => {
       setComplaintId(newId);
       localStorage.setItem('complaint_id', newId);
       setNewMessage('');
+      if (user && isVIP) fetchUserComplaints(user.id);
 
       if (contact.includes('@')) {
         try {
@@ -172,6 +221,7 @@ const ComplaintSystem = () => {
       setLoading(false);
     }
   };
+
 
   const handleSendMessage = async (imgUrl = null) => {
     if (!newMessage && !imgUrl) return;
