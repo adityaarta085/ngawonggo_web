@@ -53,7 +53,7 @@ const Navbar = ({ user, isScrolled }) => {
     { label: t.media || 'Media', href: '/media' },
     { label: t.anime || 'Anime (NEW)', href: '/anime' },
     { label: t.contact || 'Kontak', href: '/kontak' },
-    { label: t.admin || 'Admin', href: '/admin', isSpecial: true },
+
   ];
 
   const navBg = useColorModeValue(

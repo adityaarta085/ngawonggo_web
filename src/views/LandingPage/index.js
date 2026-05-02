@@ -16,7 +16,7 @@ export default function LandingPage() {
     <Box>
       <SEO
         title="Beranda"
-        description="Selamat datang di Website Resmi Desa Ngawonggo. Pusat informasi pelayanan publik, berita terkini, dan potensi desa di Kecamatan Kaliangkrik, Kabupaten Magelang."
+        description="Kecamatan Kaliangkrik, Kabupaten Magelang, Propinsi Jawa Tengah."
       />
       <SpecialEventPoster />
       <Hero />
