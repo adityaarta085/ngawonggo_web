@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState, useEffect, useRef } from 'react';
 import { Box, VStack, Text, HStack, Icon, useToast } from '@chakra-ui/react';
 import { FaCopy, FaCheckSquare, FaVolumeUp } from 'react-icons/fa';
 import axios from 'axios';
@@ -8,10 +10,10 @@ import axios from 'axios';
 // It doesn't mention removing VIP, but it implies the feature should just work.
 // Let's modify CustomContextMenu to handle text selection gracefully for mobile too.
 
-// import { useMonetization } from '../contexts/MonetizationContext';
+import { useMonetization } from '../contexts/MonetizationContext';
 
 const CustomContextMenu = () => {
-    // const { isVIP } = useMonetization();
+    const { isVIP } = useMonetization();
     const [contextData, setContextData] = useState({ visible: false, x: 0, y: 0, fromSelection: false });
     const [isPlaying, setIsPlaying] = useState(false);
     const [audioElement, setAudioElement] = useState(null);
@@ -127,7 +129,7 @@ const CustomContextMenu = () => {
         toast({ title: "Memproses suara...", status: "info", duration: 2000 });
 
         try {
-            const res = await axios.get(`https://api.nexray.eu.cc/ai/gemini-tts?text=${encodeURIComponent(selectedText)}`);
+            const res = await axios.get(\`https://api.nexray.eu.cc/ai/gemini-tts?text=\${encodeURIComponent(selectedText)}\`);
             if (res.data && res.data.status && res.data.result) {
                 const audio = new Audio(res.data.result);
                 audio.onended = () => setIsPlaying(false);
@@ -152,8 +154,8 @@ const CustomContextMenu = () => {
 
     const menuStyle = {
         position: 'fixed',
-        top: `${contextData.y}px`,
-        left: `${contextData.x}px`,
+        top: \`\${contextData.y}px\`,
+        left: \`\${contextData.x}px\`,
         zIndex: 9999,
     };
 
@@ -204,3 +206,6 @@ const CustomContextMenu = () => {
 };
 
 export default CustomContextMenu;
+`;
+
+fs.writeFileSync('src/components/CustomContextMenu.js', code);

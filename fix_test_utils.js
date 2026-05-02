@@ -1,4 +1,6 @@
-import React from 'react';
+const fs = require('fs');
+
+const code = `import React from 'react';
 import { render } from '@testing-library/react';
 import { ChakraProvider } from '@chakra-ui/react';
 import theme from './theme';
@@ -23,3 +25,6 @@ const customRender = (ui, options) =>
   render(ui, { wrapper: AllProviders, ...options });
 
 export { customRender as render };
+`;
+
+fs.writeFileSync('src/test-utils.js', code);
