@@ -25,6 +25,8 @@ import AnimeBatch from './views/AnimePage/Batch.js';
 import DusunPage from './views/DusunPage/index.js';
 import QuranPage from './views/QuranPage/index.js';
 import NewsDetail from './views/NewsPage/NewsDetail.js';
+import NationalNewsPage from './views/NationalNewsPage/index.js';
+import NationalNewsDetail from './views/NationalNewsPage/NationalNewsDetail.js';
 import LoginPromo from './components/LoginPromo.js';
 import AdminPage from './views/AdminPage/index.js';
 import Login from './views/AdminPage/Login.js';
@@ -255,6 +257,8 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/news" element={<NewsPage />} />
+            <Route path="/news/nasional" element={<NationalNewsPage />} />
+            <Route path="/news/nasional/:slug" element={<NationalNewsDetail />} />
             <Route path="/news/:id" element={<NewsDetail />} />
             <Route path="/profil" element={<ProfilPage />} />
             <Route path="/pemerintahan" element={<PemerintahanPage />} />

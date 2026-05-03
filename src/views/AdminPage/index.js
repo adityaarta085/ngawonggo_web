@@ -38,6 +38,7 @@ import {
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import NewsManager from './components/NewsManager';
+import NationalNewsManager from './components/NationalNewsManager';
 import DashboardStats from './components/DashboardStats';
 import StatsManager from './components/StatsManager';
 import InstitutionManager from './components/InstitutionManager';
@@ -73,6 +74,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Profil Desa', icon: FaNewspaper },
     { name: 'Donasi', icon: FaHeart },
     { name: 'Berita', icon: FaNewspaper },
+    { name: 'Berita Nasional', icon: FaNewspaper },
     { name: '10 Dusun', icon: FaMapMarkedAlt },
     { name: 'Instansi', icon: FaImage },
     { name: 'Demografi', icon: FaChartBar },
@@ -192,6 +194,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Dashboard' && <DashboardStats />}
           {activeTab === 'Donasi' && <DonasiManager />}
           {activeTab === 'Berita' && <NewsManager />}
+          {activeTab === 'Berita Nasional' && <NationalNewsManager />}
           {activeTab === '10 Dusun' && <DusunManager />}
           {activeTab === 'Instansi' && <InstitutionManager />}
           {activeTab === 'Demografi' && <StatsManager />}

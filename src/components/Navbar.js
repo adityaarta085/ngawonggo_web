@@ -49,7 +49,14 @@ const Navbar = ({ user, isScrolled }) => {
     { label: t.services || 'Layanan', href: '/layanan' },
     { label: t.explore || 'Jelajahi', href: '/jelajahi' },
     { label: 'Donasi', href: '/donasi' },
-    { label: t.news || 'Berita', href: '/news' },
+    {
+      label: t.news || 'Berita',
+      children: [
+        { label: 'Pemerintah', subLabel: 'Kabar dan kegiatan desa', href: '/news' },
+        { label: 'Nasional', subLabel: 'Berita dari seluruh Indonesia', href: '/news/nasional' },
+      ],
+      href: '/news'
+    },
     { label: t.media || 'Media', href: '/media' },
     { label: t.anime || 'Anime (NEW)', href: '/anime' },
     { label: t.contact || 'Kontak', href: '/kontak' },
