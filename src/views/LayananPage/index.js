@@ -110,6 +110,9 @@ export default function LayananPage() {
 
         <Box mb={20}>
           <Box mb={4} textAlign="right">
+              <Button as={RouterLink} to="/layanan/lacak" colorScheme="blue" variant="outline" size="sm" mr={2}>
+                Lacak Pengaduan
+              </Button>
               <Button as={RouterLink} to="/layanan/history" colorScheme="brand" variant="outline" size="sm" leftIcon={<FaHistory />}>
                 Riwayat Pengaduan (VIP)
               </Button>
