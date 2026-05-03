@@ -31,9 +31,7 @@ const teamMembers = [
   {
     name: "ADITYA ARTA PUTRA",
     role: "Project Leader & Lead Developer",
-    isLeader: true,
-    description: "Koordinator utama kelompok sekaligus pengembang utama yang membangun sekitar 40% dari keseluruhan website ini. Bertanggung jawab atas arsitektur kode, integrasi API, dan desain UI/UX.",
-    photo: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifh-gSAUfCfZSZASMU_3xe-LtUUl94TKvEuX7_xF7MSlkiEwWKIyOUExxYxLxHIXBSAVNfDw6pwsA1w9Mlwf3UDBQb4Z4sK7HbVHihuTkmg-8qgjpDQT2nmdwxnWsFj7fUCYAaDDslfbKe9grVOsCCeQ4R1EUVsAUySd7BGzK-i5l1eZPSOvhlq1IfGpw/s320/10%20TJKT%20A%20ADITYA%20ARTA%20PUTRA.JPG",
+        photo: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifh-gSAUfCfZSZASMU_3xe-LtUUl94TKvEuX7_xF7MSlkiEwWKIyOUExxYxLxHIXBSAVNfDw6pwsA1w9Mlwf3UDBQb4Z4sK7HbVHihuTkmg-8qgjpDQT2nmdwxnWsFj7fUCYAaDDslfbKe9grVOsCCeQ4R1EUVsAUySd7BGzK-i5l1eZPSOvhlq1IfGpw/s320/10%20TJKT%20A%20ADITYA%20ARTA%20PUTRA.JPG",
     certificate: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilVHKf4rAAnNsXQ9rCmDp1wDaHGD-54HwjNQkUSLzUwhCY3csZ9AeRpBkCL1tulzAg_BRcOgm4rremf6CxK-CKiqocFpf5s-9x_qeDnfquLIyRkPte3dzxKA-sOiLmVt97BGWFtGLc7DTE70AfiebK2KnrT8m9j5DSXTdBGCvOdXT9IaTtB4IKxJYbBg0/s320/1.png"
   },
   {
@@ -342,6 +340,16 @@ const CreditsPage = () => {
           <VStack spacing={4} textAlign="center" mb={10}>
             <Heading size="xl" fontWeight="900">Media Eksklusif Pengembang</Heading>
             <Text color="gray.500">Konten spesial di balik layar (Khusus VIP / Akses Kode)</Text>
+            <Button
+              as={Link}
+              href="/credits/media"
+              colorScheme="brand"
+              size="sm"
+              mt={4}
+              rightIcon={<FaPlayCircle />}
+            >
+              Lihat Semua Media Eksklusif
+            </Button>
           </VStack>
           <DeveloperMediaList />
         </Box>
