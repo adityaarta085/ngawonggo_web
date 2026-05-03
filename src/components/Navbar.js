@@ -50,7 +50,6 @@ const Navbar = ({ user, isScrolled }) => {
     { label: t.explore || 'Jelajahi', href: '/jelajahi' },
     { label: 'Donasi', href: '/donasi' },
     { label: t.news || 'Berita Desa', href: '/news' },
-    { label: 'Berita Nasional', href: '/news/nasional' },
     { label: t.media || 'Media', href: '/media' },
     { label: t.anime || 'Anime (NEW)', href: '/anime' },
     { label: t.contact || 'Kontak', href: '/kontak' },

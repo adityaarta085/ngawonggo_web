@@ -29,12 +29,24 @@ const CATEGORIES = ['pemerintahan', 'pendidikan', 'kesehatan', 'ekonomi', 'umum'
 
 export default function NewsPage() {
   const [allNews, setAllNews] = useState([]);
+  const [nationalNews, setNationalNews] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchNews = async () => {
       const { data, error } = await supabase.from('news').select('*').order('created_at', { ascending: false });
       if (!error && data) setAllNews(data);
+
+      const { data: nationalData, error: nationalError } = await supabase.from('national_news').select('*').order('created_at', { ascending: false }).limit(5);
+      if (!nationalError && nationalData) {
+        const mappedData = nationalData.map(item => ({
+          ...item,
+          image: item.image_thumbnail || item.image_full,
+          category: item.source || 'Nasional',
+        }));
+        setNationalNews(mappedData);
+      }
+
       setLoading(false);
     };
     fetchNews();
@@ -181,6 +193,49 @@ export default function NewsPage() {
               </MotionBox>
             );
           })}
+
+
+          {/* National News Feed */}
+          {nationalNews.length > 0 && (
+            <MotionBox
+              id="nasional"
+              scrollMarginTop="150px"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ delay: 0.1 }}
+            >
+              <HStack mb={8} spacing={6}>
+                <Flex align="center" gap={3}>
+                  <Icon as={FaNewspaper} color="blue.500" w={6} h={6} />
+                  <Heading size="lg" color="gray.800" fontWeight="900" letterSpacing="tight">
+                      Berita Nasional Terbaru
+                  </Heading>
+                </Flex>
+                <Box flex={1} h="2px" bgGradient="linear(to-r, blue.100, transparent)" borderRadius="full" />
+                <Button as="a" href="/news/nasional" colorScheme="blue" variant="ghost" size="sm" rightIcon={<FaChevronRight />}>Lihat Semua</Button>
+              </HStack>
+
+              <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={10}>
+                <Box gridColumn={{ lg: 'span 2' }}>
+                  {nationalNews.slice(0, 1).map(e => (
+                    <CardNews
+                      key={e.id}
+                      news={{...e, id: 'nasional/' + encodeURIComponent(e.slug)}}
+                    />
+                  ))}
+                </Box>
+                <VStack spacing={6} align="stretch">
+                  {nationalNews.slice(1, 4).map(e => (
+                    <SmallCardNews
+                      key={e.id}
+                      news={{...e, id: 'nasional/' + encodeURIComponent(e.slug)}}
+                    />
+                  ))}
+                </VStack>
+              </SimpleGrid>
+            </MotionBox>
+          )}
 
           {allNews.length === 0 && (
               <Box textAlign="center" py={40} layerStyle="glassCard" border="2px dashed" borderColor="gray.100">
