@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Loading, SEO } from '../../components';
+import AISummary from '../../components/AISummary';
 import {
   Box,
   Container,
@@ -111,6 +112,8 @@ const NewsDetail = () => {
               boxShadow="lg"
             />
           )}
+
+          <AISummary newsId={news.id} type="local" content={news.content} initialSummary={news.ai_summary} />
 
           <Box
             w="100%"

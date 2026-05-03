@@ -43,6 +43,7 @@ const NewsManager = () => {
     video_url: '',
     date: '',
     content: '',
+      ai_summary: '',
     category: 'pemerintahan',
   });
   const toast = useToast();
@@ -78,6 +79,7 @@ const NewsManager = () => {
       video_url: '',
       date: new Date().toLocaleDateString('id-ID'),
       content: '',
+      ai_summary: '',
       category: 'pemerintahan',
     });
     onOpen();
@@ -228,6 +230,10 @@ const NewsManager = () => {
                       style={{ height: '300px', marginBottom: '50px' }}
                     />
                   </Box>
+                </FormControl>
+                <FormControl>
+                  <FormLabel>AI Summary (Opsional)</FormLabel>
+                  <Input value={formData.ai_summary || ''} onChange={(e) => setFormData({...formData, ai_summary: e.target.value})} placeholder="Ringkasan AI" />
                 </FormControl>
               </VStack>
             </ModalBody>

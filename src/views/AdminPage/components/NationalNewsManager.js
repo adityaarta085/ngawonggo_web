@@ -42,6 +42,7 @@ const NationalNewsManager = () => {
     image_full: '',
     date: '',
     content: '',
+      ai_summary: '',
     slug: '',
     source: 'CNN',
     link: ''
@@ -97,6 +98,7 @@ const NationalNewsManager = () => {
       image_full: '',
       date: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/[-:]/g, '').replace(' ', ''),
       content: '',
+      ai_summary: '',
       slug: `/nasional/${Date.now()}`,
       source: 'Manual',
       link: ''
@@ -252,6 +254,10 @@ const NationalNewsManager = () => {
                       style={{ height: '300px', marginBottom: '50px' }}
                     />
                   </Box>
+                </FormControl>
+                <FormControl>
+                  <FormLabel>AI Summary (Opsional)</FormLabel>
+                  <Input value={formData.ai_summary || ''} onChange={(e) => setFormData({...formData, ai_summary: e.target.value})} placeholder="Ringkasan AI" />
                 </FormControl>
               </VStack>
             </ModalBody>
