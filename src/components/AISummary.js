@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Button, Text, VStack, HStack, Icon, useToast, Badge } from '@chakra-ui/react';
 import { FaRobot, FaCrown } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
@@ -8,7 +8,10 @@ const AISummary = ({ newsId, type, content, initialSummary }) => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [isVIP, setIsVIP] = useState(false);
+
   const [usageCount, setUsageCount] = useState(0);
+  const autoTriggered = useRef(false);
+
   const toast = useToast();
 
   useEffect(() => {
@@ -46,6 +49,20 @@ const AISummary = ({ newsId, type, content, initialSummary }) => {
     };
     checkUser();
   }, [initialSummary]);
+
+
+
+  useEffect(() => {
+    // Auto-generate if summary is not present, user exists, and they have quota
+    if (!summary && !initialSummary && user && !loading && !autoTriggered.current) {
+      if (isVIP || usageCount < 1) {
+        autoTriggered.current = true;
+        handleGenerate();
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isVIP, usageCount, initialSummary, summary, loading]);
+
 
   const handleGenerate = async () => {
     if (!user) {
