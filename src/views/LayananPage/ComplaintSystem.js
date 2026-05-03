@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Box, VStack, HStack, Input, Button, Text, Heading, useToast, Flex, Avatar,
-  IconButton, Badge, Select, Textarea, FormControl, FormLabel, SimpleGrid, Icon, Image, Divider, Link as ChakraLink
+  IconButton, Badge, Select, Textarea, FormControl, FormLabel, Icon, Image
 } from '@chakra-ui/react';
-import { FaPaperPlane, FaImage, FaSignOutAlt, FaSync, FaCheckCircle, FaLock, FaHistory } from 'react-icons/fa';
+import { FaPaperPlane, FaImage, FaSignOutAlt, FaSync, FaLock, FaHistory } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { uploadDeline } from '../../lib/uploader';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 const ComplaintSystem = () => {
   const [user, setUser] = useState(null);
@@ -22,7 +22,6 @@ const ComplaintSystem = () => {
   const toast = useToast();
   const fileInputRef = useRef();
   const chatEndRef = useRef(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -36,6 +35,7 @@ const ComplaintSystem = () => {
     if (complaintId) {
       fetchComplaint(complaintId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
     const subscription = supabase
       .channel('public:complaint_messages')
@@ -45,6 +45,7 @@ const ComplaintSystem = () => {
       .subscribe();
 
     return () => supabase.removeChannel(subscription);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [complaintId]);
 
   useEffect(() => {

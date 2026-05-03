@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Container, Heading, Text, VStack, HStack, Badge, Button,
-  Table, Thead, Tbody, Tr, Th, Td, Center, Spinner, Icon, useToast,
-  useColorModeValue, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, useDisclosure
+  Box, Container, Heading, Text, VStack, Badge, Button,
+  Table, Thead, Tbody, Tr, Th, Td, Center, Spinner, Icon,
+  useColorModeValue, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure
 } from '@chakra-ui/react';
-import { FaHistory, FaLock, FaCrown, FaEye } from 'react-icons/fa';
+import { FaLock, FaCrown, FaEye } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { Link as RouterLink } from 'react-router-dom';
 import SEO from '../../components/SEO';
