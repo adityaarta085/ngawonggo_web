@@ -230,19 +230,7 @@ const ComplaintSystem = () => {
              </Button>
           </HStack>
 
-          <Box>
-            <Text fontSize="xs" fontWeight="bold" mb={2}>Cek Pengaduan (Free Tier)</Text>
-            <HStack>
-              <Input
-                size="sm"
-                placeholder="ID: NGA-XXXXX (Cek Email)"
-                onChange={(e) => {
-                  const val = e.target.value.toUpperCase();
-                  if (val.length === 10) setComplaintId(val);
-                }}
-              />
-            </HStack>
-          </Box>
+
 
           <form onSubmit={handleStartComplaint}>
             <VStack spacing={5}>
