@@ -1,240 +1,149 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  Box,
-  VStack,
-  HStack,
-  Text,
-  Input,
-  Button,
-  FormControl,
-  FormLabel,
-  useToast,
-  Divider,
-  Avatar,
-  IconButton,
-  Image,
-  Flex,
-  Badge,
-  Textarea,
-  Heading,
-  Select,
-  SimpleGrid,
-  Icon,
+  Box, VStack, HStack, Input, Button, Text, Heading, useToast, Flex, Avatar,
+  IconButton, Badge, Select, Textarea, FormControl, FormLabel, Icon, Image
 } from '@chakra-ui/react';
-import { FaPaperPlane, FaImage, FaSync, FaSignOutAlt, FaCheckCircle, FaLock } from 'react-icons/fa';
+import { FaPaperPlane, FaImage, FaSignOutAlt, FaSync, FaLock, FaHistory } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { uploadDeline } from '../../lib/uploader';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { useMonetization } from '../../contexts/MonetizationContext';
-import axios from 'axios';
-
-const generateComplaintId = () => {
-  return 'NGA-' + Math.random().toString(36).substr(2, 5).toUpperCase();
-};
+import { Link as RouterLink } from 'react-router-dom';
 
 const ComplaintSystem = () => {
+  const [user, setUser] = useState(null);
   const [complaintId, setComplaintId] = useState(localStorage.getItem('complaint_id') || '');
-  const [complaintData, setComplaintData] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
   const [category, setCategory] = useState('Infrastruktur');
-  const [trackId, setTrackId] = useState('');
+  const [contact, setContact] = useState('');
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [user, setUser] = useState(null);
-  const { isVIP } = useMonetization();
-  const navigate = useNavigate();
-  // eslint-disable-next-line no-unused-vars
-  const [userComplaints, setUserComplaints] = useState([]);
-  const [complaintLimits, setComplaintLimits] = useState({ freeDays: 3, freeCount: 1, vipDays: 1, vipCount: 2 });
+  const [complaintData, setComplaintData] = useState(null);
+  const [isVip, setIsVip] = useState(false);
   const toast = useToast();
+  const fileInputRef = useRef();
   const chatEndRef = useRef(null);
-  const fileInputRef = useRef(null);
-
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
 
   useEffect(() => {
-    const fetchSettings = async () => {
-      const keys = ['layanan_free_limit_days', 'layanan_free_limit_count', 'layanan_vip_limit_days', 'layanan_vip_limit_count'];
-      const { data, error } = await supabase.from('site_settings').select('*').in('key', keys);
-      if (!error && data) {
-        const settings = {};
-        data.forEach(item => settings[item.key] = parseInt(item.value, 10));
-        setComplaintLimits(prev => ({
-          freeDays: settings.layanan_free_limit_days || prev.freeDays,
-          freeCount: settings.layanan_free_limit_count || prev.freeCount,
-          vipDays: settings.layanan_vip_limit_days || prev.vipDays,
-          vipCount: settings.layanan_vip_limit_count || prev.vipCount
-        }));
-      }
-    };
-    fetchSettings();
-  }, []);
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-      if (user) {
-          setName(user.user_metadata?.full_name || '');
-          setContact(user.email || '');
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        setContact(session.user.email || '');
+        checkVip(session.user.id);
       }
     });
-  }, []);
 
-
-  const fetchUserComplaints = useCallback(async (userId) => {
-    const { data, error } = await supabase
-      .from('complaints')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (!error && data) {
-      setUserComplaints(data);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetchUserComplaints(user.id);
-    }
-  }, [user, fetchUserComplaints]);
-
-  const fetchMessages = useCallback(async (id) => {
-    const { data, error } = await supabase
-      .from('complaint_messages')
-      .select('*')
-      .eq('complaint_id', id)
-      .order('created_at', { ascending: true });
-
-    if (!error) setMessages(data);
-  }, []);
-
-  const fetchComplaint = useCallback(async (id) => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('complaints')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (!error && data) {
-      setComplaintData(data);
-      await fetchMessages(id);
-    } else {
-      setComplaintId('');
-      localStorage.removeItem('complaint_id');
-    }
-    setLoading(false);
-  }, [fetchMessages]);
-
-  useEffect(() => {
     if (complaintId) {
       fetchComplaint(complaintId);
     }
-  }, [complaintId, fetchComplaint]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // Realtime subscription
-  useEffect(() => {
-    if (!complaintId) return;
-
-    const channel = supabase
+    const subscription = supabase
       .channel('public:complaint_messages')
-      .on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'complaint_messages',
-        filter: `complaint_id=eq.${complaintId}`
-      }, (payload) => {
-        setMessages((prev) => [...prev, payload.new]);
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'complaint_messages', filter: `complaint_id=eq.${complaintId}` }, payload => {
+        setMessages(prev => [...prev, payload.new]);
       })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => supabase.removeChannel(subscription);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [complaintId]);
 
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const checkVip = async (userId) => {
+    try {
+      const { data } = await supabase.from('user_tiers').select('tier_name').eq('user_id', userId).single();
+      if (data && data.tier_name !== 'Free' && data.tier_name) {
+        setIsVip(true);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const fetchComplaint = async (id) => {
+    setLoading(true);
+    try {
+      const { data: compData, error: compErr } = await supabase
+        .from('complaints')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (compErr) throw compErr;
+      setComplaintData(compData);
+
+      const { data: msgData } = await supabase
+        .from('complaint_messages')
+        .select('*')
+        .eq('complaint_id', id)
+        .order('created_at', { ascending: true });
+
+      if (msgData) setMessages(msgData);
+    } catch (err) {
+      toast({ title: 'ID tidak ditemukan', status: 'error' });
+      handleLogout();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleStartComplaint = async (e) => {
     e.preventDefault();
-    if (!name || !contact || !newMessage) return;
-
-    if (user) {
-       // Check Limit
-       const windowDays = isVIP ? complaintLimits.vipDays : complaintLimits.freeDays;
-       const limit = isVIP ? complaintLimits.vipCount : complaintLimits.freeCount;
-       const { data, error } = await supabase
-          .from('complaints')
-          .select('created_at')
-          .eq('user_id', user.id)
-          .gte('created_at', new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString());
-
-       if (!error && data && data.length >= limit) {
-           toast({
-               title: 'Limit Tercapai',
-               description: isVIP ? `Anda telah mencapai limit ${limit} pengaduan per ${windowDays} hari.` : `Anda telah mencapai limit ${limit} pengaduan per ${windowDays} hari. Ingin tambah limit? Langganan VIP!`,
-               status: 'warning',
-               duration: 6000,
-               isClosable: true,
-           });
-           if (!isVIP) navigate('/portal/toko');
-           return;
-       }
-    }
-
+    if (!newMessage.trim() || !user) return;
     setLoading(true);
-    const newId = generateComplaintId();
+
+    const newId = `NGA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
 
     try {
-      const { error: cError } = await supabase
-        .from('complaints')
-        .insert([{
-          id: newId,
-          name: name,
-          contact: contact,
-          category: category,
-          user_id: user?.id || null
-        }]);
+      const { error } = await supabase.from('complaints').insert([{
+        id: newId,
+        user_id: user.id,
+        name: fullName,
+        contact: contact,
+        category: category,
+        status: 'pending'
+      }]);
 
-      if (cError) throw cError;
+      if (error) throw error;
 
-      const { error: mError } = await supabase
-        .from('complaint_messages')
-        .insert([{
-          complaint_id: newId,
-          sender_type: 'user',
-          message: newMessage
-        }]);
+      await supabase.from('complaint_messages').insert([{
+        complaint_id: newId,
+        sender_type: 'user',
+        message: newMessage
+      }]);
 
-      if (mError) throw mError;
+      fetch('/api/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: 'adityaarta085@gmail.com',
+          subject: `Laporan Baru [${category}] - ${fullName}`,
+          content: `<p>Ada keluhan baru dengan ID <strong>${newId}</strong>.</p><p>Pengirim: ${fullName}</p><p>Kontak: ${contact}</p><p>Pesan:<br/>${newMessage}</p>`
+        })
+      }).catch(console.error);
 
-      setComplaintId(newId);
-      localStorage.setItem('complaint_id', newId);
-      setNewMessage('');
-      if (user) fetchUserComplaints(user.id);
-
-      if (contact.includes('@')) {
-        try {
-          await axios.post('/api/broadcast', {
-            to: contact,
-            subject: 'Pengaduan Diterima - Desa Ngawonggo',
-            content: `<h2>Halo ${name},</h2><p>Pengaduan Anda dengan ID <b>${newId}</b> kategori <b>${category}</b> telah kami terima dan akan segera ditindaklanjuti.</p><p>Terima kasih!</p>`
-          });
-        } catch(err) {
-          console.error("Failed to send auto email:", err);
-        }
+      if (!isVip && user.email) {
+          fetch('/api/broadcast', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: user.email,
+              subject: `Akses Pengaduan Anda: ${newId}`,
+              content: `<p>Terima kasih telah melapor, ${fullName}.</p><p>Gunakan ID ini jika Anda perlu melacak nanti: <strong>${newId}</strong>.</p><p>Tingkatkan akun Anda menjadi VIP untuk menyimpan riwayat ini secara otomatis di web.</p>`
+            })
+          }).catch(console.error);
+          toast({ title: 'ID Keluhan Terkirim ke Email', description: 'Silakan cek email Anda karena Anda pengguna Free Tier.', status: 'info', duration: 7000 });
       }
 
+      setComplaintId(newId);
+      if (!isVip) {
+        localStorage.setItem('complaint_id', newId);
+      }
+      setNewMessage('');
     } catch (err) {
       toast({ title: 'Gagal membuat pengaduan', description: err.message, status: 'error' });
     } finally {
@@ -242,10 +151,8 @@ const ComplaintSystem = () => {
     }
   };
 
-
   const handleSendMessage = async (imgUrl = null) => {
-    if (!newMessage && !imgUrl) return;
-
+    if (!newMessage.trim() && !imgUrl) return;
     try {
       const { error } = await supabase
         .from('complaint_messages')
@@ -290,6 +197,21 @@ const ComplaintSystem = () => {
     localStorage.removeItem('complaint_id');
   };
 
+  if (!user) {
+      return (
+        <Box p={{ base: 6, md: 10 }} bg="white" borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" textAlign="center">
+            <Icon as={FaLock} boxSize={16} color="brand.500" mb={6} />
+            <Heading size="lg" color="brand.500" mb={4}>Login Diperlukan</Heading>
+            <Text fontSize="md" color="gray.600" mb={8}>
+              Untuk memastikan keaslian identitas dan mencegah spam, Anda diwajibkan untuk masuk (login) sebelum dapat menggunakan layanan Pengaduan Desa Ngawonggo.
+            </Text>
+            <Button as={RouterLink} to="/auth" colorScheme="brand" size="lg" borderRadius="full" px={10}>
+              Masuk Sekarang
+            </Button>
+        </Box>
+      );
+  }
+
   if (!complaintId) {
     return (
       <Box p={{ base: 4, md: 8 }} bg="white" borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" border="1px solid" borderColor="gray.100">
@@ -297,62 +219,30 @@ const ComplaintSystem = () => {
           <Box textAlign="center">
             <Heading size="lg" color="brand.500" mb={3}>Sampaikan Aspirasi & Keluhan Anda</Heading>
             <Text fontSize="md" color="gray.600">
-              Pemerintah Desa Ngawonggo berkomitmen untuk selalu mendengarkan warga. Sampaikan pengaduan atau saran Anda melalui formulir ini.
+              Pemerintah Desa Ngawonggo berkomitmen untuk selalu mendengarkan warga.
             </Text>
           </Box>
 
-          {!user && (
-              <Box p={4} borderRadius="2xl" bg="brand.50" border="1px dashed" borderColor="brand.200">
-                  <HStack justify="space-between">
-                      <HStack>
-                          <Icon as={FaLock} color="brand.500" />
-                          <VStack align="start" spacing={0}>
-                              <Text fontWeight="bold" fontSize="sm">Masuk untuk Simpan Riwayat</Text>
-                              <Text fontSize="xs" color="gray.500">Akses riwayat pengaduan Anda kapan saja di Portal Warga.</Text>
-                          </VStack>
-                      </HStack>
-                      <Button as={RouterLink} to="/auth" colorScheme="brand" size="sm" borderRadius="full">Masuk</Button>
-                  </HStack>
-              </Box>
-          )}
+          <HStack justify="space-between" bg="brand.50" p={4} borderRadius="xl">
+             <Text fontSize="sm" fontWeight="bold">Pengguna: {user.user_metadata?.full_name || user.email}</Text>
+             <Button as={RouterLink} to="/layanan/history" size="sm" colorScheme="brand" variant="outline" leftIcon={<FaHistory />}>
+               Riwayat VIP
+             </Button>
+          </HStack>
 
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-            <HStack bg="green.50" p={3} borderRadius="xl">
-               <Icon as={FaCheckCircle} color="green.500" />
-               <Text fontSize="xs" fontWeight="bold">Proses Cepat</Text>
-            </HStack>
-            <HStack bg="blue.50" p={3} borderRadius="xl">
-               <Icon as={FaCheckCircle} color="blue.500" />
-               <Text fontSize="xs" fontWeight="bold">Langsung Diterima</Text>
-            </HStack>
-            <HStack bg="purple.50" p={3} borderRadius="xl">
-               <Icon as={FaCheckCircle} color="purple.500" />
-               <Text fontSize="xs" fontWeight="bold">Kerahasiaan Terjamin</Text>
-            </HStack>
-          </SimpleGrid>
+
 
           <form onSubmit={handleStartComplaint}>
             <VStack spacing={5}>
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} w="full">
-                <FormControl isRequired>
-                  <FormLabel fontWeight="bold">Nama Lengkap</FormLabel>
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Masukkan nama Anda"
-                    borderRadius="xl"
-                  />
-                </FormControl>
-                <FormControl isRequired>
-                  <FormLabel fontWeight="bold">Kontak (WA/Email)</FormLabel>
-                  <Input
-                    value={contact}
-                    onChange={(e) => setContact(e.target.value)}
-                    placeholder="Nomor WhatsApp atau Email"
-                    borderRadius="xl"
-                  />
-                </FormControl>
-              </SimpleGrid>
+              <FormControl>
+                <FormLabel fontWeight="bold">Kontak Opsional (WA)</FormLabel>
+                <Input
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                  placeholder="Nomor WhatsApp"
+                  borderRadius="xl"
+                />
+              </FormControl>
 
               <FormControl isRequired>
                 <FormLabel fontWeight="bold">Kategori</FormLabel>
@@ -381,24 +271,6 @@ const ComplaintSystem = () => {
               </Button>
             </VStack>
           </form>
-          <Divider />
-          <Box>
-            <Text fontSize="xs" fontWeight="bold" mb={2}>Sudah punya ID Pengaduan?</Text>
-            <HStack>
-              <Input
-                size="sm"
-                placeholder="NGA-XXXXX"
-                onChange={(e) => setTrackId(e.target.value.toUpperCase())}
-                value={trackId}
-              />
-              <Button size="sm" colorScheme="blue" onClick={() => {
-                if(trackId.trim()) {
-                   setComplaintId(trackId.trim());
-                   localStorage.setItem('complaint_id', trackId.trim());
-                }
-              }}>Lacak</Button>
-            </HStack>
-          </Box>
         </VStack>
       </Box>
     );
@@ -406,7 +278,6 @@ const ComplaintSystem = () => {
 
   return (
     <Box p={4} bg="white" borderRadius="xl" boxShadow="lg" maxW="800px" mx="auto" h="600px" display="flex" flexDirection="column">
-      {/* Header */}
       <Flex justify="space-between" align="center" mb={4} pb={2} borderBottom="1px solid" borderColor="gray.100">
         <HStack>
           <Avatar size="sm" bg="brand.500" />
@@ -426,29 +297,13 @@ const ComplaintSystem = () => {
         </HStack>
       </Flex>
 
-      {/* Messages */}
-      <Box flex={1} overflowY="auto" p={2} mb={4} css={{
-        '&::-webkit-scrollbar': { width: '4px' },
-        '&::-webkit-scrollbar-track': { background: '#f1f1f1' },
-        '&::-webkit-scrollbar-thumb': { background: '#888', borderRadius: '4px' },
-      }}>
+      <Box flex={1} overflowY="auto" p={2} mb={4}>
         <VStack spacing={4} align="stretch">
           {messages.map((msg) => (
             <Flex key={msg.id} justify={msg.sender_type === 'user' ? 'flex-end' : 'flex-start'}>
-              <Box
-                maxW="80%"
-                bg={msg.sender_type === 'user' ? 'brand.500' : 'gray.100'}
-                color={msg.sender_type === 'user' ? 'white' : 'black'}
-                p={3}
-                borderRadius="lg"
-                borderBottomRightRadius={msg.sender_type === 'user' ? '0' : 'lg'}
-                borderBottomLeftRadius={msg.sender_type === 'user' ? 'lg' : '0'}
-                boxShadow="sm"
-              >
+              <Box maxW="80%" bg={msg.sender_type === 'user' ? 'brand.500' : 'gray.100'} color={msg.sender_type === 'user' ? 'white' : 'black'} p={3} borderRadius="lg" borderBottomRightRadius={msg.sender_type === 'user' ? '0' : 'lg'} borderBottomLeftRadius={msg.sender_type === 'user' ? 'lg' : '0'}>
                 {msg.message && <Text fontSize="sm">{msg.message}</Text>}
-                {msg.image_url && (
-                  <Image src={msg.image_url} mt={2} borderRadius="md" maxH="200px" cursor="pointer" onClick={() => window.open(msg.image_url)} />
-                )}
+                {msg.image_url && <Image src={msg.image_url} mt={2} borderRadius="md" maxH="200px" cursor="pointer" onClick={() => window.open(msg.image_url)} />}
                 <Text fontSize="10px" mt={1} opacity={0.7} textAlign="right">
                   {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </Text>
@@ -459,32 +314,16 @@ const ComplaintSystem = () => {
         </VStack>
       </Box>
 
-      {/* Input */}
       {complaintData?.status !== 'resolved' ? (
         <HStack spacing={2}>
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Ketik pesan..."
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-          />
+          <Input value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Ketik pesan..." onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} />
           <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={handleFileUpload} />
-          <IconButton
-            icon={<FaImage />}
-            onClick={() => fileInputRef.current.click()}
-            isLoading={uploading}
-            colorScheme="gray"
-          />
-          <IconButton
-            icon={<FaPaperPlane />}
-            colorScheme="brand"
-            onClick={() => handleSendMessage()}
-            isDisabled={!newMessage && !uploading}
-          />
+          <IconButton icon={<FaImage />} onClick={() => fileInputRef.current.click()} isLoading={uploading} colorScheme="gray" />
+          <IconButton icon={<FaPaperPlane />} colorScheme="brand" onClick={() => handleSendMessage()} isDisabled={!newMessage && !uploading} />
         </HStack>
       ) : (
         <Box p={3} bg="green.50" borderRadius="md" textAlign="center">
-          <Text fontSize="sm" color="green.700" fontWeight="bold">Pengaduan ini telah ditandai sebagai Selesai oleh Admin.</Text>
+          <Text fontSize="sm" color="green.700" fontWeight="bold">Pengaduan ini telah ditandai sebagai Selesai.</Text>
         </Box>
       )}
     </Box>

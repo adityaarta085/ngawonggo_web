@@ -10,6 +10,8 @@ import ProfilPage from './views/ProfilPage/index.js';
 import PageNotFound from './views/PageNotFound/index.js';
 import PemerintahanPage from './views/PemerintahanPage/index.js';
 import LayananPage from './views/LayananPage/index.js';
+import ComplaintHistory from './views/LayananPage/ComplaintHistory';
+import ComplaintTrack from './views/LayananPage/ComplaintTrack';
 import JelajahiPage from './views/JelajahiPage/index.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
@@ -31,6 +33,7 @@ import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
 import TermsConditions from './views/Legal/TermsConditions.js';
 import CreditsPage from './views/CreditsPage/index.js';
 import MediaDetail from './views/CreditsPage/MediaDetail';
+import DeveloperMediaPage from './views/CreditsPage/DeveloperMediaPage';
 import ScrollToTop from './components/ScrollToTop.js';
 import Preloader from './components/Preloader.js';
 import SplashScreen from './components/SplashScreen.js';
@@ -256,6 +259,8 @@ function App() {
             <Route path="/profil" element={<ProfilPage />} />
             <Route path="/pemerintahan" element={<PemerintahanPage />} />
             <Route path="/layanan" element={<LayananPage />} />
+            <Route path="/layanan/history" element={<ComplaintHistory />} />
+            <Route path="/layanan/lacak" element={<ComplaintTrack />} />
             <Route path="/jelajahi" element={<JelajahiPage />} />
             <Route path="/transparansi" element={<TransparansiPage />} />
             <Route path="/kontak" element={<KontakPage />} />
@@ -269,6 +274,7 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/credits" element={<CreditsPage />} />
+            <Route path="/credits/media" element={<DeveloperMediaPage />} />
             <Route path="/credits/media/:id" element={<MediaDetail />} />
             <Route path="/donasi/*" element={<DonasiRouter />} />
             <Route path="/topup" element={<TopupPage />} />
