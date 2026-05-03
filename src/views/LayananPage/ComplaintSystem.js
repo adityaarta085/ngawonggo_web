@@ -120,31 +120,23 @@ const ComplaintSystem = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          to: 'adityaarta085@gmail.com',
           subject: `Laporan Baru [${category}] - ${fullName}`,
-          text: `Ada keluhan baru dengan ID ${newId}.
-
-Pengirim: ${fullName}
-Kontak: ${contact}
-
-Pesan:
-${newMessage}`,
-          html: `<p>Ada keluhan baru dengan ID <strong>${newId}</strong>.</p><p>Pengirim: ${fullName}</p><p>Kontak: ${contact}</p><p>Pesan:<br/>${newMessage}</p>`,
-          recipients: ['adityaarta085@gmail.com']
+          content: `<p>Ada keluhan baru dengan ID <strong>${newId}</strong>.</p><p>Pengirim: ${fullName}</p><p>Kontak: ${contact}</p><p>Pesan:<br/>${newMessage}</p>`
         })
       }).catch(console.error);
 
-      if (!isVip) {
+      if (!isVip && user.email) {
           fetch('/api/broadcast', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+              to: user.email,
               subject: `Akses Pengaduan Anda: ${newId}`,
-              text: `Terima kasih telah melapor. Gunakan ID ini jika ingin mengecek: ${newId}. Tingkatkan ke VIP untuk riwayat otomatis.`,
-              html: `<p>Terima kasih telah melapor.</p><p>Gunakan ID ini jika Anda perlu melacak nanti: <strong>${newId}</strong>.</p><p>Tingkatkan akun Anda menjadi VIP untuk menyimpan riwayat ini secara otomatis.</p>`,
-              recipients: [user.email]
+              content: `<p>Terima kasih telah melapor, ${fullName}.</p><p>Gunakan ID ini jika Anda perlu melacak nanti: <strong>${newId}</strong>.</p><p>Tingkatkan akun Anda menjadi VIP untuk menyimpan riwayat ini secara otomatis di web.</p>`
             })
           }).catch(console.error);
-          toast({ title: 'ID Keluhan Terkirim ke Email', description: 'Simpan baik-baik atau cek email Anda karena Anda pengguna Free Tier.', status: 'info', duration: 7000 });
+          toast({ title: 'ID Keluhan Terkirim ke Email', description: 'Silakan cek email Anda karena Anda pengguna Free Tier.', status: 'info', duration: 7000 });
       }
 
       setComplaintId(newId);
@@ -237,6 +229,20 @@ ${newMessage}`,
                Riwayat VIP
              </Button>
           </HStack>
+
+          <Box>
+            <Text fontSize="xs" fontWeight="bold" mb={2}>Cek Pengaduan (Free Tier)</Text>
+            <HStack>
+              <Input
+                size="sm"
+                placeholder="ID: NGA-XXXXX (Cek Email)"
+                onChange={(e) => {
+                  const val = e.target.value.toUpperCase();
+                  if (val.length === 10) setComplaintId(val);
+                }}
+              />
+            </HStack>
+          </Box>
 
           <form onSubmit={handleStartComplaint}>
             <VStack spacing={5}>
