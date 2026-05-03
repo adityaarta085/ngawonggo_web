@@ -5,10 +5,12 @@ import {
 } from '@chakra-ui/react';
 import { FaSearch, FaArrowLeft } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../../lib/supabase';
 import SEO from '../../components/SEO';
 import ComplaintSystem from './ComplaintSystem';
 
 const ComplaintTrack = () => {
+  const [user, setUser] = useState(null);
   const [trackId, setTrackId] = useState('');
   const [complaintId, setComplaintId] = useState('');
   const bgColor = useColorModeValue('gray.50', 'gray.900');
@@ -16,7 +18,13 @@ const ComplaintTrack = () => {
   const navigate = useNavigate();
   const toast = useToast();
 
-  const handleTrack = () => {
+  React.useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+    });
+  }, []);
+
+  const handleTrack = async () => {
     if (!trackId.trim()) {
       toast({ title: 'Masukkan ID Pengaduan', status: 'warning' });
       return;
@@ -26,9 +34,53 @@ const ComplaintTrack = () => {
       toast({ title: 'Format ID tidak valid', status: 'error' });
       return;
     }
-    setComplaintId(val);
-    localStorage.setItem('complaint_id', val);
+
+    // Verify if this complaint belongs to the user or matches their contact email
+    try {
+      const { data, error } = await supabase
+        .from('complaints')
+        .select('contact, user_id')
+        .eq('id', val)
+        .single();
+
+      if (error || !data) {
+        toast({ title: 'ID Pengaduan tidak ditemukan', status: 'error' });
+        return;
+      }
+
+      if (data.user_id !== user.id && data.contact !== user.email) {
+        toast({ title: 'Akses Ditolak', description: 'Pengaduan ini tidak terkait dengan akun atau email Anda.', status: 'error' });
+        return;
+      }
+
+      setComplaintId(val);
+      localStorage.setItem('complaint_id', val);
+    } catch (err) {
+      toast({ title: 'Terjadi kesalahan sistem', status: 'error' });
+    }
   };
+
+  if (!user) {
+    return (
+      <Box bg={bgColor} minH="100vh" pt={28} pb={20}>
+        <Container maxW="container.md">
+          <Button leftIcon={<FaArrowLeft />} variant="ghost" mb={6} onClick={() => navigate(-1)}>
+            Kembali
+          </Button>
+          <Box p={{ base: 6, md: 10 }} bg="white" borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" textAlign="center">
+              <Icon as={FaSearch} boxSize={16} color="brand.500" mb={6} />
+              <Heading size="lg" color="brand.500" mb={4}>Login Diperlukan</Heading>
+              <Text fontSize="md" color="gray.600" mb={8}>
+                Untuk menjaga privasi dan keamanan data pengaduan, Anda wajib login sebelum dapat melakukan pelacakan.
+              </Text>
+              <Button onClick={() => navigate('/auth')} colorScheme="brand" size="lg" borderRadius="full" px={10}>
+                Masuk Sekarang
+              </Button>
+          </Box>
+        </Container>
+      </Box>
+    );
+  }
 
   return (
     <Box bg={bgColor} minH="100vh" pt={28} pb={20}>
