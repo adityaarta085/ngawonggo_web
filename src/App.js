@@ -10,6 +10,7 @@ import ProfilPage from './views/ProfilPage/index.js';
 import PageNotFound from './views/PageNotFound/index.js';
 import PemerintahanPage from './views/PemerintahanPage/index.js';
 import LayananPage from './views/LayananPage/index.js';
+import ComplaintHistory from './views/LayananPage/ComplaintHistory';
 import JelajahiPage from './views/JelajahiPage/index.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
@@ -257,6 +258,7 @@ function App() {
             <Route path="/profil" element={<ProfilPage />} />
             <Route path="/pemerintahan" element={<PemerintahanPage />} />
             <Route path="/layanan" element={<LayananPage />} />
+            <Route path="/layanan/history" element={<ComplaintHistory />} />
             <Route path="/jelajahi" element={<JelajahiPage />} />
             <Route path="/transparansi" element={<TransparansiPage />} />
             <Route path="/kontak" element={<KontakPage />} />

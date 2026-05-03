@@ -1,6 +1,7 @@
 import {
   Box,
   Heading,
+  Button,
   Text,
   SimpleGrid,
   Card,
@@ -14,10 +15,12 @@ import {
   Container,
 } from '@chakra-ui/react';
 import { EmailIcon, InfoIcon, EditIcon } from '@chakra-ui/icons';
+import { FaHistory } from 'react-icons/fa';
 import { useMonetization } from '../../contexts/MonetizationContext';
 import ComplaintSystem from './ComplaintSystem';
 import Supports from '../LandingPage/components/Supports';
 import { SEO } from '../../components';
+import { Link as RouterLink } from 'react-router-dom';
 
 export default function LayananPage() {
   const { isVIP } = useMonetization();
@@ -106,6 +109,11 @@ export default function LayananPage() {
         </SimpleGrid>
 
         <Box mb={20}>
+          <Box mb={4} textAlign="right">
+              <Button as={RouterLink} to="/layanan/history" colorScheme="brand" variant="outline" size="sm" leftIcon={<FaHistory />}>
+                Riwayat Pengaduan (VIP)
+              </Button>
+          </Box>
           <ComplaintSystem />
         </Box>
       </Container>
