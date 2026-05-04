@@ -182,7 +182,7 @@ function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const isBypassed = (!showPreloader && !showSplash && isVerified) || (userSession && !showPreloader && !showSplash);
+  const isBypassed = (!showPreloader && !showSplash && isVerified) || !!userSession;
 
   if (isBlocked && !isAdmin && !isBlockedPage) {
     return <Navigate to="/blocked" replace />;
@@ -206,7 +206,7 @@ function App() {
         <>
           {showPreloader ? (
             <Preloader onComplete={() => setShowPreloader(false)} timeout={3000} />
-          ) : showSplash ? (
+          ) : (showSplash && !userSession) ? (
             <SplashScreen onComplete={() => setShowSplash(false)} />
           ) : (
             <HumanVerification onVerified={() => {
