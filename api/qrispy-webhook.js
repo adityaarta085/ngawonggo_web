@@ -1,33 +1,39 @@
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
   }
 
-  // Assuming qrispy webhook also sends an auth header or we can verify by checking qrispy API if needed
-  // For now we will accept the payload since there is no mention of signature for webhook in doc
-  // but if qrispy has it, we should use it.
-
   try {
-    const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const secret = process.env.QRISPY_WEBHOOK_SECRET || 'whsec_B1vJEw0y1g6ZVHK66VP0HLhaaQglOXxb';
+    const signature = req.headers['x-qrispy-signature'];
 
-    // According to Qrispy docs, status could be: pending, paid, expired, cancelled
-    // So we map paid to success, and cancelled to failed, or just use their statuses
-    // Let's check what fields Qrispy sends. Assuming qris_id and payment_status based on their poll response
-
-    const { qris_id, payment_status } = payload;
-
-    // In case payload is different, adapt here
-    const trx_id = qris_id || payload.trx_id;
-    let status = payment_status || payload.status;
-
-    if (!trx_id || !status) {
-      return res.status(400).send('Invalid payload');
+    if (!signature) {
+      return res.status(400).send('Missing signature');
     }
 
-    if (status === 'paid') status = 'success';
-    if (status === 'cancelled') status = 'failed';
+    const expectedSignature = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+
+    if (expectedSignature !== signature) {
+      return res.status(401).send('Invalid signature');
+    }
+
+    const payload = JSON.parse(rawBody);
+
+    if (payload.event !== 'payment.received') {
+       return res.status(200).send('Event not handled');
+    }
+
+    const { qris_id } = payload.data;
+    const trx_id = qris_id;
+    let status = 'success'; // Since the event is payment.received, it implies success
+
+    if (!trx_id) {
+      return res.status(400).send('Invalid payload');
+    }
 
     const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
     // We need service role key to bypass RLS for webhook updates
@@ -90,6 +96,20 @@ export default async function handler(req, res) {
       }
     } catch(err) {
       console.error("Telegram webhook error:", err);
+    }
+
+    // Process Topup if it's a topup transaction
+    if (trx_id.startsWith('INV-COIN-')) {
+        const { data: topupUser, error: topupError } = await supabase.rpc('process_topup_success_webhook_by_trx', {
+            p_trx_id: trx_id,
+            p_amount: payload.data.amount
+        });
+
+        if (topupError) {
+            console.error('Error processing topup webhook:', topupError);
+            // Optionally continue or return error
+        }
+        // We assume we might need a custom RPC if we just process by trx_id and amount to grant correct coins.
     }
 
     return res.status(200).json({ message: 'Webhook processed successfully' });
