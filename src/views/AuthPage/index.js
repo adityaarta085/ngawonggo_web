@@ -84,6 +84,14 @@ const AuthPage = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     if (!resetEmail) {
+
+
+        fetch('/api/telegram', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `<b>User Baru Mendaftar!</b>\n\n<b>Nama/Email:</b> ${email}\n\n<a href="https://ngawonggo.web.id/admin">Lihat Detail di Admin Panel</a>` })
+        }).catch(err => console.error("Telegram error:", err));
+
         toast({
             title: 'Email diperlukan',
             description: 'Silakan masukkan email Anda',

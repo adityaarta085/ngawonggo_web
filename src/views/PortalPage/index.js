@@ -177,6 +177,13 @@ Browser: ${browserInfo}
 Alasan/Feedback: ${feedback || 'Tidak ada'}`;
 
           // Send Email to Admin instead of actual deletion
+
+          await fetch('/api/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: `<b>User Request Hapus Akun!</b>\n\n<b>User ID:</b> ${user.id}\n<b>Email:</b> ${user.email || 'N/A'}\n<b>Alasan:</b> ${feedback || 'Tidak ada'}\n\n<a href="https://ngawonggo.web.id/admin">Lihat Detail di Admin Panel</a>` })
+          }).catch(err => console.error("Telegram error:", err));
+
           await fetch('/api/broadcast', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
