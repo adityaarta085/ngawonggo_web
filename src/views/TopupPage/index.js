@@ -131,6 +131,19 @@ const TopupPage = () => {
     setIsProcessing(false);
   };
 
+
+  // Auto-polling QRIS Status
+  useEffect(() => {
+    let interval;
+    if (isModalOpen && qrisData) {
+      interval = setInterval(() => {
+        checkPaymentStatus();
+      }, 5000); // 5 seconds polling
+    }
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isModalOpen, qrisData]);
+
   const checkPaymentStatus = async () => {
     if (!qrisData) return;
     try {
