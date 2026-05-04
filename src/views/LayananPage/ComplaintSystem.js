@@ -116,6 +116,20 @@ const ComplaintSystem = () => {
         message: newMessage
       }]);
 
+
+      fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: `<b>Ada Pengaduan/Laporan Baru!</b>\n\n<b>Pelapor:</b> ${fullName}\n<b>NIK:</b> ${contact}\n<b>Kategori:</b> ${category}\n<b>Laporan:</b> ${newMessage}\n\n<a href="https://ngawonggo.web.id/admin">Lihat Detail di Admin Panel</a>` })
+      }).catch(err => console.error("Telegram error:", err));
+
+
+      fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: `<b>Ada Pengaduan/Laporan Baru!</b>\n\n<b>Pelapor:</b> ${fullName}\n<b>NIK:</b> ${contact}\n<b>Kategori:</b> ${category}\n<b>Laporan:</b> ${newMessage}\n\n<a href="https://ngawonggo.web.id/admin">Lihat Detail di Admin Panel</a>` })
+      }).catch(err => console.error("Telegram error:", err));
+
       fetch('/api/broadcast', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

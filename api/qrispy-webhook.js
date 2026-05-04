@@ -73,6 +73,25 @@ export default async function handler(req, res) {
        }
     }
 
+
+    // Send Telegram Notification
+    try {
+      const fetch = (await import('node-fetch')).default;
+      let messageStr = '';
+      if (donation && status.toLowerCase() === 'success') {
+         messageStr = `<b>User Sudah Donasi / Membeli Layanan!</b>\n\n<b>Trx ID:</b> ${trx_id}\n<b>Jumlah:</b> Rp ${donation.amount}\n\n<a href="https://ngawonggo.web.id/admin">Lihat Detail di Admin Panel</a>`;
+
+         const telegramUrl = `https://${req.headers.host || 'ngawonggo.web.id'}/api/telegram`;
+         await fetch(telegramUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: messageStr })
+         });
+      }
+    } catch(err) {
+      console.error("Telegram webhook error:", err);
+    }
+
     return res.status(200).json({ message: 'Webhook processed successfully' });
 
   } catch (error) {

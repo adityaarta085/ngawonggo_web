@@ -167,7 +167,14 @@ export const MonetizationProvider = ({ children }) => {
       if (data) {
           setGachaStats(prev => ({ ...prev, vip_cards: prev.vip_cards - 1 }));
           setTier({ name: 'VIP', expires_at: null });
+
           toast({ title: 'VIP Card Diaktifkan!', description: 'Anda sekarang adalah member VIP.', status: 'success' });
+          fetch('/api/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: `<b>User Sudah Upgrade VIP! (Via Card)</b>\n\n<b>User:</b> ${user.email}\n\n<a href="https://ngawonggo.web.id/admin">Lihat Detail di Admin Panel</a>` })
+          }).catch(err => console.error("Telegram error:", err));
+
           return true;
       }
       return false;

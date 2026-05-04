@@ -38,6 +38,8 @@ const SettingsManager = () => {
     takedown_message: '',
     takedown_image: '',
     takedown_ai_prompt: '',
+    telegram_bot_token: '',
+    telegram_chat_ids: '',
   });
   const [showKey, setShowKey] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -184,6 +186,59 @@ const SettingsManager = () => {
 
 
 
+
+
+
+        {/* Telegram Bot Settings */}
+        <Card variant="outline" borderRadius="xl" borderLeft="4px solid" borderLeftColor="#0088cc">
+          <CardBody>
+            <VStack spacing={4} align="stretch">
+              <Heading size="xs" color="#0088cc" textTransform="uppercase">Konfigurasi Telegram Bot (Notifikasi)</Heading>
+              <Text fontSize="xs" color="gray.500">
+                Gunakan fitur ini untuk mendapatkan notifikasi cepat terkait Pendaftaran User Baru, Permintaan Hapus Akun, Upgrade VIP, Donasi, Laporan/Pengaduan, dan Pembelian Koin.
+              </Text>
+
+              <FormControl>
+                <FormLabel fontWeight="bold">Telegram Bot Token</FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    pr="4.5rem"
+                    type={showKey ? 'text' : 'password'}
+                    placeholder="Contoh: 8710371961:AAGkCX6Vgjbz9P2..."
+                    value={settings.telegram_bot_token || ''}
+                    onChange={(e) => handleChange('telegram_bot_token', e.target.value)}
+                  />
+                  <InputRightElement width="4.5rem">
+                    <IconButton
+                      h="1.75rem"
+                      size="sm"
+                      onClick={() => setShowKey(!showKey)}
+                      icon={showKey ? <FaEyeSlash /> : <FaEye />}
+                      variant="ghost"
+                    />
+                  </InputRightElement>
+                </InputGroup>
+                <Text mt={2} fontSize="xs" color="gray.500">
+                  Dapatkan token bot dari @BotFather di Telegram.
+                </Text>
+              </FormControl>
+
+              <FormControl mt={4}>
+                <FormLabel fontWeight="bold">Telegram Chat IDs (Penerima Notifikasi)</FormLabel>
+                <Textarea
+                  placeholder="Contoh: 123456789, 987654321"
+                  value={settings.telegram_chat_ids || ''}
+                  onChange={(e) => handleChange('telegram_chat_ids', e.target.value)}
+                  rows={2}
+                  fontSize="sm"
+                />
+                <Text mt={2} fontSize="xs" color="gray.500">
+                  Masukkan ID Chat Telegram Admin yang akan menerima notifikasi. Pisahkan dengan koma jika lebih dari satu. Dapatkan ID Chat melalui bot @userinfobot.
+                </Text>
+              </FormControl>
+            </VStack>
+          </CardBody>
+        </Card>
 
 
         {/* Blocked Mode Settings */}
