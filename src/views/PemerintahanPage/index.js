@@ -184,37 +184,12 @@ export default function PemerintahanPage({ previewData }) {
             </VStack>
           </SimpleGrid>
 
-          {/* Dokumen Premium Section */}
-          <Box pt={10}>
-             <HStack spacing={4} align="center" mb={6}>
-                <Icon as={FaChartLine} w={6} h={6} color="brand.500" />
-                <Heading size="lg">Dokumen & Analitik Data</Heading>
-              </HStack>
-
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                  {documents.length > 0 ? documents.map(doc => (
-                      <Box key={doc.id} p={6} borderRadius="xl" bg="white" border="1px solid" borderColor="gray.200" boxShadow="sm" position="relative">
-                          {doc.is_early_access && (
-                              <Badge colorScheme="purple" position="absolute" top={-3} right={4} fontSize="xs">VIP EARLY ACCESS</Badge>
-                          )}
-                          <HStack mb={3}>
-                              <Icon as={FaFilePdf} color="red.500" boxSize={6} />
-                              <Heading size="sm" isTruncated>{doc.title}</Heading>
-                          </HStack>
-                          <Text fontSize="sm" color="gray.500" mb={6} noOfLines={2}>{doc.description}</Text>
-
-                          {(isSubscription || isVIP) ? (
-                               <Button w="full" colorScheme="brand" variant="outline" onClick={() => window.open(doc.file_url)}>Download Data</Button>
-                          ) : (
-                               <Button w="full" colorScheme="gray" leftIcon={<FaLock />} onClick={() => setShowPaywall(true)}>Akses Premium</Button>
-                          )}
-                      </Box>
-                  )) : (
-                      <Text color="gray.500">Belum ada dokumen publikasi terbaru.</Text>
-                  )}
-              </SimpleGrid>
+          {/* Dokumen Section Linked to New Page */}
+          <Box pt={10} textAlign="center" layerStyle="glassCard" p={8}>
+             <Heading size="md" mb={4}>Dokumen & Analitik Data</Heading>
+             <Text color="gray.600" mb={6}>Lihat seluruh dokumen publikasi, laporan APBDes, dan data analitik transparan pemerintahan desa.</Text>
+             <Button as="a" href="/pemerintahan/dokumen" colorScheme="brand" size="lg">Lihat Semua Dokumen</Button>
           </Box>
-
         </VStack>
         <PaywallModal
             isOpen={showPaywall}

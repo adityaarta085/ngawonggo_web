@@ -22,9 +22,10 @@ import {
   IconButton,
   Flex,
 } from '@chakra-ui/react';
-import { FaBroadcastTower, FaTv, FaPlay, FaPause, FaVolumeUp } from 'react-icons/fa';
+import { FaBroadcastTower, FaTv, FaPlay, FaPause, FaVolumeUp, FaUpload } from 'react-icons/fa';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import CommunityFeed from './CommunityFeed';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { translations } from '../../translations';
 
@@ -104,6 +105,9 @@ const MediaPage = () => {
               <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
                 <Icon as={FaTv} mr={2} /> TVRI Nasional
               </Tab>
+              <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
+                <Icon as={FaUpload} mr={2} /> Komunitas
+              </Tab>
             </TabList>
 
             <TabPanels>
@@ -181,6 +185,9 @@ const MediaPage = () => {
                     Saksikan siaran TVRI Nasional secara langsung. Menghadirkan berita nasional, program kebudayaan, dan edukasi untuk seluruh rakyat Indonesia. Media pemersatu bangsa kini hadir dalam genggaman Anda.
                   </Text>
                 </Box>
+              </TabPanel>
+              <TabPanel p={0}>
+                <CommunityFeed />
               </TabPanel>
             </TabPanels>
           </Tabs>

@@ -50,6 +50,7 @@ import SettingsManager from './components/SettingsManager';
 import DusunManager from './components/DusunManager';
 import BroadcastManager from './components/BroadcastManager';
 import PemerintahanManager from './components/PemerintahanManager';
+import DokumenManager from './components/DokumenManager';
 import UserManager from './components/UserManager';
 import ProfilManager from './components/ProfilManager';
 import DoodleManager from './components/DoodleManager';
@@ -93,6 +94,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Customer Service', icon: FaHeadset },
     { name: 'Pengguna', icon: FaUsers },
     { name: 'Pemerintahan', icon: FaUsers },
+    { name: 'Dokumen & Analitik', icon: FaChartBar },
   ];
 
   const handleLogout = async () => {
@@ -207,6 +209,7 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Pengaturan' && <SettingsManager />}
           {activeTab === 'Monetisasi & Limit' && <MonetizationManager />}
           {activeTab === 'Pemerintahan' && <PemerintahanManager />}
+          {activeTab === 'Dokumen & Analitik' && <DokumenManager />}
           {activeTab === 'Customer Service' && <CsManager />}
           {activeTab === 'Pengguna' && <UserManager />}
           {activeTab === 'Profil Desa' && <ProfilManager />}

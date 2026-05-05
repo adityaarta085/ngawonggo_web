@@ -9,6 +9,7 @@ import Footer from './components/Footer.js';
 import ProfilPage from './views/ProfilPage/index.js';
 import PageNotFound from './views/PageNotFound/index.js';
 import PemerintahanPage from './views/PemerintahanPage/index.js';
+import DokumenPage from './views/PemerintahanPage/Dokumen.js';
 import LayananPage from './views/LayananPage/index.js';
 import ComplaintHistory from './views/LayananPage/ComplaintHistory';
 import ComplaintTrack from './views/LayananPage/ComplaintTrack';
@@ -262,6 +263,7 @@ function App() {
             <Route path="/news/:id" element={<NewsDetail />} />
             <Route path="/profil" element={<ProfilPage />} />
             <Route path="/pemerintahan" element={<PemerintahanPage />} />
+            <Route path="/pemerintahan/dokumen" element={<DokumenPage />} />
             <Route path="/layanan" element={<LayananPage />} />
             <Route path="/layanan/history" element={<ComplaintHistory />} />
             <Route path="/layanan/lacak" element={<ComplaintTrack />} />

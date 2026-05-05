@@ -45,7 +45,7 @@ const Navbar = ({ user, isScrolled }) => {
       ],
       href: '/profil'
     },
-    { label: t.government || 'Pemerintahan', href: '/pemerintahan' },
+    { label: t.government || 'Pemerintahan', children: [{ label: 'Struktur Organisasi', href: '/pemerintahan' }, { label: 'Dokumen Publikasi', href: '/pemerintahan/dokumen' }] },
     { label: t.services || 'Layanan', href: '/layanan' },
     { label: t.explore || 'Jelajahi', href: '/jelajahi' },
     { label: 'Donasi', href: '/donasi' },
