@@ -9,6 +9,7 @@ import Footer from './components/Footer.js';
 import ProfilPage from './views/ProfilPage/index.js';
 import PageNotFound from './views/PageNotFound/index.js';
 import PemerintahanPage from './views/PemerintahanPage/index.js';
+import DokumenPage from './views/PemerintahanPage/Dokumen.js';
 import LayananPage from './views/LayananPage/index.js';
 import ComplaintHistory from './views/LayananPage/ComplaintHistory';
 import ComplaintTrack from './views/LayananPage/ComplaintTrack';
@@ -16,6 +17,7 @@ import JelajahiPage from './views/JelajahiPage/index.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
+import MediaPemerintah from './views/MediaPage/Pemerintah.js';
 
 import AnimePage from './views/AnimePage/index.js';
 import AnimeDetail from './views/AnimePage/Detail.js';
@@ -262,6 +264,7 @@ function App() {
             <Route path="/news/:id" element={<NewsDetail />} />
             <Route path="/profil" element={<ProfilPage />} />
             <Route path="/pemerintahan" element={<PemerintahanPage />} />
+            <Route path="/pemerintahan/dokumen" element={<DokumenPage />} />
             <Route path="/layanan" element={<LayananPage />} />
             <Route path="/layanan/history" element={<ComplaintHistory />} />
             <Route path="/layanan/lacak" element={<ComplaintTrack />} />
@@ -269,6 +272,7 @@ function App() {
             <Route path="/transparansi" element={<TransparansiPage />} />
             <Route path="/kontak" element={<KontakPage />} />
             <Route path="/media" element={<MediaPage />} />
+            <Route path="/media/pemerintah" element={<MediaPemerintah />} />
             <Route path="/anime" element={<AnimePage />} />
             <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
             <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />

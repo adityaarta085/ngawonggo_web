@@ -50,6 +50,7 @@ import SettingsManager from './components/SettingsManager';
 import DusunManager from './components/DusunManager';
 import BroadcastManager from './components/BroadcastManager';
 import PemerintahanManager from './components/PemerintahanManager';
+import DokumenManager from './components/DokumenManager';
 import UserManager from './components/UserManager';
 import ProfilManager from './components/ProfilManager';
 import DoodleManager from './components/DoodleManager';
@@ -60,6 +61,7 @@ import DonasiManager from './components/DonasiManager';
 import MonetizationManager from './components/MonetizationManager';
 import NotificationManager from './components/NotificationManager';
 import DeveloperMediaManager from './components/DeveloperMediaManager';
+import MediaManager from './components/MediaManager';
 import { FaCoins, FaBell } from 'react-icons/fa';
 
 const AdminPage = ({ setSession }) => {
@@ -93,6 +95,8 @@ const AdminPage = ({ setSession }) => {
     { name: 'Customer Service', icon: FaHeadset },
     { name: 'Pengguna', icon: FaUsers },
     { name: 'Pemerintahan', icon: FaUsers },
+    { name: 'Dokumen & Analitik', icon: FaChartBar },
+    { name: 'Manajemen Media', icon: FaImage },
   ];
 
   const handleLogout = async () => {
@@ -207,6 +211,8 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Pengaturan' && <SettingsManager />}
           {activeTab === 'Monetisasi & Limit' && <MonetizationManager />}
           {activeTab === 'Pemerintahan' && <PemerintahanManager />}
+          {activeTab === 'Dokumen & Analitik' && <DokumenManager />}
+          {activeTab === 'Manajemen Media' && <MediaManager />}
           {activeTab === 'Customer Service' && <CsManager />}
           {activeTab === 'Pengguna' && <UserManager />}
           {activeTab === 'Profil Desa' && <ProfilManager />}
