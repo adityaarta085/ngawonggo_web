@@ -25,6 +25,7 @@ const MediaDetail = () => {
   useEffect(() => {
     fetchMediaAndComments();
     if (user) checkUserInteraction();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user]);
 
   const fetchMediaAndComments = async () => {

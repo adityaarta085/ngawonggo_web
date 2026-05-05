@@ -21,7 +21,6 @@ import {
   FaNewspaper,
   FaDonate,
   FaPhotoVideo,
-  FaPlayCircle,
   FaPhoneAlt,
   FaCompass,
 } from 'react-icons/fa';
