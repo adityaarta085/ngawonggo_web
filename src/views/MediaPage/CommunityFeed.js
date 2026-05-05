@@ -50,6 +50,7 @@ const CommunityFeed = () => {
       const { data, error } = await supabase
         .from('community_media')
         .select('*, community_media_comments(*)')
+        .eq('is_takedown', false)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -73,18 +74,20 @@ const CommunityFeed = () => {
 
     setIsUploading(true);
     try {
-      // Catbox API
       const formData = new FormData();
-      formData.append('reqtype', 'fileupload');
-      formData.append('fileToUpload', uploadFile);
+      formData.append('file', uploadFile);
 
-      const response = await fetch('https://catbox.moe/user/api.php', {
+      const key = "AIzaBj7z2z3xBjsk";
+      const response = await fetch(`https://c.termai.cc/api/upload?key=${key}`, {
         method: 'POST',
         body: formData,
       });
 
-      if (!response.ok) throw new Error('Upload to Catbox failed');
-      const fileUrl = await response.text();
+      if (!response.ok) throw new Error('Upload failed');
+      const resData = await response.json();
+      if (!resData.status) throw new Error('Failed to get file path');
+
+      const fileUrl = resData.path;
 
       const isVideo = uploadFile.type.startsWith('video/');
 

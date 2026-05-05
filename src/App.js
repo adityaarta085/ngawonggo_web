@@ -17,6 +17,7 @@ import JelajahiPage from './views/JelajahiPage/index.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
+import MediaPemerintah from './views/MediaPage/Pemerintah.js';
 
 import AnimePage from './views/AnimePage/index.js';
 import AnimeDetail from './views/AnimePage/Detail.js';
@@ -271,6 +272,7 @@ function App() {
             <Route path="/transparansi" element={<TransparansiPage />} />
             <Route path="/kontak" element={<KontakPage />} />
             <Route path="/media" element={<MediaPage />} />
+            <Route path="/media/pemerintah" element={<MediaPemerintah />} />
             <Route path="/anime" element={<AnimePage />} />
             <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
             <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />
