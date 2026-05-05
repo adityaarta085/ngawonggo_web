@@ -29,8 +29,14 @@ import {
 } from '@chakra-ui/react';
 import { FaHeart, FaComment, FaShare, FaDownload, FaUpload, FaEllipsisV, FaThumbsDown } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 const CommunityFeed = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+  }, []);
   const [media, setMedia] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -63,6 +69,10 @@ const CommunityFeed = () => {
   };
 
   const handleUploadClick = () => {
+    if (!user) {
+      toast({ title: 'Silakan login', description: 'Anda harus login untuk mengunggah media.', status: 'warning' });
+      return;
+    }
     onOpen();
   };
 
@@ -96,7 +106,7 @@ const CommunityFeed = () => {
         description: uploadDesc,
         file_url: fileUrl,
         file_type: isVideo ? 'video' : 'image',
-        is_anonymous: true,
+        user_id: user?.id, user_name: user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User',
       }]);
 
       if (error) throw error;
@@ -115,19 +125,21 @@ const CommunityFeed = () => {
     }
   };
 
-  const handleLike = async (id, currentLikes, action = 'like') => {
+  const handleLike = (id) => navigate(`/media/komunitas/${id}`);
+/*
       // Simplified local state update for demo. Real app needs user tracking to prevent spam.
       const increment = action === 'like' ? 1 : -1;
       setMedia(media.map(m => m.id === id ? { ...m, likes: currentLikes + increment } : m));
-      await supabase.from('community_media').update({ likes: currentLikes + increment }).eq('id', id);
-  };
+      */
 
-  const handleUnlike = async (id, currentUnlikes) => {
+  const handleUnlike = (id) => navigate(`/media/komunitas/${id}`);
+/*
       setMedia(media.map(m => m.id === id ? { ...m, unlikes: currentUnlikes + 1 } : m));
-      await supabase.from('community_media').update({ unlikes: currentUnlikes + 1 }).eq('id', id);
-  };
+      */
 
-  const handleShare = (url) => {
+  const handleShare = (id) => {
+    const url = `${window.location.origin}/media/komunitas/${id}`;
+
     navigator.clipboard.writeText(url);
     toast({ title: 'Tersalin', description: 'Link telah disalin ke clipboard', status: 'info', duration: 2000 });
   };
@@ -148,22 +160,22 @@ const CommunityFeed = () => {
       ) : (
         <VStack spacing={8} align="stretch" maxW="3xl" mx="auto">
           {media.map((item) => (
-            <Box key={item.id} bg="white" borderRadius="2xl" overflow="hidden" boxShadow="md">
+            <Box key={item.id} bg="white" borderRadius="2xl" cursor="pointer" onClick={() => navigate(`/media/komunitas/${item.id}`)} overflow="hidden" boxShadow="md">
               <HStack p={4} justify="space-between">
                 <HStack>
                   <Avatar size="sm" src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.id}`} />
                   <VStack align="start" spacing={0}>
-                    <Text fontWeight="bold" fontSize="sm">{item.is_anonymous ? 'Anonim' : 'Admin/User'}</Text>
+                    <Text fontWeight="bold" fontSize="sm">{item.user_name || 'User'}</Text>
                     <Text fontSize="xs" color="gray.500">{new Date(item.created_at).toLocaleString()}</Text>
                   </VStack>
                 </HStack>
-                <Menu>
+                <div onClick={(e)=>e.stopPropagation()}><Menu>
                   <MenuButton as={IconButton} icon={<FaEllipsisV />} variant="ghost" size="sm" />
                   <MenuList>
-                    <MenuItem icon={<FaShare />} onClick={() => handleShare(item.file_url)}>Salin Link</MenuItem>
-                    <MenuItem icon={<FaDownload />} as="a" href={item.file_url} target="_blank" download>Download</MenuItem>
+                    <MenuItem icon={<FaShare />} onClick={() => handleShare(item.id)}>Salin Link</MenuItem>
+                    <MenuItem icon={<FaDownload />} onClick={() => alert("Tutorial Download:\n\nPC/Desktop: Klik kanan pada media, lalu pilih 'Simpan Gambar Sebagai...'\n\nAndroid/iOS: Tekan lama pada media, lalu pilih 'Download Gambar/Video'.")}>Download</MenuItem>
                   </MenuList>
-                </Menu>
+                </Menu></div>
               </HStack>
 
               <Box bg="black" display="flex" justifyContent="center" maxH="500px">
@@ -175,17 +187,17 @@ const CommunityFeed = () => {
               </Box>
 
               <Box p={4}>
-                <HStack spacing={4} mb={3}>
+                <HStack spacing={4} mb={3} onClick={(e)=>e.stopPropagation()}>
                   <HStack spacing={1}>
-                    <IconButton icon={<FaHeart />} variant="ghost" colorScheme="red" rounded="full" onClick={() => handleLike(item.id, item.likes, 'like')} />
+                    <IconButton icon={<FaHeart />} variant="ghost" colorScheme="red" rounded="full" onClick={() => handleLike(item.id)} />
                     <Text fontSize="sm" fontWeight="bold">{item.likes}</Text>
                   </HStack>
                   <HStack spacing={1}>
-                     <IconButton icon={<FaThumbsDown />} variant="ghost" rounded="full" onClick={() => handleUnlike(item.id, item.unlikes)} />
+                     <IconButton icon={<FaThumbsDown />} variant="ghost" rounded="full" onClick={() => handleUnlike(item.id)} />
                      <Text fontSize="sm">{item.unlikes}</Text>
                   </HStack>
                   <IconButton icon={<FaComment />} variant="ghost" rounded="full" />
-                  <IconButton icon={<FaShare />} variant="ghost" rounded="full" onClick={() => handleShare(item.file_url)} />
+                  <IconButton icon={<FaShare />} variant="ghost" rounded="full" onClick={() => handleShare(item.id)} />
                 </HStack>
 
                 <Text fontWeight="bold" mb={1}>{item.title}</Text>
@@ -210,7 +222,7 @@ const CommunityFeed = () => {
                   1. Dilarang mengunggah konten ilegal, SARA, atau pornografi.<br/>
                   2. Admin berhak melakukan takedown pada konten yang melanggar.<br/>
                   3. <Text as="span" opacity={0.5} fontSize="10px">Konten kemungkinan bisa hilang secara berkala (data loss possible).</Text><br/>
-                  4. Semua unggahan bersifat anonim.
+                  4. Akun Anda akan tercatat sebagai pengunggah.
                 </Text>
               </Box>
 

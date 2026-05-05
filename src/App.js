@@ -18,6 +18,7 @@ import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
 import MediaPemerintah from './views/MediaPage/Pemerintah.js';
+import MediaDetail from './views/MediaPage/MediaDetail.js';
 
 import AnimePage from './views/AnimePage/index.js';
 import AnimeDetail from './views/AnimePage/Detail.js';
@@ -36,7 +37,7 @@ import CSApp from './views/AdminPage/cs';
 import PrivacyPolicy from './views/Legal/PrivacyPolicy.js';
 import TermsConditions from './views/Legal/TermsConditions.js';
 import CreditsPage from './views/CreditsPage/index.js';
-import MediaDetail from './views/CreditsPage/MediaDetail';
+import CreditsMediaDetail from './views/CreditsPage/MediaDetail';
 import DeveloperMediaPage from './views/CreditsPage/DeveloperMediaPage';
 import ScrollToTop from './components/ScrollToTop.js';
 import Preloader from './components/Preloader.js';
@@ -272,6 +273,7 @@ function App() {
             <Route path="/transparansi" element={<TransparansiPage />} />
             <Route path="/kontak" element={<KontakPage />} />
             <Route path="/media" element={<MediaPage />} />
+            <Route path="/media/komunitas/:id" element={<MediaDetail />} />
             <Route path="/media/pemerintah" element={<MediaPemerintah />} />
             <Route path="/anime" element={<AnimePage />} />
             <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
@@ -283,7 +285,7 @@ function App() {
             <Route path="/terms-conditions" element={<TermsConditions />} />
             <Route path="/credits" element={<CreditsPage />} />
             <Route path="/credits/media" element={<DeveloperMediaPage />} />
-            <Route path="/credits/media/:id" element={<MediaDetail />} />
+            <Route path="/credits/media/:id" element={<CreditsMediaDetail />} />
             <Route path="/donasi/*" element={<DonasiRouter />} />
             <Route path="/topup" element={<TopupPage />} />
             <Route path="/game/*" element={<EduGameRouter />} />

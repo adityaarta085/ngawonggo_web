@@ -5,6 +5,11 @@ import {
   Icon,
   Flex,
   Link,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Portal,
 } from '@chakra-ui/react';
 import {
   FaInfoCircle,
@@ -20,13 +25,14 @@ import {
   FaPhoneAlt,
   FaCompass,
 } from 'react-icons/fa';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
 
 const QuickLinks = ({ isHero }) => {
+  const navigate = useNavigate();
   const { language } = useLanguage();
 
   const links = [
@@ -45,14 +51,20 @@ const QuickLinks = ({ isHero }) => {
     {
       label: language === 'id' ? 'Pemerintahan' : 'Government',
       icon: FaGavel,
-      href: '/pemerintahan',
       color: 'orange.400',
+      children: [
+        { label: 'Struktur Organisasi', href: '/pemerintahan' },
+        { label: 'Dokumen Publikasi', href: '/pemerintahan/dokumen' }
+      ]
     },
     {
       label: language === 'id' ? 'Berita' : 'News',
       icon: FaNewspaper,
-      href: '/news',
       color: 'blue.400',
+      children: [
+        { label: 'Pemerintah', href: '/news' },
+        { label: 'Nasional', href: '/news/nasional' }
+      ]
     },
     {
       label: language === 'id' ? 'Donasi' : 'Donation',
@@ -75,14 +87,11 @@ const QuickLinks = ({ isHero }) => {
     {
       label: language === 'id' ? 'Media' : 'Media',
       icon: FaPhotoVideo,
-      href: '/media',
       color: 'cyan.400',
-    },
-    {
-      label: language === 'id' ? 'Anime' : 'Anime',
-      icon: FaPlayCircle,
-      href: '/anime',
-      color: 'red.400',
+      children: [
+        { label: 'Streaming & Komunitas', href: '/media' },
+        { label: 'Media Pemerintah', href: '/media/pemerintah' }
+      ]
     },
     {
       label: language === 'id' ? 'Jelajahi' : 'Explore',
@@ -108,15 +117,9 @@ const QuickLinks = ({ isHero }) => {
       return (
         <Box w="full" px={{ base: 4, md: 0 }}>
             <SimpleGrid columns={{ base: 3, md: 4, lg: 6 }} spacing={{ base: 4, md: 6 }}>
-              {links.map((link, index) => (
-                <Link
-                  key={index}
-                  as={link.href.startsWith('/') ? RouterLink : 'a'}
-                  to={link.href.startsWith('/') ? link.href : undefined}
-                  href={link.href.startsWith('/') ? undefined : link.href}
-                  _hover={{ textDecoration: 'none' }}
-                  display="block"
-                >
+              {links.map((link, index) => {
+                const isDropdown = !!link.children;
+                const linkContent = (
                   <MotionBox
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -138,6 +141,8 @@ const QuickLinks = ({ isHero }) => {
                       borderColor: 'whiteAlpha.500',
                     }}
                     role="group"
+                    cursor="pointer"
+                    w="full"
                   >
                     <Flex
                       w={{ base: 12, md: 16 }}
@@ -161,8 +166,46 @@ const QuickLinks = ({ isHero }) => {
                       {link.label}
                     </Text>
                   </MotionBox>
-                </Link>
-              ))}
+                );
+
+                if (isDropdown) {
+                  return (
+                    <Menu key={index} matchWidth>
+                      <MenuButton as={Box} w="full" _focus={{ outline: "none" }}>
+                        {linkContent}
+                      </MenuButton>
+                      <Portal>
+                        <MenuList zIndex={1400} bg="whiteAlpha.900" backdropFilter="blur(10px)">
+                          {link.children.map((child, idx) => (
+                            <MenuItem
+                              key={idx}
+                              onClick={() => navigate(child.href)}
+                              _hover={{ bg: "brand.50", color: "brand.600" }}
+                              fontWeight="500"
+                            >
+                              {child.label}
+                            </MenuItem>
+                          ))}
+                        </MenuList>
+                      </Portal>
+                    </Menu>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={index}
+                    as={link.href?.startsWith('/') ? RouterLink : 'a'}
+                    to={link.href?.startsWith('/') ? link.href : undefined}
+                    href={link.href?.startsWith('/') ? undefined : link.href}
+                    _hover={{ textDecoration: 'none' }}
+                    display="block"
+                    w="full"
+                  >
+                    {linkContent}
+                  </Link>
+                );
+              })}
             </SimpleGrid>
         </Box>
       );
