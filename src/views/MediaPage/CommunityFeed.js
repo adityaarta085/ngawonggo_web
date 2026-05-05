@@ -20,7 +20,6 @@ import {
   FormControl,
   FormLabel,
   Textarea,
-  Divider,
   Avatar,
   Menu,
   MenuButton,
@@ -28,7 +27,7 @@ import {
   MenuItem,
   Spinner,
 } from '@chakra-ui/react';
-import { FaHeart, FaRegHeart, FaComment, FaShare, FaDownload, FaUpload, FaEllipsisV, FaRegThumbsDown, FaThumbsDown } from 'react-icons/fa';
+import { FaHeart, FaComment, FaShare, FaDownload, FaUpload, FaEllipsisV, FaThumbsDown } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 
 const CommunityFeed = () => {

@@ -21,7 +21,7 @@ import { FaUserTie, FaUsers, FaBullseye } from 'react-icons/fa';
 import { SEO } from '../../components';
 import { useMonetization } from '../../contexts/MonetizationContext';
 import PaywallModal from '../../components/Monetization/PaywallModal';
-import { FaFilePdf, FaLock, FaChartLine } from 'react-icons/fa';
+
 import { Button } from '@chakra-ui/react';
 import { supabase } from '../../lib/supabase';
 
@@ -38,7 +38,9 @@ export default function PemerintahanPage({ previewData }) {
     mission: "Komitmen kami adalah menjadikan Desa Ngawonggo sebagai desa yang mandiri, inovatif, dan melayani dengan sepenuh hati."
   });
   const [loading, setLoading] = useState(!previewData);
+  // eslint-disable-next-line
   const { isSubscription, isVIP } = useMonetization();
+  // eslint-disable-next-line
   const [documents, setDocuments] = useState([]);
   const [showPaywall, setShowPaywall] = useState(false);
 

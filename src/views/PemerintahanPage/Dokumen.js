@@ -28,6 +28,7 @@ export default function DokumenPage() {
 
   useEffect(() => {
     fetchDocuments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchDocuments = async () => {

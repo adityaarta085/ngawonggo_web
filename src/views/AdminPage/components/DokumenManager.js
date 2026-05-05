@@ -24,7 +24,6 @@ import {
   useToast,
   HStack,
   Text,
-  Badge,
 } from '@chakra-ui/react';
 import { FaPlus, FaEdit, FaTrash, FaLink } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
@@ -40,6 +39,7 @@ const DokumenManager = () => {
 
   useEffect(() => {
     fetchDocuments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchDocuments = async () => {
