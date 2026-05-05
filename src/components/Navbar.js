@@ -58,7 +58,6 @@ const Navbar = ({ user, isScrolled }) => {
       href: '/news'
     },
     { label: t.media || 'Media', children: [{ label: 'Streaming & Komunitas', href: '/media' }, { label: 'Media Pemerintah', href: '/media/pemerintah' }] },
-    { label: t.anime || 'Anime (NEW)', href: '/anime' },
     { label: t.contact || 'Kontak', href: '/kontak' },
 
   ];
