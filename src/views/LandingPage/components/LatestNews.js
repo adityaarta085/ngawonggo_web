@@ -34,7 +34,7 @@ const LatestNews = () => {
   }, []);
 
   return (
-    <Box py={24} bg="white" _dark={{ bg: "gray.800" }}>
+    <Box py={24} bg="white" _dark={{ bg: "gray.800", borderTopColor: "gray.700" }} borderTop="1px solid" borderTopColor="gray.100">
       <Container maxW="container.xl">
         <Flex
           direction={{ base: 'column', md: 'row' }}
@@ -50,7 +50,7 @@ const LatestNews = () => {
                     WARTA DESA
                 </Text>
             </Flex>
-            <Heading as="h2" size="2xl" fontWeight="900" color="gray.900">
+            <Heading as="h2" size="2xl" fontWeight="900" color="gray.900" _dark={{ color: "white" }}>
               Kabar Terkini Ngawonggo
             </Heading>
             <Text fontSize="xl" color="gray.500" fontWeight="500">
