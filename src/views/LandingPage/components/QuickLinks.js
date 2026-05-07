@@ -30,6 +30,10 @@ import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
 
+const BRUTAL_COLORS = [
+  'neo.yellow', 'neo.coral', 'neo.teal', 'brutal.purple', 'brutal.orange', 'brutal.green', 'white'
+];
+
 const QuickLinks = ({ isHero }) => {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -39,18 +43,15 @@ const QuickLinks = ({ isHero }) => {
       label: language === 'id' ? 'Profil Desa' : 'Village Profile',
       icon: FaInfoCircle,
       href: '/profil',
-      color: 'brand.400',
     },
     {
       label: language === 'id' ? 'Layanan' : 'Services',
       icon: FaHandHoldingHeart,
       href: '/layanan',
-      color: 'green.400',
     },
     {
       label: language === 'id' ? 'Pemerintahan' : 'Government',
       icon: FaGavel,
-      color: 'orange.400',
       children: [
         { label: 'Struktur Organisasi', href: '/pemerintahan' },
         { label: 'Dokumen Publikasi', href: '/pemerintahan/dokumen' }
@@ -59,7 +60,6 @@ const QuickLinks = ({ isHero }) => {
     {
       label: language === 'id' ? 'Berita' : 'News',
       icon: FaNewspaper,
-      color: 'blue.400',
       children: [
         { label: 'Pemerintah', href: '/news' },
         { label: 'Nasional', href: '/news/nasional' }
@@ -69,24 +69,20 @@ const QuickLinks = ({ isHero }) => {
       label: language === 'id' ? 'Donasi' : 'Donation',
       icon: FaDonate,
       href: '/donasi',
-      color: 'pink.400',
     },
     {
         label: language === 'id' ? 'Al-Qur\'an' : 'Al-Quran',
         icon: FaBookOpen,
         href: '/quran',
-        color: 'teal.400',
     },
     {
       label: language === 'id' ? 'Edu Game' : 'Edu Game',
       icon: FaGamepad,
       href: '/game',
-      color: 'purple.400',
     },
     {
       label: language === 'id' ? 'Media' : 'Media',
       icon: FaPhotoVideo,
-      color: 'cyan.400',
       children: [
         { label: 'Streaming & Komunitas', href: '/media' },
         { label: 'Media Pemerintah', href: '/media/pemerintah' }
@@ -96,19 +92,16 @@ const QuickLinks = ({ isHero }) => {
       label: language === 'id' ? 'Jelajahi' : 'Explore',
       icon: FaCompass,
       href: '/jelajahi',
-      color: 'yellow.400',
     },
     {
       label: language === 'id' ? 'Pengaduan' : 'Complaints',
       icon: FaBullhorn,
       href: '#pengaduan',
-      color: 'red.500',
     },
     {
       label: language === 'id' ? 'Kontak' : 'Contact',
       icon: FaPhoneAlt,
       href: '/kontak',
-      color: 'gray.400',
     },
   ];
 
@@ -118,26 +111,31 @@ const QuickLinks = ({ isHero }) => {
             <SimpleGrid columns={{ base: 3, md: 4, lg: 6 }} spacing={{ base: 4, md: 6 }}>
               {links.map((link, index) => {
                 const isDropdown = !!link.children;
+                // Assign a pseudo-random color based on index
+                const cardColor = BRUTAL_COLORS[index % BRUTAL_COLORS.length];
+                const rotate = index % 2 === 0 ? '-2deg' : '2deg';
+
                 const linkContent = (
                   <MotionBox
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1, type: "spring", stiffness: 60 }}
+                    initial={{ scale: 0.3, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.4, delay: index * 0.05, type: "spring", stiffness: 100 }}
                     p={4}
-                    bg="whiteAlpha.100"
-                    backdropFilter="blur(10px)"
-                    borderRadius="2xl"
-                    border="1px solid"
-                    borderColor="whiteAlpha.300"
+                    bg={cardColor}
+                    layerStyle="brutalCard"
+                    transform={`rotate(${rotate})`}
                     textAlign="center"
                     height="full"
                     display="flex"
                     flexDirection="column"
                     alignItems="center"
                     _hover={{
-                      transform: 'translateY(-5px)',
-                      bg: 'whiteAlpha.200',
-                      borderColor: 'whiteAlpha.500',
+                      transform: 'translate(-4px, -4px) rotate(0deg)',
+                      boxShadow: '8px 8px 0px black',
+                    }}
+                    _active={{
+                      transform: 'translate(2px, 2px)',
+                      boxShadow: '2px 2px 0px black',
                     }}
                     role="group"
                     cursor="pointer"
@@ -146,22 +144,21 @@ const QuickLinks = ({ isHero }) => {
                     <Flex
                       w={{ base: 12, md: 16 }}
                       h={{ base: 12, md: 16 }}
-                      bg="whiteAlpha.200"
-                      color={link.color}
-                      borderRadius="xl"
+                      bg="white"
+                      color="black"
+                      borderRadius="full"
+                      border="3px solid black"
                       align="center"
                       justify="center"
                       mb={3}
                       transition="all 0.3s"
                       _groupHover={{
-                        transform: 'scale(1.1)',
-                        bg: link.color,
-                        color: 'white'
+                        transform: 'scale(1.1) rotate(10deg)',
                       }}
                     >
                       <Icon as={link.icon} w={{ base: 5, md: 7 }} h={{ base: 5, md: 7 }} />
                     </Flex>
-                    <Text fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} color="white">
+                    <Text fontFamily="accent" fontWeight="bold" fontSize={{ base: "xs", md: "sm" }} color="black" textTransform="uppercase">
                       {link.label}
                     </Text>
                   </MotionBox>
@@ -174,13 +171,14 @@ const QuickLinks = ({ isHero }) => {
                         {linkContent}
                       </MenuButton>
                       <Portal>
-                        <MenuList zIndex={1400} bg="whiteAlpha.900" backdropFilter="blur(10px)">
+                        <MenuList zIndex={1400} bg="white" border="3px solid black" boxShadow="brutal" borderRadius="none">
                           {link.children.map((child, idx) => (
                             <MenuItem
                               key={idx}
                               onClick={() => navigate(child.href)}
-                              _hover={{ bg: "brand.50", color: "brand.600" }}
+                              _hover={{ bg: "neo.yellow", color: "black", fontWeight: 'bold' }}
                               fontWeight="500"
+                              borderBottom={idx !== link.children.length - 1 ? '1px solid black' : 'none'}
                             >
                               {child.label}
                             </MenuItem>
@@ -210,7 +208,7 @@ const QuickLinks = ({ isHero }) => {
       );
   }
 
-  return null; // The old standalone version is now removed since we put it in Hero. We'll handle this in LandingPage index.
+  return null;
 };
 
 export default QuickLinks;

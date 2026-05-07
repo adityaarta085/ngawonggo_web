@@ -77,22 +77,28 @@ const SplashScreen = ({ onComplete }) => {
       left={0}
       right={0}
       bottom={0}
-      bg="white" _dark={{ bg: "gray.800" }}
+      bg="neo.yellow"
       zIndex={9999}
       display="flex"
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
+      className="bg-dot-grid"
     >
       <VStack spacing={12}>
         <AnimatePresence mode="wait">
           {logos[step] && (
             <MotionBox
               key={step}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.2 }}
-              transition={{ duration: 0.5 }}
+              initial={{ x: '-100vw', rotate: -15 }}
+              animate={{ x: 0, rotate: 0 }}
+              exit={{ x: '100vw', rotate: 15 }}
+              transition={{ type: "spring", stiffness: 100, damping: 15 }}
+              p={8}
+              bg="white"
+              border="4px solid black"
+              boxShadow="8px 8px 0px black"
+              transform={step % 2 === 0 ? 'rotate(-2deg)' : 'rotate(2deg)'}
             >
               {logos[step].type === 'component' ? (
                 logos[step].component
@@ -100,7 +106,7 @@ const SplashScreen = ({ onComplete }) => {
                 <VStack spacing={6}>
                   <Image src={logos[step].src} h="150px" objectFit="contain" alt={logos[step].label} />
                   {logos[step].label && (
-                    <Text fontWeight="bold" fontSize="2xl" color="gray.700" letterSpacing="wide">
+                    <Text fontFamily="heading" fontWeight="900" fontSize="2xl" color="black" letterSpacing="wide">
                       {logos[step].label.toUpperCase()}
                     </Text>
                   )}
@@ -113,13 +119,19 @@ const SplashScreen = ({ onComplete }) => {
 
       <Box position="absolute" bottom={10} textAlign="center">
         <MotionText
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          fontSize="sm"
-          color="gray.400"
-          fontWeight="500"
+          fontSize="xs"
+          fontFamily="accent"
+          color="black"
+          fontWeight="900"
           letterSpacing="widest"
+          bg="white"
+          px={3}
+          py={1}
+          border="2px solid black"
+          boxShadow="2px 2px 0px black"
         >
           MADE WITH KELOMPOK 1 SMK MUHAMMADIYAH BANDONGAN 2026 TJKT A
         </MotionText>
