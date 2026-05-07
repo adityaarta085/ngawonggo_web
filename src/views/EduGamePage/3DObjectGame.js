@@ -164,10 +164,10 @@ const Object3DGame = ({ onFinish }) => {
 
   if (gameOver) {
     return (
-      <VStack spacing={8} py={10} w="full" maxW="2xl" mx="auto" bg="white" p={10} borderRadius="3xl" boxShadow="xl">
+      <VStack spacing={8} py={10} w="full" maxW="2xl" mx="auto" bg="white" _dark={{ bg: "gray.800" }} p={10} borderRadius="3xl" boxShadow="xl">
         <Icon as={FaTrophy} w={20} h={20} color="yellow.400" />
         <VStack spacing={3} textAlign="center">
-          <Heading size="2xl" color="gray.800">Kuis Selesai!</Heading>
+          <Heading size="2xl" color="gray.800" _dark={{ color: "white" }}>Kuis Selesai!</Heading>
           <Text fontSize="xl" color="gray.600">Skor Akhir Anda: <Text as="span" fontWeight="bold" color="brand.500">{score}</Text> / {levels.length * 10}</Text>
           <Text color="gray.500">Luar biasa! Anda telah mempelajari berbagai bentuk geometri 3D.</Text>
         </VStack>
@@ -185,7 +185,7 @@ const Object3DGame = ({ onFinish }) => {
 
   return (
     <VStack spacing={6} w="full">
-      <Flex w="full" justify="space-between" align="center" bg="white" p={6} borderRadius="2xl" boxShadow="sm">
+      <Flex w="full" justify="space-between" align="center" bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="2xl" boxShadow="sm">
         <VStack align="start" spacing={1}>
           <Badge colorScheme="purple" fontSize="sm" px={3} py={1} borderRadius="full">
             Kuis Geometri 3D
@@ -230,7 +230,7 @@ const Object3DGame = ({ onFinish }) => {
         </Box>
 
         {/* Questions and Options */}
-        <VStack flex={1} spacing={6} align="stretch" bg="white" p={8} borderRadius="3xl" boxShadow="sm">
+        <VStack flex={1} spacing={6} align="stretch" bg="white" _dark={{ bg: "gray.800" }} p={8} borderRadius="3xl" boxShadow="sm">
           <Flex gap={3} align="center">
             <Icon as={FaBrain} color="purple.500" w={6} h={6} />
             <Heading size="md" color="gray.700" lineHeight="tall">

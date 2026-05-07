@@ -54,7 +54,7 @@ const MediaPemerintah = () => {
   };
 
   return (
-    <Box pt={0} pb={32} bg="gray.50" minH="100vh">
+    <Box pt={0} pb={32} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
       <SEO title="Media Pemerintah" description="Publikasi media, galeri, dan video dari Pemerintah Desa Ngawonggo." />
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch" pt={12}>
@@ -73,11 +73,11 @@ const MediaPemerintah = () => {
           {loading ? (
             <VStack py={10}><Spinner size="xl" color="brand.500" /></VStack>
           ) : media.length === 0 ? (
-            <Box textAlign="center" py={10} bg="white" borderRadius="xl">Belum ada publikasi media pemerintah.</Box>
+            <Box textAlign="center" py={10} bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl">Belum ada publikasi media pemerintah.</Box>
           ) : (
             <VStack spacing={8} align="stretch" maxW="3xl" mx="auto">
               {media.map((item) => (
-                <Box key={item.id} bg="white" borderRadius="2xl" overflow="hidden" boxShadow="md">
+                <Box key={item.id} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" overflow="hidden" boxShadow="md">
                   <HStack p={4} justify="space-between">
                     <HStack>
                       <Box bg="brand.500" p={2} borderRadius="full" color="white">

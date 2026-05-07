@@ -266,7 +266,7 @@ const QuranSection = () => {
                 {surahDetail && (
                     <Button
                         leftIcon={isPlaying ? <FaPause /> : <FaPlay />}
-                        bg="white"
+                        bg="white" _dark={{ bg: "gray.800" }}
                         color="brand.600"
                         size="lg"
                         px={10}
@@ -292,7 +292,7 @@ const QuranSection = () => {
                 <VStack spacing={6} align="stretch">
                     {surahDetail?.preBismillah && (
                       <Box textAlign="center" py={12}>
-                        <Text fontSize="4xl" fontFamily="'Amiri', serif" color="gray.800">
+                        <Text fontSize="4xl" fontFamily="'Amiri', serif" color="gray.800" _dark={{ color: "white" }}>
                           {surahDetail.preBismillah.text.arab}
                         </Text>
                       </Box>
@@ -354,7 +354,7 @@ const QuranSection = () => {
                             fontFamily="'Amiri', serif"
                             lineHeight="2.5"
                             dir="rtl"
-                            color="gray.800"
+                            color="gray.800" _dark={{ color: "white" }}
                           >
                             {ayah.text.arab}
                           </Text>

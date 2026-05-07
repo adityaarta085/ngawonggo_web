@@ -74,7 +74,7 @@ const AnimeBatch = () => {
           </Flex>
 
           <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6} mt={4}>
-              <Box bg="white" p={6} borderRadius="xl" boxShadow="md" border="1px solid" borderColor="gray.100" gridColumn={{ lg: 'span 2' }}>
+              <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" boxShadow="md" border="1px solid" borderColor="gray.100" gridColumn={{ lg: 'span 2' }}>
                 <Heading size="md" mb={4} display="flex" alignItems="center" gap={2}>
                     <Icon as={FaInfoCircle} color="green.500" /> Informasi Batch
                 </Heading>
@@ -98,7 +98,7 @@ const AnimeBatch = () => {
                 )}
               </Box>
 
-              <Box bg="white" p={6} borderRadius="xl" boxShadow="md" border="1px solid" borderColor="gray.100">
+              <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" boxShadow="md" border="1px solid" borderColor="gray.100">
                   <Heading size="md" mb={4} display="flex" alignItems="center" gap={2}>
                       <Icon as={FaDownload} color="blue.500" /> Link Download Batch
                   </Heading>
@@ -110,7 +110,7 @@ const AnimeBatch = () => {
                                  <Text fontWeight="bold" color="brand.600" mb={2}>Format: {fmt.title}</Text>
                                  <VStack align="stretch" spacing={2}>
                                      {fmt.qualities?.map((qual, qidx) => (
-                                         <Box key={qidx} bg="gray.50" p={2} borderRadius="md" border="1px solid" borderColor="gray.200">
+                                         <Box key={qidx} bg="gray.50" _dark={{ bg: "gray.900" }} p={2} borderRadius="md" border="1px solid" borderColor="gray.200">
                                             <Text fontSize="sm" fontWeight="bold" color="gray.700">{qual.title}</Text>
                                             <HStack mt={1} flexWrap="wrap" gap={1}>
                                                 {qual.urls?.map((urlItem, uidx) => (

@@ -83,7 +83,7 @@ const StatCard = ({ title, value, subValue, icon, color, onClick }) => {
         </Box>
         <VStack align="start" spacing={0} flex={1}>
           <Text fontSize="sm" color="gray.500" fontWeight="600">{title}</Text>
-          <Heading size="md" color="gray.800">{value}</Heading>
+          <Heading size="md" color="gray.800" _dark={{ color: "white" }}>{value}</Heading>
           {subValue && (
             <Text fontSize="xs" color="gray.400" mt={1}>{subValue}</Text>
           )}
@@ -309,14 +309,14 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
   }
 
   return (
-    <Box minH="100vh" bg="gray.50" pt={{ base: '80px', md: '100px' }} pb={20}>
+    <Box minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }} pt={{ base: '80px', md: '100px' }} pb={20}>
       <Container maxW="container.lg">
         <VStack spacing={8} align="stretch">
           {/* Header Section */}
           <Box
             p={{ base: 6, md: 8 }}
             borderRadius="3xl"
-            bg="white"
+            bg="white" _dark={{ bg: "gray.800" }}
             boxShadow="sm"
             border="1px solid"
             borderColor="gray.100"
@@ -375,7 +375,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                 <VStack align="start" spacing={1}>
                   <HStack>
 
-                    <Heading size="md" color="gray.800">
+                    <Heading size="md" color="gray.800" _dark={{ color: "white" }}>
                       {true ? (
                         isEditingName ? (
                           <HStack>
@@ -446,7 +446,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
           </Box>
 
                     {/* Economy & Status Section */}
-          <Box p={{ base: 6, md: 8 }} borderRadius="3xl" bg="white" boxShadow="sm" border="1px solid" borderColor="gray.100">
+          <Box p={{ base: 6, md: 8 }} borderRadius="3xl" bg="white" _dark={{ bg: "gray.800" }} boxShadow="sm" border="1px solid" borderColor="gray.100">
             <Flex direction={{ base: 'column', md: 'row' }} justify="space-between" align={{ base: 'start', md: 'center' }} gap={4} mb={6}>
               <HStack>
                   <Icon as={FaStore} color="brand.500" />
@@ -535,13 +535,13 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
           </VStack>
 
           {/* Papan Peringkat */}
-          <Box p={{ base: 6, md: 8 }} borderRadius="3xl" bg="white" boxShadow="sm" border="1px solid" borderColor="gray.100">
+          <Box p={{ base: 6, md: 8 }} borderRadius="3xl" bg="white" _dark={{ bg: "gray.800" }} boxShadow="sm" border="1px solid" borderColor="gray.100">
             <HStack mb={6}>
                 <Icon as={FaTrophy} color="yellow.400" boxSize={6} />
-                <Heading size="md" color="gray.800">Sultan Koin & VIP (Leaderboard)</Heading>
+                <Heading size="md" color="gray.800" _dark={{ color: "white" }}>Sultan Koin & VIP (Leaderboard)</Heading>
             </HStack>
             {tier?.name !== 'VIP' ? (
-                <Center p={8} bg="gray.50" borderRadius="xl" border="1px dashed" borderColor="gray.300">
+                <Center p={8} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="xl" border="1px dashed" borderColor="gray.300">
                     <VStack spacing={3}>
                         <Icon as={FaLock} color="gray.400" boxSize={8} />
                         <Text color="gray.500" fontWeight="bold">Hanya untuk member VIP</Text>
@@ -551,7 +551,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
             ) : (
                 <VStack align="stretch" spacing={3}>
                     {leaderboard.map((lb, i) => (
-                        <Flex key={i} p={3} bg="gray.50" borderRadius="lg" justify="space-between" align="center">
+                        <Flex key={i} p={3} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="lg" justify="space-between" align="center">
                             <HStack>
                                 <Badge colorScheme={i < 3 ? 'yellow' : 'gray'} borderRadius="full" w="24px" h="24px" display="flex" alignItems="center" justify="center">{i + 1}</Badge>
                                 <Text fontWeight="bold">{lb.name || lb.email.split('@')[0]}</Text>
@@ -569,13 +569,13 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
           </Box>
 
           {/* Data Management Section */}
-          <Accordion allowToggle w="full" bg="white" borderRadius="3xl" border="1px solid" borderColor="red.100" overflow="hidden" boxShadow="sm">
+          <Accordion allowToggle w="full" bg="white" _dark={{ bg: "gray.800" }} borderRadius="3xl" border="1px solid" borderColor="red.100" overflow="hidden" boxShadow="sm">
             <AccordionItem border="none">
               <h2>
                 <AccordionButton py={6} px={{ base: 6, md: 8 }} _hover={{ bg: 'red.50' }}>
                   <HStack flex="1" spacing={3}>
                     <Icon as={FaExclamationTriangle} color="red.500" boxSize={6} />
-                    <Heading size="sm" color="gray.800">Manajemen Data & Privasi</Heading>
+                    <Heading size="sm" color="gray.800" _dark={{ color: "white" }}>Manajemen Data & Privasi</Heading>
                   </HStack>
                   <AccordionIcon color="gray.500" />
                 </AccordionButton>

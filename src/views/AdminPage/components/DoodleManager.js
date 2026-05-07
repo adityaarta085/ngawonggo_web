@@ -179,7 +179,7 @@ const DoodleManager = () => {
   };
 
   return (
-    <Box bg="white" p={6} borderRadius="xl" shadow="sm">
+    <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" shadow="sm">
       <HStack justify="space-between" mb={6}>
         <Text fontSize="xl" fontWeight="bold">Manajemen Google Doodles (Ngawonggo Doodles)</Text>
         <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={() => openModal()}>

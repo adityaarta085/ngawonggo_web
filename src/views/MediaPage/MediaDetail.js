@@ -154,10 +154,10 @@ const MediaDetail = () => {
   if (!media) return <Container py={20} centerContent><Heading>Postingan tidak ditemukan</Heading></Container>;
 
   return (
-    <Box pt={24} pb={32} bg="gray.50" minH="100vh">
+    <Box pt={24} pb={32} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
       <Container maxW="3xl">
         <Button leftIcon={<FaArrowLeft />} mb={6} onClick={() => navigate('/media')}>Kembali</Button>
-        <Box bg="white" borderRadius="2xl" overflow="hidden" boxShadow="md">
+        <Box bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" overflow="hidden" boxShadow="md">
           <HStack p={4} justify="space-between">
             <HStack>
               <Avatar size="sm" src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${media.user_id || media.id}`} />

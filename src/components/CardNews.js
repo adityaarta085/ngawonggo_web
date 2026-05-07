@@ -28,7 +28,7 @@ const CardNews = ({ news }) => {
     <MotionBox
       as={RouterLink}
       to={`/news/${news.id}`}
-      bg="white"
+      bg="white" _dark={{ bg: "gray.800" }}
       borderRadius="3xl"
       overflow="hidden"
       boxShadow="soft"
@@ -45,7 +45,7 @@ const CardNews = ({ news }) => {
       height="full"
       role="group"
     >
-      <Box position="relative" overflow="hidden" h="240px" bg="gray.100">
+      <Box position="relative" overflow="hidden" h="240px" bg="gray.100" _dark={{ bg: "gray.700" }}>
         <Image
           src={news.image || news.image_url || fallbackImage}
           alt={news.title}
@@ -82,7 +82,7 @@ const CardNews = ({ news }) => {
           <Text>{formattedDate}</Text>
         </Flex>
 
-        <Heading size="md" fontWeight="900" color="gray.800" noOfLines={2} lineHeight="1.4">
+        <Heading size="md" fontWeight="900" color="gray.800" _dark={{ color: "white" }} noOfLines={2} lineHeight="1.4">
           {news.title}
         </Heading>
 

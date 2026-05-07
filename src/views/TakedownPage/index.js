@@ -99,7 +99,7 @@ const TakedownPage = () => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50" py={10}>
+    <Box minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }} py={10}>
       <SEO
         title="Pemeliharaan Sistem - Desa Ngawonggo"
         description="Website Desa Ngawonggo sedang dalam pemeliharaan."
@@ -156,12 +156,12 @@ const TakedownPage = () => {
                   overflow="hidden"
                   boxShadow="lg"
                   w="full"
-                  bg="white"
+                  bg="white" _dark={{ bg: "gray.800" }}
                 >
                   <Image
                     src={settings.image}
                     alt="Takedown Info"
-                    fallback={<Box h="200px" bg="gray.100" />}
+                    fallback={<Box h="200px" bg="gray.100" _dark={{ bg: "gray.700" }} />}
                     w="full"
                     objectFit="cover"
                   />
@@ -194,7 +194,7 @@ const TakedownPage = () => {
                 p={4}
                 overflowY="auto"
                 w="full"
-                bg="gray.50"
+                bg="gray.50" _dark={{ bg: "gray.900" }}
                 css={{
                   '&::-webkit-scrollbar': { width: '4px' },
                   '&::-webkit-scrollbar-track': { background: 'transparent' },
@@ -226,7 +226,7 @@ const TakedownPage = () => {
                   ))}
                   {isLoading && (
                     <Flex justify="flex-start">
-                      <Box bg="white" px={4} py={3} borderRadius="2xl" borderBottomLeftRadius="2px" boxShadow="sm">
+                      <Box bg="white" _dark={{ bg: "gray.800" }} px={4} py={3} borderRadius="2xl" borderBottomLeftRadius="2px" boxShadow="sm">
                         <Spinner size="xs" color="red.500" />
                       </Box>
                     </Flex>
@@ -234,12 +234,12 @@ const TakedownPage = () => {
                 </VStack>
               </Box>
 
-              <Box p={4} bg="white" w="full" borderTop="1px solid" borderColor="gray.100">
+              <Box p={4} bg="white" _dark={{ bg: "gray.800" }} w="full" borderTop="1px solid" borderColor="gray.100">
                 <Flex gap={2}>
                   <Input
                     placeholder="Ketik pertanyaan Anda..."
                     variant="filled"
-                    bg="gray.100"
+                    bg="gray.100" _dark={{ bg: "gray.700" }}
                     borderRadius="full"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}

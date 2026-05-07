@@ -101,7 +101,7 @@ export default function PemerintahanPage({ previewData }) {
   }, [previewData]);
 
   return (
-    <Box pt={0} py={previewData ? 0 : 8} minH={previewData ? "auto" : "100vh"} bg="gray.50">
+    <Box pt={0} py={previewData ? 0 : 8} minH={previewData ? "auto" : "100vh"} bg="gray.50" _dark={{ bg: "gray.900" }}>
       {!previewData && (
         <SEO
           title="Pemerintahan"

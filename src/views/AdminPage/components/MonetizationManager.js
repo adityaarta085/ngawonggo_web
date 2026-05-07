@@ -58,7 +58,7 @@ const MonetizationManager = () => {
   if (loading) return <Text>Loading...</Text>;
 
   return (
-    <Box p={6} bg="white" borderRadius="xl" boxShadow="sm">
+    <Box p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm">
       <VStack align="stretch" spacing={8}>
         <Heading size="md">Pengaturan Batas & Harga (Monetisasi)</Heading>
 

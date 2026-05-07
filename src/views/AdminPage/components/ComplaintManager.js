@@ -167,7 +167,7 @@ const ComplaintManager = () => {
 
   if (selectedComplaint) {
     return (
-      <Box bg="white" p={6} borderRadius="xl" boxShadow="sm" h="700px" display="flex" flexDirection="column">
+      <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" boxShadow="sm" h="700px" display="flex" flexDirection="column">
         <HStack mb={4} justify="space-between" align="start">
           <VStack align="start" spacing={1}>
             <Button leftIcon={<FaArrowLeft />} variant="ghost" size="sm" onClick={() => setSelectedComplaint(null)}>Kembali</Button>
@@ -222,9 +222,9 @@ const ComplaintManager = () => {
   }
 
   return (
-    <Box bg="white" borderRadius="xl" boxShadow="sm" overflow="hidden">
+    <Box bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm" overflow="hidden">
       <Table variant="simple">
-        <Thead bg="gray.50">
+        <Thead bg="gray.50" _dark={{ bg: "gray.900" }}>
           <Tr>
             <Th>ID</Th>
             <Th>Nama & Kontak</Th>

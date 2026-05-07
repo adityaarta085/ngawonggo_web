@@ -84,7 +84,7 @@ const DonasiPage = () => {
           {loading ? (
             <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={8}>
               {[1, 2, 3].map(i => (
-                <Box key={i} p={4} boxShadow="md" borderRadius="xl" bg="white">
+                <Box key={i} p={4} boxShadow="md" borderRadius="xl" bg="white" _dark={{ bg: "gray.800" }}>
                   <Skeleton height="200px" mb={4} />
                   <Skeleton height="20px" mb={2} />
                   <Skeleton height="20px" w="80%" mb={4} />
@@ -94,7 +94,7 @@ const DonasiPage = () => {
               ))}
             </SimpleGrid>
           ) : campaigns.length === 0 ? (
-            <Center p={10} flexDirection="column" bg="white" borderRadius="xl" boxShadow="sm">
+            <Center p={10} flexDirection="column" bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm">
               <Icon as={FaHeart} w={10} h={10} color="gray.300" mb={3} />
               <Text color="gray.500">Belum ada campaign donasi yang aktif saat ini.</Text>
             </Center>

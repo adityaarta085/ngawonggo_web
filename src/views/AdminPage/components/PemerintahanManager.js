@@ -264,7 +264,7 @@ const PemerintahanManager = () => {
             <Box position="absolute" top={0} left={0} right={0} bg="brand.500" color="white" p={2} textAlign="center" zIndex={10}>
               <Text fontSize="sm" fontWeight="bold">PREVIEW MODE</Text>
             </Box>
-            <Box pt={8} h="full" overflowY="auto" bg="gray.50">
+            <Box pt={8} h="full" overflowY="auto" bg="gray.50" _dark={{ bg: "gray.900" }}>
                {/* Use the exact component, passing preview data */}
                <PemerintahanPage previewData={data} />
             </Box>

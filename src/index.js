@@ -4,7 +4,7 @@ import * as ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import * as serviceWorker from './serviceWorker';
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
 import theme from './theme';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -16,6 +16,7 @@ const root = ReactDOM.createRoot(container);
 
 root.render(
   <StrictMode>
+    <ColorModeScript initialColorMode={theme.config?.initialColorMode} />
     <ErrorBoundary>
       <HelmetProvider>
         <ChakraProvider theme={theme}>

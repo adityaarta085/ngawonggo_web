@@ -33,8 +33,8 @@ const CSLogin = ({ setCsSession }) => {
     };
 
     return (
-        <Box minH="100vh" bg="gray.50" display="flex" alignItems="center" justifyContent="center">
-            <Container maxW="md" bg="white" p={8} borderRadius="xl" boxShadow="lg">
+        <Box minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }} display="flex" alignItems="center" justifyContent="center">
+            <Container maxW="md" bg="white" _dark={{ bg: "gray.800" }} p={8} borderRadius="xl" boxShadow="lg">
                 <VStack spacing={6}>
                     <Image src="/logo192.png" h="60px" />
                     <Heading size="md">Login Customer Service</Heading>

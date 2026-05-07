@@ -30,7 +30,7 @@ import SEO from '../../components/SEO';
 
 const TermsConditions = () => {
   return (
-    <Box py={{ base: 20, md: 28 }} bg="gray.50" minH="100vh">
+    <Box py={{ base: 20, md: 28 }} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
       <SEO
         title="Syarat & Ketentuan Terperinci - Desa Ngawonggo"
         description="Dokumen hukum resmi mengenai syarat, ketentuan, hak, dan kewajiban pengguna Portal Desa Digital Ngawonggo."
@@ -49,7 +49,7 @@ const TermsConditions = () => {
         <Box
           layerStyle="glassCard"
           p={{ base: 6, md: 16 }}
-          bg="white"
+          bg="white" _dark={{ bg: "gray.800" }}
           borderRadius="3xl"
           boxShadow="soft"
         >
@@ -107,7 +107,7 @@ const TermsConditions = () => {
 
             <Accordion allowMultiple w="full">
               <AccordionItem border="none" mb={6}>
-                <AccordionButton p={6} bg="gray.50" borderRadius="2xl" _hover={{ bg: "gray.100" }}>
+                <AccordionButton p={6} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="2xl" _hover={{ bg: "gray.100" }}>
                   <Icon as={FaUserCheck} color="brand.500" mr={4} boxSize={5} />
                   <Box flex="1" textAlign="left" fontWeight="bold" fontSize="lg">
                     3. Kewajiban & Integritas Pengguna
@@ -126,7 +126,7 @@ const TermsConditions = () => {
               </AccordionItem>
 
               <AccordionItem border="none" mb={6}>
-                <AccordionButton p={6} bg="gray.50" borderRadius="2xl" _hover={{ bg: "gray.100" }}>
+                <AccordionButton p={6} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="2xl" _hover={{ bg: "gray.100" }}>
                   <Icon as={FaBalanceScale} color="brand.500" mr={4} boxSize={5} />
                   <Box flex="1" textAlign="left" fontWeight="bold" fontSize="lg">
                     4. Konten Digital & Kekayaan Intelektual
@@ -144,7 +144,7 @@ const TermsConditions = () => {
               </AccordionItem>
 
               <AccordionItem border="none" mb={6}>
-                <AccordionButton p={6} bg="gray.50" borderRadius="2xl" _hover={{ bg: "gray.100" }}>
+                <AccordionButton p={6} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="2xl" _hover={{ bg: "gray.100" }}>
                   <Icon as={FaExclamationTriangle} color="brand.500" mr={4} boxSize={5} />
                   <Box flex="1" textAlign="left" fontWeight="bold" fontSize="lg">
                     5. Batasan Kewajiban & Pemeliharaan (Takedown)

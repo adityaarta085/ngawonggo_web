@@ -206,7 +206,7 @@ const BroadcastManager = () => {
           {isSending && <Badge colorScheme="blue" p={2} borderRadius="md">Mengirim...</Badge>}
         </HStack>
 
-        <Box bg="white" p={6} borderRadius="xl" boxShadow="sm">
+        <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" boxShadow="sm">
           <VStack spacing={4} align="stretch">
             <FormControl isRequired>
               <FormLabel>Subject (Judul Email)</FormLabel>
@@ -228,7 +228,7 @@ const BroadcastManager = () => {
                     placeholder="Instruksi AI (contoh: Buatkan email undangan rapat desa...)"
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
-                    bg="white"
+                    bg="white" _dark={{ bg: "gray.800" }}
                     size="sm"
                     isDisabled={isSending || isAiLoading}
                   />
@@ -251,7 +251,7 @@ const BroadcastManager = () => {
                   <Tab>HTML Editor</Tab>
                   <Tab>Preview</Tab>
                 </TabList>
-                <TabPanels bg="white" color="black" border="1px" borderColor="gray.200" borderTop="none" borderBottomRadius="md">
+                <TabPanels bg="white" color="black" _dark={{ bg: "gray.800", color: "white" }} border="1px" borderColor="gray.200" borderTop="none" borderBottomRadius="md">
                   <TabPanel p={0}>
                     <ReactQuill
                       theme="snow"
@@ -329,7 +329,7 @@ const BroadcastManager = () => {
 
                   <Box maxH="300px" overflowY="auto">
                     <Table size="sm" variant="simple">
-                      <Thead position="sticky" top={0} bg="white" zIndex={1}>
+                      <Thead position="sticky" top={0} bg="white" _dark={{ bg: "gray.800" }} zIndex={1}>
                         <Tr>
                           <Th width="40px">
                             <Checkbox

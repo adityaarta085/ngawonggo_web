@@ -143,9 +143,9 @@ const NewsManager = () => {
         </Button>
       </HStack>
 
-      <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
+      <Box bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm" overflowX="auto">
         <Table variant="simple">
-          <Thead bg="gray.50">
+          <Thead bg="gray.50" _dark={{ bg: "gray.900" }}>
             <Tr>
               <Th>Gambar</Th>
               <Th>Judul</Th>
@@ -221,7 +221,7 @@ const NewsManager = () => {
                 </HStack>
                 <FormControl isRequired>
                   <FormLabel>Konten Berita</FormLabel>
-                  <Box bg="white" color="black">
+                  <Box bg="white" color="black" _dark={{ bg: "gray.800", color: "white" }}>
                     <ReactQuill
                       theme="snow"
                       value={formData.content}

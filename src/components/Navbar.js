@@ -26,6 +26,7 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
+import { ColorModeSwitcher } from '../ColorModeSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
 import { FaUserCircle, FaLock } from 'react-icons/fa';
@@ -133,6 +134,7 @@ const Navbar = ({ user, isScrolled }) => {
             direction={'row'}
             spacing={4}
           >
+            <ColorModeSwitcher justifySelf="flex-end" />
              {user ? (
                 <Tooltip label="Portal Warga" placement="bottom" hasArrow>
                    <Button
@@ -298,6 +300,7 @@ const MobileNav = ({ navItems, user, onClose }) => {
       maxH="70vh"
       overflowY="auto"
     >
+      <ColorModeSwitcher alignSelf="center" mb={4} />
       {user ? (
           <Button
             key="portal-btn"

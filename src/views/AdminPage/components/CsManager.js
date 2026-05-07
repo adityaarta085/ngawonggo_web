@@ -167,9 +167,9 @@ const CsManager = () => {
         </Button>
       </Flex>
 
-      <Box bg="white" borderRadius="xl" boxShadow="sm" overflow="hidden" border="1px solid" borderColor="gray.100">
+      <Box bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm" overflow="hidden" border="1px solid" borderColor="gray.100">
         <Table variant="simple">
-          <Thead bg="gray.50">
+          <Thead bg="gray.50" _dark={{ bg: "gray.900" }}>
             <Tr>
               <Th>Profil</Th>
               <Th>Username</Th>

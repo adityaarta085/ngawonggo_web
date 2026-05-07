@@ -67,7 +67,7 @@ const ComplaintTrack = () => {
           <Button leftIcon={<FaArrowLeft />} variant="ghost" mb={6} onClick={() => navigate(-1)}>
             Kembali
           </Button>
-          <Box p={{ base: 6, md: 10 }} bg="white" borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" textAlign="center">
+          <Box p={{ base: 6, md: 10 }} bg="white" _dark={{ bg: "gray.800" }} borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" textAlign="center">
               <Icon as={FaSearch} boxSize={16} color="brand.500" mb={6} />
               <Heading size="lg" color="brand.500" mb={4}>Login Diperlukan</Heading>
               <Text fontSize="md" color="gray.600" mb={8}>

@@ -260,7 +260,7 @@ const DonasiDetail = () => {
                   </Heading>
                   <VStack align="stretch" spacing={4}>
                       {donators.map((d) => (
-                          <Box key={d.id} p={4} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                          <Box key={d.id} p={4} borderWidth="1px" borderRadius="lg" bg="gray.50" _dark={{ bg: "gray.900" }}>
                               <Flex justify="space-between" align="center" mb={2}>
                                   <Text fontWeight="bold">{d.name}</Text>
                                   <Text color="gray.500" fontSize="sm">{new Date(d.created_at).toLocaleDateString('id-ID')}</Text>
@@ -358,7 +358,7 @@ const DonasiDetail = () => {
                                 <Heading size="md">Menunggu Pembayaran...</Heading>
                                 <Text color="gray.600">Silakan selesaikan pembayaran Anda sebelum waktu habis. Halaman akan otomatis refresh setelah pembayaran berhasil.</Text>
 
-                        <Box bg="gray.50" p={4} borderRadius="lg" w="full">
+                        <Box bg="gray.50" _dark={{ bg: "gray.900" }} p={4} borderRadius="lg" w="full">
                             <Text fontSize="sm" color="gray.500">Nominal</Text>
                             <Heading size="md" mb={2}>{formatRupiah(paymentData.amount)}</Heading>
                             <Text fontSize="sm" color="gray.500">ID Transaksi</Text>
@@ -366,7 +366,7 @@ const DonasiDetail = () => {
                         </Box>
 
                         {paymentData.qr_image && (
-                            <Box border="1px solid" borderColor="gray.200" p={4} borderRadius="lg" bg="white" position="relative">
+                            <Box border="1px solid" borderColor="gray.200" p={4} borderRadius="lg" bg="white" _dark={{ bg: "gray.800" }} position="relative">
                                 <Text fontSize="sm" fontWeight="bold" mb={2}><Icon as={FaQrcode} /> Scan QRIS</Text>
                                 <Image src={paymentData.qr_image} alt="QRIS" boxSize="200px" objectFit="contain" />
 

@@ -82,7 +82,7 @@ const MediaPage = () => {
   };
 
   return (
-    <Box  pt={0} pb={32} bg="gray.50" minH="100vh">
+    <Box  pt={0} pb={32} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
           <Box textAlign="center">
@@ -129,7 +129,7 @@ const MediaPage = () => {
                         <FaBroadcastTower />
                       </Flex>
                       <Box>
-                        <Heading size="lg" color="gray.800">Radio Gemilang</Heading>
+                        <Heading size="lg" color="gray.800" _dark={{ color: "white" }}>Radio Gemilang</Heading>
                         <Text color="brand.500" fontWeight="800">98.6 FM</Text>
                       </Box>
                       <HStack spacing={6}>
@@ -180,7 +180,7 @@ const MediaPage = () => {
                   </div>
                 </Box>
                 <Box mt={10} p={10} layerStyle="glassCard">
-                  <Heading size="lg" mb={4} color="gray.800">TVRI Nasional</Heading>
+                  <Heading size="lg" mb={4} color="gray.800" _dark={{ color: "white" }}>TVRI Nasional</Heading>
                   <Text color="gray.600" fontSize="lg" lineHeight="relaxed">
                     Saksikan siaran TVRI Nasional secara langsung. Menghadirkan berita nasional, program kebudayaan, dan edukasi untuk seluruh rakyat Indonesia. Media pemersatu bangsa kini hadir dalam genggaman Anda.
                   </Text>

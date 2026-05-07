@@ -48,7 +48,7 @@ const PaywallModal = ({ isOpen, onClose, title, message, price, currencyType, on
             />
             <Text color="gray.600">{message}</Text>
 
-            <HStack bg="gray.50" p={4} borderRadius="xl" w="full" justify="space-between">
+            <HStack bg="gray.50" _dark={{ bg: "gray.900" }} p={4} borderRadius="xl" w="full" justify="space-between">
                 <Text fontWeight="bold" color="gray.600">Saldo Anda:</Text>
                 <HStack>
                     <Icon as={currencyType === 'coins' ? FaCoins : FaTicketAlt} color={currencyType === 'coins' ? 'yellow.400' : 'blue.400'} />

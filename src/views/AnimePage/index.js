@@ -36,7 +36,7 @@ const AnimeGrid = ({ items, showScore = false }) => {
                         </Badge>
                     )}
                 </Box>
-                <Box p={4} bg="white">
+                <Box p={4} bg="white" _dark={{ bg: "gray.800" }}>
                     <LinkOverlay as={RouterLink} to={`/anime/samehadaku/detail/${slug}`}>
                         <Text fontWeight="bold" noOfLines={2} fontSize="sm">{title}</Text>
                     </LinkOverlay>
@@ -130,7 +130,7 @@ const AnimePage = () => {
                         placeholder="Cari judul anime (contoh: One Piece)..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        bg="white"
+                        bg="white" _dark={{ bg: "gray.800" }}
                         borderRadius="full"
                         pr="4.5rem"
                     />

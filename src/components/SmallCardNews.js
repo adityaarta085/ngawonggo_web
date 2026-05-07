@@ -36,9 +36,9 @@ const SmallCardNews = ({ news }) => {
           boxShadow: 'md'
         }}
         size={{ base: "sm" }}
-        bg="white"
+        bg="white" _dark={{ bg: "gray.800" }}
       >
-        <Box w={{ base: '100%', sm: '120px', md: '150px' }} h={{ base: '120px', sm: 'full' }} overflow="hidden" bg="gray.100">
+        <Box w={{ base: '100%', sm: '120px', md: '150px' }} h={{ base: '120px', sm: 'full' }} overflow="hidden" bg="gray.100" _dark={{ bg: "gray.700" }}>
             <Image
               objectFit="cover"
               src={news.image || news.image_url || fallbackImage}

@@ -56,7 +56,7 @@ const SortGame = ({ onFinish }) => {
 
   if (isFinished) {
     return (
-      <VStack spacing={6} p={8} bg="white" borderRadius="2xl" textAlign="center" boxShadow="xl">
+      <VStack spacing={6} p={8} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" textAlign="center" boxShadow="xl">
         <Heading color="brand.500">Permainan Selesai!</Heading>
         <Text fontSize="xl">Kamu berhasil menyortir {score} dari {items.length} teknologi.</Text>
         <Button colorScheme="brand" onClick={() => {
@@ -72,7 +72,7 @@ const SortGame = ({ onFinish }) => {
   const currentItem = items[currentIndex];
 
   return (
-    <Box p={6} bg="white" borderRadius="2xl" boxShadow="xl" w="full" maxW="500px">
+    <Box p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" boxShadow="xl" w="full" maxW="500px">
       <VStack spacing={8}>
         <VStack spacing={2}>
           <Heading size="md" color="brand.500">Sortir Digital vs Analog</Heading>
@@ -81,7 +81,7 @@ const SortGame = ({ onFinish }) => {
 
         <Box
           p={10}
-          bg="gray.50"
+          bg="gray.50" _dark={{ bg: "gray.900" }}
           borderRadius="2xl"
           w="full"
           textAlign="center"

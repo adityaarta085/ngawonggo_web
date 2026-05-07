@@ -47,7 +47,7 @@ const GameDetail = () => {
         <MotionBox
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          bg="white"
+          bg="white" _dark={{ bg: "gray.800" }}
           p={{ base: 6, md: 10 }}
           borderRadius="3xl"
           boxShadow="xl"
@@ -74,12 +74,12 @@ const GameDetail = () => {
                 <Badge colorScheme="gray" borderRadius="full" px={3}>{game.category}</Badge>
                 <Badge colorScheme={game.difficulty === 'Mudah' ? 'green' : 'orange'} borderRadius="full" px={3}>{game.difficulty}</Badge>
               </HStack>
-              <Heading size="xl" fontWeight="900" color="gray.800">{game.title}</Heading>
+              <Heading size="xl" fontWeight="900" color="gray.800" _dark={{ color: "white" }}>{game.title}</Heading>
               <Text color="gray.600" fontSize="md" lineHeight="tall">{game.longDesc}</Text>
             </VStack>
           </Flex>
 
-          <Box bg="gray.50" p={6} borderRadius="2xl" mb={8}>
+          <Box bg="gray.50" _dark={{ bg: "gray.900" }} p={6} borderRadius="2xl" mb={8}>
             <Heading size="sm" mb={4} color="gray.700" display="flex" alignItems="center" gap={2}>
               <Icon as={FaCheckCircle} color="brand.500" /> Cara Bermain:
             </Heading>

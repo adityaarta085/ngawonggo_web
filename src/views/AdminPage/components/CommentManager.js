@@ -84,9 +84,9 @@ const CommentManager = () => {
   };
 
   return (
-    <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
+    <Box bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm" overflowX="auto">
       <Table variant="simple">
-        <Thead bg="gray.50">
+        <Thead bg="gray.50" _dark={{ bg: "gray.900" }}>
           <Tr>
             <Th>User</Th>
             <Th>Komentar</Th>
@@ -139,7 +139,7 @@ const CommentManager = () => {
           <ModalHeader>Balas Komentar</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text fontSize="sm" mb={4} p={3} bg="gray.50" borderRadius="md">
+            <Text fontSize="sm" mb={4} p={3} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="md">
               <strong>{replyingTo?.name}:</strong> {replyingTo?.content}
             </Text>
             <Textarea

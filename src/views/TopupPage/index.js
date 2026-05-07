@@ -180,7 +180,7 @@ const TopupPage = () => {
   };
 
   return (
-    <Box minH="100vh" bg="gray.50" py={{ base: 24, md: 32 }}>
+    <Box minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }} py={{ base: 24, md: 32 }}>
       <SEO title="Kios Koin Desa" description="Topup Koin Desa Ngawonggo dengan aman dan cepat via QRIS." />
       <Container maxW="container.lg">
         <VStack spacing={8} align="stretch">
@@ -194,7 +194,7 @@ const TopupPage = () => {
               {/* Left Column - Input & History */}
               <VStack spacing={6} align="stretch" gridColumn={{ lg: 'span 1' }}>
                   {/* User Verification Box */}
-                  <Box p={6} bg="white" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+                  <Box p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
                       <HStack mb={4}>
                           <Badge colorScheme="brand" borderRadius="full" w={6} h={6} display="flex" alignItems="center" justify="center">1</Badge>
                           <Heading size="md">ID Tujuan</Heading>
@@ -205,7 +205,7 @@ const TopupPage = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             size="lg"
-                            bg="gray.50"
+                            bg="gray.50" _dark={{ bg: "gray.900" }}
                           />
                           <Button
                             leftIcon={<FaSearch />}
@@ -234,14 +234,14 @@ const TopupPage = () => {
 
                   {/* History Box */}
                   {targetUser && (
-                      <Box p={6} bg="white" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+                      <Box p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
                           <HStack mb={4}>
                               <Icon as={FaHistory} color="gray.500" />
                               <Heading size="sm">Riwayat Topup Terakhir</Heading>
                           </HStack>
                           <VStack align="stretch" spacing={3}>
                               {history.map((h, i) => (
-                                  <Flex key={i} justify="space-between" align="center" p={2} bg="gray.50" borderRadius="lg">
+                                  <Flex key={i} justify="space-between" align="center" p={2} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="lg">
                                       <VStack align="start" spacing={0}>
                                           <Text fontSize="xs" fontWeight="bold" color="green.600">+{h.quantity} Koin</Text>
                                           <Text fontSize="10px" color="gray.500">{new Date(h.created_at).toLocaleDateString()}</Text>
@@ -257,7 +257,7 @@ const TopupPage = () => {
 
               {/* Right Column - Packages & Payment */}
               <VStack spacing={6} align="stretch" gridColumn={{ lg: 'span 2' }}>
-                  <Box p={6} bg="white" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100" opacity={!targetUser ? 0.5 : 1} pointerEvents={!targetUser ? 'none' : 'auto'}>
+                  <Box p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100" opacity={!targetUser ? 0.5 : 1} pointerEvents={!targetUser ? 'none' : 'auto'}>
                       <HStack mb={6}>
                           <Badge colorScheme="brand" borderRadius="full" w={6} h={6} display="flex" alignItems="center" justify="center">2</Badge>
                           <Heading size="md">Pilih Nominal Topup</Heading>
@@ -289,7 +289,7 @@ const TopupPage = () => {
                       </SimpleGrid>
                   </Box>
 
-                  <Box p={6} bg="white" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100" opacity={!selectedPackage ? 0.5 : 1} pointerEvents={!selectedPackage ? 'none' : 'auto'}>
+                  <Box p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100" opacity={!selectedPackage ? 0.5 : 1} pointerEvents={!selectedPackage ? 'none' : 'auto'}>
                       <HStack mb={4}>
                           <Badge colorScheme="brand" borderRadius="full" w={6} h={6} display="flex" alignItems="center" justify="center">3</Badge>
                           <Heading size="md">Metode Pembayaran</Heading>
@@ -337,17 +337,17 @@ const TopupPage = () => {
                   <Text fontSize="xs" color="gray.500">Selesaikan sebelum waktu habis</Text>
               </VStack>
 
-              <Box p={4} bg="white" borderRadius="xl" boxShadow="lg" border="1px solid" borderColor="gray.100">
+              <Box p={4} bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="lg" border="1px solid" borderColor="gray.100">
                   {qrisData?.qr_url ? (
                       <Image src={qrisData.qr_url} alt="QRIS" boxSize="250px" />
                   ) : (
-                      <Center boxSize="250px" bg="gray.50" borderRadius="lg">
+                      <Center boxSize="250px" bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="lg">
                           <Text color="gray.400">QR Code Error</Text>
                       </Center>
                   )}
               </Box>
 
-              <VStack w="full" spacing={2} bg="gray.50" p={4} borderRadius="xl">
+              <VStack w="full" spacing={2} bg="gray.50" _dark={{ bg: "gray.900" }} p={4} borderRadius="xl">
                   <HStack justify="space-between" w="full">
                       <Text color="gray.500" fontSize="sm">ID Transaksi:</Text>
                       <Text fontWeight="bold" fontSize="xs" color="gray.700" noOfLines={1}>{qrisData?.payment_reference || '-'}</Text>

@@ -64,7 +64,7 @@ const GameDashboard = () => {
           Kembali ke Hub
         </Button>
 
-        <Box bg="white" p={8} borderRadius="3xl" boxShadow="soft">
+        <Box bg="white" _dark={{ bg: "gray.800" }} p={8} borderRadius="3xl" boxShadow="soft">
           <VStack align="start" spacing={6} mb={8}>
             <Heading size="xl" display="flex" alignItems="center" gap={3}>
               <Icon as={FaTrophy} color="orange.400" />
@@ -80,7 +80,7 @@ const GameDashboard = () => {
               <Spinner size="xl" color="brand.500" />
             </Box>
           ) : scores.length === 0 ? (
-            <Box py={10} textAlign="center" bg="gray.50" borderRadius="xl">
+            <Box py={10} textAlign="center" bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="xl">
               <Text color="gray.500" fontWeight="bold">Belum ada data permainan.</Text>
               <Text color="gray.400" fontSize="sm">Ayo mainkan game edukasi sekarang!</Text>
             </Box>

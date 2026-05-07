@@ -118,9 +118,9 @@ const AnnouncementManager = () => {
         </Button>
       </HStack>
 
-      <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
+      <Box bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm" overflowX="auto">
         <Table variant="simple">
-          <Thead bg="gray.50">
+          <Thead bg="gray.50" _dark={{ bg: "gray.900" }}>
             <Tr>
               <Th>Isi Pengumuman</Th>
               <Th>Status</Th>

@@ -173,7 +173,7 @@ const CustomContextMenu = () => {
         <Box
             ref={contextRef}
             style={menuStyle}
-            bg="white"
+            bg="white" _dark={{ bg: "gray.800" }}
             boxShadow="xl"
             borderRadius="md"
             overflow="hidden"

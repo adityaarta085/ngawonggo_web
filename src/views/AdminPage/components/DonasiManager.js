@@ -205,7 +205,7 @@ const DonasiManager = () => {
         </HStack>
       </HStack>
 
-      <Box overflowX="auto" bg="white" shadow="sm" rounded="lg" p={4}>
+      <Box overflowX="auto" bg="white" _dark={{ bg: "gray.800" }} shadow="sm" rounded="lg" p={4}>
         <Table variant="simple">
           <Thead>
             <Tr>
@@ -332,7 +332,7 @@ const DonasiManager = () => {
           <ModalCloseButton />
           <ModalBody>
             {walletInfo && (
-                <StatGroup mb={6} p={4} borderWidth="1px" borderRadius="lg" bg="gray.50">
+                <StatGroup mb={6} p={4} borderWidth="1px" borderRadius="lg" bg="gray.50" _dark={{ bg: "gray.900" }}>
                     <Stat>
                         <StatLabel>Nama Akun</StatLabel>
                         <Text fontWeight="bold">{walletInfo.name}</Text>

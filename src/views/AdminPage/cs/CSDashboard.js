@@ -140,9 +140,9 @@ const CSDashboard = ({ csSession, setCsSession }) => {
   };
 
   return (
-    <Flex h="100vh" bg="gray.100">
+    <Flex h="100vh" bg="gray.100" _dark={{ bg: "gray.700" }}>
       {/* Sidebar List */}
-      <Box w="300px" bg="white" borderRight="1px solid" borderColor="gray.200" display="flex" flexDirection="column">
+      <Box w="300px" bg="white" _dark={{ bg: "gray.800" }} borderRight="1px solid" borderColor="gray.200" display="flex" flexDirection="column">
          <Box p={4} bg="blue.600" color="white">
             <Flex justify="space-between" align="center">
                 <HStack>
@@ -180,7 +180,7 @@ const CSDashboard = ({ csSession, setCsSession }) => {
             <Text fontSize="xs" fontWeight="bold" color="gray.500" mb={2} px={2}>ANTRIAN ({queue.length})</Text>
             <VStack align="stretch" spacing={2}>
                 {queue.map(c => (
-                    <Box key={c.chat_id} p={3} bg="white" borderRadius="md" border="1px solid" borderColor="gray.200">
+                    <Box key={c.chat_id} p={3} bg="white" _dark={{ bg: "gray.800" }} borderRadius="md" border="1px solid" borderColor="gray.200">
                         <Text fontSize="sm" fontWeight="bold" isTruncated>{c.user_id ? 'Pengguna Terdaftar' : 'User Anonim'}</Text>
                         <Text fontSize="xs" color="gray.500" mt={1}>Keluhan: {c.summary}</Text>
                         <Text fontSize="xs" color="red.400" mt={1}>Alasan: {c.reason}</Text>
@@ -195,11 +195,11 @@ const CSDashboard = ({ csSession, setCsSession }) => {
       </Box>
 
       {/* Chat Panel */}
-      <Flex flex={1} direction="column" bg="white">
+      <Flex flex={1} direction="column" bg="white" _dark={{ bg: "gray.800" }}>
         {selectedChat ? (
             <>
               {/* Header */}
-              <Box p={4} borderBottom="1px solid" borderColor="gray.200" bg="white">
+              <Box p={4} borderBottom="1px solid" borderColor="gray.200" bg="white" _dark={{ bg: "gray.800" }}>
                   <Flex justify="space-between" align="center">
                       <VStack align="start" spacing={0}>
                           <Heading size="md">{selectedChat.user_id ? 'Pengguna Terdaftar' : 'User Anonim'}</Heading>
@@ -210,7 +210,7 @@ const CSDashboard = ({ csSession, setCsSession }) => {
               </Box>
 
               {/* Messages */}
-              <Box flex={1} overflowY="auto" p={6} bg="gray.50" ref={scrollRef}>
+              <Box flex={1} overflowY="auto" p={6} bg="gray.50" _dark={{ bg: "gray.900" }} ref={scrollRef}>
                   <VStack spacing={4} align="stretch">
                       {messages.map(m => {
                           const isMe = m.sender === csSession.username;
@@ -239,7 +239,7 @@ const CSDashboard = ({ csSession, setCsSession }) => {
               </Box>
 
               {/* Input */}
-              <Box p={4} bg="white" borderTop="1px solid" borderColor="gray.200">
+              <Box p={4} bg="white" _dark={{ bg: "gray.800" }} borderTop="1px solid" borderColor="gray.200">
                   <HStack>
                       <Input
                           placeholder="Ketik balasan..."
@@ -255,7 +255,7 @@ const CSDashboard = ({ csSession, setCsSession }) => {
                               }
                           }}
                           onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                          bg="gray.50"
+                          bg="gray.50" _dark={{ bg: "gray.900" }}
                       />
                       <IconButton colorScheme="blue" icon={<FaPaperPlane />} onClick={handleSend} aria-label="send" />
                   </HStack>

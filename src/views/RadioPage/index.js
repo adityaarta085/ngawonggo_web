@@ -99,7 +99,7 @@ export default function RadioPage() {
             >
               <VStack spacing={4}>
                 <Box
-                  bg="white"
+                  bg="white" _dark={{ bg: "gray.800" }}
                   borderRadius="full"
                   p={6}
                   boxShadow="xl"

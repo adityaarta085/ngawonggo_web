@@ -83,7 +83,7 @@ const DashboardStats = () => {
       </SimpleGrid>
 
       <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8}>
-        <Box bg="white" p={6} borderRadius="2xl" boxShadow="sm">
+        <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="2xl" boxShadow="sm">
           <Heading size="sm" mb={6}>Statistik Pengunjung (7 Hari Terakhir)</Heading>
           <Box h="300px">
             <ResponsiveContainer width="100%" height="100%">
@@ -98,7 +98,7 @@ const DashboardStats = () => {
           </Box>
         </Box>
 
-        <Box bg="white" p={6} borderRadius="2xl" boxShadow="sm">
+        <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="2xl" boxShadow="sm">
           <Heading size="sm" mb={6}>Halaman Paling Banyak Dikunjungi</Heading>
           <Table variant="simple" size="sm">
             <Thead>
@@ -123,7 +123,7 @@ const DashboardStats = () => {
 };
 
 const StatCard = ({ label, number, icon, color }) => (
-  <Box bg="white" p={6} borderRadius="2xl" boxShadow="sm">
+  <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="2xl" boxShadow="sm">
     <Stat>
       <HStack justify="space-between">
         <Box>

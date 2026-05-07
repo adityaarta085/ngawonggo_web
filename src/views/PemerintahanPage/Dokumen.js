@@ -63,7 +63,7 @@ export default function DokumenPage() {
   });
 
   return (
-    <Box pt={0} py={8} minH="100vh" bg="gray.50">
+    <Box pt={0} py={8} minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }}>
       <SEO
         title="Dokumen & Analitik Data"
         description="Dokumen publikasi, analitik data, dan transparansi Pemerintahan Desa Ngawonggo."
@@ -90,7 +90,7 @@ export default function DokumenPage() {
                   placeholder="Cari dokumen..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  bg="white"
+                  bg="white" _dark={{ bg: "gray.800" }}
                   border="none"
                 />
               </InputGroup>
@@ -103,7 +103,7 @@ export default function DokumenPage() {
                   type="date"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
-                  bg="white"
+                  bg="white" _dark={{ bg: "gray.800" }}
                   border="none"
                 />
               </InputGroup>
@@ -122,7 +122,7 @@ export default function DokumenPage() {
             ) : filteredDocs.length > 0 ? (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
                 {filteredDocs.map((doc) => (
-                  <Box key={doc.id} p={6} borderRadius="xl" bg="white" border="1px solid" borderColor="gray.200" boxShadow="sm" position="relative" display="flex" flexDirection="column">
+                  <Box key={doc.id} p={6} borderRadius="xl" bg="white" _dark={{ bg: "gray.800" }} border="1px solid" borderColor="gray.200" boxShadow="sm" position="relative" display="flex" flexDirection="column">
                     <HStack mb={3}>
                       <Icon as={FaFilePdf} color="red.500" boxSize={6} />
                       <Heading size="sm" isTruncated>{doc.title}</Heading>

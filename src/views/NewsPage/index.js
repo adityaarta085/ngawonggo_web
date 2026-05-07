@@ -67,7 +67,7 @@ export default function NewsPage() {
   if (loading) return <Loading fullPage />;
 
   return (
-    <Box  pt={0} minH="100vh" bg="gray.50" pb={20}>
+    <Box  pt={0} minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }} pb={20}>
       <SEO
         title="Berita Terkini"
         description="Pantau berita dan informasi terbaru seputar kegiatan, pembangunan, dan pengumuman resmi dari Desa Ngawonggo."
@@ -164,7 +164,7 @@ export default function NewsPage() {
                 <HStack mb={8} spacing={6}>
                   <Flex align="center" gap={3}>
                     <Icon as={FaNewspaper} color="brand.500" w={6} h={6} />
-                    <Heading size="lg" textTransform="capitalize" color="gray.800" fontWeight="900" letterSpacing="tight">
+                    <Heading size="lg" textTransform="capitalize" color="gray.800" _dark={{ color: "white" }} fontWeight="900" letterSpacing="tight">
                         {category}
                     </Heading>
                   </Flex>
@@ -208,7 +208,7 @@ export default function NewsPage() {
               <HStack mb={8} spacing={6}>
                 <Flex align="center" gap={3}>
                   <Icon as={FaNewspaper} color="blue.500" w={6} h={6} />
-                  <Heading size="lg" color="gray.800" fontWeight="900" letterSpacing="tight">
+                  <Heading size="lg" color="gray.800" _dark={{ color: "white" }} fontWeight="900" letterSpacing="tight">
                       Berita Nasional Terbaru
                   </Heading>
                 </Flex>

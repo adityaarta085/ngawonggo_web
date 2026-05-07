@@ -27,11 +27,11 @@ const ContactInfo = ({ icon, label, value, href }) => {
       <VStack align="start" spacing={0}>
         <Text fontWeight="800" color="gray.400" fontSize="xs" textTransform="uppercase" letterSpacing="widest" mb={1}>{label}</Text>
         {href ? (
-          <Link href={href} isExternal color="gray.800" fontWeight="700" fontSize="md" _hover={{ color: 'brand.500' }}>
+          <Link href={href} isExternal color="gray.800" _dark={{ color: "white" }} fontWeight="700" fontSize="md" _hover={{ color: 'brand.500' }}>
             {value}
           </Link>
         ) : (
-          <Text color="gray.800" fontWeight="700" fontSize="md">{value}</Text>
+          <Text color="gray.800" _dark={{ color: "white" }} fontWeight="700" fontSize="md">{value}</Text>
         )}
       </VStack>
     </HStack>
@@ -40,7 +40,7 @@ const ContactInfo = ({ icon, label, value, href }) => {
 
 const KontakPage = () => {
   return (
-    <Box pt={0} bg="gray.50" minH="100vh">
+    <Box pt={0} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
       <SEO
         title="Kontak"
         description="Hubungi Pemerintah Desa Ngawonggo. Informasi alamat kantor desa, nomor telepon, WhatsApp center, email, dan media sosial resmi."
@@ -88,7 +88,7 @@ const KontakPage = () => {
           >
             <VStack align="start" spacing={10}>
               <Box>
-                <Heading size="lg" color="gray.800" mb={4}>Informasi Kontak</Heading>
+                <Heading size="lg" color="gray.800" _dark={{ color: "white" }} mb={4}>Informasi Kontak</Heading>
                 <Text color="gray.500">Saluran komunikasi resmi Pemerintah Desa Ngawonggo.</Text>
               </Box>
 
@@ -129,7 +129,7 @@ const KontakPage = () => {
             gap={8}
           >
             <Box p={{ base: 8, md: 12 }} layerStyle="glassCard" flex={1}>
-              <Heading size="lg" color="gray.800" mb={8}>Media Sosial</Heading>
+              <Heading size="lg" color="gray.800" _dark={{ color: "white" }} mb={8}>Media Sosial</Heading>
               <HStack spacing={6}>
                 <Link href="https://instagram.com/ngawonggo" isExternal _hover={{ transform: 'scale(1.1)' }} transition="0.3s">
                   <Flex w={16} h={16} bg="pink.50" borderRadius="2xl" align="center" justify="center" boxShadow="sm">

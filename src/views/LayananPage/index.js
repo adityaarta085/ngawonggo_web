@@ -99,7 +99,7 @@ export default function LayananPage() {
                 src="https://web.komdigi.go.id/resource/dXBsb2Fkcy8yMDI1LzIvMjEvOTFhZGU2OGEtY2JlNS00YjhmLTgzOTEtZDcxNmQ3ZDRmYWVkLnBuZw=="
                 alt="Logo LAPOR"
                 h="50px"
-                bg="white"
+                bg="white" _dark={{ bg: "gray.800" }}
                 p={2}
                 borderRadius="md"
                 boxShadow="sm"

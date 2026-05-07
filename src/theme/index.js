@@ -1,6 +1,15 @@
 import { extendTheme } from '@chakra-ui/react';
+import { mode } from '@chakra-ui/theme-tools';
+
+
+
+const config = {
+  initialColorMode: 'light',
+  useSystemColorMode: false,
+};
 
 const theme = extendTheme({
+  config,
   fonts: {
     heading: '"Plus Jakarta Sans", sans-serif',
     body: '"Inter", sans-serif',
@@ -14,6 +23,10 @@ const theme = extendTheme({
   layerStyles: {
     glass: {
       bg: 'rgba(255, 255, 255, 0.7)',
+      _dark: {
+        bg: 'rgba(26, 32, 44, 0.7)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+      },
       backdropFilter: 'blur(20px) saturate(180%)',
       WebkitBackdropFilter: 'blur(20px) saturate(180%)',
       border: '1px solid rgba(255, 255, 255, 0.3)',
@@ -21,6 +34,10 @@ const theme = extendTheme({
     },
     glassCard: {
       bg: 'rgba(255, 255, 255, 0.8)',
+      _dark: {
+        bg: 'rgba(26, 32, 44, 0.8)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+      },
       backdropFilter: 'blur(12px)',
       WebkitBackdropFilter: 'blur(12px)',
       border: '1px solid rgba(255, 255, 255, 0.5)',
@@ -42,6 +59,10 @@ const theme = extendTheme({
     },
     liquidGlass: {
       bg: 'rgba(255, 255, 255, 0.45)',
+      _dark: {
+        bg: 'rgba(26, 32, 44, 0.45)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+      },
       backdropFilter: 'blur(30px) saturate(210%)',
       WebkitBackdropFilter: 'blur(30px) saturate(210%)',
       border: '1px solid rgba(255, 255, 255, 0.25)',
@@ -72,25 +93,25 @@ const theme = extendTheme({
     },
   },
   styles: {
-    global: {
+    global: (props) => ({
       body: {
-        bg: 'white',
-        color: 'gray.800',
+        bg: mode('white', 'gray.900')(props),
+        color: mode('gray.800', 'whiteAlpha.900')(props),
         overflowX: 'hidden',
       },
       '::selection': {
-        bg: 'brand.100',
-        color: 'brand.700',
+        bg: mode('brand.100', 'brand.900')(props),
+        color: mode('brand.700', 'brand.100')(props),
       },
       '.glass-hover': {
         transition: 'all 0.3s ease',
         _hover: {
-          bg: 'rgba(255, 255, 255, 0.9)',
+          bg: mode('rgba(255, 255, 255, 0.9)', 'rgba(26, 32, 44, 0.9)')(props),
           transform: 'translateY(-2px)',
           boxShadow: 'xl',
         }
       }
-    },
+    }),
   },
   components: {
     Button: {
