@@ -25,7 +25,7 @@ const TokoPage = () => {
             </Button>
 
             <VStack spacing={8} align="stretch">
-                <HStack justify="space-between" bg="white" p={6} borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+                <HStack justify="space-between" bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
                     <VStack align="start" spacing={1}>
                         <Text color="gray.500" fontWeight="bold">Koin Anda</Text>
                         <HStack color="yellow.500">
@@ -50,7 +50,7 @@ const TokoPage = () => {
                         </VStack>
                     </Box>
 
-                    <Box p={6} bg="white" borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.200">
+                    <Box p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" boxShadow="sm" border="1px solid" borderColor="gray.200">
                         <VStack align="start" spacing={4}>
                             <Icon as={FaCrown} boxSize={10} color="purple.500" />
                             <Box>
@@ -95,7 +95,7 @@ const TokoPage = () => {
                                         placeholder="Email teman..."
                                         value={giftEmail}
                                         onChange={(e) => setGiftEmail(e.target.value)}
-                                        bg="white"
+                                        bg="white" _dark={{ bg: "gray.800" }}
                                     />
                                     <Button
                                         size="sm"

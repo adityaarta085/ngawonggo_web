@@ -185,7 +185,7 @@ const DownloadSection = () => {
   };
 
   return (
-    <Box mt={10} p={8} borderRadius="2xl" bg="white" border="1px solid" borderColor="gray.100" boxShadow="xl">
+    <Box mt={10} p={8} borderRadius="2xl" bg="white" _dark={{ bg: "gray.800" }} border="1px solid" borderColor="gray.100" boxShadow="xl">
       <VStack align="start" spacing={8}>
         <Box>
           <Heading size="lg" color="green.600" mb={2}>{t.downloadTitle}</Heading>
@@ -194,8 +194,8 @@ const DownloadSection = () => {
 
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={10} w="full">
           {/* Logo Section */}
-          <VStack align="center" p={6} bg="gray.50" rounded="xl" border="1px solid" borderColor="gray.200" transition="all 0.3s" _hover={{ transform: 'translateY(-5px)', shadow: 'md' }}>
-            <Box ref={logoRef} p={4} bg="white" rounded="lg" mb={4}>
+          <VStack align="center" p={6} bg="gray.50" _dark={{ bg: "gray.900" }} rounded="xl" border="1px solid" borderColor="gray.200" transition="all 0.3s" _hover={{ transform: 'translateY(-5px)', shadow: 'md' }}>
+            <Box ref={logoRef} p={4} bg="white" _dark={{ bg: "gray.800" }} rounded="lg" mb={4}>
               <NgawonggoLogo iconSize={16} fontSize="xl" flexDirection="column" />
             </Box>
             <Text fontWeight="bold" fontSize="lg" mb={4}>{t.logo}</Text>
@@ -210,8 +210,8 @@ const DownloadSection = () => {
           </VStack>
 
           {/* Splash Screen Section */}
-          <VStack align="center" p={6} bg="gray.50" rounded="xl" border="1px solid" borderColor="gray.200" transition="all 0.3s" _hover={{ transform: 'translateY(-5px)', shadow: 'md' }}>
-            <Box ref={splashRef} p={6} bg="white" rounded="lg" mb={4} textAlign="center" w="200px">
+          <VStack align="center" p={6} bg="gray.50" _dark={{ bg: "gray.900" }} rounded="xl" border="1px solid" borderColor="gray.200" transition="all 0.3s" _hover={{ transform: 'translateY(-5px)', shadow: 'md' }}>
+            <Box ref={splashRef} p={6} bg="white" _dark={{ bg: "gray.800" }} rounded="lg" mb={4} textAlign="center" w="200px">
                <NgawonggoLogo iconSize={12} fontSize="sm" flexDirection="column" />
                <Text fontSize="9px" mt={3} color="gray.400" fontWeight="bold">MADE WITH SMK MUHAMMADIYAH BANDONGAN 2026 TJKT A</Text>
             </Box>
@@ -227,8 +227,8 @@ const DownloadSection = () => {
           </VStack>
 
           {/* Combined Section */}
-          <VStack align="center" p={6} bg="gray.50" rounded="xl" border="1px solid" borderColor="gray.200" transition="all 0.3s" _hover={{ transform: 'translateY(-5px)', shadow: 'md' }}>
-            <Box ref={combinedRef} p={6} bg="white" rounded="lg" mb={4} w="full">
+          <VStack align="center" p={6} bg="gray.50" _dark={{ bg: "gray.900" }} rounded="xl" border="1px solid" borderColor="gray.200" transition="all 0.3s" _hover={{ transform: 'translateY(-5px)', shadow: 'md' }}>
+            <Box ref={combinedRef} p={6} bg="white" _dark={{ bg: "gray.800" }} rounded="lg" mb={4} w="full">
               <VStack spacing={4}>
                  <NgawonggoLogo iconSize={10} fontSize="xs" />
                  <HStack spacing={6} justify="center">

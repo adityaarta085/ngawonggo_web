@@ -72,7 +72,7 @@ const CommentItem = ({ comment, allComments, newsId, onCommentAdded }) => {
           </Button>
 
           {showReply && (
-            <Box w="full" mt={2} p={3} bg="gray.50" borderRadius="md">
+            <Box w="full" mt={2} p={3} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="md">
               <form onSubmit={handleReply}>
                 <VStack spacing={3}>
                   <HStack w="full">
@@ -82,7 +82,7 @@ const CommentItem = ({ comment, allComments, newsId, onCommentAdded }) => {
                         placeholder="Nama"
                         value={replyData.name}
                         onChange={(e) => setReplyData({...replyData, name: e.target.value})}
-                        bg="white"
+                        bg="white" _dark={{ bg: "gray.800" }}
                       />
                     </FormControl>
                     <FormControl>
@@ -91,7 +91,7 @@ const CommentItem = ({ comment, allComments, newsId, onCommentAdded }) => {
                         placeholder="Email (Opsional)"
                         value={replyData.email}
                         onChange={(e) => setReplyData({...replyData, email: e.target.value})}
-                        bg="white"
+                        bg="white" _dark={{ bg: "gray.800" }}
                       />
                     </FormControl>
                   </HStack>
@@ -101,7 +101,7 @@ const CommentItem = ({ comment, allComments, newsId, onCommentAdded }) => {
                       placeholder="Tulis balasan..."
                       value={replyData.content}
                       onChange={(e) => setReplyData({...replyData, content: e.target.value})}
-                      bg="white"
+                      bg="white" _dark={{ bg: "gray.800" }}
                     />
                   </FormControl>
                   <Button size="xs" colorScheme="brand" type="submit" isLoading={submitting}>Kirim Balasan</Button>
@@ -179,7 +179,7 @@ const CommentSection = ({ newsId }) => {
       <Heading size="md" mb={6}>Komentar ({comments.length})</Heading>
 
       {/* Form Komentar */}
-      <Box mb={10} p={6} bg="white" borderRadius="xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
+      <Box mb={10} p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm" border="1px solid" borderColor="gray.100">
         <form onSubmit={handleSubmit}>
           <VStack spacing={4} align="stretch">
             <HStack>

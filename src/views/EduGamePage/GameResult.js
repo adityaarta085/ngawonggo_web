@@ -80,7 +80,7 @@ const GameResult = () => {
         <MotionBox
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          bg="white"
+          bg="white" _dark={{ bg: "gray.800" }}
           p={{ base: 8, md: 12 }}
           borderRadius="3xl"
           boxShadow="2xl"
@@ -89,7 +89,7 @@ const GameResult = () => {
           <VStack spacing={6}>
             <Icon as={percentage === 100 ? FaTrophy : FaStar} w={20} h={20} color={`${feedbackColor}.400`} />
 
-            <Heading size="2xl" color="gray.800">Permainan Selesai</Heading>
+            <Heading size="2xl" color="gray.800" _dark={{ color: "white" }}>Permainan Selesai</Heading>
 
             <Badge colorScheme={feedbackColor} fontSize="md" px={4} py={1} borderRadius="full">
               {feedbackMessage}
@@ -99,7 +99,7 @@ const GameResult = () => {
               <CircularProgress value={percentage} color={`${game.color}.500`} size="200px" thickness="8px">
                 <CircularProgressLabel>
                   <VStack spacing={0}>
-                    <Text fontSize="4xl" fontWeight="900" color="gray.800">{score}</Text>
+                    <Text fontSize="4xl" fontWeight="900" color="gray.800" _dark={{ color: "white" }}>{score}</Text>
                     <Text fontSize="sm" color="gray.500">/ {maxScore}</Text>
                   </VStack>
                 </CircularProgressLabel>
@@ -107,7 +107,7 @@ const GameResult = () => {
             </Box>
 
             {message && (
-              <Text fontSize="lg" color="gray.600" fontStyle="italic" bg="gray.50" p={4} borderRadius="xl" w="full">
+              <Text fontSize="lg" color="gray.600" fontStyle="italic" bg="gray.50" _dark={{ bg: "gray.900" }} p={4} borderRadius="xl" w="full">
                 "{message}"
               </Text>
             )}

@@ -175,7 +175,7 @@ const NotificationManager = () => {
           <Heading size="md">Kirim Notifikasi Push (In-App)</Heading>
         </HStack>
 
-        <Box bg="white" p={6} borderRadius="xl" boxShadow="sm">
+        <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" boxShadow="sm">
           <VStack spacing={4} align="stretch">
             <FormControl isRequired>
               <FormLabel>Judul Notifikasi</FormLabel>
@@ -244,7 +244,7 @@ const NotificationManager = () => {
 
                   <Box maxH="300px" overflowY="auto">
                     <Table size="sm" variant="simple">
-                      <Thead position="sticky" top={0} bg="white" zIndex={1}>
+                      <Thead position="sticky" top={0} bg="white" _dark={{ bg: "gray.800" }} zIndex={1}>
                         <Tr>
                           <Th width="40px">
                             <Checkbox

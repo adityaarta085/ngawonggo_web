@@ -49,7 +49,7 @@ export default function NationalNewsPage() {
   if (loading) return <Loading fullPage />;
 
   return (
-    <Box pt={0} minH="100vh" bg="gray.50" pb={20}>
+    <Box pt={0} minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }} pb={20}>
       <SEO
         title="Berita Nasional"
         description="Pantau berita dan informasi terbaru tingkat nasional dari sumber terpercaya."
@@ -108,7 +108,7 @@ export default function NationalNewsPage() {
               <HStack mb={8} spacing={6}>
                 <Flex align="center" gap={3}>
                   <Icon as={FaNewspaper} color="blue.500" w={6} h={6} />
-                  <Heading size="lg" color="gray.800" fontWeight="900" letterSpacing="tight">
+                  <Heading size="lg" color="gray.800" _dark={{ color: "white" }} fontWeight="900" letterSpacing="tight">
                       Berita Terbaru
                   </Heading>
                 </Flex>

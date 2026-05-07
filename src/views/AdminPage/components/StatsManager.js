@@ -84,9 +84,9 @@ const StatsManager = () => {
         <Text fontSize="xl" fontWeight="bold">Manajemen Demografi Penduduk</Text>
         <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={handleAddNew}>Tambah Data Demografi</Button>
       </HStack>
-      <Box bg="white" borderRadius="xl" boxShadow="sm" overflowX="auto">
+      <Box bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm" overflowX="auto">
         <Table variant="simple">
-          <Thead bg="gray.50">
+          <Thead bg="gray.50" _dark={{ bg: "gray.900" }}>
             <Tr>
               <Th>Label</Th>
               <Th>Nilai</Th>

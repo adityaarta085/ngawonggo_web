@@ -136,7 +136,7 @@ const QuizGame = ({ onFinish }) => {
 
   if (isFinished) {
     return (
-      <VStack spacing={6} p={8} bg="white" borderRadius="2xl" textAlign="center" boxShadow="xl" w="full">
+      <VStack spacing={6} p={8} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" textAlign="center" boxShadow="xl" w="full">
         <Heading color="brand.500">Kuis Selesai!</Heading>
         <Text fontSize="xl">Skor Kamu: {score} / {activeQuestions.length}</Text>
         <Badge colorScheme={score === activeQuestions.length ? "green" : "blue"} fontSize="lg" p={2}>
@@ -150,7 +150,7 @@ const QuizGame = ({ onFinish }) => {
   }
 
   return (
-    <Box p={6} bg="white" borderRadius="2xl" boxShadow="xl" w="full" maxW="600px">
+    <Box p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" boxShadow="xl" w="full" maxW="600px">
       <VStack spacing={6} align="stretch">
         <HStack justify="space-between">
           <Heading size="md" color="brand.500">Kuis Tekno-Sains</Heading>

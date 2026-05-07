@@ -106,7 +106,7 @@ const InstallPWA = () => {
           >
             <Flex align="center" justify="space-between" gap={3}>
               <HStack spacing={3} flex={1}>
-                <Box boxSize="40px" borderRadius="xl" overflow="hidden" flexShrink={0} bg="white" p={1} boxShadow="sm" border="1px solid" borderColor="gray.100">
+                <Box boxSize="40px" borderRadius="xl" overflow="hidden" flexShrink={0} bg="white" _dark={{ bg: "gray.800" }} p={1} boxShadow="sm" border="1px solid" borderColor="gray.100">
                    <Box bg="brand.600" p={1} borderRadius="md"><Image src="/logo_desa.png" boxSize="full" objectFit="contain" /></Box>
                 </Box>
 

@@ -74,7 +74,7 @@ const GameList = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: "easeInOut", delay: index * 0.1 }}
-              bg="white"
+              bg="white" _dark={{ bg: "gray.800" }}
               p={8}
               borderRadius="3xl"
               boxShadow="soft"
@@ -116,7 +116,7 @@ const GameList = () => {
                   <Icon as={game.icon} w={8} h={8} />
                 </Flex>
                 <VStack align="start" spacing={2}>
-                  <Heading size="md" fontWeight="900" color="gray.800">{game.title}</Heading>
+                  <Heading size="md" fontWeight="900" color="gray.800" _dark={{ color: "white" }}>{game.title}</Heading>
                   <Text color="gray.500" fontSize="sm" fontWeight="500" lineHeight="tall">{game.desc}</Text>
                 </VStack>
               </VStack>

@@ -153,7 +153,7 @@ const NotifikasiPage = () => {
             {loading ? (
                 <Center py={10}><Spinner size="xl" color="brand.500" /></Center>
             ) : notifications.length === 0 ? (
-                <Center py={10} bg="gray.50" borderRadius="xl">
+                <Center py={10} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="xl">
                     <Text color="gray.500">Belum ada notifikasi.</Text>
                 </Center>
             ) : (

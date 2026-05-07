@@ -154,9 +154,9 @@ const MediaManager = () => {
              <HStack justify="flex-end" mb={4}>
                 <Button leftIcon={<FaUpload />} colorScheme="brand" onClick={onOpen}>Upload Media Resmi</Button>
              </HStack>
-             <Box overflowX="auto" bg="white" borderRadius="xl" boxShadow="sm">
+             <Box overflowX="auto" bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm">
               <Table variant="simple">
-                <Thead bg="gray.50">
+                <Thead bg="gray.50" _dark={{ bg: "gray.900" }}>
                   <Tr>
                     <Th>Thumbnail</Th>
                     <Th>Judul</Th>
@@ -193,9 +193,9 @@ const MediaManager = () => {
 
           {/* KOMUNITAS */}
           <TabPanel px={0}>
-             <Box overflowX="auto" bg="white" borderRadius="xl" boxShadow="sm">
+             <Box overflowX="auto" bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm">
               <Table variant="simple">
-                <Thead bg="gray.50">
+                <Thead bg="gray.50" _dark={{ bg: "gray.900" }}>
                   <Tr>
                     <Th>Media</Th>
                     <Th>Judul</Th>

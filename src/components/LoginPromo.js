@@ -51,7 +51,7 @@ const LoginPromo = ({ user }) => {
         overflow="hidden"
         border="1px solid"
         borderColor="whiteAlpha.300"
-        bg="white"
+        bg="white" _dark={{ bg: "gray.800" }}
       >
         <Box
           bgGradient="linear(to-br, brand.500, brand.700)"

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@chakra-ui/react';
 
 const GoogleMap = ({ src, height = '400px', borderRadius = 'xl' }) => {
-  if (!src) return <Box h={height} bg="gray.100" borderRadius={borderRadius} display="flex" alignItems="center" justifyContent="center">Peta tidak tersedia</Box>;
+  if (!src) return <Box h={height} bg="gray.100" _dark={{ bg: "gray.700" }} borderRadius={borderRadius} display="flex" alignItems="center" justifyContent="center">Peta tidak tersedia</Box>;
 
   return (
     <Box

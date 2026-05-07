@@ -180,7 +180,7 @@ const UserManager = () => {
   };
 
   return (
-    <Box p={4} bg="white" borderRadius="xl" boxShadow="sm">
+    <Box p={4} bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm">
       <VStack spacing={6} align="stretch">
         <HStack justify="space-between">
           <Heading size="md">Manajemen Pengguna</Heading>
@@ -205,7 +205,7 @@ const UserManager = () => {
 
         <Box overflowX="auto">
           <Table variant="simple" size="sm">
-            <Thead bg="gray.50">
+            <Thead bg="gray.50" _dark={{ bg: "gray.900" }}>
               <Tr>
                 <Th>ID</Th>
                 <Th>Email & Kontak</Th>
@@ -317,7 +317,7 @@ const UserManager = () => {
                     placeholder="Instruksi AI (contoh: Buatkan email undangan HTML dengan gaya modern...)"
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
-                    bg="white"
+                    bg="white" _dark={{ bg: "gray.800" }}
                     size="sm"
                   />
                   <Button
@@ -340,7 +340,7 @@ const UserManager = () => {
                     <Tab>HTML Editor</Tab>
                     <Tab>Preview</Tab>
                   </TabList>
-                  <TabPanels bg="white" color="black" border="1px" borderColor="gray.200" borderTop="none" borderBottomRadius="md">
+                  <TabPanels bg="white" color="black" _dark={{ bg: "gray.800", color: "white" }} border="1px" borderColor="gray.200" borderTop="none" borderBottomRadius="md">
                     <TabPanel p={0}>
                       <ReactQuill
                         theme="snow"

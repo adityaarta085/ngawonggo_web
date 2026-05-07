@@ -125,10 +125,10 @@ const AnimeWatch = () => {
       }
   };
 
-  if (!userSession) return <Center h="60vh" bg="gray.50"><div className="custom-loader"></div></Center>;
-  if (loading) return <Center h="60vh" bg="gray.50"><div className="custom-loader"></div></Center>;
-  if (error) return <Center h="60vh" bg="gray.50"><Text color="red.500">{error}</Text></Center>;
-  if (!episodeData) return <Center h="60vh" bg="gray.50"><Text>Episode tidak ditemukan.</Text></Center>;
+  if (!userSession) return <Center h="60vh" bg="gray.50" _dark={{ bg: "gray.900" }}><div className="custom-loader"></div></Center>;
+  if (loading) return <Center h="60vh" bg="gray.50" _dark={{ bg: "gray.900" }}><div className="custom-loader"></div></Center>;
+  if (error) return <Center h="60vh" bg="gray.50" _dark={{ bg: "gray.900" }}><Text color="red.500">{error}</Text></Center>;
+  if (!episodeData) return <Center h="60vh" bg="gray.50" _dark={{ bg: "gray.900" }}><Text>Episode tidak ditemukan.</Text></Center>;
 
   const title = episodeData.title || "Tonton Anime";
   const serverQualities = episodeData.server?.qualities || [];
@@ -142,7 +142,7 @@ const AnimeWatch = () => {
   const synopsisList = episodeData.synopsis?.paragraphs || [];
 
   return (
-    <Box pt={24} pb={20} bg="gray.50">
+    <Box pt={24} pb={20} bg="gray.50" _dark={{ bg: "gray.900" }}>
       <SEO title={`${title} - Anime Ngawonggo`} description={`Nonton ${title} Sub Indo gratis dan eksklusif`} />
       <Container maxW="container.xl">
         <HStack mb={6} justify="space-between">
@@ -174,7 +174,7 @@ const AnimeWatch = () => {
               <Flex mt={4} justify="space-between" align="center" direction={{ base: 'column', md: 'row' }} gap={4}>
                   <HStack w="full" maxW="400px">
                      <Icon as={FaServer} color="white" />
-                     <Select bg="white" color="black" value={selectedServerId} onChange={handleServerChange} placeholder="Pilih Server Video (Jika Error)">
+                     <Select bg="white" color="black" _dark={{ bg: "gray.800", color: "white" }} value={selectedServerId} onChange={handleServerChange} placeholder="Pilih Server Video (Jika Error)">
                          {serverList.map((srv, idx) => (
                              <option key={idx} value={srv.serverId}>{srv.quality} - {srv.title}</option>
                          ))}
@@ -196,7 +196,7 @@ const AnimeWatch = () => {
           </Flex>
 
           <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6} mt={4}>
-              <Box bg="white" p={6} borderRadius="xl" boxShadow="md" border="1px solid" borderColor="gray.100" gridColumn={{ lg: 'span 2' }}>
+              <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" boxShadow="md" border="1px solid" borderColor="gray.100" gridColumn={{ lg: 'span 2' }}>
                 <Heading size="md" mb={4} display="flex" alignItems="center" gap={2}>
                     <Icon as={FaInfoCircle} color="brand.500" /> Informasi Episode
                 </Heading>
@@ -207,7 +207,7 @@ const AnimeWatch = () => {
                 </VStack>
               </Box>
 
-              <Box bg="white" p={6} borderRadius="xl" boxShadow="md" border="1px solid" borderColor="gray.100">
+              <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" boxShadow="md" border="1px solid" borderColor="gray.100">
                   <Heading size="md" mb={4} display="flex" alignItems="center" gap={2}>
                       <Icon as={FaDownload} color="green.500" /> Link Download
                   </Heading>
@@ -215,7 +215,7 @@ const AnimeWatch = () => {
                   {downloadUrlList.length > 0 ? (
                       <VStack align="stretch" spacing={4}>
                          {downloadUrlList.map((qual, idx) => (
-                             <Box key={idx} bg="gray.50" p={3} borderRadius="md" border="1px solid" borderColor="gray.200">
+                             <Box key={idx} bg="gray.50" _dark={{ bg: "gray.900" }} p={3} borderRadius="md" border="1px solid" borderColor="gray.200">
                                  <Text fontWeight="bold" color="brand.600" mb={2}>{qual.title} {qual.size ? `(${qual.size})` : ''}</Text>
                                  <HStack mt={1} flexWrap="wrap" gap={2}>
                                      {qual.urls?.map((urlItem, uidx) => (

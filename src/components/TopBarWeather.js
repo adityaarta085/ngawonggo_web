@@ -113,7 +113,7 @@ const TopBarWeather = () => {
         boxShadow="sm"
       >
         <Icon as={getWeatherIcon(weather.desc)} color="brand.500" mr={2} />
-        <Text fontWeight="bold" fontSize="sm" color="gray.800" mr={1}>
+        <Text fontWeight="bold" fontSize="sm" color="gray.800" _dark={{ color: "white" }} mr={1}>
           {weather.temp}°C
         </Text>
         <Text fontSize="xs" color="gray.600" display={{ base: "none", md: "block" }}>
@@ -128,7 +128,7 @@ const TopBarWeather = () => {
             Cuaca Ngawonggo Saat Ini
           </ModalHeader>
           <ModalCloseButton color="white" />
-          <ModalBody p={6} bg="gray.50">
+          <ModalBody p={6} bg="gray.50" _dark={{ bg: "gray.900" }}>
             <VStack spacing={6}>
               <Flex align="center" justify="center" w="full">
                 <Icon as={getWeatherIcon(weather.desc)} w={16} h={16} color="brand.500" mr={4} />

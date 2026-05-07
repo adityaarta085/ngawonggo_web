@@ -115,7 +115,7 @@ const NetworkGame = ({ onFinish }) => {
   }, []);
 
   return (
-    <Box p={6} bg="white" borderRadius="2xl" boxShadow="2xl" w="full" maxW="600px">
+    <Box p={6} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" boxShadow="2xl" w="full" maxW="600px">
       <VStack spacing={6}>
         <VStack spacing={1}>
           <Heading size="md" color="brand.500">Ngawonggo 2045: Jaringan Digital</Heading>
@@ -124,7 +124,7 @@ const NetworkGame = ({ onFinish }) => {
           </Text>
         </VStack>
 
-        <HStack w="full" justify="space-around" bg="gray.50" p={3} borderRadius="xl">
+        <HStack w="full" justify="space-around" bg="gray.50" _dark={{ bg: "gray.900" }} p={3} borderRadius="xl">
           <VStack spacing={0}>
             <Text fontSize="xs" fontWeight="bold" color="gray.500">KABEL TERSEDIA</Text>
             <Text fontSize="xl" fontWeight="800" color={moves < 3 ? "red.500" : "brand.500"}>{moves}</Text>

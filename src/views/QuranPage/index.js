@@ -462,7 +462,7 @@ const QuranPage = () => {
                                 fontFamily="'Amiri', serif"
                                 lineHeight="2.2"
                                 dir="rtl"
-                                color="gray.800"
+                                color="gray.800" _dark={{ color: "white" }}
                               >
                                 {ayah.text.arab}
                               </Text>
@@ -617,7 +617,7 @@ const QuranPage = () => {
                             <IconButton
                                 isLoading={audioLoading}
                                 icon={isPlaying && (playbackMode === 'range' || playbackMode === 'full') ? <FaPause /> : <FaPlay />}
-                                bg="white"
+                                bg="white" _dark={{ bg: "gray.800" }}
                                 color="brand.500"
                                 _hover={{ bg: 'gray.100' }}
                                 borderRadius="full"

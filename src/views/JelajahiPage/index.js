@@ -38,7 +38,7 @@ export default function JelajahiPage() {
   }, []);
 
   return (
-    <Box  pt={0} minH="100vh" bg="gray.50" pb={32}>
+    <Box  pt={0} minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }} pb={32}>
       <SEO
         title="Jelajahi Dusun"
         description="Jelajahi kekayaan potensi dan keindahan 10 dusun di Desa Ngawonggo. Temukan informasi sejarah, ekonomi, dan profil lengkap setiap wilayah dusun."
@@ -108,7 +108,7 @@ export default function JelajahiPage() {
                     position="absolute"
                     top={4}
                     left={4}
-                    bg="white"
+                    bg="white" _dark={{ bg: "gray.800" }}
                     color="brand.600"
                     px={3}
                     py={1}
@@ -123,7 +123,7 @@ export default function JelajahiPage() {
 
                 <VStack p={8} align="start" spacing={4} flex={1}>
                   <VStack align="start" spacing={1}>
-                    <Heading size="md" color="gray.800" fontWeight="800">{dusun.name}</Heading>
+                    <Heading size="md" color="gray.800" _dark={{ color: "white" }} fontWeight="800">{dusun.name}</Heading>
                     <Text fontSize="sm" color="gray.500" fontWeight="600">{dusun.sub_name || 'Bagian dari Ngawonggo'}</Text>
                   </VStack>
 
@@ -185,7 +185,7 @@ export default function JelajahiPage() {
                         h="70px"
                         px={12}
                         borderRadius="2xl"
-                        bg="white"
+                        bg="white" _dark={{ bg: "gray.800" }}
                         color="brand.500"
                         leftIcon={<FaExternalLinkAlt />}
                         fontWeight="900"

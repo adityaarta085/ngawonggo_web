@@ -22,7 +22,7 @@ import SEO from '../../components/SEO';
 
 const PrivacyPolicy = () => {
   return (
-    <Box py={{ base: 20, md: 28 }} bg="gray.50" minH="100vh">
+    <Box py={{ base: 20, md: 28 }} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
       <SEO
         title="Kebijakan Privasi Terperinci - Desa Ngawonggo"
         description="Kebijakan privasi resmi dan menyeluruh Pemerintah Desa Ngawonggo mengenai perlindungan, penggunaan, dan transparansi data pribadi."
@@ -41,7 +41,7 @@ const PrivacyPolicy = () => {
         <Box
           layerStyle="glassCard"
           p={{ base: 6, md: 16 }}
-          bg="white"
+          bg="white" _dark={{ bg: "gray.800" }}
           borderRadius="3xl"
           boxShadow="soft"
         >

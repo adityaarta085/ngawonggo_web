@@ -54,7 +54,7 @@ const QuranAccess = () => {
             as={RouterLink}
             to="/quran"
             size="md"
-            bg="white"
+            bg="white" _dark={{ bg: "gray.800" }}
             color="brand.500"
             px={8}
             py={6}

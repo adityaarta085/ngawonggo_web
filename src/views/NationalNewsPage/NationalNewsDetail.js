@@ -59,7 +59,7 @@ export default function NationalNewsDetail() {
   });
 
   return (
-    <Box pt={24} pb={20} minH="100vh" bg="gray.50">
+    <Box pt={24} pb={20} minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }}>
       <SEO
         title={news.title}
         description={news.content?.substring(0, 160).replace(/<[^>]*>/g, '') || news.title}
@@ -91,7 +91,7 @@ export default function NationalNewsDetail() {
         </Button>
 
         <VStack align="start" spacing={6}>
-          <Heading size="2xl" color="gray.800" fontWeight="900" lineHeight="1.2">
+          <Heading size="2xl" color="gray.800" _dark={{ color: "white" }} fontWeight="900" lineHeight="1.2">
             {news.title}
           </Heading>
 

@@ -146,7 +146,7 @@ const CommunityFeed = () => {
 
   return (
     <Box>
-      <HStack justify="space-between" mb={8} bg="white" p={4} borderRadius="xl" boxShadow="sm">
+      <HStack justify="space-between" mb={8} bg="white" _dark={{ bg: "gray.800" }} p={4} borderRadius="xl" boxShadow="sm">
         <Text fontWeight="bold">Feed Komunitas</Text>
         <Button leftIcon={<FaUpload />} colorScheme="brand" onClick={handleUploadClick}>
           Upload Media
@@ -156,11 +156,11 @@ const CommunityFeed = () => {
       {loading ? (
         <VStack py={10}><Spinner size="xl" color="brand.500" /></VStack>
       ) : media.length === 0 ? (
-        <Box textAlign="center" py={10} bg="white" borderRadius="xl">Belum ada media di komunitas.</Box>
+        <Box textAlign="center" py={10} bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl">Belum ada media di komunitas.</Box>
       ) : (
         <VStack spacing={8} align="stretch" maxW="3xl" mx="auto">
           {media.map((item) => (
-            <Box key={item.id} bg="white" borderRadius="2xl" cursor="pointer" onClick={() => navigate(`/media/komunitas/${item.id}`)} overflow="hidden" boxShadow="md">
+            <Box key={item.id} bg="white" _dark={{ bg: "gray.800" }} borderRadius="2xl" cursor="pointer" onClick={() => navigate(`/media/komunitas/${item.id}`)} overflow="hidden" boxShadow="md">
               <HStack p={4} justify="space-between">
                 <HStack>
                   <Avatar size="sm" src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.id}`} />

@@ -92,7 +92,7 @@ const HumanVerification = ({ onVerified }) => {
       {showUI && (
         <ScaleFade initialScale={0.9} in={true}>
           <VStack
-            bg="white"
+            bg="white" _dark={{ bg: "gray.800" }}
             p={{ base: 6, md: 8 }}
             borderRadius="2xl"
             spacing={6}
@@ -111,7 +111,7 @@ const HumanVerification = ({ onVerified }) => {
             </Box>
 
             <VStack spacing={2}>
-              <Heading size="md" color="gray.800">Verifikasi Keamanan</Heading>
+              <Heading size="md" color="gray.800" _dark={{ color: "white" }}>Verifikasi Keamanan</Heading>
               <Text color="gray.600" fontSize="sm">
                 {prompts[verificationType]}
               </Text>

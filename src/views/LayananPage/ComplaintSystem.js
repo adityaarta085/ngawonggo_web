@@ -213,7 +213,7 @@ const ComplaintSystem = () => {
 
   if (!user) {
       return (
-        <Box p={{ base: 6, md: 10 }} bg="white" borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" textAlign="center">
+        <Box p={{ base: 6, md: 10 }} bg="white" _dark={{ bg: "gray.800" }} borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" textAlign="center">
             <Icon as={FaLock} boxSize={16} color="brand.500" mb={6} />
             <Heading size="lg" color="brand.500" mb={4}>Login Diperlukan</Heading>
             <Text fontSize="md" color="gray.600" mb={8}>
@@ -228,7 +228,7 @@ const ComplaintSystem = () => {
 
   if (!complaintId) {
     return (
-      <Box p={{ base: 4, md: 8 }} bg="white" borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" border="1px solid" borderColor="gray.100">
+      <Box p={{ base: 4, md: 8 }} bg="white" _dark={{ bg: "gray.800" }} borderRadius="3xl" boxShadow="xl" maxW="800px" mx="auto" border="1px solid" borderColor="gray.100">
         <VStack spacing={8} align="stretch">
           <Box textAlign="center">
             <Heading size="lg" color="brand.500" mb={3}>Sampaikan Aspirasi & Keluhan Anda</Heading>
@@ -291,7 +291,7 @@ const ComplaintSystem = () => {
   }
 
   return (
-    <Box p={4} bg="white" borderRadius="xl" boxShadow="lg" maxW="800px" mx="auto" h="600px" display="flex" flexDirection="column">
+    <Box p={4} bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="lg" maxW="800px" mx="auto" h="600px" display="flex" flexDirection="column">
       <Flex justify="space-between" align="center" mb={4} pb={2} borderBottom="1px solid" borderColor="gray.100">
         <HStack>
           <Avatar size="sm" bg="brand.500" />

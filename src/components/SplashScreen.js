@@ -77,7 +77,7 @@ const SplashScreen = ({ onComplete }) => {
       left={0}
       right={0}
       bottom={0}
-      bg="white"
+      bg="white" _dark={{ bg: "gray.800" }}
       zIndex={9999}
       display="flex"
       flexDirection="column"

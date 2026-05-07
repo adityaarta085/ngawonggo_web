@@ -121,7 +121,7 @@ const AISummary = ({ newsId, type, content, initialSummary }) => {
   }
 
   return (
-    <Box p={6} borderRadius="xl" bg="gray.50" border="1px dashed" borderColor="gray.300" mb={8} textAlign="center">
+    <Box p={6} borderRadius="xl" bg="gray.50" _dark={{ bg: "gray.900" }} border="1px dashed" borderColor="gray.300" mb={8} textAlign="center">
       <VStack spacing={4}>
         <Icon as={FaRobot} color="gray.400" w={8} h={8} />
         <Box>

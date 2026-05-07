@@ -34,7 +34,7 @@ const LatestNews = () => {
   }, []);
 
   return (
-    <Box py={24} bg="white">
+    <Box py={24} bg="white" _dark={{ bg: "gray.800" }}>
       <Container maxW="container.xl">
         <Flex
           direction={{ base: 'column', md: 'row' }}
@@ -84,7 +84,7 @@ const LatestNews = () => {
                 ))}
               </SimpleGrid>
             ) : (
-              <Box textAlign="center" py={20} bg="gray.50" borderRadius="3xl" border="2px dashed" borderColor="gray.200">
+              <Box textAlign="center" py={20} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="3xl" border="2px dashed" borderColor="gray.200">
                 <Text color="gray.400" fontSize="lg" fontWeight="600">Belum ada berita yang diterbitkan.</Text>
               </Box>
             )}

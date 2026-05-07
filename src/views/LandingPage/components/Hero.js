@@ -16,7 +16,7 @@ const SnowEffect = () => (
                 <Box
                     key={i}
                     position="absolute"
-                    bg="white"
+                    bg="white" _dark={{ bg: "gray.800" }}
                     borderRadius="full"
                     w={`${Math.random() * 4 + 2}px`}
                     h={`${Math.random() * 4 + 2}px`}
@@ -71,7 +71,7 @@ const StarsEffect = () => (
             <Box
                 key={i}
                 position="absolute"
-                bg="white"
+                bg="white" _dark={{ bg: "gray.800" }}
                 borderRadius="full"
                 w={`${Math.random() * 2 + 1}px`}
                 h={`${Math.random() * 2 + 1}px`}

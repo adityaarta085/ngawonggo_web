@@ -14,7 +14,7 @@ import {
 
 export default function TransparansiPage() {
   return (
-    <Box  pt={0} py={12} minH="100vh" bg="gray.50">
+    <Box  pt={0} py={12} minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }}>
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
           <Box layerStyle="glassCard" p={10} bgGradient="linear(to-br, brand.500, blue.600)" color="white">
@@ -44,7 +44,7 @@ export default function TransparansiPage() {
           </SimpleGrid>
 
           <Box layerStyle="glassCard" p={10} borderLeft="4px solid" borderColor="brand.500">
-            <Heading size="lg" mb={4} color="gray.800">Laporan Realisasi Anggaran</Heading>
+            <Heading size="lg" mb={4} color="gray.800" _dark={{ color: "white" }}>Laporan Realisasi Anggaran</Heading>
             <Text fontSize="lg" color="gray.600" lineHeight="relaxed">
               Grafik dan rincian realisasi anggaran secara mendetail sedang dipersiapkan oleh tim keuangan desa untuk publikasi digital sesuai dengan standar keterbukaan informasi nasional (UU KIP). Kami berkomitmen untuk menyajikan data yang akurat dan mudah dipahami oleh seluruh warga.
             </Text>

@@ -19,7 +19,7 @@ const PengaduanSection = () => {
   const bg = useColorModeValue('brand.500', 'brand.600');
 
   return (
-    <Box py={20} bg="white" id="pengaduan">
+    <Box py={20} bg="white" _dark={{ bg: "gray.800" }} id="pengaduan">
       <Container maxW="container.xl">
         <Box
           bg={bg}
@@ -72,7 +72,7 @@ const PengaduanSection = () => {
               as={RouterLink}
               to="/layanan"
               size="lg"
-              bg="white"
+              bg="white" _dark={{ bg: "gray.800" }}
               color="brand.500"
               px={10}
               py={8}

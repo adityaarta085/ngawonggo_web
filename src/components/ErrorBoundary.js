@@ -23,7 +23,7 @@ class ErrorBoundary extends React.Component {
           display="flex"
           alignItems="center"
           justifyContent="center"
-          bg="gray.50"
+          bg="gray.50" _dark={{ bg: "gray.900" }}
           p={4}
         >
           <VStack spacing={6} textAlign="center" maxW="lg">
@@ -33,7 +33,7 @@ class ErrorBoundary extends React.Component {
             </Text>
             <Box
               p={4}
-              bg="gray.100"
+              bg="gray.100" _dark={{ bg: "gray.700" }}
               borderRadius="md"
               fontSize="xs"
               fontFamily="monospace"

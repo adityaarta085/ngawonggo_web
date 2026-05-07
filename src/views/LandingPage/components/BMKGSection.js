@@ -205,7 +205,7 @@ const BMKGSection = () => {
 
                 <VStack align="stretch" spacing={8} position="relative" zIndex={1}>
                   <Flex align="center" gap={8}>
-                    <Box textAlign="center" bg="white" p={6} borderRadius="3xl" boxShadow="md" border="2px solid" borderColor="red.100">
+                    <Box textAlign="center" bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="3xl" boxShadow="md" border="2px solid" borderColor="red.100">
                         <Text fontSize="5xl" fontWeight="900" color="red.600" lineHeight="1">{earthquake?.Magnitude || '5.2'}</Text>
                         <Text fontSize="xs" fontWeight="900" color="gray.500" mt={2} letterSpacing="widest">MAGNITUDO</Text>
                     </Box>

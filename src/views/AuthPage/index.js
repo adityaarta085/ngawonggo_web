@@ -393,7 +393,7 @@ const AuthPage = () => {
       display="flex"
       alignItems="center"
       justifyContent="center"
-      bg='gray.50'
+      bg='gray.50' _dark={{ bg: 'gray.900' }}
       position='relative'
       overflow="hidden"
       py={10}
@@ -449,11 +449,11 @@ const AuthPage = () => {
             p={8}
             borderRadius="2xl"
             layerStyle="glassCard"
-            bg="white"
+            bg="white" _dark={{ bg: "gray.800" }}
           >
             <VStack spacing={6} position="relative" zIndex={1}>
               <Box textAlign="center">
-                <Heading size="lg" color="gray.800" mb={2}>Buat Password Baru</Heading>
+                <Heading size="lg" color="gray.800" _dark={{ color: "white" }} mb={2}>Buat Password Baru</Heading>
                 <Text color="gray.500" fontSize="sm">Silakan masukkan password baru Anda.</Text>
               </Box>
 
@@ -467,7 +467,7 @@ const AuthPage = () => {
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="Masukkan password baru"
-                        bg="white"
+                        bg="white" _dark={{ bg: "gray.800" }}
                         borderRadius='xl'
                         h='50px'
                         focusBorderColor="brand.500"
@@ -492,7 +492,7 @@ const AuthPage = () => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Ulangi password baru"
-                        bg="white"
+                        bg="white" _dark={{ bg: "gray.800" }}
                         borderRadius='xl'
                         h='50px'
                         focusBorderColor="brand.500"
@@ -522,7 +522,7 @@ const AuthPage = () => {
             p={8}
             borderRadius="2xl"
             layerStyle="glassCard"
-            bg="white"
+            bg="white" _dark={{ bg: "gray.800" }}
           >
 
 
@@ -646,7 +646,7 @@ const AuthPage = () => {
             </HStack>
 
             <Tabs isFitted variant="soft-rounded" colorScheme="brand" onChange={(index) => setIsSignUp(index === 1)}>
-              <TabList mb={6} bg="gray.100" p={1} borderRadius='full'>
+              <TabList mb={6} bg="gray.100" _dark={{ bg: "gray.700" }} p={1} borderRadius='full'>
                 <Tab borderRadius="full" fontSize="sm" fontWeight="600">Masuk</Tab>
                 <Tab borderRadius="full" fontSize="sm" fontWeight="600">Daftar</Tab>
               </TabList>
@@ -661,7 +661,7 @@ const AuthPage = () => {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Masukkan email"
-                          bg="white"
+                          bg="white" _dark={{ bg: "gray.800" }}
                           borderRadius='xl'
                           h='50px'
                           focusBorderColor="brand.500"
@@ -679,7 +679,7 @@ const AuthPage = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Masukkan password"
-                            bg="white"
+                            bg="white" _dark={{ bg: "gray.800" }}
                             borderRadius='xl'
                             h='50px'
                             focusBorderColor="brand.500"
@@ -721,7 +721,7 @@ const AuthPage = () => {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Masukkan email"
-                          bg="white"
+                          bg="white" _dark={{ bg: "gray.800" }}
                           borderRadius='xl'
                           h='50px'
                           focusBorderColor="brand.500"
@@ -736,7 +736,7 @@ const AuthPage = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Buat password"
-                            bg="white"
+                            bg="white" _dark={{ bg: "gray.800" }}
                             borderRadius='xl'
                             h='50px'
                             focusBorderColor="brand.500"
@@ -788,7 +788,7 @@ const AuthPage = () => {
             w="full"
           >
              <VStack align="start" spacing={4} position="relative" zIndex={1}>
-                <Badge bg="white" color="brand.500" borderRadius="full" px={3} py={1}>INFO LOGIN</Badge>
+                <Badge bg="white" _dark={{ bg: "gray.800" }} color="brand.500" borderRadius="full" px={3} py={1}>INFO LOGIN</Badge>
                 <Heading size="md">Kenapa Login Lebih Baik?</Heading>
                 <Text fontSize="sm" opacity={0.9}>
                     Dengan masuk ke akun Anda, SplashScreen dan Verifikasi Robot akan otomatis dilewati saat Anda kembali. Kami juga menyimpan progres bacaan Quran dan skor permainan Anda secara otomatis.

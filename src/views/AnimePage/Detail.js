@@ -83,7 +83,7 @@ const AnimeDetail = () => {
                 ))}
             </Flex>
 
-            <Box bg="gray.50" p={5} borderRadius="xl" w="100%" mt={4}>
+            <Box bg="gray.50" _dark={{ bg: "gray.900" }} p={5} borderRadius="xl" w="100%" mt={4}>
               <Heading size="md" mb={4} display="flex" alignItems="center" gap={2}>
                 <Icon as={FaInfoCircle} color="brand.500" /> Sinopsis
               </Heading>
@@ -113,7 +113,7 @@ const AnimeDetail = () => {
           {episodesList.length > 0 ? (
             <SimpleGrid columns={{ base: 1, sm: 2, md: 3, lg: 4 }} spacing={4}>
               {episodesList.map((ep, idx) => (
-                  <LinkBox key={idx} as="article" p={4} bg="white" borderRadius="lg" boxShadow="sm" border="1px solid" borderColor="gray.100" _hover={{ bg: 'brand.50', borderColor: 'brand.300', transform: 'translateY(-2px)' }} transition="all 0.2s">
+                  <LinkBox key={idx} as="article" p={4} bg="white" _dark={{ bg: "gray.800" }} borderRadius="lg" boxShadow="sm" border="1px solid" borderColor="gray.100" _hover={{ bg: 'brand.50', borderColor: 'brand.300', transform: 'translateY(-2px)' }} transition="all 0.2s">
                     <Flex align="center" justify="space-between">
                       <Box>
                         <LinkOverlay as={RouterLink} to={`/anime/${provider}/episode/${encodeURIComponent(ep.episodeId || ep.id || ep.endpoint)}`}>

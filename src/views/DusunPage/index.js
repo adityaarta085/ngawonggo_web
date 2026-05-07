@@ -25,7 +25,7 @@ const StatRow = ({ icon, label, value }) => (
       <Icon as={icon} color="brand.500" />
       <Text fontSize="sm" color="gray.600">{label}</Text>
     </HStack>
-    <Text fontWeight="bold" color="gray.800">{value}</Text>
+    <Text fontWeight="bold" color="gray.800" _dark={{ color: "white" }}>{value}</Text>
   </Flex>
 );
 
@@ -97,7 +97,7 @@ const DusunPage = () => {
           <Box gridColumn={{ lg: "span 2" }}>
             <VStack spacing={8} align="stretch">
               <Box layerStyle="glassCard" p={8} bg={cardBg}>
-                <Heading size="lg" mb={4} color="gray.800">Profil Wilayah</Heading>
+                <Heading size="lg" mb={4} color="gray.800" _dark={{ color: "white" }}>Profil Wilayah</Heading>
                 <Text fontSize="lg" color="gray.600" lineHeight="relaxed">
                   {data.description} Dusun {data.name} merupakan bagian dari kebanggaan Desa Ngawonggo yang terus berkembang.
                 </Text>
@@ -106,7 +106,7 @@ const DusunPage = () => {
               <Box layerStyle="glassCard" p={8} bg={cardBg}>
                 <HStack mb={6} spacing={3}>
                     <Icon as={FaMosque} color="brand.500" w={6} h={6} />
-                    <Heading size="lg" color="gray.800">Informasi Masjid</Heading>
+                    <Heading size="lg" color="gray.800" _dark={{ color: "white" }}>Informasi Masjid</Heading>
                 </HStack>
                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                     <Box borderRadius="xl" overflow="hidden">
@@ -126,7 +126,7 @@ const DusunPage = () => {
               </Box>
 
               <Box layerStyle="glassCard" p={8} bg={cardBg}>
-                <Heading size="lg" mb={6} color="gray.800">Peta Lokasi Dusun</Heading>
+                <Heading size="lg" mb={6} color="gray.800" _dark={{ color: "white" }}>Peta Lokasi Dusun</Heading>
                 <GoogleMap src={data.map_link} height="500px" />
               </Box>
             </VStack>
@@ -135,7 +135,7 @@ const DusunPage = () => {
           <Box>
             <VStack spacing={6} position="sticky" top="100px">
               <Box layerStyle="glassCard" p={6} w="full" bg={cardBg}>
-                <Heading size="md" mb={6} color="gray.800">Statistik Dusun</Heading>
+                <Heading size="md" mb={6} color="gray.800" _dark={{ color: "white" }}>Statistik Dusun</Heading>
                 <VStack spacing={4} align="stretch">
                   <StatRow icon={FaUsers} label="Penduduk" value={data.population} />
                   <StatRow icon={FaMapMarkerAlt} label="Luas Wilayah" value={data.area} />
