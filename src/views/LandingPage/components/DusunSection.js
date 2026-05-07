@@ -14,6 +14,9 @@ import {
 import { FaChevronRight } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 const DusunSection = () => {
   const [dusuns, setDusuns] = useState([]);
@@ -27,27 +30,22 @@ const DusunSection = () => {
   }, []);
 
   return (
-    <Box py={24} bg="white" _dark={{ bg: "gray.800" }} position="relative">
+    <Box py={24} bg="neo.warmWhite" className="bg-crosshatch" position="relative" borderY="4px solid black">
       <Container maxW="container.xl">
-        <VStack spacing={12} align="center">
-          <Box textAlign="center">
-            <Text
-              fontSize="sm"
-              fontWeight="bold"
-              color="brand.500"
-              textTransform="uppercase"
-              letterSpacing="widest"
-              mb={2}
-            >
-              Jelajahi Wilayah Kami
-            </Text>
-            <Heading as="h2" size="2xl" fontWeight="800">
-              Sepuluh Dusun Ngawonggo
-            </Heading>
+        <VStack spacing={16} align="center">
+          <Box textAlign="center" position="relative">
+            <Box position="relative" display="inline-block">
+                <Heading fontFamily="heading" color="black" fontSize={{ base: "4xl", md: "5xl" }} fontWeight="900" mb={4} position="relative" zIndex={2}>
+                    Wilayah Ngawonggo
+                </Heading>
+                <Box position="absolute" bottom="10px" left="-5px" right="-5px" h="12px" bg="neo.coral" zIndex={1} />
+            </Box>
           </Box>
 
-          <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={6} w="full">
-            {dusuns.map((dusun) => (
+          <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={{ base: 6, md: 8 }} w="full">
+            {dusuns.map((dusun, index) => {
+              const rotate = index % 2 === 0 ? '-3deg' : '3deg';
+              return (
               <Link
                 key={dusun.slug}
                 as={RouterLink}
@@ -55,47 +53,57 @@ const DusunSection = () => {
                 _hover={{ textDecoration: 'none' }}
                 role="group"
               >
-                <Box
+                <MotionBox
+                  initial={{ opacity: 0, y: 50, rotate: rotate }}
+                  whileInView={{ opacity: 1, y: 0, rotate: rotate }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
                   position="relative"
-                  h="200px"
-                  borderRadius="2xl"
-                  overflow="hidden"
-                  boxShadow="md"
-                  transition="all 0.4s"
-                  _hover={{ transform: 'translateY(-8px)', boxShadow: '2xl' }}
+                  bg="white"
+                  p={3}
+                  pb={6}
+                  border="3px solid black"
+                  boxShadow="brutal"
+                  _hover={{
+                      transform: 'translate(-5px, -10px) rotate(0deg) !important',
+                      boxShadow: '8px 12px 0px black'
+                  }}
                 >
-                  <Image
-                    src={dusun.image_url}
-                    alt={dusun.name}
-                    w="full"
-                    h="full"
-                    objectFit="cover"
-                    transition="all 0.5s"
-                    _groupHover={{ transform: 'scale(1.1)' }}
-                  />
+                  {/* Decorative Tape */}
                   <Box
-                    position="absolute"
-                    inset={0}
-                    bgGradient="linear(to-t, rgba(0,0,0,0.8), transparent)"
+                      position="absolute"
+                      top="-10px"
+                      left="50%"
+                      transform="translateX(-50%) rotate(-5deg)"
+                      w="40px"
+                      h="15px"
+                      bg="rgba(255, 255, 255, 0.6)"
+                      border="1px solid rgba(0,0,0,0.1)"
+                      zIndex={2}
+                      backdropFilter="blur(2px)"
                   />
-                  <Flex
-                    position="absolute"
-                    bottom={0}
-                    left={0}
-                    right={0}
-                    p={4}
-                    justify="space-between"
-                    align="end"
-                  >
+
+                  <Box w="full" h="140px" overflow="hidden" border="2px solid black" mb={3}>
+                      <Image
+                        src={dusun.image_url}
+                        alt={dusun.name}
+                        w="full"
+                        h="full"
+                        objectFit="cover"
+                        transition="all 0.5s"
+                        _groupHover={{ transform: 'scale(1.05)' }}
+                      />
+                  </Box>
+                  <Flex justify="space-between" align="center" px={1}>
                     <VStack align="start" spacing={0}>
-                      <Text color="whiteAlpha.800" fontSize="xs">Dusun</Text>
-                      <Text color="white" fontWeight="bold" fontSize="lg">{dusun.name}</Text>
+                      <Text fontFamily="accent" color="gray.600" fontSize="xs" fontWeight="bold" textTransform="uppercase">Dusun</Text>
+                      <Text fontFamily="heading" color="black" fontWeight="900" fontSize="md">{dusun.name}</Text>
                     </VStack>
-                    <Icon as={FaChevronRight} color="white" />
+                    <Icon as={FaChevronRight} color="black" transition="all 0.3s" _groupHover={{ transform: 'translateX(3px)' }} />
                   </Flex>
-                </Box>
+                </MotionBox>
               </Link>
-            ))}
+            )})}
           </SimpleGrid>
         </VStack>
       </Container>

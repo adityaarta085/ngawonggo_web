@@ -8,12 +8,11 @@ import {
   Button,
   VStack,
   Flex,
-  Icon,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import CardNews from '../../../components/CardNews';
-import { FaArrowRight, FaNewspaper } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa';
 import Loading from '../../../components/Loading';
 
 const LatestNews = () => {
@@ -34,7 +33,7 @@ const LatestNews = () => {
   }, []);
 
   return (
-    <Box py={24} bg="white" _dark={{ bg: "gray.800" }}>
+    <Box py={24} bg="white" position="relative" borderTop="4px solid black">
       <Container maxW="container.xl">
         <Flex
           direction={{ base: 'column', md: 'row' }}
@@ -43,31 +42,33 @@ const LatestNews = () => {
           mb={16}
           gap={6}
         >
-          <VStack align="start" spacing={4} maxW="2xl">
-            <Flex align="center" gap={3}>
-                <Icon as={FaNewspaper} color="brand.500" w={6} h={6} />
-                <Text color="brand.500" fontWeight="800" letterSpacing="widest" fontSize="xs" textTransform="uppercase">
+          <VStack align="start" spacing={6} maxW="2xl">
+            <Box display="inline-block" bg="neo.yellow" border="2px solid black" px={4} py={1} boxShadow="brutalSoft">
+                <Text fontFamily="accent" color="black" fontWeight="bold" letterSpacing="widest" fontSize="sm" textTransform="uppercase">
                     WARTA DESA
                 </Text>
-            </Flex>
-            <Heading as="h2" size="2xl" fontWeight="900" color="gray.900">
-              Kabar Terkini Ngawonggo
-            </Heading>
-            <Text fontSize="xl" color="gray.500" fontWeight="500">
+            </Box>
+
+            <Box position="relative">
+                <Heading fontFamily="heading" as="h2" size="2xl" fontWeight="900" color="black" position="relative" zIndex={2}>
+                  Kabar Terkini Ngawonggo
+                </Heading>
+                <Box position="absolute" bottom="5px" left="0" w="80%" h="20px" bg="neo.teal" zIndex={1} opacity={0.5} transform="rotate(-1deg)" />
+            </Box>
+
+            <Text fontSize="xl" color="black" fontWeight="500">
               Ikuti perkembangan terbaru mengenai kegiatan, pembangunan, dan pengumuman resmi dari Pemerintah Desa Ngawonggo.
             </Text>
           </VStack>
+
           <Button
             as={RouterLink}
             to="/news"
-            variant="ghost"
-            colorScheme="brand"
             size="lg"
+            bg="white"
             rightIcon={<FaArrowRight />}
-            fontWeight="800"
-            _hover={{ bg: 'brand.50', transform: 'translateX(5px)' }}
           >
-            Lihat Semua Berita
+            LIHAT SEMUA BERITA
           </Button>
         </Flex>
 
@@ -79,13 +80,17 @@ const LatestNews = () => {
           <>
             {news.length > 0 ? (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
-                {news.map((item) => (
-                  <CardNews key={item.id} news={item} />
+                {news.map((item, index) => (
+                  <Box key={item.id} position="relative"
+                       transform={index % 2 === 0 ? "translateY(0)" : "translateY(20px)"}
+                       transition="transform 0.3s">
+                    <CardNews news={item} isBrutalist={true} index={index} />
+                  </Box>
                 ))}
               </SimpleGrid>
             ) : (
-              <Box textAlign="center" py={20} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="3xl" border="2px dashed" borderColor="gray.200">
-                <Text color="gray.400" fontSize="lg" fontWeight="600">Belum ada berita yang diterbitkan.</Text>
+              <Box textAlign="center" py={20} bg="neo.warmWhite" border="3px dashed black">
+                <Text color="black" fontSize="lg" fontWeight="bold" fontFamily="accent">Belum ada berita yang diterbitkan.</Text>
               </Box>
             )}
           </>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Stack } from '@chakra-ui/react';
+import { Box, Container, Stack, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import DoodleLogo from '../../../components/DoodleLogo';
 import QuickLinks from './QuickLinks';
@@ -7,113 +7,91 @@ import { supabase } from '../../../lib/supabase';
 
 const MotionBox = motion(Box);
 
-// Background effects components
-const SnowEffect = () => (
-    <Box position="absolute" top={0} left={0} right={0} bottom={0} zIndex={1} pointerEvents="none" opacity={0.6}>
-        <div className="snow-container">
-            {/* We'll use simple CSS for snow in index.css, or just a placeholder if not defined. We can also render dots. */}
-            {[...Array(50)].map((_, i) => (
-                <Box
-                    key={i}
-                    position="absolute"
-                    bg="white" _dark={{ bg: "gray.800" }}
-                    borderRadius="full"
-                    w={`${Math.random() * 4 + 2}px`}
-                    h={`${Math.random() * 4 + 2}px`}
-                    left={`${Math.random() * 100}%`}
-                    top={`-${Math.random() * 20}%`}
-                    opacity={Math.random() * 0.5 + 0.3}
-                    style={{
-                        animation: `fall ${Math.random() * 3 + 2}s linear infinite`,
-                        animationDelay: `${Math.random() * 2}s`
-                    }}
-                />
-            ))}
-        </div>
-        <style>{`
-            @keyframes fall {
-                0% { transform: translateY(-10vh); }
-                100% { transform: translateY(110vh); }
-            }
-        `}</style>
+// Brutalist Marquee Component
+const MarqueeStrip = ({ text, top }) => (
+  <Box
+    position="absolute"
+    top={top ? 0 : 'auto'}
+    bottom={top ? 'auto' : 0}
+    left={0}
+    right={0}
+    zIndex={10}
+    bg="neo.yellow"
+    borderY="3px solid black"
+    overflow="hidden"
+    whiteSpace="nowrap"
+    py={1}
+  >
+    <Box
+      display="inline-block"
+      style={{ animation: 'marquee 20s linear infinite' }}
+    >
+      <Text
+        fontFamily="heading"
+        fontSize={{ base: 'xs', md: 'sm' }}
+        fontWeight="bold"
+        color="black"
+        letterSpacing="widest"
+        textTransform="uppercase"
+      >
+        {text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      </Text>
     </Box>
+  </Box>
 );
 
-const ConfettiBGEffect = () => (
-    <Box position="absolute" top={0} left={0} right={0} bottom={0} zIndex={1} pointerEvents="none" opacity={0.4}>
-        {[...Array(30)].map((_, i) => (
-            <Box
-                key={i}
-                position="absolute"
-                bg={['red.400', 'blue.400', 'green.400', 'yellow.400', 'purple.400'][Math.floor(Math.random() * 5)]}
-                w={`${Math.random() * 10 + 5}px`}
-                h={`${Math.random() * 20 + 10}px`}
-                left={`${Math.random() * 100}%`}
-                top={`-${Math.random() * 20}%`}
-                style={{
-                    animation: `fall ${Math.random() * 3 + 2}s linear infinite, spinConfetti ${Math.random() * 2 + 1}s linear infinite`,
-                    animationDelay: `${Math.random() * 2}s`
-                }}
-            />
-        ))}
-        <style>{`
-            @keyframes spinConfetti {
-                0% { transform: rotate(0deg) rotateX(0deg) rotateY(0deg); }
-                100% { transform: rotate(360deg) rotateX(360deg) rotateY(360deg); }
-            }
-        `}</style>
-    </Box>
-);
-
-const StarsEffect = () => (
-    <Box position="absolute" top={0} left={0} right={0} bottom={0} zIndex={1} pointerEvents="none">
-        {[...Array(100)].map((_, i) => (
-            <Box
-                key={i}
-                position="absolute"
-                bg="white" _dark={{ bg: "gray.800" }}
-                borderRadius="full"
-                w={`${Math.random() * 2 + 1}px`}
-                h={`${Math.random() * 2 + 1}px`}
-                left={`${Math.random() * 100}%`}
-                top={`${Math.random() * 100}%`}
-                opacity={Math.random()}
-                style={{
-                    animation: `twinkle ${Math.random() * 4 + 2}s ease-in-out infinite`,
-                    animationDelay: `${Math.random() * 2}s`
-                }}
-            />
-        ))}
-        <style>{`
-            @keyframes twinkle {
-                0%, 100% { opacity: 0.2; transform: scale(1); }
-                50% { opacity: 1; transform: scale(1.5); }
-            }
-        `}</style>
-    </Box>
-);
-
-const AuroraEffect = () => (
-    <MotionBox
-        position="absolute"
-        top="-50%"
-        left="-50%"
-        right="-50%"
-        bottom="-50%"
-        zIndex={1}
-        opacity={0.6}
-        bgGradient="radial(circle at 20% 30%, brand.400 0%, transparent 50%), radial(circle at 80% 70%, purple.600 0%, transparent 50%), radial(circle at 50% 50%, teal.400 0%, transparent 40%), radial(circle at 10% 80%, accent.gold 0%, transparent 40%)"
-        filter="blur(120px)"
-        animate={{
-          rotate: [0, 15, -5, 0],
-          scale: [1, 1.15, 1.05, 1],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "linear"
-        }}
+// Floating Geometric Shapes
+const FloatingShapes = () => (
+  <Box position="absolute" top={0} left={0} right={0} bottom={0} zIndex={1} pointerEvents="none" overflow="hidden">
+    <Box
+      position="absolute"
+      top="15%"
+      left="10%"
+      w="100px"
+      h="100px"
+      bg="neo.teal"
+      borderRadius="full"
+      border="3px solid black"
+      boxShadow="brutal"
+      style={{ animation: 'float-brutal 8s ease-in-out infinite' }}
     />
+    <Box
+      position="absolute"
+      top="25%"
+      right="15%"
+      w="80px"
+      h="80px"
+      bg="neo.coral"
+      border="3px solid black"
+      boxShadow="brutal"
+      transform="rotate(15deg)"
+      style={{ animation: 'float-brutal 12s ease-in-out infinite reverse' }}
+    />
+    <Box
+      position="absolute"
+      bottom="30%"
+      left="20%"
+      w="60px"
+      h="60px"
+      bg="neo.yellow"
+      border="3px solid black"
+      boxShadow="brutal"
+      clipPath="polygon(50% 0%, 0% 100%, 100% 100%)"
+      style={{ animation: 'float-brutal 10s ease-in-out infinite 1s' }}
+    />
+     <Box
+      position="absolute"
+      bottom="15%"
+      right="25%"
+      w="120px"
+      h="120px"
+      bg="neo.slate"
+      borderRadius="full"
+      border="3px solid black"
+      boxShadow="brutal"
+      style={{ animation: 'float-brutal 14s ease-in-out infinite 2s' }}
+    />
+  </Box>
 );
 
 
@@ -152,20 +130,6 @@ const Hero = () => {
     fetchDoodle();
   }, []);
 
-  const renderBackgroundEffect = () => {
-      if (!activeDoodle || activeDoodle.background_effect === 'aurora' || !activeDoodle.background_effect) {
-          return <AuroraEffect />;
-      }
-      switch (activeDoodle.background_effect) {
-          case 'snow': return <SnowEffect />;
-          case 'stars': return <StarsEffect />;
-          case 'confetti_bg': return <ConfettiBGEffect />;
-          case 'none': return null;
-          // You can add more complex ones like fireworks if needed.
-          default: return <AuroraEffect />;
-      }
-  };
-
   return (
     <Box
       position="relative"
@@ -174,12 +138,14 @@ const Hero = () => {
       alignItems="center"
       justifyContent="center"
       overflow="hidden"
-      bg="brand.900"
-      bgGradient="linear(to-br, #0F172A, #002952, #0F2F24)"
+      bg="neo.slate"
+      className="bg-dot-grid"
       pt={{ base: "88px", md: "124px" }}
       pb={{ base: "56px", md: "40px" }}
     >
-      {renderBackgroundEffect()}
+      <MarqueeStrip text="★ DESA NGAWONGGO ★ KALIANGKRIK ★ MAGELANG" top={true} />
+
+      <FloatingShapes />
 
       {/* Grid Pattern Overlay */}
       <Box
@@ -189,33 +155,36 @@ const Hero = () => {
         right="0"
         bottom="0"
         zIndex={2}
-        backgroundImage="linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)"
+        backgroundImage="linear-gradient(rgba(0, 0, 0, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.2) 1px, transparent 1px)"
         backgroundSize="50px 50px"
-        opacity={0.3}
-      />
-
-      <Box
-        position="absolute"
-        top="0"
-        left="0"
-        right="0"
-        bottom="0"
-        zIndex={2}
-        bg="blackAlpha.500"
-        backdropFilter="contrast(1.1) saturate(1.2)"
+        opacity={0.6}
       />
 
       <Container maxW="container.xl" zIndex={3} position="relative">
         <Stack spacing={{ base: 10, md: 16 }} align="center" textAlign="center" mx="auto" w="full">
-          <Box mt={{ base: 4, md: 8 }}>
+          <MotionBox
+            mt={{ base: 4, md: 8 }}
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: "spring", bounce: 0.4, duration: 0.8 }}
+            _hover={{ animation: 'wobble 0.5s ease-in-out' }}
+            bg="white"
+            p={4}
+            border="4px solid black"
+            boxShadow="brutalHover"
+            borderRadius="xl"
+            transform="rotate(-2deg)"
+          >
             <DoodleLogo doodleData={activeDoodle} />
-          </Box>
+          </MotionBox>
 
           <Box w="full" maxW="4xl">
             <QuickLinks isHero={true} />
           </Box>
         </Stack>
       </Container>
+
+      <MarqueeStrip text="★ DESA NGAWONGGO ★ KALIANGKRIK ★ MAGELANG" top={false} />
     </Box>
   );
 };

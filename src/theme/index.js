@@ -1,8 +1,6 @@
 import { extendTheme } from '@chakra-ui/react';
 import { mode } from '@chakra-ui/theme-tools';
 
-
-
 const config = {
   initialColorMode: 'light',
   useSystemColorMode: false,
@@ -11,65 +9,57 @@ const config = {
 const theme = extendTheme({
   config,
   fonts: {
-    heading: '"Plus Jakarta Sans", sans-serif',
+    heading: '"Space Grotesk", sans-serif',
     body: '"Inter", sans-serif',
+    accent: '"Syne", sans-serif',
   },
   shadows: {
-    soft: '0 8px 30px rgba(0,0,0,0.04)',
-    medium: '0 12px 40px rgba(0,0,0,0.08)',
-    strong: '0 20px 50px rgba(0,0,0,0.12)',
-    glass: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+    brutal: '4px 4px 0px #000000',
+    brutalHover: '8px 8px 0px #000000',
+    brutalInset: 'inset 4px 4px 0px #000000',
+    brutalSoft: '4px 4px 0px rgba(0,0,0,0.15)',
+    brutalColor: (color) => `4px 4px 0px ${color}`,
   },
   layerStyles: {
-    glass: {
-      bg: 'rgba(255, 255, 255, 0.7)',
-      _dark: {
-        bg: 'rgba(26, 32, 44, 0.7)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-      },
-      backdropFilter: 'blur(20px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-      border: '1px solid rgba(255, 255, 255, 0.3)',
-      boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
-    },
-    glassCard: {
-      bg: 'rgba(255, 255, 255, 0.8)',
-      _dark: {
-        bg: 'rgba(26, 32, 44, 0.8)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-      },
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      border: '1px solid rgba(255, 255, 255, 0.5)',
-      borderRadius: '3xl',
-      boxShadow: '0 10px 40px -10px rgba(0,0,0,0.05)',
-      transition: 'all 0.4s cubic-bezier(.4,0,.2,1)',
+    brutalCard: {
+      border: '3px solid',
+      borderColor: 'black',
+      boxShadow: '4px 4px 0px #000',
+      borderRadius: 'xl',
+      transition: 'all 0.2s',
       _hover: {
-        transform: 'translateY(-5px)',
-        boxShadow: '0 20px 50px -10px rgba(0,0,0,0.1)',
-        borderColor: 'brand.200',
+        boxShadow: '8px 8px 0px #000',
+        transform: 'translate(-4px, -4px)',
       }
     },
-    darkGlass: {
-      bg: 'rgba(15, 23, 42, 0.7)',
-      backdropFilter: 'blur(20px) saturate(160%)',
-      WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
-    },
-    liquidGlass: {
-      bg: 'rgba(255, 255, 255, 0.45)',
-      _dark: {
-        bg: 'rgba(26, 32, 44, 0.45)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-      },
-      backdropFilter: 'blur(30px) saturate(210%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(210%)',
-      border: '1px solid rgba(255, 255, 255, 0.25)',
-      boxShadow: '0 12px 40px 0 rgba(31, 38, 135, 0.12)',
+    brutalCardAccent: {
+      border: '3px solid',
+      borderColor: 'black',
+      bg: '#FFE156',
+      boxShadow: '4px 4px 0px #000',
     }
   },
   colors: {
+    brutal: {
+      black: '#000000',
+      bg: '#1A1A2E',
+      bgDark: '#2D2D44',
+      cardBg: '#F7F7F2',
+      yellow: '#FFE156',
+      red: '#FF6B6B',
+      teal: '#4ECDC4',
+      purple: '#A855F7',
+      orange: '#FB923C',
+      green: '#34D399',
+    },
+    neo: {
+      midnight: '#1A1A2E',
+      yellow: '#FFE156',
+      coral: '#FF6B6B',
+      teal: '#4ECDC4',
+      warmWhite: '#F7F7F2',
+      slate: '#2D2D44',
+    },
     brand: {
       50: '#e6f0ff',
       100: '#b3d1ff',
@@ -95,53 +85,63 @@ const theme = extendTheme({
   styles: {
     global: (props) => ({
       body: {
-        bg: mode('white', 'gray.900')(props),
+        bg: mode('white', 'neo.midnight')(props),
         color: mode('gray.800', 'whiteAlpha.900')(props),
         overflowX: 'hidden',
+        background: mode('none', 'none')(props), // Handle via css classes for patterns
       },
       '::selection': {
-        bg: mode('brand.100', 'brand.900')(props),
-        color: mode('brand.700', 'brand.100')(props),
+        bg: 'neo.yellow',
+        color: 'black',
       },
-      '.glass-hover': {
-        transition: 'all 0.3s ease',
-        _hover: {
-          bg: mode('rgba(255, 255, 255, 0.9)', 'rgba(26, 32, 44, 0.9)')(props),
-          transform: 'translateY(-2px)',
-          boxShadow: 'xl',
-        }
-      }
     }),
   },
   components: {
     Button: {
       baseStyle: {
-        borderRadius: 'full',
-        fontWeight: '700',
-        transition: 'all 0.3s cubic-bezier(.4,0,.2,1)',
+        borderRadius: 'md',
+        fontWeight: 'bold',
+        border: '3px solid black',
+        boxShadow: '4px 4px 0px black',
+        transition: 'all 0.2s',
+        _hover: {
+          transform: 'translate(-2px, -2px)',
+          boxShadow: '6px 6px 0px black',
+        },
+        _active: {
+          transform: 'translate(2px, 2px)',
+          boxShadow: '0px 0px 0px black',
+        }
       },
       variants: {
-        solid: {
+        solid: (props) => ({
+          bg: props.colorScheme === 'brand' ? 'neo.yellow' : `${props.colorScheme}.400`,
+          color: 'black',
           _hover: {
-            transform: 'scale(1.02)',
-            boxShadow: 'lg',
-          },
-          _active: {
-            transform: 'scale(0.98)',
+            bg: props.colorScheme === 'brand' ? '#ffeb82' : `${props.colorScheme}.500`,
           }
-        },
+        }),
         outline: {
-          borderWidth: '2px',
-          _hover: {
-            bg: 'brand.50',
+          bg: 'transparent',
+          color: 'black',
+          _dark: {
+            color: 'white',
+            borderColor: 'white',
+            boxShadow: '4px 4px 0px white',
+            _hover: {
+              boxShadow: '6px 6px 0px white',
+            },
+            _active: {
+              boxShadow: '0px 0px 0px white',
+            }
           }
         }
       }
     },
     Heading: {
       baseStyle: {
-        fontWeight: '800',
-        letterSpacing: '-0.03em',
+        fontWeight: 'bold',
+        letterSpacing: '-0.02em',
       },
     },
     Container: {
