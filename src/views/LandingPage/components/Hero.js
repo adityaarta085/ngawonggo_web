@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Stack, Badge, Icon, Text, Heading, VStack } from '@chakra-ui/react';
+import { Box, Container, Stack, Badge, Icon, VStack } from '@chakra-ui/react';
 import { FaChevronDown, FaMapMarkerAlt } from 'react-icons/fa';
 import { Typewriter } from 'react-simple-typewriter';
 import { motion } from 'framer-motion';
@@ -233,27 +233,18 @@ const Hero = () => {
               gap={2}
             >
               <Icon as={FaMapMarkerAlt} color="accent.gold" />
-              Kecamatan Kaliangkrik, Kab. Magelang
+              <Typewriter
+                words={['Kecamatan Kaliangkrik, Kab. Magelang']}
+                loop={1}
+                cursor
+                cursorStyle='_'
+                typeSpeed={70}
+                deleteSpeed={50}
+                delaySpeed={1000}
+              />
             </Badge>
 
-            <Heading as="h1" size="2xl" color="white" fontWeight="900" letterSpacing="tight" lineHeight="1.2">
-              Selamat Datang di
-              <Box as="span" display="block" color="brand.200">
-                <Typewriter
-                  words={['Desa Ngawonggo', 'Desa Digital', 'Desa Wisata']}
-                  loop={0}
-                  cursor
-                  cursorStyle='_'
-                  typeSpeed={70}
-                  deleteSpeed={50}
-                  delaySpeed={1000}
-                />
-              </Box>
-            </Heading>
 
-            <Text color="whiteAlpha.800" fontSize={{ base: "md", md: "xl" }} maxW="2xl" fontWeight="500">
-              Mewujudkan desa yang mandiri, inovatif, dan berbudaya melalui digitalisasi pelayanan dan keterbukaan informasi publik.
-            </Text>
           </VStack>
 
           <Box w="full" maxW="4xl" mt={8}>
