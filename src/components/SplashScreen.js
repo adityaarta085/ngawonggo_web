@@ -15,8 +15,7 @@ const SplashScreen = ({ onComplete }) => {
   useEffect(() => {
     const fetchLogos = async () => {
       const defaultLogos = [
-        { type: 'component', component: <NgawonggoLogo fontSize="4xl" iconSize={16} flexDirection="column" /> },
-        { type: 'image', src: 'https://scn.magelangkab.go.id/sid/assets-landing/images/logo_kab_mgl.png', label: 'Kabupaten Magelang' },
+        { type: 'component', component: <NgawonggoLogo fontSize="4xl" iconSize={16} flexDirection="column" /> }
       ];
 
       const today = new Date().toISOString().split('T')[0];

@@ -1,4 +1,4 @@
-// Service Worker for Desa Ngawonggo
+// Service Worker for Desa Kabupaten Magelang
 // Strategy: Network Only (No Caching)
 // This ensures the website is always up-to-date from the server.
 
