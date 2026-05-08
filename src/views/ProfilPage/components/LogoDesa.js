@@ -26,7 +26,7 @@ const LogoDesa = () => {
         />
       </Box>
       <Box>
-        <Text fontSize="25px">Makna Logo Desa Ngawonggo</Text>
+        <Text fontSize="25px">Makna Logo Kabupaten Magelang</Text>
         <Box mt={2} dangerouslySetInnerHTML={{ __html: content }} />
       </Box>
 

@@ -14,7 +14,7 @@ export const translations = {
     },
     profile: {
       downloadTitle: 'Pusat Unduhan Aset',
-      downloadSubtitle: 'Unduh logo resmi dan aset splash screen Desa Ngawonggo.',
+      downloadSubtitle: 'Unduh logo resmi dan aset splash screen Kabupaten Magelang.',
       logo: 'Logo Desa',
       splash: 'Splash Screen',
       combined: 'Bundel 3 Logo',
@@ -25,7 +25,7 @@ export const translations = {
       error: 'Gagal mengunduh aset',
     },
     hero: {
-      title: 'Mewujudkan Desa Ngawonggo yang Mandiri & Digital',
+      title: 'Mewujudkan Kabupaten Magelang yang Mandiri & Digital',
       subtitle: 'Menuju Era Digital 2045 dengan kearifan lokal dan potensi alam yang asri.',
       cta: 'Jelajahi Desa',
     },

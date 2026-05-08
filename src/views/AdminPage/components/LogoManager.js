@@ -87,7 +87,7 @@ const LogoManager = () => {
   return (
     <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" shadow="sm" maxW="2xl" mx="auto">
       <VStack spacing={6} align="stretch">
-        <Text fontSize="2xl" fontWeight="bold">Kustomisasi Logo Desa Ngawonggo</Text>
+        <Text fontSize="2xl" fontWeight="bold">Kustomisasi Logo Kabupaten Magelang</Text>
         <Text color="gray.500">Atur tampilan logo utama (background, efek, ornamen) yang akan muncul di Navbar dan SplashScreen.</Text>
         <Divider />
 

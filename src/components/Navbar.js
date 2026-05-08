@@ -40,7 +40,7 @@ const Navbar = ({ user, isScrolled }) => {
     {
       label: t.profile || 'Profil',
       children: [
-        { label: 'Sejarah Desa', subLabel: 'Asal usul Desa Ngawonggo', href: '/profil#sejarah' },
+        { label: 'Sejarah Desa', subLabel: 'Asal usul Kabupaten Magelang', href: '/profil#sejarah' },
         { label: 'Visi & Misi', subLabel: 'Tujuan & cita-cita desa', href: '/profil#visimisi' },
         { label: 'Wilayah Desa', subLabel: 'Data geografis & administratif', href: '/profil#wilayah' },
       ],

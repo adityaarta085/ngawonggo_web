@@ -24,7 +24,7 @@ const Footer = ({ ml }) => {
         <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={12}>
           <VStack align="start" spacing={8}>
             <HStack spacing={4}>
-                <Box bg="brand.600" p={2} borderRadius="xl" display="inline-block"><Image src="/logo_desa.png" h="50px" alt="Logo Desa Ngawonggo" style={{ filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.5))" }} /></Box>
+                <Box bg="brand.600" p={2} borderRadius="xl" display="inline-block"><Image src="/logo_desa.png" h="50px" alt="Logo Kabupaten Magelang" style={{ filter: "drop-shadow(0px 2px 4px rgba(0,0,0,0.5))" }} /></Box>
                 <VStack align="start" spacing={0}>
                     <Text color="white" fontWeight="900" fontSize="lg" letterSpacing="tight">DESA NGAWONGGO</Text>
                     <Text fontSize="xs" fontWeight="700" color="brand.400">KABUPATEN MAGELANG</Text>
@@ -65,7 +65,7 @@ const Footer = ({ ml }) => {
             <Stack spacing={5} fontSize="sm" fontWeight="600">
               <Flex align="start" gap={4}>
                 <Icon as={FaMapMarkerAlt} mt={1} color="brand.400" />
-                <Text>Dusun Krajan 01/01 Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang, Jawa Tengah 56153</Text>
+                <Text>Dusun Krajan 01/01 Kabupaten Magelang, Kecamatan Kaliangkrik, Kabupaten Magelang, Jawa Tengah 56153</Text>
               </Flex>
               <Flex align="center" gap={4}>
                 <Icon as={FaPhone} color="brand.400" />
@@ -88,7 +88,7 @@ const Footer = ({ ml }) => {
                 style={{ border: 0 }}
                 allowFullScreen=""
                 loading="lazy"
-                title="Peta Lokasi Desa Ngawonggo"
+                title="Peta Lokasi Kabupaten Magelang"
               ></iframe>
             </Box>
           </VStack>

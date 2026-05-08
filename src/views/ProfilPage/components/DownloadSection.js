@@ -71,7 +71,7 @@ const DownloadSection = () => {
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
       pdf.setFontSize(18);
-      pdf.text('Aset Resmi Desa Ngawonggo', 10, 20);
+      pdf.text('Aset Resmi Kabupaten Magelang', 10, 20);
       pdf.addImage(imgData, 'PNG', 10, 30, pdfWidth, pdfHeight);
       pdf.save(`${filename}.pdf`);
 
@@ -164,7 +164,7 @@ const DownloadSection = () => {
         ctx.fillStyle = '#2D5A27';
         ctx.font = 'bold 50px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('Desa Ngawonggo', canvas.width / 2, canvas.height / 2 + 120);
+        ctx.fillText('Kabupaten Magelang', canvas.width / 2, canvas.height / 2 + 120);
 
         // Draw attribution
         ctx.fillStyle = '#666';
