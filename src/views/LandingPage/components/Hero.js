@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Stack } from '@chakra-ui/react';
+import { Box, Container, Stack, Badge, Icon, VStack } from '@chakra-ui/react';
+import { FaChevronDown, FaMapMarkerAlt } from 'react-icons/fa';
+import { Typewriter } from 'react-simple-typewriter';
 import { motion } from 'framer-motion';
 import DoodleLogo from '../../../components/DoodleLogo';
 import QuickLinks from './QuickLinks';
@@ -207,15 +209,67 @@ const Hero = () => {
 
       <Container maxW="container.xl" zIndex={3} position="relative">
         <Stack spacing={{ base: 10, md: 16 }} align="center" textAlign="center" mx="auto" w="full">
+
           <Box mt={{ base: 4, md: 8 }}>
             <DoodleLogo doodleData={activeDoodle} />
           </Box>
 
-          <Box w="full" maxW="4xl">
+          <VStack spacing={6} align="center" mt={-4}>
+            <Badge
+              colorScheme="brand"
+              variant="subtle"
+              px={4}
+              py={2}
+              borderRadius="full"
+              textTransform="none"
+              fontSize="sm"
+              bg="whiteAlpha.200"
+              color="white"
+              backdropFilter="blur(10px)"
+              border="1px solid"
+              borderColor="whiteAlpha.300"
+              display="flex"
+              alignItems="center"
+              gap={2}
+            >
+              <Icon as={FaMapMarkerAlt} color="accent.gold" />
+              <Typewriter
+                words={['Kecamatan Kaliangkrik, Kab. Magelang']}
+                loop={1}
+                cursor
+                cursorStyle='_'
+                typeSpeed={70}
+                deleteSpeed={50}
+                delaySpeed={1000}
+              />
+            </Badge>
+
+
+          </VStack>
+
+          <Box w="full" maxW="4xl" mt={8}>
             <QuickLinks isHero={true} />
           </Box>
+
         </Stack>
       </Container>
+
+      {/* Animated Scroll Indicator */}
+      <Box
+        position="absolute"
+        bottom={8}
+        left="50%"
+        transform="translateX(-50%)"
+        zIndex={3}
+      >
+        <MotionBox
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+        >
+          <Icon as={FaChevronDown} color="whiteAlpha.800" w={6} h={6} />
+        </MotionBox>
+      </Box>
+
     </Box>
   );
 };

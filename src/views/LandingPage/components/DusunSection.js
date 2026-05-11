@@ -27,7 +27,7 @@ const DusunSection = () => {
   }, []);
 
   return (
-    <Box py={24} bg="white" _dark={{ bg: "gray.800" }} position="relative">
+    <Box py={24} bg="gray.50" _dark={{ bg: "gray.900" }} position="relative">
       <Container maxW="container.xl">
         <VStack spacing={12} align="center">
           <Box textAlign="center">
@@ -41,9 +41,12 @@ const DusunSection = () => {
             >
               Jelajahi Wilayah Kami
             </Text>
-            <Heading as="h2" size="2xl" fontWeight="800">
+            <Heading as="h2" size="2xl" fontWeight="800" mb={4}>
               Sepuluh Dusun Ngawonggo
             </Heading>
+            <Text fontSize="lg" color="gray.600" _dark={{ color: "gray.400" }} maxW="2xl" mx="auto">
+              Jelajahi potensi, keunikan, dan data demografis dari masing-masing dusun di wilayah Desa Ngawonggo.
+            </Text>
           </Box>
 
           <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={6} w="full">
@@ -57,7 +60,7 @@ const DusunSection = () => {
               >
                 <Box
                   position="relative"
-                  h="200px"
+                  h="240px"
                   borderRadius="2xl"
                   overflow="hidden"
                   boxShadow="md"

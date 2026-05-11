@@ -11,7 +11,7 @@ import {
   useColorModeValue,
   Skeleton,
 } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { motion, animate, useMotionValue, useTransform } from 'framer-motion';
 import {
   FaUsers,
   FaTree,
@@ -25,6 +25,19 @@ import {
 import { supabase } from '../../../lib/supabase';
 
 const MotionBox = motion(Box);
+
+const Counter = ({ from, to }) => {
+  const count = useMotionValue(from);
+  const rounded = useTransform(count, (latest) => Math.round(latest).toLocaleString('id-ID'));
+
+  useEffect(() => {
+    const controls = animate(count, to, { duration: 2, ease: "easeOut" });
+    return controls.stop;
+  }, [count, to]);
+
+  return <motion.span>{rounded}</motion.span>;
+};
+
 
 const iconMap = {
   FaUsers,
@@ -82,7 +95,15 @@ const StatsSection = () => {
   );
 
   return (
-    <Box py={24} bg={sectionBg} position="relative" overflow="hidden">
+    <Box pt={32} pb={24} bg={sectionBg} position="relative" overflow="hidden">
+
+      {/* Decorative Wave SVG at top */}
+      <Box position="absolute" top={0} left={0} w="full" overflow="hidden" lineHeight={0} transform="rotate(180deg)">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ position: 'relative', display: 'block', width: 'calc(100% + 1.3px)', height: '40px' }}>
+          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="currentColor" color={useColorModeValue('white', 'gray.800')}></path>
+        </svg>
+      </Box>
+
       {/* Decorative Blur */}
       <Box position="absolute" top="-100px" right="-100px" w="400px" h="400px" bg="brand.500" opacity={0.03} borderRadius="full" filter="blur(80px)" />
 
@@ -109,7 +130,7 @@ const StatsSection = () => {
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    transition={{ duration: 0.8, delay: index * 0.1, type: 'spring', stiffness: 100 }}
                     bg={cardBg}
                     p={10}
                     borderRadius="3xl"
@@ -138,7 +159,7 @@ const StatsSection = () => {
                       <Icon as={getIcon(item.icon)} w={8} h={8} aria-hidden="true" focusable="false" />
                     </Flex>
                     <Heading color={textColor} size="xl" fontWeight="900" mb={2}>
-                      {typeof item.value === 'number' ? item.value.toLocaleString('id-ID') : item.value}
+                      {typeof item.value === 'number' ? <Counter from={0} to={item.value} /> : item.value}
                     </Heading>
                     <Text color="gray.400" fontSize="md" fontWeight="800" letterSpacing="wider" textTransform="uppercase">
                       {item.label}
