@@ -8,7 +8,7 @@ import NgawonggoLogo from './NgawonggoLogo';
 const MotionBox = motion(Box);
 const MotionImage = motion(Image);
 
-const DoodleLogo = ({ doodleData }) => {
+const DoodleLogo = ({ doodleData, showText = true }) => {
   const [showConfetti, setShowConfetti] = useState(false);
   const { width, height } = useWindowSize();
   const controls = useAnimation();
@@ -88,7 +88,7 @@ const DoodleLogo = ({ doodleData }) => {
         _hover={{ scale: 1.05 }}
         cursor="pointer"
       >
-        <NgawonggoLogo fontSize={{ base: "4xl", md: "5xl" }} iconSize={{ base: 24, md: 32 }} flexDirection="column" color="white" />
+        <NgawonggoLogo fontSize={{ base: "4xl", md: "5xl" }} iconSize={{ base: 24, md: 32 }} flexDirection="column" color="white" showText={showText} />
       </MotionBox>
     );
   }
@@ -107,7 +107,7 @@ const DoodleLogo = ({ doodleData }) => {
         >
             {doodleData.show_default_logo && (
               <Box position="absolute" bottom="-15px" right="-15px" zIndex={2} transform="scale(0.6)">
-                  <NgawonggoLogo fontSize="2xl" iconSize={12} flexDirection="row" color="white" />
+                  <NgawonggoLogo fontSize="2xl" iconSize={12} flexDirection="row" color="white" showText={showText} />
               </Box>
             )}
             <MotionImage

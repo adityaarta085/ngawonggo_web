@@ -208,7 +208,7 @@ const Hero = () => {
       <Container maxW="container.xl" zIndex={3} position="relative">
         <Stack spacing={{ base: 10, md: 16 }} align="center" textAlign="center" mx="auto" w="full">
           <Box mt={{ base: 4, md: 8 }}>
-            <DoodleLogo doodleData={activeDoodle} />
+            <DoodleLogo doodleData={activeDoodle} showText={false} />
           </Box>
 
           <Box w="full" maxW="4xl">
