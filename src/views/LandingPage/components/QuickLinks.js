@@ -23,6 +23,7 @@ import {
   FaPhotoVideo,
   FaPhoneAlt,
   FaCompass,
+  FaCloudDownloadAlt,
 } from 'react-icons/fa';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
@@ -97,6 +98,12 @@ const QuickLinks = ({ isHero }) => {
       icon: FaCompass,
       href: '/jelajahi',
       color: 'yellow.400',
+    },
+    {
+      label: language === 'id' ? 'Unduhan' : 'Downloader',
+      icon: FaCloudDownloadAlt,
+      href: '/downloader',
+      color: 'teal.300',
     },
     {
       label: language === 'id' ? 'Pengaduan' : 'Complaints',

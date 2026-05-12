@@ -64,6 +64,8 @@ import EduGameRouter from './views/EduGamePage/EduGameRouter';
 import PortalRouter from "./views/PortalPage/PortalRouter.js";
 import DonasiRouter from './views/DonasiPage/index.js';
 import TopupPage from './views/TopupPage/index.js';
+import DownloaderPage from './views/DownloaderPage/index.js';
+
 
 const TopBar = ({ isScrolled }) => {
   return (
@@ -270,6 +272,8 @@ function App() {
             <Route path="/layanan/history" element={<ComplaintHistory />} />
             <Route path="/layanan/lacak" element={<ComplaintTrack />} />
             <Route path="/jelajahi" element={<JelajahiPage />} />
+            <Route path="/downloader" element={<DownloaderPage />} />
+
             <Route path="/transparansi" element={<TransparansiPage />} />
             <Route path="/kontak" element={<KontakPage />} />
             <Route path="/media" element={<MediaPage />} />
