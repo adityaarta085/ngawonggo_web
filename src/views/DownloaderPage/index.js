@@ -13,32 +13,49 @@ import {
   useToast,
   Flex,
   Badge,
-  HStack
+  HStack,
+  Icon
 } from '@chakra-ui/react';
+import { SiTiktok } from 'react-icons/si';
 import { FaDownload, FaSearch, FaLink } from 'react-icons/fa';
 import SEO from '../../components/SEO';
 import '../../App.css'; // Make sure the loader CSS is available
 
-const SERVICES = [
-  { id: 'ytmp3', name: 'YouTube to MP3', endpoint: 'https://api.nexray.eu.cc/downloader/ytmp3', requires: 'url' },
-  { id: 'ytmp4', name: 'YouTube to MP4', endpoint: 'https://api.nexray.eu.cc/downloader/v1/ytmp4', requires: 'url', options: ['360', '480', '720', '1080'] },
-  { id: 'ytplay', name: 'YouTube Play MP3 (Search)', endpoint: 'https://api.nexray.eu.cc/downloader/ytplay', requires: 'query' },
-  { id: 'ytplayvid', name: 'YouTube Play MP4 (Search)', endpoint: 'https://api.nexray.eu.cc/downloader/ytplayvid', requires: 'query' },
-  { id: 'tiktok', name: 'TikTok', endpoint: 'https://api.nexray.eu.cc/downloader/tiktok', requires: 'url' },
-  { id: 'spotify', name: 'Spotify', endpoint: 'https://api.nexray.eu.cc/downloader/spotify', requires: 'url' },
-  { id: 'snackvideo', name: 'SnackVideo', endpoint: 'https://api.nexray.eu.cc/downloader/snackvideo', requires: 'url' },
-  { id: 'twitter', name: 'Twitter/X', endpoint: 'https://api.nexray.eu.cc/downloader/twitter', requires: 'url' },
-  { id: 'instagram', name: 'Instagram', endpoint: 'https://api.nexray.eu.cc/downloader/instagram', requires: 'url' },
-  { id: 'facebook', name: 'Facebook', endpoint: 'https://api.nexray.eu.cc/downloader/facebook', requires: 'url' },
-  { id: 'applemusic', name: 'Apple Music', endpoint: 'https://api.nexray.eu.cc/downloader/applemusic', requires: 'url' },
-  { id: 'pinterest', name: 'Pinterest', endpoint: 'https://api.nexray.eu.cc/downloader/pinterest', requires: 'url' },
-  { id: 'likee', name: 'Likee', endpoint: 'https://api.nexray.eu.cc/downloader/likee', requires: 'url' },
-  { id: 'soundcloud', name: 'SoundCloud', endpoint: 'https://api.nexray.eu.cc/downloader/soundcloud', requires: 'url' },
-  { id: 'threads', name: 'Threads', endpoint: 'https://api.nexray.eu.cc/downloader/threads', requires: 'url' },
-  { id: 'scribd', name: 'Scribd', endpoint: 'https://api.nexray.eu.cc/downloader/scribd', requires: 'url' },
-  { id: 'googledrive', name: 'Google Drive', endpoint: 'https://api.nexray.eu.cc/downloader/googledrive', requires: 'url' },
-  { id: 'github', name: 'GitHub', endpoint: 'https://api.nexray.eu.cc/downloader/github', requires: 'url' },
+import {
+  FaYoutube,
+
+  FaInstagram,
+  FaPinterest,
+  FaTwitter,
+  FaChevronDown,
+  FaChevronUp
+} from 'react-icons/fa';
+
+const MAIN_SERVICES = [
+  { id: 'ytmp3', name: 'YouTube to MP3', endpoint: 'https://api.nexray.eu.cc/downloader/ytmp3', requires: 'url', icon: FaYoutube, color: 'red.500' },
+  { id: 'ytmp4', name: 'YouTube to MP4', endpoint: 'https://api.nexray.eu.cc/downloader/v1/ytmp4', requires: 'url', options: ['360', '480', '720', '1080'], icon: FaYoutube, color: 'red.500' },
+  { id: 'ytplay', name: 'YouTube Play MP3 (Search)', endpoint: 'https://api.nexray.eu.cc/downloader/ytplay', requires: 'query', icon: FaYoutube, color: 'red.500' },
+  { id: 'ytplayvid', name: 'YouTube Play MP4 (Search)', endpoint: 'https://api.nexray.eu.cc/downloader/ytplayvid', requires: 'query', icon: FaYoutube, color: 'red.500' },
+  { id: 'tiktok', name: 'TikTok', endpoint: 'https://api.nexray.eu.cc/downloader/tiktok', requires: 'url', icon: SiTiktok, color: 'black' },
+  { id: 'instagram', name: 'Instagram', endpoint: 'https://api.nexray.eu.cc/downloader/instagram', requires: 'url', icon: FaInstagram, color: 'pink.500' },
+  { id: 'pinterest', name: 'Pinterest', endpoint: 'https://api.nexray.eu.cc/downloader/pinterest', requires: 'url', icon: FaPinterest, color: 'red.600' },
+  { id: 'twitter', name: 'Twitter/X', endpoint: 'https://api.nexray.eu.cc/downloader/twitter', requires: 'url', icon: FaTwitter, color: 'blue.400' },
 ];
+
+const BETA_SERVICES = [
+  { id: 'spotify', name: 'Spotify (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/spotify', requires: 'url' },
+  { id: 'snackvideo', name: 'SnackVideo (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/snackvideo', requires: 'url' },
+  { id: 'facebook', name: 'Facebook (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/facebook', requires: 'url' },
+  { id: 'applemusic', name: 'Apple Music (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/applemusic', requires: 'url' },
+  { id: 'likee', name: 'Likee (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/likee', requires: 'url' },
+  { id: 'soundcloud', name: 'SoundCloud (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/soundcloud', requires: 'url' },
+  { id: 'threads', name: 'Threads (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/threads', requires: 'url' },
+  { id: 'scribd', name: 'Scribd (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/scribd', requires: 'url' },
+  { id: 'googledrive', name: 'Google Drive (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/googledrive', requires: 'url' },
+  { id: 'github', name: 'GitHub (Beta)', endpoint: 'https://api.nexray.eu.cc/downloader/github', requires: 'url' },
+];
+
+const SERVICES = [...MAIN_SERVICES, ...BETA_SERVICES];
 
 const DownloaderPage = () => {
   const [selectedService, setSelectedService] = useState(SERVICES[0]);
@@ -46,6 +63,7 @@ const DownloaderPage = () => {
   const [resolution, setResolution] = useState('1080');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [showBeta, setShowBeta] = useState(false);
   const toast = useToast();
 
   const handleServiceChange = (e) => {
@@ -104,17 +122,28 @@ const DownloaderPage = () => {
   const renderResult = () => {
     if (!result) return null;
 
-    // The API structure varies, try to extract common fields
-    const title = result.title || result.desc || 'Hasil Download';
-    const thumbnail = result.thumbnail || result.cover || result.thumb;
-    const downloadUrl = result.url || result.download_url || result.media;
-    const author = result.author || result.channel || result.creator;
+    // Normalize result (Instagram returns an array)
+    const data = Array.isArray(result) ? result[0] : result;
 
-    // TikTok might have an array of media or different structure
-    const tiktokMediaUrl = result.media && Array.isArray(result.media)
-        ? (result.media.find(m => !m.watermark)?.url || result.media[0]?.url)
+    // The API structure varies, try to extract common fields
+    const title = data.title || data.desc || 'Hasil Download';
+    const thumbnail = data.thumbnail || data.cover || data.thumb || data.image;
+    let downloadUrl = data.url || data.download_url || data.media || data.data || data.image;
+    const author = data.author || data.channel || data.creator;
+
+    // TikTok fallback for array media
+    const tiktokMediaUrl = data.media && Array.isArray(data.media)
+        ? (data.media.find(m => !m.watermark)?.url || data.media[0]?.url)
         : null;
-    const finalDownloadUrl = typeof downloadUrl === 'string' ? downloadUrl : tiktokMediaUrl;
+
+    let finalDownloadUrl = null;
+
+    // Check if it's Twitter (array of download options)
+    const isTwitter = Array.isArray(data.download_url);
+
+    if (!isTwitter) {
+        finalDownloadUrl = typeof downloadUrl === 'string' ? downloadUrl : tiktokMediaUrl;
+    }
 
     return (
       <Box p={6} mt={8} borderWidth="1px" borderRadius="xl" bg="whiteAlpha.100" backdropFilter="blur(10px)" borderColor="whiteAlpha.300" w="full">
@@ -125,24 +154,44 @@ const DownloaderPage = () => {
           <Heading size="md" color="white">{title}</Heading>
 
           {author && (
-             <Text color="gray.300" fontSize="sm">Oleh: {author}</Text>
+             <Text color="gray.300" fontSize="sm">
+               Oleh: {typeof author === 'object' ? (author.fullname || author.nickname || author.name || 'Unknown') : author}
+             </Text>
           )}
 
           <HStack spacing={4} wrap="wrap">
-            {result.quality && <Badge colorScheme="green">Quality: {result.quality}</Badge>}
-            {result.format && <Badge colorScheme="blue">Format: {result.format}</Badge>}
-            {result.duration && <Badge colorScheme="purple">Duration: {result.duration}s</Badge>}
-            {result.views && <Badge colorScheme="orange">Views: {result.views}</Badge>}
+            {data.quality && <Badge colorScheme="green">Quality: {data.quality}</Badge>}
+            {data.format && <Badge colorScheme="blue">Format: {data.format}</Badge>}
+            {data.duration && <Badge colorScheme="purple">Duration: {data.duration}</Badge>}
+            {data.views && <Badge colorScheme="orange">Views: {data.views}</Badge>}
           </HStack>
 
-          {result.description && (
+          {data.description && (
             <Text color="gray.400" fontSize="sm" noOfLines={3}>
-              {result.description}
+              {data.description}
             </Text>
           )}
 
-          <Flex mt={4} justify="center">
-            {finalDownloadUrl ? (
+          <Flex mt={4} justify="center" direction="column" gap={3}>
+            {isTwitter ? (
+                <VStack w="full" spacing={2}>
+                  {data.download_url.map((item, idx) => (
+                      <Button
+                        key={idx}
+                        as={Link}
+                        href={item.url}
+                        isExternal
+                        leftIcon={<FaDownload />}
+                        colorScheme={item.type === 'mp3' ? 'green' : (item.type === 'image' ? 'purple' : 'brand')}
+                        size="md"
+                        w="full"
+                        _hover={{ textDecoration: 'none' }}
+                      >
+                        Download {item.name || `${item.type} ${item.resolusi ? `(${item.resolusi})` : ''}`}
+                      </Button>
+                  ))}
+                </VStack>
+            ) : finalDownloadUrl ? (
                 <Button
                     as={Link}
                     href={finalDownloadUrl}
@@ -190,11 +239,40 @@ const DownloaderPage = () => {
                   borderColor="whiteAlpha.400"
                   _hover={{ borderColor: 'brand.400' }}
                   sx={{ '> option, > optgroup': { background: '#1A202C' } }}
+                  icon={selectedService.icon ? <Icon as={selectedService.icon} color={selectedService.color} /> : null}
                 >
-                  {SERVICES.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name}</option>
-                  ))}
+                  <optgroup label="Main Services">
+                    {MAIN_SERVICES.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </optgroup>
+                  {showBeta && (
+                    <optgroup label="Beta Services (Experimental)">
+                      {BETA_SERVICES.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </optgroup>
+                  )}
                 </Select>
+
+                <Button
+                    variant="ghost"
+                    colorScheme="gray"
+                    size="sm"
+                    onClick={() => {
+                        setShowBeta(!showBeta);
+                        if (showBeta && BETA_SERVICES.find(s => s.id === selectedService.id)) {
+                            setSelectedService(MAIN_SERVICES[0]);
+                            setResult(null);
+                        }
+                    }}
+                    rightIcon={showBeta ? <FaChevronUp /> : <FaChevronDown />}
+                    color="gray.400"
+                    alignSelf="flex-end"
+                    mt="-3"
+                >
+                    {showBeta ? 'Sembunyikan Layanan Beta' : 'Tampilkan Layanan Beta'}
+                </Button>
 
                 {selectedService.id === 'ytmp4' && (
                   <Select
