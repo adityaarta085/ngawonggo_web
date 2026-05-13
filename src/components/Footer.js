@@ -12,8 +12,9 @@ import {
   VStack,
   Divider,
   HStack,
+  Button,
 } from '@chakra-ui/react';
-import { FaFacebook, FaInstagram, FaYoutube, FaMapMarkerAlt, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaYoutube, FaMapMarkerAlt, FaEnvelope, FaPhone, FaWhatsapp } from 'react-icons/fa';
 import { SiTiktok } from 'react-icons/si';
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -47,6 +48,27 @@ const Footer = ({ ml }) => {
                 <Icon as={FaYoutube} w={6} h={6} _hover={{ color: 'brand.400' }} transition="color 0.2s" />
               </Link>
             </Stack>
+
+            <Box mt={4} w="full">
+              <Button
+                as="a"
+                href="https://whatsapp.com/channel/0029Vb7s9VIId7nFgebdx73V"
+                target="_blank"
+                rel="noopener noreferrer"
+                colorScheme="whatsapp"
+                leftIcon={<FaWhatsapp size={20} />}
+                w="full"
+                size="md"
+                borderRadius="full"
+                boxShadow="lg"
+                _hover={{
+                  transform: 'translateY(-2px)',
+                  boxShadow: 'xl',
+                }}
+              >
+                Saluran Ngawonggo Info
+              </Button>
+            </Box>
           </VStack>
 
           <VStack align="start" spacing={6}>
