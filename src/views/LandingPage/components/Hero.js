@@ -1,17 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Container, Stack } from '@chakra-ui/react';
-import { motion } from 'framer-motion';
+import { Box, Container, Stack, useColorModeValue, keyframes } from '@chakra-ui/react';
 import DoodleLogo from '../../../components/DoodleLogo';
 import QuickLinks from './QuickLinks';
 import { supabase } from '../../../lib/supabase';
 
-const MotionBox = motion(Box);
+// Keyframes
+const fall = keyframes`
+  0% { transform: translateY(-10vh); }
+  100% { transform: translateY(110vh); }
+`;
+
+const spinConfetti = keyframes`
+  0% { transform: rotate(0deg) rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotate(360deg) rotateX(360deg) rotateY(360deg); }
+`;
+
+const twinkle = keyframes`
+  0%, 100% { opacity: 0.2; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
+`;
+
+const gradientBG = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
+
+const blobFloat = keyframes`
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(10%, 10%) scale(1.1); }
+`;
+
+const waveBlob = keyframes`
+  0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: rotate(0deg) scale(1); }
+  100% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; transform: rotate(15deg) scale(1.05); }
+`;
+
+const waveBlob2 = keyframes`
+  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(0deg) scale(1); }
+  100% { border-radius: 30% 70% 70% 30% / 50% 60% 30% 60%; transform: rotate(-15deg) scale(1.1); }
+`;
 
 // Background effects components
 const SnowEffect = () => (
     <Box position="absolute" top={0} left={0} right={0} bottom={0} zIndex={1} pointerEvents="none" opacity={0.6}>
         <div className="snow-container">
-            {/* We'll use simple CSS for snow in index.css, or just a placeholder if not defined. We can also render dots. */}
             {[...Array(50)].map((_, i) => (
                 <Box
                     key={i}
@@ -24,18 +57,12 @@ const SnowEffect = () => (
                     top={`-${Math.random() * 20}%`}
                     opacity={Math.random() * 0.5 + 0.3}
                     style={{
-                        animation: `fall ${Math.random() * 3 + 2}s linear infinite`,
+                        animation: `${fall} ${Math.random() * 3 + 2}s linear infinite`,
                         animationDelay: `${Math.random() * 2}s`
                     }}
                 />
             ))}
         </div>
-        <style>{`
-            @keyframes fall {
-                0% { transform: translateY(-10vh); }
-                100% { transform: translateY(110vh); }
-            }
-        `}</style>
     </Box>
 );
 
@@ -51,17 +78,11 @@ const ConfettiBGEffect = () => (
                 left={`${Math.random() * 100}%`}
                 top={`-${Math.random() * 20}%`}
                 style={{
-                    animation: `fall ${Math.random() * 3 + 2}s linear infinite, spinConfetti ${Math.random() * 2 + 1}s linear infinite`,
+                    animation: `${fall} ${Math.random() * 3 + 2}s linear infinite, ${spinConfetti} ${Math.random() * 2 + 1}s linear infinite`,
                     animationDelay: `${Math.random() * 2}s`
                 }}
             />
         ))}
-        <style>{`
-            @keyframes spinConfetti {
-                0% { transform: rotate(0deg) rotateX(0deg) rotateY(0deg); }
-                100% { transform: rotate(360deg) rotateX(360deg) rotateY(360deg); }
-            }
-        `}</style>
     </Box>
 );
 
@@ -79,46 +100,84 @@ const StarsEffect = () => (
                 top={`${Math.random() * 100}%`}
                 opacity={Math.random()}
                 style={{
-                    animation: `twinkle ${Math.random() * 4 + 2}s ease-in-out infinite`,
+                    animation: `${twinkle} ${Math.random() * 4 + 2}s ease-in-out infinite`,
                     animationDelay: `${Math.random() * 2}s`
                 }}
             />
         ))}
-        <style>{`
-            @keyframes twinkle {
-                0%, 100% { opacity: 0.2; transform: scale(1); }
-                50% { opacity: 1; transform: scale(1.5); }
-            }
-        `}</style>
     </Box>
 );
 
-const AuroraEffect = () => (
-    <MotionBox
-        position="absolute"
-        top="-50%"
-        left="-50%"
-        right="-50%"
-        bottom="-50%"
-        zIndex={1}
-        opacity={0.6}
-        bgGradient="radial(circle at 20% 30%, brand.400 0%, transparent 50%), radial(circle at 80% 70%, purple.600 0%, transparent 50%), radial(circle at 50% 50%, teal.400 0%, transparent 40%), radial(circle at 10% 80%, accent.gold 0%, transparent 40%)"
-        filter="blur(120px)"
-        animate={{
-          rotate: [0, 15, -5, 0],
-          scale: [1, 1.15, 1.05, 1],
-        }}
-        transition={{
-          duration: 25,
-          repeat: Infinity,
-          ease: "linear"
-        }}
-    />
-);
+const FluidWaveEffect = () => {
+    const isDark = useColorModeValue(false, true);
 
+    const c1 = isDark ? "#0F172A" : "#137fec";
+    const c2 = isDark ? "#002952" : "#80b3ff";
+    const c3 = isDark ? "#0F2F24" : "#4d94ff";
+    const c4 = isDark ? "#1a202c" : "#e6f0ff";
+
+    return (
+        <Box
+            position="absolute"
+            top="-50%"
+            left="-50%"
+            right="-50%"
+            bottom="-50%"
+            zIndex={1}
+            opacity={isDark ? 0.8 : 0.6}
+            style={{
+                background: `linear-gradient(-45deg, ${c1}, ${c2}, ${c3}, ${c4})`,
+                backgroundSize: '400% 400%',
+                animation: `${gradientBG} 15s ease infinite`,
+            }}
+        >
+            <Box
+                position="absolute"
+                top="0"
+                left="0"
+                w="100%"
+                h="100%"
+                opacity="0.5"
+                style={{
+                   background: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 60%)`,
+                   animation: `${blobFloat} 20s infinite alternate ease-in-out`,
+                }}
+            />
+            <Box
+                position="absolute"
+                top="20%"
+                left="20%"
+                w="60%"
+                h="60%"
+                opacity="0.3"
+                borderRadius="40% 60% 70% 30% / 40% 50% 60% 50%"
+                bgGradient={`linear(to-r, ${c2}, ${c3})`}
+                filter="blur(80px)"
+                style={{
+                   animation: `${waveBlob} 12s infinite alternate ease-in-out`,
+                }}
+            />
+            <Box
+                position="absolute"
+                bottom="10%"
+                right="10%"
+                w="50%"
+                h="50%"
+                opacity="0.4"
+                borderRadius="60% 40% 30% 70% / 60% 30% 70% 40%"
+                bgGradient={`linear(to-l, ${c1}, ${c2})`}
+                filter="blur(100px)"
+                style={{
+                   animation: `${waveBlob2} 18s infinite alternate ease-in-out`,
+                }}
+            />
+        </Box>
+    );
+};
 
 const Hero = () => {
   const [activeDoodle, setActiveDoodle] = useState(null);
+  const bgColor = useColorModeValue("brand.50", "brand.900");
 
   useEffect(() => {
     const fetchDoodle = async () => {
@@ -154,15 +213,14 @@ const Hero = () => {
 
   const renderBackgroundEffect = () => {
       if (!activeDoodle || activeDoodle.background_effect === 'aurora' || !activeDoodle.background_effect) {
-          return <AuroraEffect />;
+          return <FluidWaveEffect />;
       }
       switch (activeDoodle.background_effect) {
           case 'snow': return <SnowEffect />;
           case 'stars': return <StarsEffect />;
           case 'confetti_bg': return <ConfettiBGEffect />;
           case 'none': return null;
-          // You can add more complex ones like fireworks if needed.
-          default: return <AuroraEffect />;
+          default: return <FluidWaveEffect />;
       }
   };
 
@@ -174,8 +232,7 @@ const Hero = () => {
       alignItems="center"
       justifyContent="center"
       overflow="hidden"
-      bg="brand.900"
-      bgGradient="linear(to-br, #0F172A, #002952, #0F2F24)"
+      bg={bgColor}
       pt={{ base: "88px", md: "124px" }}
       pb={{ base: "56px", md: "40px" }}
     >
@@ -189,9 +246,12 @@ const Hero = () => {
         right="0"
         bottom="0"
         zIndex={2}
-        backgroundImage="linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)"
+        backgroundImage={useColorModeValue(
+            "linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)",
+            "linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)"
+        )}
         backgroundSize="50px 50px"
-        opacity={0.3}
+        opacity={useColorModeValue(0.5, 0.3)}
       />
 
       <Box
@@ -201,7 +261,7 @@ const Hero = () => {
         right="0"
         bottom="0"
         zIndex={2}
-        bg="blackAlpha.500"
+        bg={useColorModeValue("whiteAlpha.500", "blackAlpha.500")}
         backdropFilter="contrast(1.1) saturate(1.2)"
       />
 

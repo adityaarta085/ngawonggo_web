@@ -13,8 +13,9 @@ import {
   VStack,
   HStack,
   Divider,
+  Button
 } from '@chakra-ui/react';
-import { FaCloud, FaSun, FaCloudSun, FaCloudShowersHeavy, FaTint, FaWind } from 'react-icons/fa';
+import { FaCloud, FaSun, FaCloudSun, FaCloudShowersHeavy, FaTint, FaWind, FaWhatsapp } from 'react-icons/fa';
 import axios from 'axios';
 
 const TopBarWeather = () => {
@@ -91,35 +92,66 @@ const TopBarWeather = () => {
   }, []);
 
   if (loading || !weather) {
-    return null;
+    return (
+       <HStack>
+        <Button
+          as="a"
+          href="https://whatsapp.com/channel/0029Vb7s9VIId7nFgebdx73V"
+          target="_blank"
+          rel="noopener noreferrer"
+          colorScheme="whatsapp"
+          size="xs"
+          borderRadius="full"
+          leftIcon={<FaWhatsapp />}
+          display={{ base: "none", sm: "inline-flex" }}
+        >
+          Saluran Info
+        </Button>
+       </HStack>
+    );
   }
 
   const translatedDesc = translateWeather(weather.descText);
 
   return (
     <>
-      <Flex
-        align="center"
-        cursor="pointer"
-        onClick={onOpen}
-        bg="whiteAlpha.600"
-        px={3}
-        py={1}
-        borderRadius="full"
-        _hover={{ bg: "whiteAlpha.800" }}
-        transition="all 0.2s"
-        border="1px solid"
-        borderColor="whiteAlpha.400"
-        boxShadow="sm"
-      >
-        <Icon as={getWeatherIcon(weather.desc)} color="brand.500" mr={2} />
-        <Text fontWeight="bold" fontSize="sm" color="gray.800" _dark={{ color: "white" }} mr={1}>
-          {weather.temp}°C
-        </Text>
-        <Text fontSize="xs" color="gray.600" display={{ base: "none", md: "block" }}>
-          - {translatedDesc}
-        </Text>
-      </Flex>
+      <HStack>
+        <Button
+          as="a"
+          href="https://whatsapp.com/channel/0029Vb7s9VIId7nFgebdx73V"
+          target="_blank"
+          rel="noopener noreferrer"
+          colorScheme="whatsapp"
+          size="xs"
+          borderRadius="full"
+          leftIcon={<FaWhatsapp />}
+          display={{ base: "none", sm: "inline-flex" }}
+        >
+          Saluran Info
+        </Button>
+        <Flex
+          align="center"
+          cursor="pointer"
+          onClick={onOpen}
+          bg="whiteAlpha.600"
+          px={3}
+          py={1}
+          borderRadius="full"
+          _hover={{ bg: "whiteAlpha.800" }}
+          transition="all 0.2s"
+          border="1px solid"
+          borderColor="whiteAlpha.400"
+          boxShadow="sm"
+        >
+          <Icon as={getWeatherIcon(weather.desc)} color="brand.500" mr={2} />
+          <Text fontWeight="bold" fontSize="sm" color="gray.800" _dark={{ color: "white" }} mr={1}>
+            {weather.temp}°C
+          </Text>
+          <Text fontSize="xs" color="gray.600" display={{ base: "none", md: "block" }}>
+            - {translatedDesc}
+          </Text>
+        </Flex>
+      </HStack>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered motionPreset="slideInBottom">
         <ModalOverlay backdropFilter="blur(4px)" />
