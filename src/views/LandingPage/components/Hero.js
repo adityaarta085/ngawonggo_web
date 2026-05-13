@@ -1,175 +1,132 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Stack, useColorModeValue, keyframes } from '@chakra-ui/react';
+import { motion } from 'framer-motion';
 import DoodleLogo from '../../../components/DoodleLogo';
 import QuickLinks from './QuickLinks';
 import { supabase } from '../../../lib/supabase';
 
-// Keyframes
-const fall = keyframes`
-  0% { transform: translateY(-10vh); }
-  100% { transform: translateY(110vh); }
-`;
-
-const spinConfetti = keyframes`
-  0% { transform: rotate(0deg) rotateX(0deg) rotateY(0deg); }
-  100% { transform: rotate(360deg) rotateX(360deg) rotateY(360deg); }
-`;
-
-const twinkle = keyframes`
-  0%, 100% { opacity: 0.2; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.5); }
-`;
-
-const gradientBG = keyframes`
+// High-end Fluid Gradient Animation
+const flowAnimation = keyframes`
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 `;
 
-const blobFloat = keyframes`
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(10%, 10%) scale(1.1); }
+const waveFloat = keyframes`
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  50% { transform: translateY(-15px) rotate(2deg) scale(1.05); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
 `;
 
-const waveBlob = keyframes`
-  0% { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; transform: rotate(0deg) scale(1); }
-  100% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; transform: rotate(15deg) scale(1.05); }
-`;
-
-const waveBlob2 = keyframes`
-  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(0deg) scale(1); }
-  100% { border-radius: 30% 70% 70% 30% / 50% 60% 30% 60%; transform: rotate(-15deg) scale(1.1); }
-`;
-
-// Background effects components
-const SnowEffect = () => (
-    <Box position="absolute" top={0} left={0} right={0} bottom={0} zIndex={1} pointerEvents="none" opacity={0.6}>
-        <div className="snow-container">
-            {[...Array(50)].map((_, i) => (
-                <Box
-                    key={i}
-                    position="absolute"
-                    bg="white" _dark={{ bg: "gray.800" }}
-                    borderRadius="full"
-                    w={`${Math.random() * 4 + 2}px`}
-                    h={`${Math.random() * 4 + 2}px`}
-                    left={`${Math.random() * 100}%`}
-                    top={`-${Math.random() * 20}%`}
-                    opacity={Math.random() * 0.5 + 0.3}
-                    style={{
-                        animation: `${fall} ${Math.random() * 3 + 2}s linear infinite`,
-                        animationDelay: `${Math.random() * 2}s`
-                    }}
-                />
-            ))}
-        </div>
-    </Box>
-);
-
-const ConfettiBGEffect = () => (
-    <Box position="absolute" top={0} left={0} right={0} bottom={0} zIndex={1} pointerEvents="none" opacity={0.4}>
-        {[...Array(30)].map((_, i) => (
-            <Box
-                key={i}
-                position="absolute"
-                bg={['red.400', 'blue.400', 'green.400', 'yellow.400', 'purple.400'][Math.floor(Math.random() * 5)]}
-                w={`${Math.random() * 10 + 5}px`}
-                h={`${Math.random() * 20 + 10}px`}
-                left={`${Math.random() * 100}%`}
-                top={`-${Math.random() * 20}%`}
-                style={{
-                    animation: `${fall} ${Math.random() * 3 + 2}s linear infinite, ${spinConfetti} ${Math.random() * 2 + 1}s linear infinite`,
-                    animationDelay: `${Math.random() * 2}s`
-                }}
+const SvgWave = ({ color, opacity, delay, duration, height, isReverse }) => (
+    <Box
+        position="absolute"
+        bottom="0"
+        left="0"
+        w="200%"
+        h={height}
+        opacity={opacity}
+        transform="translateZ(0)"
+        style={{
+            animation: `waveSlide ${duration}s linear infinite ${isReverse ? 'reverse' : 'normal'}, ${waveFloat} ${duration * 1.5}s ease-in-out infinite`,
+            animationDelay: `${delay}s`,
+            transformOrigin: 'bottom center',
+        }}
+        zIndex={1}
+    >
+        <svg viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ width: '100%', height: '100%', display: 'block' }}>
+            <path
+                d="M0,0 C150,100 350,0 600,50 C850,100 1050,0 1200,50 L1200,120 L0,120 Z"
+                fill={color}
             />
-        ))}
+        </svg>
+        <style>{`
+            @keyframes waveSlide {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+            }
+        `}</style>
     </Box>
 );
 
-const StarsEffect = () => (
-    <Box position="absolute" top={0} left={0} right={0} bottom={0} zIndex={1} pointerEvents="none">
-        {[...Array(100)].map((_, i) => (
-            <Box
-                key={i}
-                position="absolute"
-                bg="white" _dark={{ bg: "gray.800" }}
-                borderRadius="full"
-                w={`${Math.random() * 2 + 1}px`}
-                h={`${Math.random() * 2 + 1}px`}
-                left={`${Math.random() * 100}%`}
-                top={`${Math.random() * 100}%`}
-                opacity={Math.random()}
-                style={{
-                    animation: `${twinkle} ${Math.random() * 4 + 2}s ease-in-out infinite`,
-                    animationDelay: `${Math.random() * 2}s`
-                }}
-            />
-        ))}
-    </Box>
-);
-
-const FluidWaveEffect = () => {
+const MasterpieceFluidBackground = () => {
+    // Beautiful dynamic color palettes
     const isDark = useColorModeValue(false, true);
 
-    const c1 = isDark ? "#0F172A" : "#137fec";
-    const c2 = isDark ? "#002952" : "#80b3ff";
-    const c3 = isDark ? "#0F2F24" : "#4d94ff";
-    const c4 = isDark ? "#1a202c" : "#e6f0ff";
+    // Light Mode: Vibrant, deep ocean to tropical water
+    const lightGradients = [
+        "linear-gradient(-45deg, #00C9FF, #92FE9D, #1CB5E0, #000046)",
+        "linear-gradient(-45deg, #00f2fe, #4facfe, #00C9FF, #92FE9D)"
+    ];
+
+    // Dark Mode: Deep cosmic nebula to midnight ocean
+    const darkGradients = [
+        "linear-gradient(-45deg, #091236, #1E215D, #290a59, #ff3860)",
+        "linear-gradient(-45deg, #1A0B2E, #110F1F, #0D1E30, #17324F)"
+    ];
+
+    const bgGradient = isDark ? darkGradients[0] : lightGradients[0];
+    const waveColors = isDark
+        ? ["#1a202c", "rgba(45, 55, 72, 0.8)", "rgba(23, 25, 35, 0.9)"]
+        : ["#ffffff", "rgba(240, 248, 255, 0.8)", "rgba(224, 247, 250, 0.9)"];
 
     return (
         <Box
             position="absolute"
-            top="-50%"
-            left="-50%"
-            right="-50%"
-            bottom="-50%"
-            zIndex={1}
-            opacity={isDark ? 0.8 : 0.6}
-            style={{
-                background: `linear-gradient(-45deg, ${c1}, ${c2}, ${c3}, ${c4})`,
-                backgroundSize: '400% 400%',
-                animation: `${gradientBG} 15s ease infinite`,
-            }}
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            zIndex={0}
+            overflow="hidden"
+            bg="black"
         >
+            {/* The main flowing color base */}
             <Box
                 position="absolute"
-                top="0"
-                left="0"
-                w="100%"
-                h="100%"
-                opacity="0.5"
+                top="-50%" left="-50%" right="-50%" bottom="-50%"
                 style={{
-                   background: `radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 60%)`,
-                   animation: `${blobFloat} 20s infinite alternate ease-in-out`,
+                    background: bgGradient,
+                    backgroundSize: '400% 400%',
+                    animation: `${flowAnimation} 20s ease-in-out infinite alternate`,
                 }}
+                opacity={isDark ? 0.9 : 1}
             />
+
+            {/* Soft glowing orbs to add depth */}
             <Box
                 position="absolute"
-                top="20%"
-                left="20%"
-                w="60%"
-                h="60%"
-                opacity="0.3"
-                borderRadius="40% 60% 70% 30% / 40% 50% 60% 50%"
-                bgGradient={`linear(to-r, ${c2}, ${c3})`}
-                filter="blur(80px)"
-                style={{
-                   animation: `${waveBlob} 12s infinite alternate ease-in-out`,
-                }}
-            />
-            <Box
-                position="absolute"
-                bottom="10%"
-                right="10%"
-                w="50%"
-                h="50%"
-                opacity="0.4"
-                borderRadius="60% 40% 30% 70% / 60% 30% 70% 40%"
-                bgGradient={`linear(to-l, ${c1}, ${c2})`}
+                top="10%" left="20%"
+                w="40vw" h="40vw"
+                bg={isDark ? "blue.500" : "teal.300"}
                 filter="blur(100px)"
-                style={{
-                   animation: `${waveBlob2} 18s infinite alternate ease-in-out`,
-                }}
+                opacity={isDark ? 0.3 : 0.4}
+                borderRadius="full"
+                style={{ animation: `${waveFloat} 15s ease-in-out infinite alternate` }}
+            />
+            <Box
+                position="absolute"
+                bottom="10%" right="10%"
+                w="50vw" h="50vw"
+                bg={isDark ? "purple.600" : "blue.400"}
+                filter="blur(120px)"
+                opacity={isDark ? 0.3 : 0.5}
+                borderRadius="full"
+                style={{ animation: `${waveFloat} 25s ease-in-out infinite alternate-reverse`, animationDelay: '2s' }}
+            />
+
+            {/* Overlapping animated SVG waves */}
+            <SvgWave color={waveColors[1]} opacity={0.6} duration={12} delay={0} height="150px" />
+            <SvgWave color={waveColors[2]} opacity={0.8} duration={18} delay={-5} height="120px" isReverse />
+            <SvgWave color={waveColors[0]} opacity={1} duration={25} delay={-2} height="90px" />
+
+            {/* Glassmorphism subtle overlay to tie it together */}
+            <Box
+                position="absolute"
+                top="0" left="0" right="0" bottom="0"
+                bg={useColorModeValue("whiteAlpha.200", "blackAlpha.400")}
+                backdropFilter="blur(2px)"
+                zIndex={2}
             />
         </Box>
     );
@@ -177,18 +134,14 @@ const FluidWaveEffect = () => {
 
 const Hero = () => {
   const [activeDoodle, setActiveDoodle] = useState(null);
-  const bgColor = useColorModeValue("brand.50", "brand.900");
 
   useEffect(() => {
     const fetchDoodle = async () => {
-      // Find a currently active doodle. If multiple are active, take the first.
       const today = new Date().toISOString().split('T')[0];
-
       const { data } = await supabase
         .from('doodles')
         .select('*')
         .eq('is_active', true)
-        // We handle date checking manually to support null dates (always active)
         .order('created_at', { ascending: false });
 
       if (data && data.length > 0) {
@@ -207,73 +160,41 @@ const Hero = () => {
         }
       }
     };
-
     fetchDoodle();
   }, []);
-
-  const renderBackgroundEffect = () => {
-      if (!activeDoodle || activeDoodle.background_effect === 'aurora' || !activeDoodle.background_effect) {
-          return <FluidWaveEffect />;
-      }
-      switch (activeDoodle.background_effect) {
-          case 'snow': return <SnowEffect />;
-          case 'stars': return <StarsEffect />;
-          case 'confetti_bg': return <ConfettiBGEffect />;
-          case 'none': return null;
-          default: return <FluidWaveEffect />;
-      }
-  };
 
   return (
     <Box
       position="relative"
-      minH={{ base: "80svh", md: "100svh" }}
+      minH={{ base: "85svh", md: "100svh" }}
       display="flex"
       alignItems="center"
       justifyContent="center"
       overflow="hidden"
-      bg={bgColor}
       pt={{ base: "88px", md: "124px" }}
-      pb={{ base: "56px", md: "40px" }}
+      pb={{ base: "80px", md: "60px" }}
     >
-      {renderBackgroundEffect()}
+      {/* Our beautiful masterpiece background */}
+      <MasterpieceFluidBackground />
 
-      {/* Grid Pattern Overlay */}
-      <Box
-        position="absolute"
-        top="0"
-        left="0"
-        right="0"
-        bottom="0"
-        zIndex={2}
-        backgroundImage={useColorModeValue(
-            "linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)",
-            "linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)"
-        )}
-        backgroundSize="50px 50px"
-        opacity={useColorModeValue(0.5, 0.3)}
-      />
-
-      <Box
-        position="absolute"
-        top="0"
-        left="0"
-        right="0"
-        bottom="0"
-        zIndex={2}
-        bg={useColorModeValue("whiteAlpha.500", "blackAlpha.500")}
-        backdropFilter="contrast(1.1) saturate(1.2)"
-      />
-
-      <Container maxW="container.xl" zIndex={3} position="relative">
+      <Container maxW="container.xl" zIndex={10} position="relative">
         <Stack spacing={{ base: 10, md: 16 }} align="center" textAlign="center" mx="auto" w="full">
-          <Box mt={{ base: 4, md: 8 }}>
-            <DoodleLogo doodleData={activeDoodle} showText={false} />
-          </Box>
 
-          <Box w="full" maxW="4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            style={{ width: "100%", display: "flex", justifyContent: "center" }}
+          >
+              <Box mt={{ base: 4, md: 8 }} filter="drop-shadow(0px 10px 20px rgba(0,0,0,0.3))">
+                <DoodleLogo doodleData={activeDoodle} showText={false} />
+              </Box>
+          </motion.div>
+
+          <Box w="full" maxW="5xl">
             <QuickLinks isHero={true} />
           </Box>
+
         </Stack>
       </Container>
     </Box>
