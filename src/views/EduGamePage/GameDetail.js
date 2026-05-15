@@ -14,10 +14,14 @@ import {
   List,
   ListItem,
   ListIcon,
+  Image,
 } from '@chakra-ui/react';
-import { FaGamepad, FaArrowLeft, FaCheckCircle, FaStar } from 'react-icons/fa';
+import { FaGamepad, FaArrowLeft, FaCheckCircle, FaStar, FaCertificate } from 'react-icons/fa';
 import { gamesData } from './GamesData';
 import { motion } from 'framer-motion';
+
+// Use require or import for image
+import CertificateImg from '../../assets/images/certificate_poki.png';
 
 const MotionBox = motion(Box);
 
@@ -72,12 +76,26 @@ const GameDetail = () => {
             <VStack align="start" spacing={3}>
               <HStack spacing={3}>
                 <Badge colorScheme="gray" borderRadius="full" px={3}>{game.category}</Badge>
-                <Badge colorScheme={game.difficulty === 'Mudah' ? 'green' : 'orange'} borderRadius="full" px={3}>{game.difficulty}</Badge>
+                <Badge colorScheme={game.difficulty === 'Mudah' ? 'green' : game.difficulty === 'Menengah' ? 'orange' : 'red'} borderRadius="full" px={3}>{game.difficulty}</Badge>
+                {game.isPremium && (
+                  <Badge colorScheme="yellow" borderRadius="full" px={3} display="flex" alignItems="center" gap={1}>
+                    <Icon as={FaCertificate} /> Premium
+                  </Badge>
+                )}
               </HStack>
               <Heading size="xl" fontWeight="900" color="gray.800" _dark={{ color: "white" }}>{game.title}</Heading>
               <Text color="gray.600" fontSize="md" lineHeight="tall">{game.longDesc}</Text>
             </VStack>
           </Flex>
+
+          {game.isPremium && (
+            <Box mb={8} textAlign="center" bg="yellow.50" _dark={{ bg: "yellow.900" }} p={6} borderRadius="2xl" border="1px solid" borderColor="yellow.200">
+               <Heading size="sm" mb={4} color="yellow.700" display="flex" alignItems="center" justifyContent="center" gap={2}>
+                 <Icon as={FaCertificate} /> Lisensi Resmi Poki.com
+               </Heading>
+               <Image src={CertificateImg} alt="Poki License Certificate" borderRadius="lg" boxShadow="md" maxH="300px" mx="auto" />
+            </Box>
+          )}
 
           <Box bg="gray.50" _dark={{ bg: "gray.900" }} p={6} borderRadius="2xl" mb={8}>
             <Heading size="sm" mb={4} color="gray.700" display="flex" alignItems="center" gap={2}>
