@@ -32,7 +32,7 @@ export const gamesData = [
     isPremium: true,
     category: 'Rhythm & Platformer',
     difficulty: 'Sangat Sulit',
-    embedUrl: 'https://level-devil.online/wp-content/uploads/2025/09/geometrydash.html',
+    embedUrl: 'https://labgstore21.github.io/g26/class-453',
     howToPlay: [
       'Klik atau sentuh layar untuk melompat.',
       'Ikuti irama musik untuk melewati rintangan.',
@@ -52,7 +52,7 @@ export const gamesData = [
     isPremium: true,
     category: 'Arcade & Kasual',
     difficulty: 'Menengah',
-    embedUrl: 'https://level-devil.online/wp-content/uploads/2025/09/Spacewaves.html',
+    embedUrl: 'https://marblerun-3d.github.io/game/spacewave/',
     howToPlay: [
       'Klik atau tahan untuk menggerakkan gelombang ke atas.',
       'Lepaskan untuk membiarkan gelombang turun.',
