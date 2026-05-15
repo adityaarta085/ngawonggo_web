@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { Box, Container, Flex, IconButton, Tooltip } from '@chakra-ui/react';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaExpand } from 'react-icons/fa';
 import { gamesData } from './GamesData';
 
 // Import game components
@@ -13,6 +13,7 @@ import Object3DGame from './3DObjectGame';
 const Gameplay = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const iframeRef = useRef(null);
 
   const game = useMemo(() => gamesData.find(g => g.id === id), [id]);
 
@@ -32,7 +33,49 @@ const Gameplay = () => {
     }
   };
 
+  const handleFullscreen = () => {
+    if (iframeRef.current) {
+      if (iframeRef.current.requestFullscreen) {
+        iframeRef.current.requestFullscreen();
+      } else if (iframeRef.current.webkitRequestFullscreen) { /* Safari */
+        iframeRef.current.webkitRequestFullscreen();
+      } else if (iframeRef.current.msRequestFullscreen) { /* IE11 */
+        iframeRef.current.msRequestFullscreen();
+      }
+    }
+  };
+
   const renderGame = () => {
+    if (game.embedUrl) {
+      return (
+        <Box position="relative" w="full" h="80vh" borderRadius="2xl" overflow="hidden" boxShadow="2xl">
+          <iframe
+            ref={iframeRef}
+            src={game.embedUrl}
+            title={game.title}
+            width="100%"
+            height="100%"
+            frameBorder="0"
+            scrolling="no"
+            allowFullScreen
+            style={{ border: 'none', background: '#000' }}
+          />
+          <Tooltip label="Full Screen" placement="left">
+            <IconButton
+              icon={<FaExpand />}
+              position="absolute"
+              bottom={4}
+              right={4}
+              colorScheme="blackAlpha"
+              variant="solid"
+              onClick={handleFullscreen}
+              aria-label="Full Screen"
+            />
+          </Tooltip>
+        </Box>
+      );
+    }
+
     switch (id) {
       case 'network':
         return <NetworkGame onFinish={handleGameFinish} />;
@@ -60,10 +103,11 @@ const Gameplay = () => {
           isRound
           onClick={handleAbort}
           aria-label="Abort Game"
+          zIndex="10"
         />
       </Tooltip>
 
-      <Container maxW="container.lg">
+      <Container maxW="container.xl">
         <Flex justify="center" w="full">
             {renderGame()}
         </Flex>

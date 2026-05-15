@@ -11,7 +11,7 @@ import {
   Badge,
   Flex,
 } from '@chakra-ui/react';
-import { FaGamepad, FaBrain, FaTrophy, FaArrowLeft } from 'react-icons/fa';
+import { FaGamepad, FaBrain, FaTrophy, FaArrowLeft, FaCertificate, FaCrown } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { gamesData } from './GamesData';
@@ -60,10 +60,10 @@ const GameList = () => {
             </Badge>
           </Flex>
           <Heading as="h1" size="3xl" fontWeight="900" bgGradient="linear(to-r, brand.600, purple.600)" bgClip="text">
-            Katalog Edukasi
+            Katalog Edukasi & Hiburan
           </Heading>
           <Text fontSize="xl" color="gray.600" maxW="2xl" fontWeight="500">
-            Pilih permainan untuk mulai mengasah kemampuan logika dan teknologi digitalmu.
+            Pilih permainan untuk mulai mengasah kemampuan logika, refleks, dan teknologi digitalmu. Mainkan game unggulan kami!
           </Text>
         </VStack>
 
@@ -81,14 +81,37 @@ const GameList = () => {
               _hover={{ transform: 'translateY(-10px)', boxShadow: 'strong' }}
               position="relative"
               overflow="hidden"
-              border="1px solid"
-              borderColor={game.highlight ? "purple.100" : "gray.100"}
+              border="2px solid"
+              borderColor={game.isPremium ? "yellow.400" : (game.highlight ? "purple.200" : "transparent")}
               display="flex"
               flexDirection="column"
               cursor="pointer"
               onClick={() => navigate(`/game/${game.id}`)}
             >
-              {game.highlight && (
+              {game.isPremium && (
+                 <Box
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  right={0}
+                  bgGradient="linear(to-r, yellow.400, orange.400)"
+                  color="white"
+                  px={6}
+                  py={1.5}
+                  fontSize="xs"
+                  fontWeight="900"
+                  letterSpacing="wider"
+                  textAlign="center"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  gap={2}
+                >
+                  <Icon as={FaCrown} /> GAME UNGGULAN BERSERTIFIKAT <Icon as={FaCrown} />
+                </Box>
+              )}
+
+              {game.highlight && !game.isPremium && (
                 <Box
                   position="absolute"
                   top={0}
@@ -106,9 +129,14 @@ const GameList = () => {
                 </Box>
               )}
 
-              <Flex gap={2} mb={4} wrap="wrap">
+              <Flex gap={2} mb={4} mt={game.isPremium ? 6 : 0} wrap="wrap">
                 <Badge colorScheme="gray" fontSize="2xs" px={2} py={1} borderRadius="full">{game.category}</Badge>
-                <Badge colorScheme={game.difficulty === 'Mudah' ? 'green' : 'orange'} fontSize="2xs" px={2} py={1} borderRadius="full">{game.difficulty}</Badge>
+                <Badge colorScheme={game.difficulty === 'Mudah' ? 'green' : (game.difficulty === 'Menengah' ? 'orange' : 'red')} fontSize="2xs" px={2} py={1} borderRadius="full">{game.difficulty}</Badge>
+                {game.isPremium && (
+                  <Badge colorScheme="yellow" fontSize="2xs" px={2} py={1} borderRadius="full" display="flex" alignItems="center" gap={1}>
+                    <Icon as={FaCertificate} /> Lisensi Poki
+                  </Badge>
+                )}
               </Flex>
 
               <VStack align="start" spacing={6} flex={1}>

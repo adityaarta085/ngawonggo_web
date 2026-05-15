@@ -1,6 +1,66 @@
-import { FaNetworkWired, FaQuestionCircle, FaPuzzlePiece, FaCube } from 'react-icons/fa';
+import { FaNetworkWired, FaQuestionCircle, FaPuzzlePiece, FaCube, FaGhost, FaRocket, FaShapes } from 'react-icons/fa';
 
 export const gamesData = [
+  {
+    id: 'level-devil',
+    title: 'Level Devil',
+    desc: 'Game platformer penuh kejutan dan jebakan. Latih kesabaran dan refleksmu!',
+    longDesc: 'Level Devil adalah game unggulan resmi berlisensi yang menguji kesabaran dan refleksmu. Setiap level penuh dengan jebakan tak terduga. Game ini dilisensikan secara resmi dari Poki.com.',
+    icon: FaGhost,
+    color: 'red',
+    highlight: true,
+    isPremium: true,
+    category: 'Platformer & Refleks',
+    difficulty: 'Sulit',
+    embedUrl: 'https://bitlifeonline.github.io/level-devil',
+    howToPlay: [
+      'Gunakan tombol panah atau kontrol layar untuk bergerak.',
+      'Hindari jebakan yang muncul tiba-tiba.',
+      'Capai pintu keluar untuk lanjut ke level berikutnya.',
+      'Tetap sabar dan jangan menyerah!'
+    ],
+    maxScore: 0
+  },
+  {
+    id: 'geometry-dash',
+    title: 'Geometry Dash',
+    desc: 'Lompat dan terbang melewati rintangan berbahaya dalam platformer berbasis ritme ini.',
+    longDesc: 'Geometry Dash adalah game platformer ritme legendaris. Siapkan dirimu untuk tantangan yang hampir mustahil. Game unggulan ini dilisensikan secara resmi dari Poki.com.',
+    icon: FaShapes,
+    color: 'yellow',
+    highlight: true,
+    isPremium: true,
+    category: 'Rhythm & Platformer',
+    difficulty: 'Sangat Sulit',
+    embedUrl: 'https://labgstore21.github.io/g26/class-453',
+    howToPlay: [
+      'Klik atau sentuh layar untuk melompat.',
+      'Ikuti irama musik untuk melewati rintangan.',
+      'Satu kesalahan dan kamu harus mengulang dari awal.',
+      'Buktikan kecepatan reaksimu!'
+    ],
+    maxScore: 0
+  },
+  {
+    id: 'space-waves',
+    title: 'Space Waves',
+    desc: 'Kendalikan gelombang luar angkasa dan hindari rintangan di jalurmu.',
+    longDesc: 'Space Waves adalah game arcade yang menenangkan namun menantang. Arahkan gelombangmu melalui rintangan kosmik. Game unggulan ini dilisensikan secara resmi dari Poki.com.',
+    icon: FaRocket,
+    color: 'cyan',
+    highlight: true,
+    isPremium: true,
+    category: 'Arcade & Kasual',
+    difficulty: 'Menengah',
+    embedUrl: 'https://marblerun-3d.github.io/game/spacewave/',
+    howToPlay: [
+      'Klik atau tahan untuk menggerakkan gelombang ke atas.',
+      'Lepaskan untuk membiarkan gelombang turun.',
+      'Hindari semua rintangan yang ada di depan.',
+      'Raih skor terjauhmu!'
+    ],
+    maxScore: 0
+  },
   {
     id: 'network',
     title: 'Labirin Jaringan',
@@ -8,7 +68,7 @@ export const gamesData = [
     longDesc: 'Di masa depan (2045), Desa Ngawonggo memerlukan infrastruktur jaringan yang merata. Tugasmu adalah menghubungkan Pusat Data dengan dusun-dusun secara efisien menggunakan kabel fiber optik tanpa kehabisan stok kabel.',
     icon: FaNetworkWired,
     color: 'purple',
-    highlight: true,
+    highlight: false,
     category: 'Logika & Strategi',
     difficulty: 'Menengah',
     howToPlay: [
