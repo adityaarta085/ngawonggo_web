@@ -1,0 +1,22 @@
+<<<<<<< SEARCH
+import KreativitasPage from './views/KreativitasPage/index.js';
+=======
+import KreativitasPage from './views/KreativitasPage/index.js';
+import CreateDetail from './views/KreativitasPage/components/CreateDetail.js';
+import PublikPage from './views/KreativitasPage/components/PublikPage.js';
+import ImageDetail from './views/KreativitasPage/components/ImageDetail.js';
+import HistoriPage from './views/KreativitasPage/components/HistoriPage.js';
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+            <Route path="/jelajahi" element={<JelajahiPage />} />
+            <Route path="/kreativitas" element={<KreativitasPage />} />
+            <Route path="/downloader" element={<DownloaderPage />} />
+=======
+            <Route path="/jelajahi" element={<JelajahiPage />} />
+            <Route path="/kreativitas" element={<KreativitasPage />} />
+            <Route path="/kreativitas/create/:id" element={<CreateDetail />} />
+            <Route path="/kreativitas/publik" element={<PublikPage />} />
+            <Route path="/kreativitas/publik/:id" element={<ImageDetail />} />
+            <Route path="/kreativitas/histori" element={<HistoriPage />} />
+            <Route path="/downloader" element={<DownloaderPage />} />
+>>>>>>> REPLACE
