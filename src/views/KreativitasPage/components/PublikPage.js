@@ -35,7 +35,29 @@ const PublikPage = () => {
 
   return (
     <Box pt={24} pb={32} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
-      <Container maxW="container.xl">
+
+        <style dangerouslySetInnerHTML={{__html: `
+        .loader {
+          display: inline-grid;
+          width: 80px;
+          aspect-ratio: 1;
+          overflow: hidden;
+          background:
+           conic-gradient(from 146deg at 50% 1%,#0000, #91492A 2deg 65deg,#0000 68deg)
+           -5% 100%/20% 27% repeat-x;
+        }
+        .loader:before {
+          content:"";
+          margin: 12.5%;
+          clip-path: polygon(100% 50%,78.19% 60.26%,88.3% 82.14%,65% 75.98%,58.68% 99.24%,44.79% 79.54%,25% 93.3%,27.02% 69.28%,3.02% 67.1%,20% 50%,3.02% 32.9%,27.02% 30.72%,25% 6.7%,44.79% 20.46%,58.68% 0.76%,65% 24.02%,88.3% 17.86%,78.19% 39.74%);
+          background: #CF6F46;
+          animation: l7 3s linear infinite;
+          translate: -135% 0;
+        }
+        @keyframes l7 {to{rotate: 400deg;translate: 135% 0}}
+        `}} />
+
+        <Container maxW="container.xl">
         <HStack mb={8} justify="space-between" bg="white" _dark={{ bg: "gray.800" }} p={4} borderRadius="xl" boxShadow="sm">
             <HStack>
                 <Button leftIcon={<FaArrowLeft />} variant="ghost" onClick={() => navigate('/kreativitas')} />
@@ -65,7 +87,7 @@ const PublikPage = () => {
                 onClick={() => navigate(`/kreativitas/publik/${img.id}`)}
               >
                 <Box h="300px" bg="black" position="relative" overflow="hidden">
-                    <Image src={img.image_url} alt={img.prompt} objectFit="cover" w="full" h="full" />
+                    <Image src={img.image_url} alt={img.prompt} objectFit="cover" w="full" h="full" fallback={<Box display="flex" w="full" h="full" alignItems="center" justifyContent="center"><div className="loader"></div></Box>} />
                 </Box>
 
                 <Box p={4}>

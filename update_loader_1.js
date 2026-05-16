@@ -1,0 +1,33 @@
+const fs = require('fs');
+
+const loaderCSS = `
+        <style dangerouslySetInnerHTML={{__html: \`
+        .loader {
+          display: inline-grid;
+          width: 80px;
+          aspect-ratio: 1;
+          overflow: hidden;
+          background:
+           conic-gradient(from 146deg at 50% 1%,#0000, #91492A 2deg 65deg,#0000 68deg)
+           -5% 100%/20% 27% repeat-x;
+        }
+        .loader:before {
+          content:"";
+          margin: 12.5%;
+          clip-path: polygon(100% 50%,78.19% 60.26%,88.3% 82.14%,65% 75.98%,58.68% 99.24%,44.79% 79.54%,25% 93.3%,27.02% 69.28%,3.02% 67.1%,20% 50%,3.02% 32.9%,27.02% 30.72%,25% 6.7%,44.79% 20.46%,58.68% 0.76%,65% 24.02%,88.3% 17.86%,78.19% 39.74%);
+          background: #CF6F46;
+          animation: l7 3s linear infinite;
+          translate: -135% 0;
+        }
+        @keyframes l7 {to{rotate: 400deg;translate: 135% 0}}
+        \`}} />
+`;
+
+const loaderComponent = `fallback={<Box display="flex" w="full" h="full" alignItems="center" justifyContent="center"><div className="loader"></div></Box>}`;
+
+let content = fs.readFileSync('src/views/KreativitasPage/components/CreateDetail.js', 'utf8');
+
+content = content.replace("<Container maxW=\"3xl\">", loaderCSS + "\n        <Container maxW=\"3xl\">");
+content = content.replace("maxH=\"600px\" objectFit=\"contain\" />", `maxH="600px" objectFit="contain" ${loaderComponent} />`);
+
+fs.writeFileSync('src/views/KreativitasPage/components/CreateDetail.js', content);
