@@ -48,7 +48,14 @@ const Navbar = ({ user, isScrolled }) => {
     },
     { label: t.government || 'Pemerintahan', children: [{ label: 'Struktur Organisasi', href: '/pemerintahan' }, { label: 'Dokumen Publikasi', href: '/pemerintahan/dokumen' }] },
     { label: t.services || 'Layanan', href: '/layanan' },
-    { label: t.explore || 'Jelajahi', href: '/jelajahi' },
+    {
+      label: t.explore || 'Jelajahi',
+      children: [
+        { label: 'Dusun', subLabel: 'Jelajahi wilayah dusun', href: '/jelajahi' },
+        { label: 'Kreativitas', subLabel: 'AI Text-to-Image Super Realistis', href: '/kreativitas' }
+      ],
+      href: '/jelajahi'
+    },
     { label: 'Donasi', href: '/donasi' },
     {
       label: t.news || 'Berita',

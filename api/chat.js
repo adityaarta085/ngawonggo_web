@@ -1,5 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
-const axios = require('axios');
+const { OpenAI } = require('openai');
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
@@ -10,57 +10,67 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { messages, customPrompt } = req.body;
+  const { messages, customPrompt, userId } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Messages are required' });
   }
 
+  // Wajib Login / User ID required
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized: User ID is required to use the chatbot.' });
+  }
+
   try {
-    // 1. Get API Key from Supabase
+    // 1. Get Settings from Supabase
     const { data: settings, error: settingsError } = await supabase
       .from('site_settings')
       .select('key, value')
-      .in('key', ['groq_api_key', 'default_ai_prompt', 'groq_model']);
+      .in('key', ['openai_api_key', 'default_ai_prompt']);
 
-    if (settingsError || !settings || settings.length === 0) {
-      return res.status(400).json({ error: 'Asisten AI belum dikonfigurasi oleh admin.' });
+    const openAiKeySetting = settings?.find(s => s.key === 'openai_api_key');
+    const defaultPromptSetting = settings?.find(s => s.key === 'default_ai_prompt');
+
+    const OPENAI_API_KEY = openAiKeySetting?.value || "acv-5ba0703e794843d66034b8eeb4801bdfd402471740e2f44f04ca225b2e465659";
+
+    // 2. Check limits
+    const { data: tierData } = await supabase
+      .from('user_tiers')
+      .select('tier_name')
+      .eq('user_id', userId)
+      .single();
+
+    const isVIP = tierData && tierData.tier_name !== 'Free';
+    const limit = isVIP ? 50 : 5;
+
+    const today = new Date().toISOString().split('T')[0];
+    const { data: usageData } = await supabase
+      .from('user_feature_usage')
+      .select('usage_count')
+      .eq('user_id', userId)
+      .eq('feature_name', 'ai_chat')
+      .eq('usage_date', today)
+      .single();
+
+    const usageCount = usageData ? usageData.usage_count : 0;
+
+    if (usageCount >= limit) {
+      return res.status(403).json({
+          error: `Daily limit reached. ${isVIP ? 'You have used your 50 daily chats.' : 'Upgrade to VIP for 50 chats/day.'}`,
+          limitReached: true
+      });
     }
 
-    const groqKeySetting = settings.find(s => s.key === 'groq_api_key');
-    const defaultPromptSetting = settings.find(s => s.key === 'default_ai_prompt');
-    const groqModelSetting = settings.find(s => s.key === 'groq_model');
-
-    if (!groqKeySetting?.value) {
-      return res.status(400).json({ error: 'Asisten AI belum dikonfigurasi oleh admin.' });
-    }
-
-    const GROQ_API_KEY = groqKeySetting.value;
-
-    let GROQ_MODEL = groqModelSetting?.value;
-    if (!GROQ_MODEL || GROQ_MODEL.trim() === '') {
-        GROQ_MODEL = 'llama3-8b-8192'; // A safe fallback if nothing is set
-    }
-    // Clean up model string just in case it's accidentally parsed wrong or hardcoded in their env somewhere
-    if (!GROQ_MODEL || GROQ_MODEL.trim() === '') {
-        GROQ_MODEL = 'groq/compound';
-    }
-    // Note: 'groq/compound' might not be a valid Groq model name, usually it's 'llama3-8b-8192'.
-    // If Groq rejects it or rewrites it, that's up to them, but we will pass exactly what is in the DB.
-    console.log("Using Groq Model:", GROQ_MODEL);
-
-    // Default System Prompt
+    // 3. Setup System Prompt
     let systemPrompt = defaultPromptSetting?.value || 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.';
 
-
-    // Use customPrompt if provided (used by Takedown Page)
     if (customPrompt) {
         systemPrompt = customPrompt;
     }
 
-    // Append Escalation Instructions
-    systemPrompt += `
-IMPORTANT INSTRUCTION FOR ESCALATION:
+    systemPrompt += `\n\nDi akhir setiap jawaban Anda, WAJIB sertakan watermark dan informasi kontak ini persis seperti berikut:\n\n---\n*Jawaban ini dihasilkan oleh AI (Asisten AI DESA).*\n*Mungkin terdapat kesalahan atau informasi yang kurang akurat.*\n*Untuk pertanyaan atau bantuan lebih lanjut, silakan hubungi email: desangawonggoku@gmail.com*`;
+
+    systemPrompt += `\n\nIMPORTANT INSTRUCTION FOR ESCALATION:
 Jika user meminta berbicara dengan Customer Service (CS) / manusia, ATAU jika Anda tidak mampu menjawab pertanyaan karena terlalu kompleks atau di luar pengetahuan Anda, Anda WAJIB membalas HANYA dengan JSON berikut (tanpa markdown, tanpa teks lain):
 {
   "escalate": true,
@@ -69,29 +79,47 @@ Jika user meminta berbicara dengan Customer Service (CS) / manusia, ATAU jika An
 }
 Jika tidak perlu eskalasi, jawablah seperti biasa dengan teks biasa.`;
 
-
-    // 2. Call Groq API
-    const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
-      model: GROQ_MODEL,
-      messages: [
-        {
-          role: 'system',
-          content: systemPrompt
-        },
-        ...messages.map(msg => ({ role: msg.role, content: msg.content }))
-      ],
-    }, {
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json',
-      }
+    // 4. Call OpenAI API
+    const client = new OpenAI({
+        apiKey: OPENAI_API_KEY,
+        baseURL: "https://www.aichixia.xyz/api/v1",
     });
 
-    return res.status(200).json(response.data);
+    const response = await client.chat.completions.create({
+        model: "gpt-5-mini",
+        messages: [
+            { role: 'system', content: systemPrompt },
+            ...messages.map(msg => ({ role: msg.role, content: msg.content }))
+        ],
+        temperature: 0.7,
+        max_tokens: 1024,
+    });
+
+    // 5. Increment Usage
+    if (usageData) {
+      await supabase
+        .from('user_feature_usage')
+        .update({ usage_count: usageCount + 1, last_used_at: new Date().toISOString() })
+        .eq('user_id', userId)
+        .eq('feature_name', 'ai_chat')
+        .eq('usage_date', today);
+    } else {
+      await supabase
+        .from('user_feature_usage')
+        .insert({
+          user_id: userId,
+          feature_name: 'ai_chat',
+          usage_date: today,
+          usage_count: 1
+        });
+    }
+
+    // Format response back to match previous structure
+    return res.status(200).json(response);
   } catch (error) {
-    console.error('Chat API Error:', error.response?.data || error.message);
+    console.error('Chat API Error:', error);
     res.status(error.response?.status || 500).json({
-      error: error.response?.data?.error?.message || error.message
+      error: error.message || 'An error occurred during chat completion'
     });
   }
 };
