@@ -88,7 +88,7 @@ const MasterpieceFluidBackground = () => {
                 style={{
                     background: bgGradient,
                     backgroundSize: '400% 400%',
-                    animation: `${flowAnimation} 20s ease-in-out infinite alternate`,
+                    animation: `${flowAnimation} 8s ease-in-out infinite alternate`,
                 }}
                 opacity={isDark ? 0.9 : 1}
             />

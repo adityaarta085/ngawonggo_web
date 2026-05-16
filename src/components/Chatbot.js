@@ -10,6 +10,7 @@ import {
   Tooltip,
   VStack,
   Spinner,
+  Image,
   Button,
 } from '@chakra-ui/react';
 import { FaRobot, FaTimes, FaMinus, FaPaperPlane, FaHeadset } from 'react-icons/fa';
@@ -322,7 +323,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
                 <Tooltip label="Tanya AI Desa" placement="left">
                   <IconButton
                     aria-label="Show chat"
-                    icon={csStatus !== 'none' ? <FaHeadset size={20} /> : <FaRobot size={20} />}
+                    icon={csStatus !== 'none' ? <FaHeadset size={20} /> : <Image src="/ai_logo.png" w="24px" h="24px" />}
                     colorScheme="blue"
                     onClick={() => setIsDocked(false)}
                     size="lg"
