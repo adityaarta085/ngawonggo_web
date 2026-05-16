@@ -29,6 +29,7 @@ const MotionBox = motion(Box);
 export default function KreativitasPage() {
   const [prompt, setPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [loadingText, setLoadingText] = useState('');
   const [generatedImageUrl, setGeneratedImageUrl] = useState(null);
 
   const templates = [
@@ -68,14 +69,29 @@ export default function KreativitasPage() {
     setGeneratedImageUrl(null);
 
     try {
-        const generationUrl = `https://api-faa.my.id/faa/ai-text2img-pro?prompt=${encodeURIComponent(prompt)}`;
+
         const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
 
-        // 1. Fetch generated image
-        const imageResponse = await fetch(generationUrl);
-        if (!imageResponse.ok) throw new Error('Failed to generate image');
+                        setLoadingText('Sedang melukis mahakarya... (Mungkin memakan waktu hingga 30 detik)');
+        const generationUrl = `https://api-faa.my.id/faa/ai-text2img-pro?prompt=${encodeURIComponent(prompt)}`;
+
+        // 1. Fetch generated image directly from browser
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+
+        let imageResponse;
+        try {
+            imageResponse = await fetch(generationUrl, { signal: controller.signal });
+        } catch (err) {
+            throw new Error('Koneksi ke server AI terputus atau timeout.');
+        } finally {
+            clearTimeout(timeoutId);
+        }
+
+        if (!imageResponse.ok) throw new Error('Gagal melakukan generate gambar dari server AI.');
         const blob = await imageResponse.blob();
 
+        setLoadingText('Mengunggah mahakarya ke server...');
         // 2. Upload to storage API (matching community logic)
         const formData = new FormData();
         formData.append('file', blob, `ai-image-${Date.now()}.jpg`);
@@ -86,11 +102,12 @@ export default function KreativitasPage() {
             body: formData,
         });
 
-        if (!uploadResponse.ok) throw new Error('Failed to upload image to storage');
+        if (!uploadResponse.ok) throw new Error('Gagal mengunggah gambar ke penyimpanan.');
         const uploadData = await uploadResponse.json();
-        if (!uploadData.status) throw new Error('Storage returned error');
+        if (!uploadData.status) throw new Error('Server penyimpanan mengembalikan error.');
 
         const finalImageUrl = uploadData.path;
+        setLoadingText('Menyimpan data...');
 
         // 3. Simpan ke Supabase
         const { data, error } = await supabase.from('ai_images').insert([{
@@ -108,7 +125,7 @@ export default function KreativitasPage() {
 
     } catch (error) {
         console.error("Error saving image:", error);
-        toast({ title: 'Gagal', description: 'Gagal membuat gambar.', status: 'error' });
+        toast({ title: 'Gagal', description: error.message || 'Gagal membuat gambar.', status: 'error', duration: 7000, isClosable: true });
     } finally {
         setIsGenerating(false);
     }
@@ -301,7 +318,7 @@ export default function KreativitasPage() {
                 {isGenerating ? (
                   <VStack spacing={6}>
                     <div className="loader"></div>
-                    <Text fontWeight="bold" color="purple.500" animation="pulse 2s infinite">Sedang melukis mahakarya...</Text>
+                    <Text fontWeight="bold" color="purple.500" animation="pulse 2s infinite">{loadingText || 'Sedang memproses...'}</Text>
                   </VStack>
                 ) : generatedImageUrl ? (
                   <VStack spacing={4} w="full" h="full">
