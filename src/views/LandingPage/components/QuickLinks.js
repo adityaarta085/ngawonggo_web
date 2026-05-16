@@ -100,6 +100,12 @@ const QuickLinks = ({ isHero }) => {
       color: 'yellow.400',
     },
     {
+      label: language === 'id' ? 'Kreativitas' : 'Creativity',
+      icon: FaPhotoVideo, // or FaMagic if imported
+      href: '/kreativitas',
+      color: 'purple.500',
+    },
+    {
       label: language === 'id' ? 'Unduhan' : 'Downloader',
       icon: FaCloudDownloadAlt,
       href: '/downloader',

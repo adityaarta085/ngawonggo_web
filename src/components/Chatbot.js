@@ -193,6 +193,12 @@ const Chatbot = ({ isHidden = false, onHide }) => {
         // Just a little hint
     }
 
+    if (!sessionUser) {
+        setMessages(prev => [...prev, { role: 'assistant', content: 'Anda harus login untuk menggunakan Asisten AI.' }]);
+        setInput('');
+        return;
+    }
+
     const userMessage = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
     setInput('');
@@ -217,9 +223,15 @@ const Chatbot = ({ isHidden = false, onHide }) => {
 
     try {
       const response = await axios.post('/api/chat', {
-        messages: [...messages, userMessage].slice(-6) // Send last 6 messages for context
+        messages: [...messages, userMessage].slice(-6), userId: sessionUser.id // Send last 6 messages for context
       });
 
+
+      if (response.data.limitReached) {
+          setMessages(prev => [...prev, { role: 'assistant', content: response.data.error }]);
+          setIsLoading(false);
+          return;
+      }
       const botMessage = response.data.choices[0].message;
 
       // Try to parse if it's an escalation JSON
@@ -394,7 +406,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   ) : csStatus === 'active' ? (
     <Text fontSize="10px" opacity={0.8} color="green.200">Terhubung dengan CS {csAssigned}</Text>
   ) : (
-    <Text fontSize="10px" opacity={0.8}>Aktif • Didukung oleh Groq</Text>
+    <Text fontSize="10px" opacity={0.8}>Aktif • DIDUKUNG GPT 5.5 NEW</Text>
   )}
                   </VStack>
                 </Flex>
