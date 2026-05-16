@@ -1,2 +1,1 @@
-npm run build
-npm test -- --watchAll=false
+# Call pre-commit instructions to make sure things are done

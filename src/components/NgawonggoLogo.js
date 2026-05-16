@@ -58,9 +58,9 @@ const NgawonggoLogo = ({ color = "accent.green", fontSize = "xl", iconSize = 8, 
     }
   }, [settings, controls]);
 
-  const bgImage = settings?.background_image || "url('https://images.unsplash.com/photo-1542361345-89e58247f2d5?q=80&w=2070&auto=format&fit=crop')";
-  const bgColor = settings?.background_color || "brand.600";
-  const glow = settings?.glow_color || "rgba(255,255,255,0.2)";
+  const bgImage = settings?.background_image === 'none' ? 'none' : (settings?.background_image || "url('https://images.unsplash.com/photo-1542361345-89e58247f2d5?q=80&w=2070&auto=format&fit=crop')");
+  const bgColor = settings?.background_image === 'none' ? 'transparent' : (settings?.background_color || "brand.600");
+  const glow = settings?.background_image === 'none' ? 'none' : (settings?.glow_color || "rgba(255,255,255,0.2)");
   const borderStyle = settings?.border_style === 'none' ? 'none' : `2px ${settings?.border_style || 'solid'} rgba(255,255,255,0.5)`;
 
   return (
@@ -77,23 +77,25 @@ const NgawonggoLogo = ({ color = "accent.green", fontSize = "xl", iconSize = 8, 
         alignItems="center"
         justifyContent="center"
         bgColor={bgColor}
-        bgImage={bgImage.startsWith('http') || bgImage.startsWith('/') ? `url('${bgImage}')` : bgImage}
+        bgImage={bgImage === 'none' ? 'none' : (bgImage.startsWith('http') || bgImage.startsWith('/') ? `url('${bgImage}')` : bgImage)}
         bgSize="cover"
         bgPosition="center"
         position="relative"
         overflow="hidden"
         borderColor="whiteAlpha.300"
-        borderWidth={settings?.border_style === 'none' ? "1px" : "0px"}
-        border={borderStyle}
-        boxShadow={`0 4px 15px ${glow}`}
+        borderWidth={bgImage === 'none' || settings?.border_style === 'none' ? "0px" : "1px"}
+        border={bgImage === 'none' ? 'none' : borderStyle}
+        boxShadow={glow === 'none' ? 'none' : `0 4px 15px ${glow}`}
         animate={controls}
       >
-        <Box
-          position="absolute"
-          top={0} left={0} right={0} bottom={0}
-          bgGradient="linear(to-br, blackAlpha.700, blackAlpha.400)"
-          backdropFilter="blur(3px)"
-        />
+        {bgImage !== 'none' && (
+          <Box
+            position="absolute"
+            top={0} left={0} right={0} bottom={0}
+            bgGradient="linear(to-br, blackAlpha.700, blackAlpha.400)"
+            backdropFilter="blur(3px)"
+          />
+        )}
         <MotionImage
           src="/logo_desa.png"
           height={iconSize}

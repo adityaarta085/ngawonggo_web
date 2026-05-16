@@ -92,10 +92,10 @@ const LogoManager = () => {
         <Divider />
 
         <FormControl>
-            <FormLabel>Background Logo (URL atau Upload)</FormLabel>
+            <FormLabel>Background Logo (URL/Upload, isi "none" untuk hapus background)</FormLabel>
             {settings.background_image && <Image src={settings.background_image} h="100px" objectFit="cover" borderRadius="md" mb={2} />}
             <Input type="file" accept="image/*" onChange={(e) => handleUpload(e, 'background_image')} mb={2} />
-            <Input value={settings.background_image} onChange={(e) => setSettings({...settings, background_image: e.target.value})} placeholder="URL Gambar Background" />
+            <Input value={settings.background_image} onChange={(e) => setSettings({...settings, background_image: e.target.value})} placeholder="URL Gambar Background (Isi 'none' untuk transparan)" />
         </FormControl>
 
         <HStack spacing={4}>
