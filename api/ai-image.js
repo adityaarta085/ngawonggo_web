@@ -1,53 +1,85 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      res.setHeader(key, value);
+    });
+    return res.status(204).end();
   }
 
+  // Set CORS headers for actual response
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
   try {
-    const { prompt } = req.body;
+    let prompt;
+    let model = "Flux1schnell";
+
+    if (req.method === "GET") {
+      prompt = req.query.prompt;
+      model = req.query.model || model;
+    } else if (req.method === "POST") {
+      prompt = req.body.prompt;
+      model = req.body.model || model;
+    } else {
+      return res.status(405).json({
+        success: false,
+        error: "Method tidak didukung. Pakai GET atau POST.",
+      });
+    }
+
     if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
+      return res.status(400).json({
+        success: false,
+        error: "Prompt tidak boleh kosong.",
+        contoh_get: "?prompt=kucing astronot di bulan",
+        contoh_post: {
+          prompt: "kucing astronot di bulan",
+          model: "Flux1schnell",
+        },
+      });
     }
 
-    const generationUrl = `https://api-faa.my.id/faa/ai-text2img-pro?prompt=${encodeURIComponent(prompt)}`;
-
-    // Fetch from AI API
-    const imageResponse = await fetch(generationUrl, {
+    const API_TXT2IMG = "https://ai.alfisy.my.id/api/txt2img";
+    const apiResponse = await fetch(API_TXT2IMG, {
+      method: "POST",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      }
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt,
+        model,
+      }),
     });
 
-    if (!imageResponse.ok) {
-      throw new Error(`AI API Error: ${imageResponse.status}`);
+    const data = await apiResponse.json();
+
+    if (!apiResponse.ok) {
+      return res.status(apiResponse.status).json({
+        success: false,
+        error: data?.error || "Gagal request ke API txt2img",
+        detail: data,
+      });
     }
 
-    const arrayBuffer = await imageResponse.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // Upload to termai
-    const formData = new FormData();
-    const blob = new Blob([buffer], { type: 'image/jpeg' });
-    formData.append('file', blob, `ai-image-${Date.now()}.jpg`);
-
-    const key = "AIzaBj7z2z3xBjsk";
-    const uploadResponse = await fetch(`https://c.termai.cc/api/upload?key=${key}`, {
-        method: 'POST',
-        body: formData,
+    return res.status(200).json({
+      success: true,
+      prompt,
+      model,
+      imageUrl: data.imageUrl,
     });
 
-    if (!uploadResponse.ok) {
-      throw new Error(`Upload API Error: ${uploadResponse.status}`);
-    }
-
-    const uploadData = await uploadResponse.json();
-    if (!uploadData.status) {
-      throw new Error('Storage returned error');
-    }
-
-    res.status(200).json({ success: true, url: uploadData.path });
   } catch (error) {
-    console.error('AI Image Error:', error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 }
