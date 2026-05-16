@@ -15,6 +15,10 @@ import ComplaintHistory from './views/LayananPage/ComplaintHistory';
 import ComplaintTrack from './views/LayananPage/ComplaintTrack';
 import JelajahiPage from './views/JelajahiPage/index.js';
 import KreativitasPage from './views/KreativitasPage/index.js';
+import CreateDetail from './views/KreativitasPage/components/CreateDetail.js';
+import PublikPage from './views/KreativitasPage/components/PublikPage.js';
+import ImageDetail from './views/KreativitasPage/components/ImageDetail.js';
+import HistoriPage from './views/KreativitasPage/components/HistoriPage.js';
 import TransparansiPage from './views/TransparansiPage/index.js';
 import KontakPage from './views/KontakPage/index.js';
 import MediaPage from './views/MediaPage/index.js';
@@ -274,6 +278,10 @@ function App() {
             <Route path="/layanan/lacak" element={<ComplaintTrack />} />
             <Route path="/jelajahi" element={<JelajahiPage />} />
             <Route path="/kreativitas" element={<KreativitasPage />} />
+            <Route path="/kreativitas/create/:id" element={<CreateDetail />} />
+            <Route path="/kreativitas/publik" element={<PublikPage />} />
+            <Route path="/kreativitas/publik/:id" element={<ImageDetail />} />
+            <Route path="/kreativitas/histori" element={<HistoriPage />} />
             <Route path="/downloader" element={<DownloaderPage />} />
 
             <Route path="/transparansi" element={<TransparansiPage />} />
