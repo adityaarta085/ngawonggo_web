@@ -10,11 +10,10 @@ import {
   Image,
   Flex,
     Badge,
-  Spinner,
   Icon,
   useColorModeValue
 } from '@chakra-ui/react';
-import { FaMagic, FaDownload, FaPaintBrush } from 'react-icons/fa';
+import { FaMagic, FaPaintBrush } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { SEO } from '../../components';
 
@@ -56,6 +55,30 @@ export default function KreativitasPage() {
 
   return (
     <Box pt={0} minH="100vh" bgGradient={bgGradient} pb={32}>
+
+<style dangerouslySetInnerHTML={{__html: `
+.loader {
+
+  display: inline-grid;
+  width: 80px;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background:
+   conic-gradient(from 146deg at 50% 1%,#0000, #91492A 2deg 65deg,#0000 68deg)
+   -5% 100%/20% 27% repeat-x;
+}
+.loader:before {
+  content:"";
+  margin: 12.5%;
+  clip-path: polygon(100% 50%,78.19% 60.26%,88.3% 82.14%,65% 75.98%,58.68% 99.24%,44.79% 79.54%,25% 93.3%,27.02% 69.28%,3.02% 67.1%,20% 50%,3.02% 32.9%,27.02% 30.72%,25% 6.7%,44.79% 20.46%,58.68% 0.76%,65% 24.02%,88.3% 17.86%,78.19% 39.74%);
+  background: #CF6F46;
+  animation: l7 3s linear infinite;
+  translate: -135% 0;
+}
+@keyframes l7 {to{rotate: 400deg;translate: 135% 0}}
+
+`}} />
+
       <SEO
         title="Kreativitas Tanpa Batas"
         description="Fitur Text-to-Image Super Realistis Desa Ngawonggo."
@@ -116,6 +139,7 @@ export default function KreativitasPage() {
                       border={0}
                       _focus={{ ring: 2, ringColor: "purple.400" }}
                     />
+
                     <Button
                       size="lg"
                       colorScheme="purple"
@@ -177,14 +201,14 @@ export default function KreativitasPage() {
               >
                 {isGenerating ? (
                   <VStack spacing={6}>
-                    <Spinner size="xl" thickness="4px" speed="0.65s" emptyColor="gray.200" color="purple.500" />
+                    <div className="loader"></div>
                     <Text fontWeight="bold" color="purple.500" animation="pulse 2s infinite">Sedang melukis mahakarya...</Text>
                   </VStack>
                 ) : generatedImageUrl ? (
                   <VStack spacing={4} w="full" h="full">
                     <Box
-                        w="full"
-                        h={{ base: "300px", md: "500px" }}
+                        h={{ base: "450px", md: "600px" }}
+                        w={{ base: "full", md: "auto" }} aspectRatio="9/16" mx="auto"
                         position="relative"
                         borderRadius="2xl"
                         overflow="hidden"
@@ -201,18 +225,7 @@ export default function KreativitasPage() {
                     </Box>
                     <Flex w="full" justify="space-between" align="center" px={2}>
                         <Text fontSize="sm" color="gray.500" fontStyle="italic">"{prompt}"</Text>
-                        <Button
-                            as="a"
-                            href={generatedImageUrl}
-                            target="_blank"
-                            download="ai_generated_image.png"
-                            size="sm"
-                            leftIcon={<FaDownload />}
-                            colorScheme="purple"
-                            variant="ghost"
-                        >
-                            Buka Gambar Full
-                        </Button>
+                        <Text fontSize="xs" color="gray.400" fontStyle="italic">Tekan lama / klik kanan pada gambar untuk menyimpan.</Text>
                     </Flex>
                   </VStack>
                 ) : (
