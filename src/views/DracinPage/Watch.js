@@ -4,11 +4,9 @@ import {
   Box, Container, Heading, Text, Center, Flex, Button,
   IconButton, Tooltip, useToast, HStack, VStack
 } from '@chakra-ui/react';
-import { FaArrowLeft, FaShareAlt, FaExpand, FaCompress } from 'react-icons/fa';
+import { FaArrowLeft, FaShareAlt, } from 'react-icons/fa';
 import { SEO } from '../../components';
 import { dracinApi } from './api';
-import ReactPlayer from 'react-player';
-import screenfull from 'screenfull';
 
 const DracinWatch = () => {
   const { id, episode } = useParams();
@@ -19,9 +17,7 @@ const DracinWatch = () => {
   const [videoUrl, setVideoUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
+    useEffect(() => {
     let mounted = true;
     const loadEpisode = async () => {
       setLoading(true);
@@ -59,19 +55,8 @@ const DracinWatch = () => {
     };
     loadEpisode();
 
-    const handleFullscreenChange = () => {
-      setIsFullscreen(screenfull.isFullscreen);
-    };
-
-    if (screenfull.isEnabled) {
-      screenfull.on('change', handleFullscreenChange);
-    }
-
     return () => {
         mounted = false;
-        if (screenfull.isEnabled) {
-            screenfull.off('change', handleFullscreenChange);
-        }
     };
   }, [id, episode]);
 
@@ -93,13 +78,7 @@ const DracinWatch = () => {
     }
   };
 
-  const toggleFullscreen = () => {
-    if (screenfull.isEnabled && playerWrapperRef.current) {
-        screenfull.toggle(playerWrapperRef.current);
-    }
-  };
-
-  if (loading) return <Center h="100vh"><div className="custom-loader"></div></Center>;
+    if (loading) return <Center h="100vh"><div className="custom-loader"></div></Center>;
   if (error) return <Center h="100vh"><VStack><Text color="red.500">{error}</Text><Button onClick={() => navigate(-1)}>Kembali</Button></VStack></Center>;
 
   return (
@@ -119,42 +98,23 @@ const DracinWatch = () => {
 
         <Heading size="lg" mb={6}>Episode {episode}</Heading>
 
-        <Box ref={playerWrapperRef} w="100%" maxW="1000px" mx="auto" bg="black" borderRadius={isFullscreen ? '0' : 'xl'} overflow="hidden" position="relative" boxShadow="2xl">
+        <Box ref={playerWrapperRef} w="100%" maxW="500px" mx="auto" bg="black" borderRadius="xl" overflow="hidden" position="relative" boxShadow="2xl">
             {videoUrl ? (
-                <Box pt="56.25%" position="relative">
-                    <ReactPlayer
-                        url={videoUrl}
+                <Box pt="177.78%" position="relative">
+                    <video
+                        src={videoUrl}
                         controls
+                        autoPlay
                         width="100%"
                         height="100%"
                         style={{ position: 'absolute', top: 0, left: 0 }}
-                        playing
-                        config={{
-                             file: {
-                                attributes: {
-                                  controlsList: 'nodownload'
-                                }
-                             }
-                        }}
                     />
                 </Box>
             ) : (
                 <Center h="400px" bg="gray.800" color="white">Video tidak ditemukan.</Center>
             )}
 
-            {screenfull.isEnabled && (
-                <IconButton
-                    icon={isFullscreen ? <FaCompress /> : <FaExpand />}
-                    onClick={toggleFullscreen}
-                    position="absolute"
-                    bottom="20px"
-                    right="20px"
-                    zIndex={10}
-                    colorScheme="blackAlpha"
-                    aria-label="Toggle Fullscreen"
-                />
-            )}
-        </Box>
+            </Box>
 
       </Container>
     </Box>
