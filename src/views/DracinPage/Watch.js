@@ -29,7 +29,11 @@ const DracinWatch = () => {
       try {
         const res = await dracinApi.getEpisode(id, episode);
         if (mounted) {
-            if (res.videoUrl) {
+            if (res.videoList && res.videoList.length > 0) {
+                 // Try to get H264 first, otherwise fallback to first available
+                const h264Video = res.videoList.find(v => v.encode === 'H264');
+                setVideoUrl(h264Video ? h264Video.url : res.videoList[0].url);
+            } else if (res.videoUrl) {
                 setVideoUrl(res.videoUrl);
             } else {
                  setError("Video tidak tersedia untuk episode ini atau episode terkunci.");

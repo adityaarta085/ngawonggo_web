@@ -22,7 +22,7 @@ const DracinDetail = () => {
       try {
         const res = await dracinApi.getDetail(id);
         if (mounted) {
-            setData(res.data);
+            setData(res); // API returns data directly at root
         }
       } catch (err) {
         if (mounted) setError("Gagal memuat detail drama.");
@@ -36,6 +36,8 @@ const DracinDetail = () => {
 
   if (loading) return <Center h="100vh"><div className="custom-loader"></div></Center>;
   if (error || !data) return <Center h="100vh"><Text color="red.500">{error || "Data tidak ditemukan"}</Text></Center>;
+
+  const episodes = data.chapters || data.episodes || [];
 
   return (
     <Box pt={24} pb={20}>
@@ -59,7 +61,7 @@ const DracinDetail = () => {
             <VStack align="start" spacing={4} flex={1}>
                 <Heading size="2xl">{data.title}</Heading>
                 <HStack wrap="wrap" gap={2}>
-                    <Badge colorScheme="blue" px={2} py={1} borderRadius="md">Episodes: {data.totalEpisodes || data.episodes?.length}</Badge>
+                    <Badge colorScheme="blue" px={2} py={1} borderRadius="md">Episodes: {data.totalEpisodes || episodes.length}</Badge>
                     {data.isCompleted === "1" && <Badge colorScheme="green" px={2} py={1} borderRadius="md">Completed</Badge>}
                 </HStack>
                 <Divider />
@@ -71,10 +73,10 @@ const DracinDetail = () => {
                         {data.description || data.synopsis || "Tidak ada sinopsis."}
                     </Text>
                 </Box>
-                {data.episodes && data.episodes.length > 0 && (
+                {episodes.length > 0 && (
                     <Button
                         as={RouterLink}
-                        to={`/dracin/detail/${id}/${data.episodes[0].number || 1}/play`}
+                        to={`/dracin/detail/${id}/${episodes[0].serialNumber || episodes[0].number || 1}/play`}
                         colorScheme="brand"
                         size="lg"
                         leftIcon={<FaPlay />}
@@ -86,25 +88,25 @@ const DracinDetail = () => {
             </VStack>
         </Flex>
 
-        {data.episodes && data.episodes.length > 0 && (
+        {episodes.length > 0 && (
             <Box>
                 <Heading size="lg" mb={6} display="flex" alignItems="center" gap={2}>
                     <Icon as={FaListUl} /> Daftar Episode
                 </Heading>
                 <SimpleGrid columns={{ base: 2, sm: 3, md: 4, lg: 6 }} spacing={4}>
-                    {data.episodes.map((ep, idx) => (
+                    {episodes.map((ep, idx) => (
                         <Button
                             key={idx}
                             as={RouterLink}
-                            to={`/dracin/detail/${id}/${ep.number || ep.episodeNumber}/play`}
+                            to={`/dracin/detail/${id}/${ep.serialNumber || ep.number || ep.episodeNumber}/play`}
                             variant="outline"
                             colorScheme="brand"
                             size="md"
                             justifyContent="center"
-                            isDisabled={ep.locked}
+                            isDisabled={ep.isLocked || ep.locked}
                         >
-                            Episode {ep.number || ep.episodeNumber}
-                            {ep.locked && <Icon as={FaLock} ml={2} />}
+                            Episode {ep.serialNumber || ep.number || ep.episodeNumber}
+                            {(ep.isLocked || ep.locked) && <Icon as={FaLock} ml={2} />}
                         </Button>
                     ))}
                 </SimpleGrid>

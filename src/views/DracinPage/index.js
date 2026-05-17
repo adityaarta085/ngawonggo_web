@@ -15,22 +15,17 @@ const DracinGrid = ({ items }) => {
     return (
         <SimpleGrid columns={{ base: 2, md: 4, lg: 5 }} spacing={6} mb={10}>
         {items.map((item, idx) => {
-            const title = item.title;
-            const slug = item.dramaId || item.id;
-            const image = item.cover || item.posterImg || 'https://via.placeholder.com/300x450?text=No+Image';
+            const title = item.book_title || item.title;
+            const slug = item.book_id || item.bookId || item.id;
+            const image = item.book_pic || item.cover || 'https://via.placeholder.com/300x450?text=No+Image';
 
             return (
                 <LinkBox key={idx} as="article" rounded="xl" overflow="hidden" boxShadow="md" _hover={{ transform: 'scale(1.02)', transition: '0.2s' }}>
                 <Box position="relative">
                     <Image src={image} alt={title} objectFit="cover" h="250px" w="100%" loading="lazy" fallbackSrc="https://via.placeholder.com/300x450?text=Loading..." />
-                    {item.episodes && (
+                    {(item.chapter_count || item.chapterCount || item.episodes) && (
                         <Badge position="absolute" top={2} left={2} colorScheme="blue">
-                            Eps {item.episodes}
-                        </Badge>
-                    )}
-                    {item.isCompleted === "1" && (
-                         <Badge position="absolute" top={2} right={2} colorScheme="green">
-                            Completed
+                            Eps {item.chapter_count || item.chapterCount || item.episodes}
                         </Badge>
                     )}
                 </Box>
@@ -63,15 +58,26 @@ const DracinPage = () => {
       setLoading(true);
       setError(null);
       try {
-        const [resHome, resTrend, resForYou] = await Promise.all([
+        const [resHome, resForYou] = await Promise.all([
             dracinApi.getHomepage(),
-            dracinApi.getTrending(),
             dracinApi.getForYou()
         ]);
         if (mounted) {
-            setDataHomepage(resHome.items || resHome.rows || []);
-            setDataTrending(resTrend.items || resTrend.rows || []);
-            setDataForYou(resForYou.items || resForYou.rows || []);
+            // Homepage API has data.lists which is an array of categories, each with 'books'
+            let homeBooks = [];
+            if (resHome.data?.lists) {
+                resHome.data.lists.forEach(list => {
+                     homeBooks = [...homeBooks, ...list.books];
+                });
+                setDataHomepage(resHome.data.lists[0]?.books || []); // First category for homepage
+                setDataTrending(resHome.data.lists[1]?.books || []); // Second category for trending
+            } else {
+                 setDataHomepage([]);
+                 setDataTrending([]);
+            }
+
+            // For you has data.lists
+            setDataForYou(resForYou.data?.lists || []);
         }
       } catch (err) {
         if (mounted) setError("Gagal memuat portal Dracin. Pastikan koneksi internet stabil.");
@@ -91,7 +97,7 @@ const DracinPage = () => {
       setError(null);
       try {
           const res = await dracinApi.search(searchQuery);
-          setSearchResults(res.items || res.rows || []);
+          setSearchResults(res.results || []);
       } catch (err) {
           setError("Gagal mencari dracin.");
       } finally {
@@ -164,8 +170,8 @@ const DracinPage = () => {
         {!isSearching && searchResults.length === 0 && !loading && !error && (
             <Tabs variant="soft-rounded" colorScheme="brand" mt={4}>
               <TabList justifyContent="center" mb={6} overflowX="auto" pb={2}>
-                <Tab><Icon as={FaFilm} mr={2} />Homepage</Tab>
-                <Tab><Icon as={FaFire} mr={2} color="orange.500" />Trending</Tab>
+                <Tab><Icon as={FaFilm} mr={2} />Populer</Tab>
+                <Tab><Icon as={FaFire} mr={2} color="orange.500" />Terbaru</Tab>
                 <Tab><Icon as={FaStar} mr={2} color="yellow.500" />For You</Tab>
               </TabList>
               <TabPanels>
