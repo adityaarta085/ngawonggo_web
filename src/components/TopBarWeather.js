@@ -29,7 +29,7 @@ const TopBarWeather = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isNetOpen, onOpen: onNetOpen, onClose: onNetClose } = useDisclosure();
   const { networkType } = useNetwork();
-  const { user, isVIP } = useMonetization();
+  const { isVIP } = useMonetization();
 
   const translateWeather = (desc) => {
     if (!desc) return 'Data Tidak Tersedia';
@@ -102,25 +102,23 @@ const TopBarWeather = () => {
   if (loading || !weather) {
     return (
        <HStack>
-        {user && (
-          <Flex
-            align="center"
-            bg="brand.500"
-            color="white"
-            px={2}
-            py={1}
-            borderRadius="md"
-            fontSize="xs"
-            fontWeight="bold"
-            boxShadow="sm"
-            cursor="pointer"
-            onClick={onNetOpen}
-            _hover={{ bg: "brand.600" }}
-          >
-            <Icon as={FaSignal} mr={1} />
-            {networkType}
-          </Flex>
-        )}
+        <Flex
+          align="center"
+          bg="brand.500"
+          color="white"
+          px={2}
+          py={1}
+          borderRadius="md"
+          fontSize="xs"
+          fontWeight="bold"
+          boxShadow="sm"
+          cursor="pointer"
+          onClick={onNetOpen}
+          _hover={{ bg: "brand.600" }}
+        >
+          <Icon as={FaSignal} mr={1} />
+          {networkType}
+        </Flex>
         <Button
           as="a"
           href="https://whatsapp.com/channel/0029Vb7s9VIId7nFgebdx73V"
@@ -143,25 +141,23 @@ const TopBarWeather = () => {
   return (
     <>
       <HStack>
-        {user && (
-          <Flex
-            align="center"
-            bg="brand.500"
-            color="white"
-            px={2}
-            py={1}
-            borderRadius="md"
-            fontSize="xs"
-            fontWeight="bold"
-            boxShadow="sm"
-            cursor="pointer"
-            onClick={onNetOpen}
-            _hover={{ bg: "brand.600" }}
-          >
-            <Icon as={FaSignal} mr={1} />
-            {networkType}
-          </Flex>
-        )}
+        <Flex
+          align="center"
+          bg="brand.500"
+          color="white"
+          px={2}
+          py={1}
+          borderRadius="md"
+          fontSize="xs"
+          fontWeight="bold"
+          boxShadow="sm"
+          cursor="pointer"
+          onClick={onNetOpen}
+          _hover={{ bg: "brand.600" }}
+        >
+          <Icon as={FaSignal} mr={1} />
+          {networkType}
+        </Flex>
         <Flex
           align="center"
           cursor="pointer"
