@@ -17,11 +17,15 @@ import {
 } from '@chakra-ui/react';
 import { FaCloud, FaSun, FaCloudSun, FaCloudShowersHeavy, FaTint, FaWind, FaWhatsapp } from 'react-icons/fa';
 import axios from 'axios';
+import { useNetwork } from '../contexts/NetworkContext';
+import { useMonetization } from '../contexts/MonetizationContext';
 
 const TopBarWeather = () => {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { networkType } = useNetwork();
+  const { user } = useMonetization();
 
   const translateWeather = (desc) => {
     if (!desc) return 'Data Tidak Tersedia';
@@ -151,6 +155,22 @@ const TopBarWeather = () => {
             - {translatedDesc}
           </Text>
         </Flex>
+        {user && (
+          <Flex
+            align="center"
+            bg="brand.500"
+            color="white"
+            px={2}
+            py={1}
+            borderRadius="md"
+            fontSize="xs"
+            fontWeight="bold"
+            ml={2}
+            boxShadow="sm"
+          >
+            {networkType}
+          </Flex>
+        )}
       </HStack>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered motionPreset="slideInBottom">

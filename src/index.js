@@ -9,6 +9,7 @@ import { BrowserRouter } from 'react-router-dom';
 import theme from './theme';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { MonetizationProvider } from './contexts/MonetizationContext';
+import { NetworkProvider } from './contexts/NetworkContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const container = document.getElementById('root');
@@ -22,9 +23,11 @@ root.render(
         <ChakraProvider theme={theme}>
           <LanguageProvider>
             <MonetizationProvider>
+            <NetworkProvider>
             <BrowserRouter>
               <App />
             </BrowserRouter>
+            </NetworkProvider>
             </MonetizationProvider>
           </LanguageProvider>
         </ChakraProvider>

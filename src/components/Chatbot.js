@@ -333,19 +333,35 @@ const Chatbot = ({ isHidden = false, onHide }) => {
             >
               <Box position="relative">
                 <Tooltip label="Tanya AI Desa" placement="left">
-                  <IconButton
+                  <Box
+                    as="button"
                     aria-label="Show chat"
-                    icon={csStatus !== 'none' ? <FaHeadset size={20} /> : <Image src="/ai_logo.png" w="24px" h="24px" />}
-                    colorScheme="blue"
                     onClick={() => setIsDocked(false)}
-                    size="lg"
-                    isRound
-                    boxShadow="2xl"
-                    border="2px solid"
-                    borderColor="white"
+                    w="60px"
+                    h="60px"
+                    bg="transparent"
+                    border="none"
                     _hover={{ transform: 'scale(1.1)', x: -5 }}
                     transition="all 0.2s"
-                  />
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    position="relative"
+                  >
+                    {csStatus !== 'none' ? (
+                      <Flex w="100%" h="100%" bg="blue.500" borderRadius="full" alignItems="center" justifyContent="center" boxShadow="2xl">
+                        <FaHeadset size={24} color="white" />
+                      </Flex>
+                    ) : (
+                      <Image
+                        src="/ai_logo.png"
+                        w="100%"
+                        h="100%"
+                        objectFit="contain"
+                        filter="drop-shadow(0px 4px 6px rgba(0,0,0,0.3))"
+                      />
+                    )}
+                  </Box>
                 </Tooltip>
                 <IconButton
                   size="xs"
