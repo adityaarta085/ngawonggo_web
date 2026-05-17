@@ -1,3 +1,6 @@
+import DracinPage from "./views/DracinPage";
+import DracinDetail from "./views/DracinPage/Detail";
+import DracinWatch from "./views/DracinPage/Watch";
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Box, Flex, Tooltip, HStack, Collapse } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
@@ -289,6 +292,9 @@ function App() {
             <Route path="/media" element={<MediaPage />} />
             <Route path="/media/komunitas/:id" element={<MediaDetail />} />
             <Route path="/media/pemerintah" element={<MediaPemerintah />} />
+            <Route path="/dracin" element={<DracinPage />} />
+            <Route path="/dracin/detail/:id" element={<DracinDetail />} />
+            <Route path="/dracin/detail/:id/:episode/play" element={<DracinWatch />} />
             <Route path="/anime" element={<AnimePage />} />
             <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
             <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />
