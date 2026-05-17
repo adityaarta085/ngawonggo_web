@@ -212,6 +212,7 @@ export const MonetizationProvider = ({ children }) => {
 
   return (
     <MonetizationContext.Provider value={{
+      user,
       currency,
       tier,
       isLoading,
