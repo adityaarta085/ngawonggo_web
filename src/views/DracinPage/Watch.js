@@ -29,7 +29,9 @@ const DracinWatch = () => {
       try {
         const res = await dracinApi.getEpisode(id, episode);
         if (mounted) {
-            if (res.videoList && res.videoList.length > 0) {
+            if (res.best_url) {
+                setVideoUrl(res.best_url);
+            } else if (res.videoList && res.videoList.length > 0) {
                  // Try to get H264 first, otherwise fallback to first available
                 const h264Video = res.videoList.find(v => v.encode === 'H264');
                 setVideoUrl(h264Video ? h264Video.url : res.videoList[0].url);

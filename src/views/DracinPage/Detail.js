@@ -37,7 +37,9 @@ const DracinDetail = () => {
   if (loading) return <Center h="100vh"><div className="custom-loader"></div></Center>;
   if (error || !data) return <Center h="100vh"><Text color="red.500">{error || "Data tidak ditemukan"}</Text></Center>;
 
-  const episodes = data.chapters || data.episodes || [];
+  const apiEpisodes = data.chapters || data.episodes;
+  const episodes = apiEpisodes && apiEpisodes.length > 0 ? apiEpisodes : Array.from({ length: data.total_episodes || 0 }, (_, i) => ({ number: i + 1 }));
+  const coverImage = (data.cover_urls && data.cover_urls.length > 0) ? data.cover_urls[0] : (data.cover || data.posterImg);
 
   return (
     <Box pt={24} pb={20}>
@@ -50,7 +52,7 @@ const DracinDetail = () => {
         <Flex direction={{ base: 'column', md: 'row' }} gap={8} mb={10}>
             <Box flexShrink={0} w={{ base: '100%', md: '300px' }}>
                 <Image
-                    src={data.cover || data.posterImg}
+                    src={coverImage}
                     alt={data.title}
                     borderRadius="xl"
                     boxShadow="xl"
@@ -61,8 +63,8 @@ const DracinDetail = () => {
             <VStack align="start" spacing={4} flex={1}>
                 <Heading size="2xl">{data.title}</Heading>
                 <HStack wrap="wrap" gap={2}>
-                    <Badge colorScheme="blue" px={2} py={1} borderRadius="md">Episodes: {data.totalEpisodes || episodes.length}</Badge>
-                    {data.isCompleted === "1" && <Badge colorScheme="green" px={2} py={1} borderRadius="md">Completed</Badge>}
+                    <Badge colorScheme="blue" px={2} py={1} borderRadius="md">{data.episode_label || `Episodes: ${data.totalEpisodes || episodes.length}`}</Badge>
+                    {data.type && <Badge colorScheme="green" px={2} py={1} borderRadius="md">{data.type}</Badge>}
                 </HStack>
                 <Divider />
                 <Box>
