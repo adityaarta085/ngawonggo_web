@@ -13,9 +13,12 @@ import {
   VStack,
   HStack,
   Divider,
-  Button
+  Button,
+  Grid,
+  GridItem,
+  Box
 } from '@chakra-ui/react';
-import { FaCloud, FaSun, FaCloudSun, FaCloudShowersHeavy, FaTint, FaWind, FaWhatsapp } from 'react-icons/fa';
+import { FaCloud, FaSun, FaCloudSun, FaCloudShowersHeavy, FaTint, FaWind, FaWhatsapp, FaSignal } from 'react-icons/fa';
 import axios from 'axios';
 import { useNetwork } from '../contexts/NetworkContext';
 import { useMonetization } from '../contexts/MonetizationContext';
@@ -114,6 +117,7 @@ const TopBarWeather = () => {
             onClick={onNetOpen}
             _hover={{ bg: "brand.600" }}
           >
+            <Icon as={FaSignal} mr={1} />
             {networkType}
           </Flex>
         )}
@@ -154,22 +158,10 @@ const TopBarWeather = () => {
             onClick={onNetOpen}
             _hover={{ bg: "brand.600" }}
           >
+            <Icon as={FaSignal} mr={1} />
             {networkType}
           </Flex>
         )}
-        <Button
-          as="a"
-          href="https://whatsapp.com/channel/0029Vb7s9VIId7nFgebdx73V"
-          target="_blank"
-          rel="noopener noreferrer"
-          colorScheme="whatsapp"
-          size="xs"
-          borderRadius="full"
-          leftIcon={<FaWhatsapp />}
-          display={{ base: "none", sm: "inline-flex" }}
-        >
-          Saluran Info
-        </Button>
         <Flex
           align="center"
           cursor="pointer"
@@ -192,6 +184,19 @@ const TopBarWeather = () => {
             - {translatedDesc}
           </Text>
         </Flex>
+        <Button
+          as="a"
+          href="https://whatsapp.com/channel/0029Vb7s9VIId7nFgebdx73V"
+          target="_blank"
+          rel="noopener noreferrer"
+          colorScheme="whatsapp"
+          size="xs"
+          borderRadius="full"
+          leftIcon={<FaWhatsapp />}
+          display={{ base: "none", sm: "inline-flex" }}
+        >
+          Saluran Info
+        </Button>
       </HStack>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered motionPreset="slideInBottom">
@@ -247,41 +252,91 @@ const TopBarWeather = () => {
       </Modal>
 
       {/* Network Info Modal */}
-      <Modal isOpen={isNetOpen} onClose={onNetClose} isCentered motionPreset="slideInBottom">
+      <Modal isOpen={isNetOpen} onClose={onNetClose} isCentered motionPreset="slideInBottom" size="md">
         <ModalOverlay backdropFilter="blur(4px)" />
         <ModalContent borderRadius="xl" overflow="hidden">
           <ModalHeader bg="brand.500" color="white" textAlign="center">
-            Informasi Jaringan Web
+            Informasi Super Lengkap
           </ModalHeader>
           <ModalCloseButton color="white" />
           <ModalBody p={6} bg="gray.50" _dark={{ bg: "gray.900" }}>
-            <VStack spacing={4} textAlign="center">
-              <Text fontSize="2xl" fontWeight="bold" color="brand.500">Jaringan Saat Ini: {networkType}</Text>
+            <VStack spacing={6} w="full">
+              <VStack spacing={1}>
+                <Text fontSize="md" color="gray.500" fontWeight="bold">Status Koneksi Saat Ini</Text>
+                <HStack>
+                  <Icon as={FaSignal} w={8} h={8} color={networkType.includes('G') && networkType !== '2G' && networkType !== '3G' ? 'green.500' : (networkType === '3G' ? 'yellow.500' : 'red.500')} />
+                  <Text fontSize="4xl" fontWeight="900" color="brand.600">{networkType}</Text>
+                </HStack>
+              </VStack>
+
+              <Box w="full" p={4} bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm" borderWidth="1px" borderColor="gray.100" _dark={{ borderColor: "gray.700" }}>
+                <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+                  <GridItem>
+                    <VStack align="start" spacing={0}>
+                      <Text fontSize="xs" color="gray.500" fontWeight="bold">Ping / Latency</Text>
+                      <Text fontSize="lg" fontWeight="bold" color={networkType === '5G' || networkType === '4G+' ? 'green.500' : (networkType === '3G' ? 'yellow.500' : 'red.500')}>
+                        {networkType === '5G' || networkType === '4G+' ? '< 15ms' : (networkType === '3G' ? '~80ms' : '> 300ms')}
+                      </Text>
+                    </VStack>
+                  </GridItem>
+                  <GridItem>
+                    <VStack align="start" spacing={0}>
+                      <Text fontSize="xs" color="gray.500" fontWeight="bold">Kestabilan</Text>
+                      <Text fontSize="lg" fontWeight="bold" color={networkType === '5G' || networkType === '4G+' ? 'green.500' : (networkType === '3G' ? 'yellow.500' : 'red.500')}>
+                        {networkType === '5G' || networkType === '4G+' ? 'Sangat Stabil' : (networkType === '3G' ? 'Cukup' : 'Sering Putus')}
+                      </Text>
+                    </VStack>
+                  </GridItem>
+                  <GridItem>
+                    <VStack align="start" spacing={0}>
+                      <Text fontSize="xs" color="gray.500" fontWeight="bold">Kecepatan Unduh</Text>
+                      <Text fontSize="lg" fontWeight="bold" color={networkType === '5G' || networkType === '4G+' ? 'green.500' : (networkType === '3G' ? 'yellow.500' : 'red.500')}>
+                        {networkType === '5G' || networkType === '4G+' ? '100+ Mbps' : (networkType === '3G' ? '~5 Mbps' : '< 1 Mbps')}
+                      </Text>
+                    </VStack>
+                  </GridItem>
+                  <GridItem>
+                    <VStack align="start" spacing={0}>
+                      <Text fontSize="xs" color="gray.500" fontWeight="bold">Kecepatan Unggah</Text>
+                      <Text fontSize="lg" fontWeight="bold" color={networkType === '5G' || networkType === '4G+' ? 'green.500' : (networkType === '3G' ? 'yellow.500' : 'red.500')}>
+                        {networkType === '5G' || networkType === '4G+' ? '50+ Mbps' : (networkType === '3G' ? '~2 Mbps' : '< 0.5 Mbps')}
+                      </Text>
+                    </VStack>
+                  </GridItem>
+                </Grid>
+              </Box>
+
               {!isVIP ? (
-                <>
-                  <Text color="gray.600" _dark={{ color: "gray.300" }}>
-                    Saat ini Anda mengakses web dengan kecepatan yang dibatasi ({networkType}).
-                    Pengguna gratis akan merasakan sedikit keterlambatan (lag) yang disengaja.
+                <VStack spacing={3} w="full" textAlign="center" bg="yellow.50" _dark={{ bg: "yellow.900" }} p={4} borderRadius="xl" borderWidth="1px" borderColor="yellow.200" _dark={{ borderColor: "yellow.700" }}>
+                  <Text fontSize="sm" color="yellow.800" _dark={{ color: "yellow.200" }} fontWeight="medium">
+                    Saat ini web berjalan dengan lag yang disengaja ({networkType}). Anonim mendapatkan kecepatan 3G, pengguna Free mendapatkan kecepatan lambat 2G.
                   </Text>
                   <Button
                     colorScheme="yellow"
                     w="full"
-                    mt={4}
+                    size="lg"
+                    fontWeight="bold"
+                    boxShadow="md"
                     onClick={() => {
                         onNetClose();
                         window.location.href = '/portal/toko';
                     }}
                   >
-                    Upgrade ke VIP Sekarang!
+                    🚀 Upgrade VIP Sekarang
                   </Button>
-                  <Text fontSize="xs" color="gray.500">
-                    Nikmati kecepatan maksimum 4G+ / 5G tanpa batas request dan tanpa lag dengan mengupgrade ke VIP.
+                  <Text fontSize="xs" color="yellow.700" _dark={{ color: "yellow.300" }}>
+                    Agar website jauh lebih cepat, tanpa lag, dan dapat menikmati jaringan 4G+ / 5G!
                   </Text>
-                </>
+                </VStack>
               ) : (
-                <Text color="green.500" fontWeight="bold">
-                  Anda adalah VIP! Menikmati kecepatan maksimum tanpa batas.
-                </Text>
+                <Box w="full" textAlign="center" bg="green.50" _dark={{ bg: "green.900" }} p={4} borderRadius="xl" borderWidth="1px" borderColor="green.200" _dark={{ borderColor: "green.700" }}>
+                  <Text color="green.700" _dark={{ color: "green.200" }} fontWeight="bold" fontSize="md">
+                    🎉 Anda adalah VIP!
+                  </Text>
+                  <Text color="green.600" _dark={{ color: "green.300" }} fontSize="sm" mt={1}>
+                    Menikmati kecepatan maksimum web tanpa batas dan tanpa lag.
+                  </Text>
+                </Box>
               )}
             </VStack>
           </ModalBody>
