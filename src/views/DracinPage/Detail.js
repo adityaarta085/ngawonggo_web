@@ -5,6 +5,7 @@ import {
   Badge, Button, SimpleGrid, Icon, VStack, HStack, Divider
 } from '@chakra-ui/react';
 import { FaPlay, FaListUl, FaArrowLeft } from 'react-icons/fa';
+import { FaLock } from "react-icons/fa";
 import { SEO } from '../../components';
 import { dracinApi } from './api';
 

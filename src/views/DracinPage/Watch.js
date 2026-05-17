@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
   Box, Container, Heading, Text, Center, Flex, Button,
-  IconButton, Tooltip, useToast, HStack
+  IconButton, Tooltip, useToast, HStack, VStack
 } from '@chakra-ui/react';
 import { FaArrowLeft, FaShareAlt, FaExpand, FaCompress } from 'react-icons/fa';
 import { SEO } from '../../components';
