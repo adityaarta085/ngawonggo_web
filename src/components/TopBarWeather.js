@@ -269,7 +269,7 @@ const TopBarWeather = () => {
                 </HStack>
               </VStack>
 
-              <Box w="full" p={4} bg="white" _dark={{ bg: "gray.800" }} borderRadius="xl" boxShadow="sm" borderWidth="1px" borderColor="gray.100" _dark={{ borderColor: "gray.700" }}>
+              <Box w="full" p={4} bg="white" borderRadius="xl" boxShadow="sm" borderWidth="1px" borderColor="gray.100" _dark={{ bg: "gray.800", borderColor: "gray.700" }}>
                 <Grid templateColumns="repeat(2, 1fr)" gap={4}>
                   <GridItem>
                     <VStack align="start" spacing={0}>
@@ -307,7 +307,7 @@ const TopBarWeather = () => {
               </Box>
 
               {!isVIP ? (
-                <VStack spacing={3} w="full" textAlign="center" bg="yellow.50" _dark={{ bg: "yellow.900" }} p={4} borderRadius="xl" borderWidth="1px" borderColor="yellow.200" _dark={{ borderColor: "yellow.700" }}>
+                <VStack spacing={3} w="full" textAlign="center" bg="yellow.50" p={4} borderRadius="xl" borderWidth="1px" borderColor="yellow.200" _dark={{ bg: "yellow.900", borderColor: "yellow.700" }}>
                   <Text fontSize="sm" color="yellow.800" _dark={{ color: "yellow.200" }} fontWeight="medium">
                     Saat ini web berjalan dengan lag yang disengaja ({networkType}). Anonim mendapatkan kecepatan 3G, pengguna Free mendapatkan kecepatan lambat 2G.
                   </Text>
@@ -329,7 +329,7 @@ const TopBarWeather = () => {
                   </Text>
                 </VStack>
               ) : (
-                <Box w="full" textAlign="center" bg="green.50" _dark={{ bg: "green.900" }} p={4} borderRadius="xl" borderWidth="1px" borderColor="green.200" _dark={{ borderColor: "green.700" }}>
+                <Box w="full" textAlign="center" bg="green.50" p={4} borderRadius="xl" borderWidth="1px" borderColor="green.200" _dark={{ bg: "green.900", borderColor: "green.700" }}>
                   <Text color="green.700" _dark={{ color: "green.200" }} fontWeight="bold" fontSize="md">
                     🎉 Anda adalah VIP!
                   </Text>
