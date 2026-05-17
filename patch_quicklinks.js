@@ -1,19 +1,24 @@
 const fs = require('fs');
-const file = 'src/views/LandingPage/components/QuickLinks.js';
-let content = fs.readFileSync(file, 'utf8');
 
-// Add to links array
-content = content.replace(/{[\s]*label: language === 'id' \? 'Jelajahi' : 'Explore',[\s]*icon: FaCompass,[\s]*href: '\/jelajahi',[\s]*color: 'yellow.400',[\s]*},/g, `{
-      label: language === 'id' ? 'Jelajahi' : 'Explore',
-      icon: FaCompass,
-      href: '/jelajahi',
-      color: 'yellow.400',
-    },
+const path = 'src/views/LandingPage/components/QuickLinks.js';
+let content = fs.readFileSync(path, 'utf8');
+
+const importRegex = /from\s+'react-icons\/fa';/;
+if (content.match(importRegex) && !content.includes('FaFilm')) {
+    content = content.replace(/(from\s+'react-icons\/fa';)/, "  FaFilm,\n$1");
+}
+
+const dracinLink = `
     {
-      label: language === 'id' ? 'Kreativitas' : 'Creativity',
-      icon: FaPhotoVideo, // or FaMagic if imported
-      href: '/kreativitas',
-      color: 'purple.500',
-    },`);
+      label: language === 'id' ? 'Dracin' : 'Dracin',
+      icon: FaFilm,
+      href: '/dracin',
+      color: 'red.400',
+    },`;
 
-fs.writeFileSync(file, content);
+if (!content.includes("'Dracin'")) {
+    content = content.replace(/(\{\s*label:\s*language\s*===\s*'id'\s*\?\s*'Kreativitas'\s*:\s*'Creativity',)/, `${dracinLink}\n    $1`);
+}
+
+fs.writeFileSync(path, content);
+console.log('QuickLinks patched');
