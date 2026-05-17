@@ -99,6 +99,24 @@ const TopBarWeather = () => {
   if (loading || !weather) {
     return (
        <HStack>
+        {user && (
+          <Flex
+            align="center"
+            bg="brand.500"
+            color="white"
+            px={2}
+            py={1}
+            borderRadius="md"
+            fontSize="xs"
+            fontWeight="bold"
+            boxShadow="sm"
+            cursor="pointer"
+            onClick={onNetOpen}
+            _hover={{ bg: "brand.600" }}
+          >
+            {networkType}
+          </Flex>
+        )}
         <Button
           as="a"
           href="https://whatsapp.com/channel/0029Vb7s9VIId7nFgebdx73V"
@@ -121,6 +139,24 @@ const TopBarWeather = () => {
   return (
     <>
       <HStack>
+        {user && (
+          <Flex
+            align="center"
+            bg="brand.500"
+            color="white"
+            px={2}
+            py={1}
+            borderRadius="md"
+            fontSize="xs"
+            fontWeight="bold"
+            boxShadow="sm"
+            cursor="pointer"
+            onClick={onNetOpen}
+            _hover={{ bg: "brand.600" }}
+          >
+            {networkType}
+          </Flex>
+        )}
         <Button
           as="a"
           href="https://whatsapp.com/channel/0029Vb7s9VIId7nFgebdx73V"
@@ -156,25 +192,6 @@ const TopBarWeather = () => {
             - {translatedDesc}
           </Text>
         </Flex>
-        {user && (
-          <Flex
-            align="center"
-            bg="brand.500"
-            color="white"
-            px={2}
-            py={1}
-            borderRadius="md"
-            fontSize="xs"
-            fontWeight="bold"
-            ml={2}
-            boxShadow="sm"
-            cursor="pointer"
-            onClick={onNetOpen}
-            _hover={{ bg: "brand.600" }}
-          >
-            {networkType}
-          </Flex>
-        )}
       </HStack>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered motionPreset="slideInBottom">
