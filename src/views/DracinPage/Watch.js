@@ -7,7 +7,6 @@ import {
 import { FaArrowLeft, FaShareAlt, FaExpand, FaCompress } from 'react-icons/fa';
 import { SEO } from '../../components';
 import { dracinApi } from './api';
-import ReactPlayer from 'react-player';
 import screenfull from 'screenfull';
 
 const DracinWatch = () => {
@@ -119,23 +118,16 @@ const DracinWatch = () => {
 
         <Heading size="lg" mb={6}>Episode {episode}</Heading>
 
-        <Box ref={playerWrapperRef} w="100%" maxW="1000px" mx="auto" bg="black" borderRadius={isFullscreen ? '0' : 'xl'} overflow="hidden" position="relative" boxShadow="2xl">
+        <Box ref={playerWrapperRef} w="100%" maxW="500px" mx="auto" bg="black" borderRadius={isFullscreen ? '0' : 'xl'} overflow="hidden" position="relative" boxShadow="2xl">
             {videoUrl ? (
-                <Box pt="56.25%" position="relative">
-                    <ReactPlayer
-                        url={videoUrl}
+                <Box pt="177.78%" position="relative">
+                    <video
+                        src={videoUrl}
                         controls
+                        autoPlay
                         width="100%"
                         height="100%"
                         style={{ position: 'absolute', top: 0, left: 0 }}
-                        playing
-                        config={{
-                             file: {
-                                attributes: {
-                                  controlsList: 'nodownload'
-                                }
-                             }
-                        }}
                     />
                 </Box>
             ) : (
