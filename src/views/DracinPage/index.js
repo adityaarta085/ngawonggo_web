@@ -5,7 +5,7 @@ import {
   InputLeftElement, InputRightElement, IconButton, Tabs, TabList, TabPanels, Tab, TabPanel
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import { FaFire, FaFilm, FaStar, FaSearch, FaTimes } from 'react-icons/fa';
+import { FaFire, FaStar, FaSearch, FaTimes } from 'react-icons/fa';
 import { SEO } from '../../components';
 import { dracinApi } from './api';
 
