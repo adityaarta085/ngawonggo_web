@@ -18,7 +18,8 @@ import {
   GridItem,
   Box
 } from '@chakra-ui/react';
-import { FaCloud, FaSun, FaCloudSun, FaCloudShowersHeavy, FaTint, FaWind, FaWhatsapp, FaSignal } from 'react-icons/fa';
+import { MdSignalCellular1Bar, MdSignalCellular2Bar, MdSignalCellular3Bar, MdSignalCellular4Bar } from 'react-icons/md';
+import { FaCloud, FaSun, FaCloudSun, FaCloudShowersHeavy, FaTint, FaWind, FaWhatsapp } from 'react-icons/fa';
 import axios from 'axios';
 import { useNetwork } from '../contexts/NetworkContext';
 import { useMonetization } from '../contexts/MonetizationContext';
@@ -26,6 +27,7 @@ import { useMonetization } from '../contexts/MonetizationContext';
 const TopBarWeather = () => {
   const [weather, setWeather] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [signalBars, setSignalBars] = useState(4);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isNetOpen, onOpen: onNetOpen, onClose: onNetClose } = useDisclosure();
   const { networkType } = useNetwork();
@@ -46,6 +48,17 @@ const TopBarWeather = () => {
     return mapping[desc] || desc;
   };
 
+
+  const getSignalIcon = () => {
+    switch(signalBars) {
+      case 1: return MdSignalCellular1Bar;
+      case 2: return MdSignalCellular2Bar;
+      case 3: return MdSignalCellular3Bar;
+      case 4: return MdSignalCellular4Bar;
+      default: return MdSignalCellular4Bar;
+    }
+  };
+
   const getWeatherIcon = (desc) => {
     if (!desc) return FaSun;
     const d = desc.toLowerCase();
@@ -54,6 +67,16 @@ const TopBarWeather = () => {
     if (d.includes('rain')) return FaCloudShowersHeavy;
     return FaCloud;
   };
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Randomize between 2 and 4 to simulate fluctuating signal
+      const randomBars = Math.floor(Math.random() * 3) + 2;
+      setSignalBars(randomBars);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,7 +139,7 @@ const TopBarWeather = () => {
           onClick={onNetOpen}
           _hover={{ bg: "brand.600" }}
         >
-          <Icon as={FaSignal} mr={1} />
+          <Icon as={getSignalIcon()} mr={1} />
           {networkType}
         </Flex>
         <Button
@@ -155,7 +178,7 @@ const TopBarWeather = () => {
           onClick={onNetOpen}
           _hover={{ bg: "brand.600" }}
         >
-          <Icon as={FaSignal} mr={1} />
+          <Icon as={getSignalIcon()} mr={1} />
           {networkType}
         </Flex>
         <Flex
@@ -260,7 +283,7 @@ const TopBarWeather = () => {
               <VStack spacing={1}>
                 <Text fontSize="md" color="gray.500" fontWeight="bold">Status Koneksi Saat Ini</Text>
                 <HStack>
-                  <Icon as={FaSignal} w={8} h={8} color={networkType.includes('G') && networkType !== '2G' && networkType !== '3G' ? 'green.500' : (networkType === '3G' ? 'yellow.500' : 'red.500')} />
+                  <Icon as={getSignalIcon()} w={8} h={8} color={networkType.includes('G') && networkType !== '2G' && networkType !== '3G' ? 'green.500' : (networkType === '3G' ? 'yellow.500' : 'red.500')} />
                   <Text fontSize="4xl" fontWeight="900" color="brand.600">{networkType}</Text>
                 </HStack>
               </VStack>
@@ -305,7 +328,7 @@ const TopBarWeather = () => {
               {!isVIP ? (
                 <VStack spacing={3} w="full" textAlign="center" bg="yellow.50" p={4} borderRadius="xl" borderWidth="1px" borderColor="yellow.200" _dark={{ bg: "yellow.900", borderColor: "yellow.700" }}>
                   <Text fontSize="sm" color="yellow.800" _dark={{ color: "yellow.200" }} fontWeight="medium">
-                    Saat ini web berjalan dengan lag yang disengaja ({networkType}). Anonim mendapatkan kecepatan 3G, pengguna Free mendapatkan kecepatan lambat 2G.
+                    Anda sedang mengakses web dengan jaringan {networkType}. Upgrade ke VIP untuk pengalaman browsing yang lebih maksimal.
                   </Text>
                   <Button
                     colorScheme="yellow"
