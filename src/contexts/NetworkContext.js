@@ -111,6 +111,7 @@ export const NetworkProvider = ({ children }) => {
       axios.interceptors.request.eject(reqInterceptor);
       window.fetch = originalFetch;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isVIP, isAirplaneMode]);
 
   return (
