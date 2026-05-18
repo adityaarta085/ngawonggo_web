@@ -6,46 +6,88 @@ import { motion } from 'framer-motion';
 
 const RunningText = ({ isEmbedded = false }) => {
   const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchAnnouncements = useCallback(async () => {
     try {
+      setLoading(true);
+
       const { data, error } = await supabase
         .from('announcements')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
-        setAnnouncements(data);
+      if (error) {
+        console.error('Supabase error:', error.message);
+        setAnnouncements([]);
+        return;
       }
+
+      // Validasi data
+      const safeData = Array.isArray(data)
+        ? data.filter(item => item?.content)
+        : [];
+
+      setAnnouncements(safeData);
     } catch (err) {
       console.error('Error fetching announcements:', err);
+      setAnnouncements([]);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchAnnouncements();
+    let isMounted = true;
+
+    const loadData = async () => {
+      if (isMounted) {
+        await fetchAnnouncements();
+      }
+    };
+
+    loadData();
+
+    // Cleanup untuk mencegah memory leak
+    return () => {
+      isMounted = false;
+    };
   }, [fetchAnnouncements]);
 
-  if (announcements.length === 0) return null;
+  // Saat loading atau tidak ada data
+  if (loading || announcements.length === 0) return null;
 
-  const combinedText = announcements.map(a => a.content).join('  •  ');
+  // Gabungkan text dengan fallback
+  const combinedText =
+    announcements
+      .map(a => a?.content?.trim())
+      .filter(Boolean)
+      .join('  •  ') || 'Tidak ada pengumuman';
 
   if (isEmbedded) {
     return (
       <Flex align="center" overflow="hidden" whiteSpace="nowrap">
         <Icon as={FaBullhorn} mr={2} color="brand.500" />
+
         <Box flex={1} overflow="hidden">
           <motion.div
             animate={{ x: ['100%', '-100%'] }}
             transition={{
               repeat: Infinity,
               duration: 20,
-              ease: "linear"
+              ease: 'linear',
             }}
-            style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
+            style={{
+              display: 'inline-block',
+              whiteSpace: 'nowrap',
+            }}
           >
-            <Text fontWeight="600" fontSize="xs" color="gray.600">
+            <Text
+              fontWeight="600"
+              fontSize="xs"
+              color="gray.600"
+            >
               {combinedText}
             </Text>
           </motion.div>
@@ -55,18 +97,33 @@ const RunningText = ({ isEmbedded = false }) => {
   }
 
   return (
-    <Box bg="brand.500" color="white" py={1} overflow="hidden" position="relative">
-      <Flex align="center" maxW="container.xl" mx="auto" px={4}>
+    <Box
+      bg="brand.500"
+      color="white"
+      py={1}
+      overflow="hidden"
+      position="relative"
+    >
+      <Flex
+        align="center"
+        maxW="container.xl"
+        mx="auto"
+        px={4}
+      >
         <Icon as={FaBullhorn} mr={3} />
+
         <Box flex={1} overflow="hidden" whiteSpace="nowrap">
           <motion.div
             animate={{ x: ['100%', '-100%'] }}
             transition={{
               repeat: Infinity,
               duration: 30,
-              ease: "linear"
+              ease: 'linear',
             }}
-            style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
+            style={{
+              display: 'inline-block',
+              whiteSpace: 'nowrap',
+            }}
           >
             <Text fontWeight="600" fontSize="sm">
               {combinedText}
