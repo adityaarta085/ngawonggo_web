@@ -24,7 +24,9 @@ import {
   FaPhoneAlt,
   FaCompass,
   FaCloudDownloadAlt,
-} from 'react-icons/fa';
+  FaFilm,
+}
+from 'react-icons/fa';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { motion } from 'framer-motion';
@@ -98,6 +100,13 @@ const QuickLinks = ({ isHero }) => {
       icon: FaCompass,
       href: '/jelajahi',
       color: 'yellow.400',
+    },
+
+    {
+      label: language === 'id' ? 'Dracin' : 'Dracin',
+      icon: FaFilm,
+      href: '/dracin',
+      color: 'red.400',
     },
     {
       label: language === 'id' ? 'Kreativitas' : 'Creativity',

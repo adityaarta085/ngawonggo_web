@@ -1,9 +1,16 @@
-import React, { useEffect } from 'react';
-import { Box, Spinner, Text, VStack, Progress, Badge, HStack, Icon } from '@chakra-ui/react';
-import { useNetwork } from '../contexts/NetworkContext';
-import { useMonetization } from '../contexts/MonetizationContext';
-import { FaWifi, FaCrown } from 'react-icons/fa';
+const fs = require('fs');
 
+const path = 'src/components/Preloader.js';
+let content = fs.readFileSync(path, 'utf8');
+
+// 1. Update imports
+content = content.replace(
+    /import \{ Box, Spinner, Text, VStack \} from '@chakra-ui\/react';/,
+    "import { Box, Spinner, Text, VStack, Progress, Badge, HStack, Icon } from '@chakra-ui/react';\nimport { useNetwork } from '../contexts/NetworkContext';\nimport { useMonetization } from '../contexts/MonetizationContext';\nimport { FaWifi, FaCrown } from 'react-icons/fa';"
+);
+
+// 2. Update component implementation
+const newComponentCode = `
 const Preloader = ({ onComplete, timeout = 3000 }) => {
   const { networkType } = useNetwork();
   const { isVIP } = useMonetization();
@@ -57,5 +64,12 @@ const Preloader = ({ onComplete, timeout = 3000 }) => {
     </Box>
   );
 };
+`;
 
-export default Preloader;
+content = content.replace(
+    /const Preloader = \(\{ onComplete, timeout = 3000 \}\) => \{[\s\S]*?return \([\s\S]*?\);\n\};/,
+    newComponentCode.trim()
+);
+
+fs.writeFileSync(path, content);
+console.log('Preloader patched');

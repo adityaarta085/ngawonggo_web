@@ -17,8 +17,22 @@ const DracinWatch = () => {
   const [videoUrl, setVideoUrl] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [detailData, setDetailData] = useState(null);
     useEffect(() => {
     let mounted = true;
+
+    const loadDetail = async () => {
+        try {
+            const detailRes = await dracinApi.getDetail(id);
+            if (mounted) {
+                setDetailData(detailRes);
+            }
+        } catch (err) {
+            console.error("Gagal memuat detail untuk share:", err);
+        }
+    };
+    loadDetail();
+
     const loadEpisode = async () => {
       setLoading(true);
       setError(null);
@@ -61,10 +75,20 @@ const DracinWatch = () => {
   }, [id, episode]);
 
   const handleShare = () => {
+    let titleShare = `Nonton Dracin Eps ${episode}`;
+    let textShare = `Tonton Episode ${episode} di Ngawonggo Portal!`;
+
+    if (detailData) {
+        titleShare = `Nonton ${detailData.title} Eps ${episode}`;
+        const synopsis = detailData.description || detailData.synopsis || '';
+        const shortSynopsis = synopsis.length > 100 ? synopsis.substring(0, 100) + '...' : synopsis;
+        textShare = `${titleShare}\n\nSinopsis:\n${shortSynopsis}\n\nTonton selengkapnya di Ngawonggo Portal!`;
+    }
+
     if (navigator.share) {
       navigator.share({
-        title: `Nonton Dracin Eps ${episode}`,
-        text: `Tonton Episode ${episode} di Ngawonggo Portal!`,
+        title: titleShare,
+        text: textShare,
         url: window.location.href,
       }).catch(console.error);
     } else {
