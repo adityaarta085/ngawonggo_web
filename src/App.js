@@ -73,6 +73,7 @@ import PortalRouter from "./views/PortalPage/PortalRouter.js";
 import DonasiRouter from './views/DonasiPage/index.js';
 import TopupPage from './views/TopupPage/index.js';
 import DownloaderPage from './views/DownloaderPage/index.js';
+import CekPlagiatPage from './views/CekPlagiatPage/index.js';
 
 
 const TopBar = ({ isScrolled }) => {
@@ -286,6 +287,7 @@ function App() {
             <Route path="/kreativitas/publik/:id" element={<ImageDetail />} />
             <Route path="/kreativitas/histori" element={<HistoriPage />} />
             <Route path="/downloader" element={<DownloaderPage />} />
+            <Route path="/cekplagiat" element={<CekPlagiatPage />} />
 
             <Route path="/transparansi" element={<TransparansiPage />} />
             <Route path="/kontak" element={<KontakPage />} />
