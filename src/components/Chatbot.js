@@ -39,6 +39,10 @@ const speak = (text) => {
             utterance.voice = indonesianMaleVoice;
         }
 
+
+        utterance.onstart = () => window.dispatchEvent(new CustomEvent('azma-speaking', { detail: true }));
+        utterance.onend = () => window.dispatchEvent(new CustomEvent('azma-speaking', { detail: false }));
+        utterance.onerror = () => window.dispatchEvent(new CustomEvent('azma-speaking', { detail: false }));
         window.speechSynthesis.speak(utterance);
     }
 };
@@ -354,8 +358,8 @@ const Chatbot = ({ isHidden = false, onHide }) => {
       <Box
         position="fixed"
         bottom={isDocked ? { base: 20, md: 24 } : 0}
-        right={isDocked ? "auto" : 0}
-        left={isDocked ? { base: 4, md: 8 } : 0}
+        right={isDocked ? 0 : 0}
+        left={isDocked ? "auto" : 0}
         w={isDocked ? "auto" : "100vw"}
         zIndex={9998}
         pointerEvents="none"

@@ -52,6 +52,7 @@ import Preloader from './components/Preloader.js';
 import SplashScreen from './components/SplashScreen.js';
 import HumanVerification from './components/HumanVerification.js';
 import Chatbot from './components/Chatbot.js';
+import Mascot3D from './components/Mascot3D.js';
 import RunningText from './components/RunningText.js';
 import TopBarWeather from './components/TopBarWeather.js';
 // eslint-disable-next-line no-unused-vars
@@ -337,17 +338,20 @@ function App() {
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
           <>
             {isVerified && (
+              <>
+              <Mascot3D />
               <Chatbot
                 isHidden={isFloatingHidden}
                 onHide={() => setIsFloatingHidden(true)}
               />
+              </>
             )}
 
             {isFloatingHidden && isVerified && (
-              <Tooltip label="Tampilkan Panel" placement="right" aria-label="Restore Panels">
+              <Tooltip label="Tampilkan Panel" placement="left" aria-label="Restore Panels">
                 <Box
                   position="fixed"
-                  left={0}
+                  right={0}
                   top="50%"
                   transform="translateY(-50%)"
                   w="8px"
@@ -355,7 +359,7 @@ function App() {
                   bg="brand.500"
                   cursor="pointer"
                   zIndex={2000}
-                  borderRightRadius="full"
+                  borderLeftRadius="full"
                   onClick={() => setIsFloatingHidden(false)}
                   _hover={{ w: '12px', bg: 'brand.400' }}
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
