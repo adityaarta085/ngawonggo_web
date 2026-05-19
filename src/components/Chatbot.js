@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+
 import {
   Box,
   IconButton,
@@ -19,12 +20,35 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
+const speak = (text) => {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        // Remove markdown or special characters before speaking
+        let cleanText = text.replace(/\*Jawaban ini dihasilkan oleh AI.*?desangawonggoku@gmail\.com\*/gs, '');
+        cleanText = cleanText.replace(/[#*-]/g, '');
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'id-ID';
+        utterance.rate = 1.0;
+        utterance.pitch = 0.9; // Slightly lower pitch for male voice
+
+        const voices = window.speechSynthesis.getVoices();
+        const indonesianMaleVoice = voices.find(voice => voice.lang.includes('id') && voice.name.toLowerCase().includes('male'));
+
+        if (indonesianMaleVoice) {
+            utterance.voice = indonesianMaleVoice;
+        }
+
+        window.speechSynthesis.speak(utterance);
+    }
+};
+
 const MotionBox = chakra(motion.div);
 
 const Chatbot = ({ isHidden = false, onHide }) => {
   const [isDocked, setIsDocked] = useState(true);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Halo! Saya Asisten AI Desa Ngawonggo. Ada yang bisa saya bantu?' }
+    { role: 'assistant', content: 'Halo! Saya Azma, maskot baru web Desa Ngawonggo. Ada yang bisa saya bantu?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +59,22 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   const [queuePosition, setQueuePosition] = useState(0); // Position in queue
   const [csIsTyping, setCsIsTyping] = useState(false);
   const navigate = useNavigate(); // eslint-disable-line no-unused-vars
+  const [hasPlayedIntro, setHasPlayedIntro] = useState(false);
+
+  useEffect(() => {
+    // Only play once per session
+    if (!hasPlayedIntro) {
+      const audio = new Audio('/azma_intro.aac');
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+          playPromise.then(_ => {
+              setHasPlayedIntro(true);
+          }).catch(error => {
+              console.log("Audio autoplay prevented by browser. Wait for user interaction.");
+          });
+      }
+    }
+  }, [hasPlayedIntro]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -255,6 +295,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
 
       if (!isEscalation) {
         setMessages(prev => [...prev, botMessage]);
+        speak(botMessage.content);
       }
     } catch (error) {
       console.error('Chat Error:', error);
@@ -313,8 +354,8 @@ const Chatbot = ({ isHidden = false, onHide }) => {
       <Box
         position="fixed"
         bottom={isDocked ? { base: 20, md: 24 } : 0}
-        right={isDocked ? 0 : 0}
-        left={isDocked ? "auto" : 0}
+        right={isDocked ? "auto" : 0}
+        left={isDocked ? { base: 4, md: 8 } : 0}
         w={isDocked ? "auto" : "100vw"}
         zIndex={9998}
         pointerEvents="none"
@@ -414,7 +455,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
                 <Flex align="center" gap={2}>
                   <FaRobot />
                   <VStack align="start" spacing={0}>
-                    <Text fontSize="xs" fontWeight="bold">ASISTEN AI DESA</Text>
+                    <Text fontSize="xs" fontWeight="bold">AZMA - MASKOT DESA</Text>
                     {csStatus === 'waiting' ? (
     <Text fontSize="10px" opacity={0.8} color="yellow.200">
         Menunggu CS... {queuePosition > 0 ? `(Antrian ke-${queuePosition})` : ''}

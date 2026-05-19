@@ -344,10 +344,10 @@ function App() {
             )}
 
             {isFloatingHidden && isVerified && (
-              <Tooltip label="Tampilkan Panel" placement="left" aria-label="Restore Panels">
+              <Tooltip label="Tampilkan Panel" placement="right" aria-label="Restore Panels">
                 <Box
                   position="fixed"
-                  right={0}
+                  left={0}
                   top="50%"
                   transform="translateY(-50%)"
                   w="8px"
@@ -355,7 +355,7 @@ function App() {
                   bg="brand.500"
                   cursor="pointer"
                   zIndex={2000}
-                  borderLeftRadius="full"
+                  borderRightRadius="full"
                   onClick={() => setIsFloatingHidden(false)}
                   _hover={{ w: '12px', bg: 'brand.400' }}
                   transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
