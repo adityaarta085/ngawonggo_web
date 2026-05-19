@@ -52,6 +52,7 @@ import Preloader from './components/Preloader.js';
 import SplashScreen from './components/SplashScreen.js';
 import HumanVerification from './components/HumanVerification.js';
 import Chatbot from './components/Chatbot.js';
+import Mascot3D from './components/Mascot3D.js';
 import RunningText from './components/RunningText.js';
 import TopBarWeather from './components/TopBarWeather.js';
 // eslint-disable-next-line no-unused-vars
@@ -337,10 +338,13 @@ function App() {
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
           <>
             {isVerified && (
+              <>
+              <Mascot3D />
               <Chatbot
                 isHidden={isFloatingHidden}
                 onHide={() => setIsFloatingHidden(true)}
               />
+              </>
             )}
 
             {isFloatingHidden && isVerified && (
