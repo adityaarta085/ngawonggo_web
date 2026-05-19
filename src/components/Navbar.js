@@ -27,12 +27,25 @@ import {
 } from '@chakra-ui/icons';
 import { Link as RouterLink } from 'react-router-dom';
 import { ColorModeSwitcher } from '../ColorModeSwitcher';
+import GlobalSearch from './GlobalSearch';
 import { useLanguage } from '../contexts/LanguageContext';
 import { translations } from '../translations';
-import { FaUserCircle, FaLock } from 'react-icons/fa';
+import { FaUserCircle, FaLock, FaSearch } from 'react-icons/fa';
 
 const Navbar = ({ user, isScrolled }) => {
   const { isOpen, onToggle, onClose } = useDisclosure();
+  const { isOpen: isSearchOpen, onOpen: onSearchOpen, onClose: onSearchClose } = useDisclosure();
+
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        onSearchOpen();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onSearchOpen]);
   const { language } = useLanguage();
   const t = (translations[language] && translations[language].nav) ? translations[language].nav : {};
 
@@ -141,6 +154,9 @@ const Navbar = ({ user, isScrolled }) => {
             direction={'row'}
             spacing={4}
           >
+            <Tooltip label="Pencarian Cepat" placement="bottom" hasArrow>
+              <IconButton aria-label="Search" icon={<FaSearch />} variant="ghost" onClick={onSearchOpen} borderRadius="full" />
+            </Tooltip>
             <ColorModeSwitcher justifySelf="flex-end" />
              {user ? (
                 <Tooltip label="Portal Warga" placement="bottom" hasArrow>
@@ -185,9 +201,10 @@ const Navbar = ({ user, isScrolled }) => {
         </Flex>
 
         <Collapse in={isOpen} animateOpacity>
-          <MobileNav navItems={NAV_ITEMS} user={user} onClose={onClose} />
+          <MobileNav navItems={NAV_ITEMS} user={user} onClose={onClose} onSearchOpen={onSearchOpen} />
         </Collapse>
       </Container>
+      <GlobalSearch isOpen={isSearchOpen} onClose={onSearchClose} />
     </Box>
   );
 };
@@ -291,7 +308,7 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
   );
 };
 
-const MobileNav = ({ navItems, user, onClose }) => {
+const MobileNav = ({ navItems, user, onClose, onSearchOpen }) => {
   const bg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)');
   return (
     <Stack
@@ -308,6 +325,16 @@ const MobileNav = ({ navItems, user, onClose }) => {
       overflowY="auto"
     >
       <ColorModeSwitcher alignSelf="center" mb={4} />
+      <Button
+        leftIcon={<FaSearch />}
+        variant="ghost"
+        mb={4}
+        justifyContent="flex-start"
+        onClick={() => { onClose(); onSearchOpen(); }}
+      >
+        Pencarian Cepat (Ctrl+K)
+      </Button>
+      {/* Pencarian Cepat Mobile */}
       {user ? (
           <Button
             key="portal-btn"
