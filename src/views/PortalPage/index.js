@@ -1,3 +1,4 @@
+import { useThemePreference } from "../../contexts/ThemePreferenceContext";
 import React, { useState, useEffect, useRef } from 'react';
 /* eslint-disable no-unused-vars */
 import {
@@ -24,6 +25,9 @@ import {
   AccordionPanel,
   AccordionButton,
   AccordionItem,
+  Radio,
+  RadioGroup,
+  Stack as ChakraStack,
   Accordion,
   Modal,
 
@@ -95,6 +99,8 @@ const StatCard = ({ title, value, subValue, icon, color, onClick }) => {
 };
 
 const PortalPage = () => {
+  const { landingTheme, setLandingTheme } = useThemePreference();
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [deletionTarget, setDeletionTarget] = useState(null);
@@ -585,6 +591,21 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                   <Text fontSize="sm" color="gray.600">
                       Anda memegang kendali atas data Anda. Penghapusan data memerlukan verifikasi demi keamanan. Apabila perangkat Anda tidak aktif, silakan gunakan metode email. Jika masih tidak bisa, hubungi administrator melalui email: <b>desangawonggoku@gmail.com</b>. Jika berhasil menghapus, data akan benar-benar terhapus.
                   </Text>
+
+                  {/* Tampilan UI Setting */}
+                  <Box w="full" mb={6} p={4} borderRadius="xl" borderWidth="1px" borderColor={borderColor}>
+                    <Text fontWeight="bold" mb={3} fontSize="sm">Tampilan Beranda (Landing Page)</Text>
+                    <RadioGroup onChange={setLandingTheme} value={landingTheme}>
+                      <ChakraStack direction="column" spacing={3}>
+                        <Radio value="vibrant" colorScheme="brand">
+                          <Text fontSize="sm" fontWeight="500">Super Ramai & Warna-warni</Text>
+                        </Radio>
+                        <Radio value="minimalist" colorScheme="brand">
+                          <Text fontSize="sm" fontWeight="500">Minimalis & Modern</Text>
+                        </Radio>
+                      </ChakraStack>
+                    </RadioGroup>
+                  </Box>
 
                   <Accordion allowToggle w="full">
                     <AccordionItem border="none">

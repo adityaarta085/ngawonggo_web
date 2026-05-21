@@ -29,11 +29,13 @@ import {
 from 'react-icons/fa';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
+import { useThemePreference } from '../../../contexts/ThemePreferenceContext';
 import { motion } from 'framer-motion';
 
 const MotionBox = motion(Box);
 
 const QuickLinks = ({ isHero }) => {
+  const { landingTheme } = useThemePreference();
   const navigate = useNavigate();
   const { language } = useLanguage();
 
@@ -145,21 +147,26 @@ const QuickLinks = ({ isHero }) => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1, type: "spring", stiffness: 60 }}
+
                     p={4}
-                    bg="whiteAlpha.100"
-                    backdropFilter="blur(10px)"
-                    borderRadius="2xl"
-                    border="1px solid"
-                    borderColor="whiteAlpha.300"
+                    bg={landingTheme === 'vibrant' ? link.color : "whiteAlpha.100"}
+                    color="white"
+                    backdropFilter={landingTheme === 'vibrant' ? 'none' : 'blur(10px)'}
+                    borderRadius={landingTheme === 'vibrant' ? '3xl' : '2xl'}
+                    border={landingTheme === 'vibrant' ? "4px solid" : "1px solid"}
+                    borderColor={landingTheme === 'vibrant' ? "white" : "whiteAlpha.300"}
+                    boxShadow={landingTheme === 'vibrant' ? "8px 8px 0px rgba(0,0,0,0.2)" : "none"}
                     textAlign="center"
                     height="full"
                     display="flex"
                     flexDirection="column"
                     alignItems="center"
                     _hover={{
-                      transform: 'translateY(-5px)',
-                      bg: 'whiteAlpha.200',
-                      borderColor: 'whiteAlpha.500',
+                      transform: landingTheme === 'vibrant' ? 'translateY(-8px) rotate(-2deg)' : 'translateY(-5px)',
+                      boxShadow: landingTheme === 'vibrant' ? '12px 12px 0px rgba(0,0,0,0.3)' : 'none',
+                      filter: landingTheme === 'vibrant' ? 'brightness(1.1)' : 'none',
+                      bg: landingTheme === 'vibrant' ? link.color : 'whiteAlpha.200',
+                      borderColor: landingTheme === 'vibrant' ? 'white' : 'whiteAlpha.500',
                     }}
                     role="group"
                     cursor="pointer"
@@ -168,17 +175,18 @@ const QuickLinks = ({ isHero }) => {
                     <Flex
                       w={{ base: 12, md: 16 }}
                       h={{ base: 12, md: 16 }}
-                      bg="whiteAlpha.200"
-                      color={link.color}
+                      bg={landingTheme === 'vibrant' ? "white" : "whiteAlpha.200"}
+                      color={landingTheme === 'vibrant' ? link.color : link.color}
                       borderRadius="xl"
                       align="center"
                       justify="center"
                       mb={3}
                       transition="all 0.3s"
                       _groupHover={{
-                        transform: 'scale(1.1)',
-                        bg: link.color,
-                        color: 'white'
+                        transform: landingTheme === 'vibrant' ? 'scale(1.2) rotate(10deg)' : 'scale(1.1)',
+                        boxShadow: landingTheme === 'vibrant' ? 'xl' : 'none',
+                        bg: landingTheme === 'vibrant' ? 'white' : link.color,
+                        color: landingTheme === 'vibrant' ? link.color : 'white'
                       }}
                     >
                       <Icon as={link.icon} w={{ base: 5, md: 7 }} h={{ base: 5, md: 7 }} />

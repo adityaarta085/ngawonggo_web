@@ -10,6 +10,7 @@ import theme from './theme';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { MonetizationProvider } from './contexts/MonetizationContext';
 import { NetworkProvider } from './contexts/NetworkContext';
+import { ThemePreferenceProvider } from './contexts/ThemePreferenceContext';
 import ErrorBoundary from './components/ErrorBoundary';
 
 const container = document.getElementById('root');
@@ -24,9 +25,11 @@ root.render(
           <LanguageProvider>
             <MonetizationProvider>
             <NetworkProvider>
+            <ThemePreferenceProvider>
             <BrowserRouter>
               <App />
             </BrowserRouter>
+            </ThemePreferenceProvider>
             </NetworkProvider>
             </MonetizationProvider>
           </LanguageProvider>

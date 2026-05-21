@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { MonetizationProvider } from './contexts/MonetizationContext';
 import { NetworkProvider } from './contexts/NetworkContext';
+import { ThemePreferenceProvider } from './contexts/ThemePreferenceContext';
 import { HelmetProvider } from 'react-helmet-async';
 
 const AllProviders = ({ children }) => (
@@ -14,8 +15,10 @@ const AllProviders = ({ children }) => (
       <LanguageProvider>
         <MonetizationProvider>
         <NetworkProvider>
+          <ThemePreferenceProvider>
         <BrowserRouter>{children}</BrowserRouter>
-        </NetworkProvider>
+        </ThemePreferenceProvider>
+          </NetworkProvider>
       </MonetizationProvider>
       </LanguageProvider>
     </ChakraProvider>

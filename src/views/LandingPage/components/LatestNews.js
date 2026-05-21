@@ -9,14 +9,21 @@ import {
   VStack,
   Flex,
   Icon,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import CardNews from '../../../components/CardNews';
 import { FaArrowRight, FaNewspaper } from 'react-icons/fa';
 import Loading from '../../../components/Loading';
+import { useThemePreference } from '../../../contexts/ThemePreferenceContext';
 
 const LatestNews = () => {
+  const { landingTheme } = useThemePreference();
+  const vibrantBg = useColorModeValue('brand.50', 'gray.900');
+  const minBg = useColorModeValue('white', 'gray.800');
+  const blobOp1 = useColorModeValue(0.1, 0.05);
+  const blobOp2 = useColorModeValue(0.15, 0.05);
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,8 +41,16 @@ const LatestNews = () => {
   }, []);
 
   return (
-    <Box py={24} bg="white" _dark={{ bg: "gray.800" }}>
-      <Container maxW="container.xl">
+    <Box py={24} bg={landingTheme === 'vibrant' ? vibrantBg : minBg} position="relative" overflow="hidden">
+      {landingTheme === 'vibrant' && (
+        <>
+          {/* Dotted Pattern Overlay and Shapes */}
+          <Box position="absolute" inset={0} bgImage="radial-gradient(#137fec 1px, transparent 1px)" bgSize="40px 40px" opacity={blobOp1} zIndex={0} />
+          <Box position="absolute" top="-10%" left="-10%" w="400px" h="400px" bg="green.400" opacity={blobOp2} borderRadius="full" filter="blur(80px)" animation="spin 30s linear infinite" />
+        </>
+      )}
+
+      <Container maxW="container.xl" position="relative" zIndex={1}>
         <Flex
           direction={{ base: 'column', md: 'row' }}
           justify="space-between"
@@ -60,12 +75,19 @@ const LatestNews = () => {
           <Button
             as={RouterLink}
             to="/news"
-            variant="ghost"
-            colorScheme="brand"
+            variant="solid"
+            bgGradient="linear(to-r, brand.400, purple.500)"
+            color="white"
             size="lg"
             rightIcon={<FaArrowRight />}
             fontWeight="800"
-            _hover={{ bg: 'brand.50', transform: 'translateX(5px)' }}
+            borderRadius="full"
+            boxShadow="0 4px 15px rgba(0,0,0,0.2)"
+            _hover={{
+                bgGradient: 'linear(to-r, brand.500, purple.600)',
+                transform: 'translateY(-2px) scale(1.05)',
+                boxShadow: "0 6px 20px rgba(0,0,0,0.3)"
+            }}
           >
             Lihat Semua Berita
           </Button>
