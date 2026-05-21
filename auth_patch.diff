@@ -1,0 +1,209 @@
+<<<<<<< SEARCH
+import { FaGoogle, FaFacebook, FaDiscord, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+=======
+import { FaGoogle, FaFacebook, FaDiscord, FaTwitter, FaSpotify, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  const handleDiscordLogin = async () => {
+    setLoading(true);
+
+    toast({
+      title: 'Menghubungkan ke Discord...',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'discord',
+        options: {
+            redirectTo: `${window.location.origin}/portal`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: 'Gagal Login Discord',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  return (
+=======
+  const handleDiscordLogin = async () => {
+    setLoading(true);
+
+    toast({
+      title: 'Menghubungkan ke Discord...',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'discord',
+        options: {
+            redirectTo: `${window.location.origin}/portal`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: 'Gagal Login Discord',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleTwitterLogin = async () => {
+    setLoading(true);
+    toast({
+      title: 'Menghubungkan ke X...',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+            redirectTo: `${window.location.origin}/portal`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: 'Gagal Login X',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  const handleSpotifyLogin = async () => {
+    setLoading(true);
+    toast({
+      title: 'Menghubungkan ke Spotify...',
+      status: 'info',
+      duration: 3000,
+      isClosable: true,
+    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'spotify',
+        options: {
+            redirectTo: `${window.location.origin}/portal`,
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      setLoading(false);
+      toast({
+        title: 'Gagal Login Spotify',
+        description: error.message,
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  };
+
+  return (
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+              <Button
+                w="full"
+                variant="outline"
+                leftIcon={<FaFacebook color="#1877F2" />}
+                onClick={handleFacebookLogin}
+                borderRadius="xl"
+                h="50px"
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+              >
+                Lanjutkan dengan Facebook (Beta)
+              </Button>
+=======
+              <Button
+                w="full"
+                variant="outline"
+                leftIcon={<FaTwitter color="#1DA1F2" />}
+                onClick={handleTwitterLogin}
+                borderRadius="xl"
+                h="50px"
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+                position="relative"
+              >
+                Lanjutkan dengan X
+                <Badge
+                  colorScheme="green"
+                  variant="solid"
+                  position="absolute"
+                  right="-2"
+                  top="-2"
+                  borderRadius="full"
+                  fontSize="2xs"
+                  px={2}
+                >
+                  NEW
+                </Badge>
+              </Button>
+
+              <Button
+                w="full"
+                variant="outline"
+                leftIcon={<FaSpotify color="#1DB954" />}
+                onClick={handleSpotifyLogin}
+                borderRadius="xl"
+                h="50px"
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+                position="relative"
+              >
+                Lanjutkan dengan Spotify
+                <Badge
+                  colorScheme="green"
+                  variant="solid"
+                  position="absolute"
+                  right="-2"
+                  top="-2"
+                  borderRadius="full"
+                  fontSize="2xs"
+                  px={2}
+                >
+                  NEW
+                </Badge>
+              </Button>
+
+              <Button
+                w="full"
+                variant="outline"
+                leftIcon={<FaFacebook color="#1877F2" />}
+                onClick={handleFacebookLogin}
+                borderRadius="xl"
+                h="50px"
+                isLoading={loading}
+                disabled={loading}
+                _hover={{ bg: 'gray.50' }}
+              >
+                Lanjutkan dengan Facebook
+              </Button>
+>>>>>>> REPLACE
