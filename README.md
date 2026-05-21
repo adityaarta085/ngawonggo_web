@@ -151,5 +151,51 @@ CREATE TABLE site_settings (
 );
 ```
 
+## Health Check Endpoints
+
+Sistem ini dilengkapi dengan berbagai endpoint ringan untuk mengecek status (health check) dari setiap komponen (Frontend, Backend APIs, dan External Services). Semua endpoint ini mengembalikan HTTP status 200 dengan format JSON respons yang sangat ringan, memastikan performa dan uptime termonitor dengan baik tanpa membebani server.
+
+### 1. Frontend Page Health Checks
+Mengecek apakah routing halaman utama dan halaman lainnya berfungsi:
+- `/auth/health`
+- `/donasi/health`
+- `/topup/health`
+- `/news/health`
+- `/profil/health`
+- `/pemerintahan/health`
+- `/layanan/health`
+- `/jelajahi/health`
+- `/kreativitas/health`
+- `/downloader/health`
+- `/cekplagiat/health`
+- `/transparansi/health`
+- `/kontak/health`
+- `/media/health`
+- `/dracin/health`
+- `/anime/health`
+- `/quran/health`
+- `/admin/health`
+- `/portal/health`
+- `/game/health`
+
+### 2. Backend API Health Checks
+Mengecek apakah serverless function backend berjalan:
+- `/api/ai-image/health`
+- `/api/ai-summary/health`
+- `/api/berita-magelang/health`
+- `/api/broadcast/health`
+- `/api/chat/health`
+- `/api/cron-national-news/health`
+- `/api/qrispy-sync/health`
+- `/api/qrispy-webhook/health`
+- `/api/qrispy/health`
+- `/api/telegram/health`
+- `/api/verify-turnstile/health`
+
+### 3. Main Aggregator (External & Internal)
+Endpoint utama untuk memantau semua sistem secara keseluruhan, termasuk pengecekan koneksi Supabase (Database) dan Nexray AI (API Eksternal).
+- `/health` : Pengecekan ringan status eksternal dan konfigurasi internal.
+- `/health?full=1` : Melakukan pengecekan menyeluruh terhadap seluruh endpoint frontend dan backend internal di atas secara paralel.
+
 ## Tim Pengembang
 Proyek ini dikembangkan oleh siswa **SMK Muhammadiyah Bandongan (Kelas 10 TJKT A - 2026)** sebagai bagian dari inisiatif digitalisasi desa.
