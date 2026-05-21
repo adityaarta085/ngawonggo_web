@@ -7,6 +7,30 @@
   ],
   "rewrites": [
     {
+      "source": "/health",
+      "destination": "/api/health?action=master"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/health?action=master"
+    },
+    {
+      "source": "/api/health/db",
+      "destination": "/api/health?action=db"
+    },
+    {
+      "source": "/api/health/external",
+      "destination": "/api/health?action=external"
+    },
+    {
+      "source": "/api/health/internal",
+      "destination": "/api/health?action=internal"
+    },
+    {
+      "source": "/:path*/health",
+      "destination": "/api/health?action=path&path=:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

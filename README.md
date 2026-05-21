@@ -153,3 +153,24 @@ CREATE TABLE site_settings (
 
 ## Tim Pengembang
 Proyek ini dikembangkan oleh siswa **SMK Muhammadiyah Bandongan (Kelas 10 TJKT A - 2026)** sebagai bagian dari inisiatif digitalisasi desa.
+
+## Healthcheck Endpoints
+
+Untuk memastikan semua sistem berfungsi dengan baik, telah ditambahkan berbagai endpoint healthcheck yang ringan dan mencakup seluruh aspek aplikasi. Endpoint ini memanfaatkan fitur *rewrites* dari Vercel untuk menangkap permintaan ke route tertentu.
+
+### Endpoint Utama
+*   \`/health\` atau \`/api/health\`: Endpoint utama (Master Healthcheck). Mengembalikan status operasional sistem secara keseluruhan, waktu aktif (uptime), dan daftar endpoint healthcheck spesifik.
+*   \`/api/health/db\`: Mengecek koneksi ke database Supabase dengan melakukan query ringan (mengambil 1 baris dari tabel \`site_settings\`).
+*   \`/api/health/external\`: Mengecek konektivitas ke API eksternal yang digunakan aplikasi (seperti API Dracin, Cloudflare Turnstile, dan Telegram).
+*   \`/api/health/internal\`: Endpoint diagnostik internal yang sangat ringan untuk mengecek status dan penggunaan memori serverless function.
+
+### Wildcard Healthcheck (Setiap Halaman)
+Semua path di aplikasi mendukung pengecekan status dengan menambahkan akhiran \`/health\`. Endpoint ini dikonfigurasi untuk langsung merespon HTTP 200 OK secara ringan untuk memverifikasi bahwa routing Vercel ke path tersebut hidup.
+
+Contoh:
+*   \`/auth/health\`
+*   \`/donasi/health\`
+*   \`/news/health\`
+*   \`/api/chat/health\`
+
+Semua endpoint tersebut ditangani oleh file tunggal (\`/api/health-path.js\`) yang menerima query parameter path dan langsung mengembalikan respons JSON berisi status "ok", mengurangi beban komputasi.
