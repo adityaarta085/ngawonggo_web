@@ -15,8 +15,11 @@ import {
 import { FaChevronRight } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
+import { useThemePreference } from '../../../contexts/ThemePreferenceContext';
 
 const DusunSection = () => {
+  const { landingTheme } = useThemePreference();
+  const blobOpacity1 = useColorModeValue(0.1, 0.05);
   const borderColors = ['red.400', 'orange.400', 'yellow.400', 'green.400', 'teal.400', 'blue.400', 'cyan.400', 'purple.400', 'pink.400', 'brand.400'];
   const [dusuns, setDusuns] = useState([]);
 
@@ -30,9 +33,13 @@ const DusunSection = () => {
 
   return (
     <Box py={24} bg={useColorModeValue('white', 'gray.800')} position="relative" overflow="hidden">
-      {/* Playful Colorful Background Blobs */}
-      <Box position="absolute" top="-10%" left="-10%" w="500px" h="500px" bg="purple.400" opacity={useColorModeValue(0.1, 0.05)} borderRadius="full" filter="blur(100px)" />
-      <Box position="absolute" bottom="-10%" right="-5%" w="600px" h="600px" bg="orange.400" opacity={useColorModeValue(0.1, 0.05)} borderRadius="full" filter="blur(120px)" />
+      {landingTheme === 'vibrant' && (
+        <>
+          {/* Playful Colorful Background Blobs */}
+          <Box position="absolute" top="-10%" left="-10%" w="500px" h="500px" bg="purple.400" opacity={blobOpacity1} borderRadius="full" filter="blur(100px)" />
+          <Box position="absolute" bottom="-10%" right="-5%" w="600px" h="600px" bg="orange.400" opacity={blobOpacity1} borderRadius="full" filter="blur(120px)" />
+        </>
+      )}
       <Container maxW="container.xl" position="relative" zIndex={1}>
         <VStack spacing={12} align="center">
           <Box textAlign="center">
@@ -65,11 +72,11 @@ const DusunSection = () => {
                   h="200px"
                   borderRadius="2xl"
                   overflow="hidden"
-                  boxShadow="xl"
-                  border="6px solid"
-                  borderColor={borderColors[index % borderColors.length]}
-                  transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
-                  _hover={{ transform: 'translateY(-12px) rotate(2deg)', boxShadow: '2xl', borderColor: 'white' }}
+                  boxShadow={landingTheme === 'vibrant' ? "xl" : "md"}
+                  border={landingTheme === 'vibrant' ? "6px solid" : "none"}
+                  borderColor={landingTheme === 'vibrant' ? borderColors[index % borderColors.length] : "transparent"}
+                  transition={landingTheme === 'vibrant' ? "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)" : "all 0.4s"}
+                  _hover={landingTheme === 'vibrant' ? { transform: 'translateY(-12px) rotate(2deg)', boxShadow: '2xl', borderColor: 'white' } : { transform: 'translateY(-8px)', boxShadow: '2xl' }}
                 >
                   <Image
                     src={dusun.image_url}

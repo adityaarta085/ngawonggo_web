@@ -16,8 +16,14 @@ import { supabase } from '../../../lib/supabase';
 import CardNews from '../../../components/CardNews';
 import { FaArrowRight, FaNewspaper } from 'react-icons/fa';
 import Loading from '../../../components/Loading';
+import { useThemePreference } from '../../../contexts/ThemePreferenceContext';
 
 const LatestNews = () => {
+  const { landingTheme } = useThemePreference();
+  const vibrantBg = useColorModeValue('brand.50', 'gray.900');
+  const minBg = useColorModeValue('white', 'gray.800');
+  const blobOp1 = useColorModeValue(0.1, 0.05);
+  const blobOp2 = useColorModeValue(0.15, 0.05);
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,10 +41,14 @@ const LatestNews = () => {
   }, []);
 
   return (
-    <Box py={24} bg={useColorModeValue('brand.50', 'gray.900')} position="relative" overflow="hidden">
-      {/* Dotted Pattern Overlay and Shapes */}
-      <Box position="absolute" inset={0} bgImage="radial-gradient(#137fec 1px, transparent 1px)" bgSize="40px 40px" opacity={useColorModeValue(0.1, 0.05)} zIndex={0} />
-      <Box position="absolute" top="-10%" left="-10%" w="400px" h="400px" bg="green.400" opacity={useColorModeValue(0.15, 0.05)} borderRadius="full" filter="blur(80px)" animation="spin 30s linear infinite" />
+    <Box py={24} bg={landingTheme === 'vibrant' ? vibrantBg : minBg} position="relative" overflow="hidden">
+      {landingTheme === 'vibrant' && (
+        <>
+          {/* Dotted Pattern Overlay and Shapes */}
+          <Box position="absolute" inset={0} bgImage="radial-gradient(#137fec 1px, transparent 1px)" bgSize="40px 40px" opacity={blobOp1} zIndex={0} />
+          <Box position="absolute" top="-10%" left="-10%" w="400px" h="400px" bg="green.400" opacity={blobOp2} borderRadius="full" filter="blur(80px)" animation="spin 30s linear infinite" />
+        </>
+      )}
 
       <Container maxW="container.xl" position="relative" zIndex={1}>
         <Flex

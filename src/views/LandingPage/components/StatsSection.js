@@ -23,6 +23,7 @@ import {
   FaHeart
 } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
+import { useThemePreference } from '../../../contexts/ThemePreferenceContext';
 
 const MotionBox = motion(Box);
 
@@ -38,6 +39,15 @@ const iconMap = {
 };
 
 const StatsSection = () => {
+  const { landingTheme } = useThemePreference();
+  const cardBgMinimalist = useColorModeValue('white', 'gray.800');
+  const cardHoverBgMinimalist = useColorModeValue('white', 'whiteAlpha.100');
+  const borderColorMinimalist = useColorModeValue('gray.100', 'whiteAlpha.100');
+  const op1 = useColorModeValue(0.15, 0.05);
+  const op2 = useColorModeValue(0.15, 0.05);
+  const op3 = useColorModeValue(0.15, 0.05);
+  const textMinColor = useColorModeValue('gray.800', 'white');
+  const subTextMinColor = useColorModeValue('gray.500', 'whiteAlpha.700');
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -91,10 +101,16 @@ const StatsSection = () => {
   return (
     <Box py={24} bg={sectionBg} position="relative" overflow="hidden">
       {/* Decorative Blur */}
-      {/* Playful Floating Shapes */}
-      <Box position="absolute" top="-5%" right="-5%" w={{ base: "200px", md: "400px" }} h={{ base: "200px", md: "400px" }} bg="pink.400" opacity={useColorModeValue(0.15, 0.05)} borderRadius="full" filter="blur(60px)" animation="spin 20s linear infinite" />
-      <Box position="absolute" bottom="-10%" left="-5%" w={{ base: "250px", md: "500px" }} h={{ base: "250px", md: "500px" }} bg="blue.400" opacity={useColorModeValue(0.15, 0.05)} borderRadius="full" filter="blur(80px)" animation="spin 25s linear infinite reverse" />
-      <Box position="absolute" top="40%" left="30%" w="300px" h="300px" bg="yellow.400" opacity={useColorModeValue(0.15, 0.05)} borderRadius="full" filter="blur(70px)" />
+      {landingTheme === 'vibrant' ? (
+        <>
+          {/* Playful Floating Shapes */}
+          <Box position="absolute" top="-5%" right="-5%" w={{ base: "200px", md: "400px" }} h={{ base: "200px", md: "400px" }} bg="pink.400" opacity={op1} borderRadius="full" filter="blur(60px)" animation="spin 20s linear infinite" />
+          <Box position="absolute" bottom="-10%" left="-5%" w={{ base: "250px", md: "500px" }} h={{ base: "250px", md: "500px" }} bg="blue.400" opacity={op2} borderRadius="full" filter="blur(80px)" animation="spin 25s linear infinite reverse" />
+          <Box position="absolute" top="40%" left="30%" w="300px" h="300px" bg="yellow.400" opacity={op3} borderRadius="full" filter="blur(70px)" />
+        </>
+      ) : (
+        <Box position="absolute" top="-100px" right="-100px" w="400px" h="400px" bg="brand.500" opacity={0.03} borderRadius="full" filter="blur(80px)" />
+      )}
 
       <Container maxW="container.xl" position="relative" zIndex={1}>
         <VStack spacing={16}>
@@ -102,10 +118,10 @@ const StatsSection = () => {
             <Text color="brand.500" fontWeight="800" letterSpacing="widest" fontSize="xs" mb={3}>
               STATISTIK DESA
             </Text>
-            <Heading color={useColorModeValue('gray.800', 'white')} size="2xl" fontWeight="900" mb={6}>
+            <Heading color={textMinColor} size="2xl" fontWeight="900" mb={6}>
               Ngawonggo Dalam Angka
             </Heading>
-            <Text color={useColorModeValue('gray.500', 'whiteAlpha.700')} fontSize="xl" fontWeight="500">
+            <Text color={subTextMinColor} fontSize="xl" fontWeight="500">
               Data statistik asli terintegrasi sistem untuk gambaran umum kependudukan dan geografis Desa Ngawonggo.
             </Text>
           </Box>
@@ -120,25 +136,28 @@ const StatsSection = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.1, type: "spring", stiffness: 50 }}
-                    style={{ background: gradients[index % gradients.length] }}
+                    style={{ background: landingTheme === 'vibrant' ? gradients[index % gradients.length] : undefined }}
+                    bg={landingTheme === 'vibrant' ? undefined : cardBgMinimalist}
                     p={10}
                     borderRadius="3xl"
-                    boxShadow="xl"
-                    border="4px solid white"
+                    boxShadow={landingTheme === 'vibrant' ? "xl" : "none"}
+                    border={landingTheme === 'vibrant' ? "4px solid white" : "2px solid"}
+                    borderColor={landingTheme === 'vibrant' ? "white" : borderColorMinimalist}
                     textAlign="center"
                     position="relative"
                     overflow="hidden"
                     _hover={{
-
-                        transform: "translateY(-12px) scale(1.02)",
+                        bg: landingTheme === 'vibrant' ? undefined : cardHoverBgMinimalist,
+                        borderColor: landingTheme === 'vibrant' ? 'white' : 'brand.200',
+                        transform: landingTheme === 'vibrant' ? "translateY(-12px) scale(1.02)" : "translateY(-12px) scale(1.02)",
                         boxShadow: "0 30px 60px -15px rgba(0,0,0,0.15)"
                     }}
                   >
                     <Flex
                       w={16}
                       h={16}
-                      bg="white"
-                      color={item.color || 'blue.500'}
+                      bg={landingTheme === 'vibrant' ? "white" : (item.color || 'blue.500')}
+                      color={landingTheme === 'vibrant' ? (item.color || 'blue.500') : "white"}
                       borderRadius="2xl"
                       align="center"
                       justify="center"
@@ -148,10 +167,10 @@ const StatsSection = () => {
                     >
                       <Icon as={getIcon(item.icon)} w={8} h={8} aria-hidden="true" focusable="false" />
                     </Flex>
-                    <Heading color="gray.800" size="xl" fontWeight="900" mb={2} style={{ textShadow: '0 2px 4px rgba(255,255,255,0.8)' }}>
+                    <Heading color={landingTheme === 'vibrant' ? "gray.800" : textMinColor} size="xl" fontWeight="900" mb={2} style={landingTheme === 'vibrant' ? { textShadow: '0 2px 4px rgba(255,255,255,0.8)' } : {}}>
                       {typeof item.value === 'number' ? item.value.toLocaleString('id-ID') : item.value}
                     </Heading>
-                    <Text color="gray.700" fontSize="md" fontWeight="800" letterSpacing="wider" textTransform="uppercase">
+                    <Text color={landingTheme === 'vibrant' ? "gray.700" : "gray.400"} fontSize="md" fontWeight="800" letterSpacing="wider" textTransform="uppercase">
                       {item.label}
                     </Text>
                   </MotionBox>
