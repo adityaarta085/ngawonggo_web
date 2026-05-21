@@ -10,12 +10,14 @@ import {
   Icon,
   Image,
   Link,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { FaChevronRight } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 
 const DusunSection = () => {
+  const borderColors = ['red.400', 'orange.400', 'yellow.400', 'green.400', 'teal.400', 'blue.400', 'cyan.400', 'purple.400', 'pink.400', 'brand.400'];
   const [dusuns, setDusuns] = useState([]);
 
   useEffect(() => {
@@ -27,8 +29,11 @@ const DusunSection = () => {
   }, []);
 
   return (
-    <Box py={24} bg="white" _dark={{ bg: "gray.800" }} position="relative">
-      <Container maxW="container.xl">
+    <Box py={24} bg={useColorModeValue('white', 'gray.800')} position="relative" overflow="hidden">
+      {/* Playful Colorful Background Blobs */}
+      <Box position="absolute" top="-10%" left="-10%" w="500px" h="500px" bg="purple.400" opacity={useColorModeValue(0.1, 0.05)} borderRadius="full" filter="blur(100px)" />
+      <Box position="absolute" bottom="-10%" right="-5%" w="600px" h="600px" bg="orange.400" opacity={useColorModeValue(0.1, 0.05)} borderRadius="full" filter="blur(120px)" />
+      <Container maxW="container.xl" position="relative" zIndex={1}>
         <VStack spacing={12} align="center">
           <Box textAlign="center">
             <Text
@@ -47,7 +52,7 @@ const DusunSection = () => {
           </Box>
 
           <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={6} w="full">
-            {dusuns.map((dusun) => (
+            {dusuns.map((dusun, index) => (
               <Link
                 key={dusun.slug}
                 as={RouterLink}
@@ -60,9 +65,11 @@ const DusunSection = () => {
                   h="200px"
                   borderRadius="2xl"
                   overflow="hidden"
-                  boxShadow="md"
-                  transition="all 0.4s"
-                  _hover={{ transform: 'translateY(-8px)', boxShadow: '2xl' }}
+                  boxShadow="xl"
+                  border="6px solid"
+                  borderColor={borderColors[index % borderColors.length]}
+                  transition="all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)"
+                  _hover={{ transform: 'translateY(-12px) rotate(2deg)', boxShadow: '2xl', borderColor: 'white' }}
                 >
                   <Image
                     src={dusun.image_url}

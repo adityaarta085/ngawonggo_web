@@ -145,21 +145,24 @@ const QuickLinks = ({ isHero }) => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1, type: "spring", stiffness: 60 }}
+
                     p={4}
-                    bg="whiteAlpha.100"
-                    backdropFilter="blur(10px)"
-                    borderRadius="2xl"
-                    border="1px solid"
-                    borderColor="whiteAlpha.300"
+                    bg={link.color}
+                    color="white"
+
+                    borderRadius="3xl"
+                    border="4px solid"
+                    borderColor="white"
+                    boxShadow="8px 8px 0px rgba(0,0,0,0.2)"
                     textAlign="center"
                     height="full"
                     display="flex"
                     flexDirection="column"
                     alignItems="center"
                     _hover={{
-                      transform: 'translateY(-5px)',
-                      bg: 'whiteAlpha.200',
-                      borderColor: 'whiteAlpha.500',
+                      transform: 'translateY(-8px) rotate(-2deg)',
+                      boxShadow: '12px 12px 0px rgba(0,0,0,0.3)',
+                      filter: 'brightness(1.1)',
                     }}
                     role="group"
                     cursor="pointer"
@@ -168,7 +171,7 @@ const QuickLinks = ({ isHero }) => {
                     <Flex
                       w={{ base: 12, md: 16 }}
                       h={{ base: 12, md: 16 }}
-                      bg="whiteAlpha.200"
+                      bg="white"
                       color={link.color}
                       borderRadius="xl"
                       align="center"
@@ -176,9 +179,8 @@ const QuickLinks = ({ isHero }) => {
                       mb={3}
                       transition="all 0.3s"
                       _groupHover={{
-                        transform: 'scale(1.1)',
-                        bg: link.color,
-                        color: 'white'
+                        transform: 'scale(1.2) rotate(10deg)',
+                        boxShadow: 'xl'
                       }}
                     >
                       <Icon as={link.icon} w={{ base: 5, md: 7 }} h={{ base: 5, md: 7 }} />

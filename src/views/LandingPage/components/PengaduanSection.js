@@ -16,7 +16,7 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 
 const PengaduanSection = () => {
   const { language } = useLanguage();
-  const bg = useColorModeValue('brand.500', 'brand.600');
+  const bg = useColorModeValue('linear-gradient(135deg, #FF6A88 0%, #FF99AC 100%)', 'linear-gradient(135deg, #D4145A 0%, #FBB03B 100%)');
 
   return (
     <Box py={20} bg="white" _dark={{ bg: "gray.800" }} id="pengaduan">
@@ -72,14 +72,15 @@ const PengaduanSection = () => {
               as={RouterLink}
               to="/layanan"
               size="lg"
-              bg="white" _dark={{ bg: "gray.800" }}
-              color="brand.500"
+              bg="white"
+              color="red.500"
               px={10}
               py={8}
               fontSize="xl"
-              fontWeight="bold"
-              borderRadius="2xl"
-              _hover={{ bg: 'gray.100', transform: 'translateY(-2px)' }}
+              fontWeight="900"
+              borderRadius="full"
+              boxShadow="xl"
+              _hover={{ transform: 'translateY(-5px) scale(1.05)', boxShadow: '2xl' }}
               transition="all 0.3s"
               rightIcon={<FaArrowRight />}
             >

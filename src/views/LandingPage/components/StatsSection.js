@@ -41,12 +41,19 @@ const StatsSection = () => {
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const cardBg = useColorModeValue('gray.50', 'whiteAlpha.50');
-  const cardHoverBg = useColorModeValue('white', 'whiteAlpha.100');
-  const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100');
-  const textColor = useColorModeValue('gray.800', 'white');
-  const subTextColor = useColorModeValue('gray.500', 'whiteAlpha.700');
-  const sectionBg = useColorModeValue('white', 'gray.900');
+  const sectionBg = useColorModeValue('gray.50', 'gray.900');
+
+  // Array of vivid gradients for each card
+  const gradients = [
+    "linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%)",
+    "linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)",
+    "linear-gradient(120deg, #fccb90 0%, #d57eeb 100%)",
+    "linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%)",
+    "linear-gradient(120deg, #f093fb 0%, #f5576c 100%)",
+    "linear-gradient(120deg, #4facfe 0%, #00f2fe 100%)",
+    "linear-gradient(120deg, #43e97b 0%, #38f9d7 100%)",
+    "linear-gradient(120deg, #fa709a 0%, #fee140 100%)",
+  ];
 
   useEffect(() => {
     let isMounted = true;
@@ -84,7 +91,10 @@ const StatsSection = () => {
   return (
     <Box py={24} bg={sectionBg} position="relative" overflow="hidden">
       {/* Decorative Blur */}
-      <Box position="absolute" top="-100px" right="-100px" w="400px" h="400px" bg="brand.500" opacity={0.03} borderRadius="full" filter="blur(80px)" />
+      {/* Playful Floating Shapes */}
+      <Box position="absolute" top="-5%" right="-5%" w={{ base: "200px", md: "400px" }} h={{ base: "200px", md: "400px" }} bg="pink.400" opacity={useColorModeValue(0.15, 0.05)} borderRadius="full" filter="blur(60px)" animation="spin 20s linear infinite" />
+      <Box position="absolute" bottom="-10%" left="-5%" w={{ base: "250px", md: "500px" }} h={{ base: "250px", md: "500px" }} bg="blue.400" opacity={useColorModeValue(0.15, 0.05)} borderRadius="full" filter="blur(80px)" animation="spin 25s linear infinite reverse" />
+      <Box position="absolute" top="40%" left="30%" w="300px" h="300px" bg="yellow.400" opacity={useColorModeValue(0.15, 0.05)} borderRadius="full" filter="blur(70px)" />
 
       <Container maxW="container.xl" position="relative" zIndex={1}>
         <VStack spacing={16}>
@@ -92,10 +102,10 @@ const StatsSection = () => {
             <Text color="brand.500" fontWeight="800" letterSpacing="widest" fontSize="xs" mb={3}>
               STATISTIK DESA
             </Text>
-            <Heading color={textColor} size="2xl" fontWeight="900" mb={6}>
+            <Heading color={useColorModeValue('gray.800', 'white')} size="2xl" fontWeight="900" mb={6}>
               Ngawonggo Dalam Angka
             </Heading>
-            <Text color={subTextColor} fontSize="xl" fontWeight="500">
+            <Text color={useColorModeValue('gray.500', 'whiteAlpha.700')} fontSize="xl" fontWeight="500">
               Data statistik asli terintegrasi sistem untuk gambaran umum kependudukan dan geografis Desa Ngawonggo.
             </Text>
           </Box>
@@ -106,19 +116,20 @@ const StatsSection = () => {
                 {stats.map((item, index) => (
                   <MotionBox
                     key={item.id || index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    bg={cardBg}
+                    transition={{ duration: 0.5, delay: index * 0.1, type: "spring", stiffness: 50 }}
+                    style={{ background: gradients[index % gradients.length] }}
                     p={10}
                     borderRadius="3xl"
-                    border="2px solid"
-                    borderColor={borderColor}
+                    boxShadow="xl"
+                    border="4px solid white"
                     textAlign="center"
+                    position="relative"
+                    overflow="hidden"
                     _hover={{
-                        bg: cardHoverBg,
-                        borderColor: "brand.200",
+
                         transform: "translateY(-12px) scale(1.02)",
                         boxShadow: "0 30px 60px -15px rgba(0,0,0,0.15)"
                     }}
@@ -126,8 +137,8 @@ const StatsSection = () => {
                     <Flex
                       w={16}
                       h={16}
-                      bg={item.color || 'blue.500'}
-                      color="white"
+                      bg="white"
+                      color={item.color || 'blue.500'}
                       borderRadius="2xl"
                       align="center"
                       justify="center"
@@ -137,10 +148,10 @@ const StatsSection = () => {
                     >
                       <Icon as={getIcon(item.icon)} w={8} h={8} aria-hidden="true" focusable="false" />
                     </Flex>
-                    <Heading color={textColor} size="xl" fontWeight="900" mb={2}>
+                    <Heading color="gray.800" size="xl" fontWeight="900" mb={2} style={{ textShadow: '0 2px 4px rgba(255,255,255,0.8)' }}>
                       {typeof item.value === 'number' ? item.value.toLocaleString('id-ID') : item.value}
                     </Heading>
-                    <Text color="gray.400" fontSize="md" fontWeight="800" letterSpacing="wider" textTransform="uppercase">
+                    <Text color="gray.700" fontSize="md" fontWeight="800" letterSpacing="wider" textTransform="uppercase">
                       {item.label}
                     </Text>
                   </MotionBox>
