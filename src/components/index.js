@@ -15,3 +15,5 @@ export {
     GoogleMap,
     SpecialEventPoster,
 };
+
+export { default as AdSenseComponent } from './AdSenseComponent';
