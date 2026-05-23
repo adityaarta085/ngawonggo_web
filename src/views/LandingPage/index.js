@@ -1,4 +1,4 @@
-import { InstallPWA, SEO, SpecialEventPoster } from "../../components";
+import { InstallPWA, SEO, SpecialEventPoster, AdSenseComponent } from "../../components";
 import { Box } from '@chakra-ui/react';
 import Hero from './components/Hero.js';
 import LatestNews from './components/LatestNews.js';
@@ -24,8 +24,10 @@ export default function LandingPage() {
       {/* Ramadan ended */}
       {/* <RamadanSection /> */}
       <StatsSection />
+      <Box py={4} maxW="container.xl" mx="auto"><AdSenseComponent /></Box>
       <DusunSection />
       <LatestNews />
+      <Box py={4} maxW="container.xl" mx="auto"><AdSenseComponent /></Box>
       <VideoPromo />
       <QuranAccess />
       <PengaduanSection />

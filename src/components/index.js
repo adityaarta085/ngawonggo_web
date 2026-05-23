@@ -5,6 +5,7 @@ import InstallPWA from "./InstallPWA";
 import SEO from "./SEO";
 import GoogleMap from "./GoogleMap";
 import SpecialEventPoster from "./SpecialEventPoster";
+import AdSenseComponent from "./AdSense/AdSenseComponent";
 
 export {
     Navbar,
@@ -14,4 +15,5 @@ export {
     SEO,
     GoogleMap,
     SpecialEventPoster,
+    AdSenseComponent,
 };

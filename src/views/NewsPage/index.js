@@ -21,7 +21,7 @@ import CardNews from '../../components/CardNews.js';
 import SmallCardNews from '../../components/SmallCardNews';
 import { supabase } from '../../lib/supabase';
 import { motion } from 'framer-motion';
-import { SEO } from '../../components';
+import { SEO, AdSenseComponent } from '../../components';
 
 const MotionBox = motion(Box);
 
@@ -145,6 +145,8 @@ export default function NewsPage() {
               ))}
             </HStack>
           </Box>
+
+          <Box py={2} w="full"><AdSenseComponent /></Box>
 
           {/* News Feed by Category */}
           {CATEGORIES.map((category, idx) => {
