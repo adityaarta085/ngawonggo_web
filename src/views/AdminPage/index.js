@@ -62,7 +62,8 @@ import MonetizationManager from './components/MonetizationManager';
 import NotificationManager from './components/NotificationManager';
 import DeveloperMediaManager from './components/DeveloperMediaManager';
 import MediaManager from './components/MediaManager';
-import { FaCoins, FaBell } from 'react-icons/fa';
+import IklanManager from './components/IklanManager';
+import { FaCoins, FaBell, FaAd } from 'react-icons/fa';
 
 const AdminPage = ({ setSession }) => {
   const navigate = useNavigate();
@@ -97,6 +98,7 @@ const AdminPage = ({ setSession }) => {
     { name: 'Pemerintahan', icon: FaUsers },
     { name: 'Dokumen & Analitik', icon: FaChartBar },
     { name: 'Manajemen Media', icon: FaImage },
+    { name: 'Iklan', icon: FaAd },
   ];
 
   const handleLogout = async () => {
@@ -213,6 +215,8 @@ const AdminPage = ({ setSession }) => {
           {activeTab === 'Pemerintahan' && <PemerintahanManager />}
           {activeTab === 'Dokumen & Analitik' && <DokumenManager />}
           {activeTab === 'Manajemen Media' && <MediaManager />}
+          {activeTab === 'Iklan' && <IklanManager />}
+
           {activeTab === 'Customer Service' && <CsManager />}
           {activeTab === 'Pengguna' && <UserManager />}
           {activeTab === 'Profil Desa' && <ProfilManager />}

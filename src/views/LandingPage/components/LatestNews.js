@@ -14,6 +14,7 @@ import {
 import { Link as RouterLink } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import CardNews from '../../../components/CardNews';
+import CustomAds from '../../../components/CustomAds';
 import { FaArrowRight, FaNewspaper } from 'react-icons/fa';
 import Loading from '../../../components/Loading';
 import { useThemePreference } from '../../../contexts/ThemePreferenceContext';
@@ -100,11 +101,14 @@ const LatestNews = () => {
         ) : (
           <>
             {news.length > 0 ? (
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
+              <>
+                  <CustomAds placementType="inline" />
+                  <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
                 {news.map((item) => (
                   <CardNews key={item.id} news={item} />
                 ))}
               </SimpleGrid>
+              </>
             ) : (
               <Box textAlign="center" py={20} bg="gray.50" _dark={{ bg: "gray.900" }} borderRadius="3xl" border="2px dashed" borderColor="gray.200">
                 <Text color="gray.400" fontSize="lg" fontWeight="600">Belum ada berita yang diterbitkan.</Text>
