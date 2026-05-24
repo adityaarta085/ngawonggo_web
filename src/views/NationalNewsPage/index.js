@@ -21,7 +21,7 @@ import CardNews from '../../components/CardNews.js';
 import SmallCardNews from '../../components/SmallCardNews';
 import { supabase } from '../../lib/supabase';
 import { motion } from 'framer-motion';
-import { SEO, AdSenseComponent } from '../../components';
+import { SEO } from '../../components';
 
 const MotionBox = motion(Box);
 
@@ -99,7 +99,6 @@ export default function NationalNewsPage() {
 
       <Container maxW="container.xl">
         <Flex direction="column" gap={16}>
-          <Box py={2} w="full"><AdSenseComponent /></Box>
           {news.length > 0 && (
             <MotionBox
               initial={{ opacity: 0, y: 30 }}

@@ -9,7 +9,7 @@ import {
 import { FaCalendarAlt, FaChevronRight, FaArrowLeft, FaExternalLinkAlt } from 'react-icons/fa';
 import AISummary from '../../components/AISummary';
 import Loading from '../../components/Loading';
-import { SEO, AdSenseComponent } from '../../components';
+import { SEO } from '../../components';
 
 export default function NationalNewsDetail() {
   const { slug } = useParams();
@@ -118,7 +118,6 @@ export default function NationalNewsDetail() {
 
           <AISummary newsId={news.id} type="national" content={news.content} initialSummary={news.ai_summary} />
 
-          <Box w="full" my={4}><AdSenseComponent /></Box>
 
           <Box
             w="full"
@@ -137,7 +136,6 @@ export default function NationalNewsDetail() {
             }}
           />
 
-          <Box w="full" my={4}><AdSenseComponent /></Box>
 
           {news.link && (
             <>
