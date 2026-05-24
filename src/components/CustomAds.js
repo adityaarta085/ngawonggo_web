@@ -3,7 +3,6 @@ import {
   Box,
   Flex,
   Text,
-  IconButton,
   Image,
   Link,
   useColorModeValue,
@@ -55,12 +54,13 @@ const CustomAds = ({ placementType }) => {
       { threshold: 0.5 }
     );
 
-    Object.values(videoRefs.current).forEach((video) => {
+    const currentRefs = videoRefs.current;
+    Object.values(currentRefs).forEach((video) => {
       if (video) observer.observe(video);
     });
 
     return () => {
-      Object.values(videoRefs.current).forEach((video) => {
+      Object.values(currentRefs).forEach((video) => {
         if (video) observer.unobserve(video);
       });
     };

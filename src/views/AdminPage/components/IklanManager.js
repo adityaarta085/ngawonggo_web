@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -62,11 +62,7 @@ const IklanManager = () => {
     { value: 'popup_center', label: 'Popup Tengah' },
   ];
 
-  useEffect(() => {
-    fetchAds();
-  }, []);
-
-  const fetchAds = async () => {
+  const fetchAds = useCallback(async () => {
     setIsLoading(true);
     const { data, error } = await supabase
       .from('custom_ads')
@@ -79,7 +75,15 @@ const IklanManager = () => {
       setAds(data || []);
     }
     setIsLoading(false);
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchAds();
+  }, [fetchAds]);
+
+
+
+
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
