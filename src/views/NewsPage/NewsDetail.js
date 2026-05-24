@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loading, SEO, AdSenseComponent } from '../../components';
+import { Loading, SEO } from '../../components';
 import AISummary from '../../components/AISummary';
 import {
   Box,
@@ -115,7 +115,6 @@ const NewsDetail = () => {
 
           <AISummary newsId={news.id} type="local" content={news.content} initialSummary={news.ai_summary} />
 
-          <Box w="full" my={4}><AdSenseComponent /></Box>
 
           <Box
             w="100%"
@@ -130,7 +129,6 @@ const NewsDetail = () => {
             dangerouslySetInnerHTML={{ __html: news.content }}
           />
 
-          <Box w="full" my={4}><AdSenseComponent /></Box>
 
           <Box w="100%">
             <CommentSection newsId={id} />
