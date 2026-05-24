@@ -19,6 +19,14 @@ const CustomAds = ({ placementType }) => {
   const videoRefs = useRef({});
   const bg = useColorModeValue('white', 'gray.800');
   const textColor = useColorModeValue('gray.600', 'gray.300');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const tagTextColor = useColorModeValue('gray.600', 'gray.300');
+  const tagBorderColor = useColorModeValue('gray.300', 'gray.600');
+  const titleColor = useColorModeValue('blue.600', 'blue.300');
+  const mediaBg = useColorModeValue('gray.50', 'gray.900');
+  const actionBorder = useColorModeValue('gray.100', 'gray.700');
+  const actionBg = useColorModeValue('gray.50', 'gray.800');
+  const actionText = useColorModeValue('gray.500', 'gray.400');
 
   useEffect(() => {
     const fetchAds = async () => {
@@ -75,24 +83,27 @@ const CustomAds = ({ placementType }) => {
   const renderAdContent = (ad) => (
     <Box
       bg={bg}
-      borderRadius="md"
+      borderRadius="sm"
+      borderWidth="1px"
+      borderColor={borderColor}
       overflow="hidden"
-      boxShadow="lg"
+      boxShadow={placementType === 'inline' ? 'none' : 'md'}
       position="relative"
       w="full"
-      maxW={placementType === 'inline' ? "full" : "400px"}
+      maxW={placementType === 'inline' ? "full" : "360px"}
+      _hover={{ boxShadow: 'sm' }}
+      transition="all 0.2s"
     >
       {placementType !== 'inline' && (
         <CloseButton
           position="absolute"
-          top={2}
-          right={2}
+          top={1}
+          right={1}
           zIndex={2}
-          bg="rgba(0,0,0,0.5)"
-          color="white"
+          bg="rgba(255,255,255,0.8)"
+          color="gray.600"
           size="sm"
-          borderRadius="full"
-          _hover={{ bg: "rgba(0,0,0,0.7)" }}
+          _hover={{ bg: "white" }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -101,9 +112,47 @@ const CustomAds = ({ placementType }) => {
         />
       )}
 
-      <Box position="relative">
+      <Box p={3} pb={2}>
+        <Flex align="center" gap={2} mb={2}>
+          <Text
+            fontSize="10px"
+            fontWeight="bold"
+            color={tagTextColor}
+            border="1px solid"
+            borderColor={tagBorderColor}
+            px={1.5}
+            py={0.5}
+            borderRadius="sm"
+          >
+            Iklan
+          </Text>
+          <Text fontSize="xs" color="gray.500" noOfLines={1}>
+            {ad.category}
+          </Text>
+        </Flex>
+
+        <Text fontWeight="bold" fontSize="lg" color={titleColor} mb={1} lineHeight="tight" _hover={{ textDecoration: 'underline' }}>
+          {ad.title}
+        </Text>
+
+        {ad.description && (
+          <Text fontSize="sm" color={textColor} mb={3} lineHeight="tall">
+            {ad.description}
+          </Text>
+        )}
+      </Box>
+
+      <Box position="relative" bg={mediaBg} display="flex" justifyContent="center" alignItems="center">
         {ad.media_type === 'image' ? (
-          <Image src={ad.media_url} alt={ad.title} w="full" objectFit="cover" maxH="300px" />
+          <Image
+            src={ad.media_url}
+            alt={ad.title}
+            w="full"
+            h="auto"
+            maxH="400px"
+            objectFit="contain"
+            bg="transparent"
+          />
         ) : (
           <video
             ref={el => videoRefs.current[ad.id] = el}
@@ -111,29 +160,22 @@ const CustomAds = ({ placementType }) => {
             muted={!ad.has_audio}
             loop
             playsInline
-            style={{ width: '100%', maxHeight: '300px', objectFit: 'cover' }}
+            controls={ad.has_audio}
+            style={{ width: '100%', height: 'auto', maxHeight: '400px', objectFit: 'contain', backgroundColor: 'transparent' }}
           />
         )}
       </Box>
 
-      <Box p={3}>
-        <Text fontSize="xs" color="gray.500" mb={1} fontWeight="600" fontStyle="italic">
-          *Ini Adalah Iklan {ad.category}*
-        </Text>
-        <Text fontWeight="bold" fontSize="md" noOfLines={1} mb={1}>
-          {ad.title}
-        </Text>
-        {ad.description && (
-          <Text fontSize="sm" color={textColor} noOfLines={2} mb={2}>
-            {ad.description}
-          </Text>
-        )}
-        {ad.action_url && (
-          <Link href={ad.action_url} isExternal _hover={{ textDecoration: 'none' }}>
-             <Text color="brand.500" fontSize="sm" fontWeight="bold">Info Selengkapnya &rarr;</Text>
-          </Link>
-        )}
-      </Box>
+      {ad.action_url && (
+        <Box p={3} borderTopWidth="1px" borderColor={actionBorder} bg={actionBg}>
+          <Flex justify="space-between" align="center">
+            <Text color={actionText} fontSize="xs" noOfLines={1} maxW="70%">
+               {(() => { try { return new URL(ad.action_url).hostname.replace('www.', ''); } catch(e) { return 'Kunjungi Situs'; } })()}
+            </Text>
+            <Text color="blue.500" fontSize="sm" fontWeight="600">Buka &rsaquo;</Text>
+          </Flex>
+        </Box>
+      )}
     </Box>
   );
 
