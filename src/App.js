@@ -2,6 +2,7 @@ import DracinPage from "./views/DracinPage";
 import DracinDetail from "./views/DracinPage/Detail";
 import DracinWatch from "./views/DracinPage/Watch";
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import CustomAds from './components/CustomAds';
 import { Box, Flex, Tooltip, HStack, Collapse } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
@@ -264,6 +265,13 @@ function App() {
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <PopupNotification />}
 
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <LoginPromo user={userSession?.user} />}
+                {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
+          <>
+            <CustomAds placementType="popup_top" />
+            <CustomAds placementType="popup_bottom" />
+            <CustomAds placementType="popup_center" />
+          </>
+        )}
         <ScrollToTop />
         <CustomContextMenu />
 

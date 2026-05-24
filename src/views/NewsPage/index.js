@@ -18,6 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { FaNewspaper, FaLayerGroup, FaChevronRight } from 'react-icons/fa';
 import CardNews from '../../components/CardNews.js';
+import CustomAds from '../../components/CustomAds';
 import SmallCardNews from '../../components/SmallCardNews';
 import { supabase } from '../../lib/supabase';
 import { motion } from 'framer-motion';
@@ -145,6 +146,8 @@ export default function NewsPage() {
               ))}
             </HStack>
           </Box>
+
+          <CustomAds placementType="inline" />
 
 
           {/* News Feed by Category */}
