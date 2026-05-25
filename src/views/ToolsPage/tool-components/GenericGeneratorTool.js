@@ -1,14 +1,20 @@
 import React, { useState } from 'react';
 import { Box, Button, Flex, Text, VStack, useToast, Checkbox, Slider, SliderTrack, SliderFilledTrack, SliderThumb } from '@chakra-ui/react';
 import { FaCopy, FaSync } from 'react-icons/fa';
+import AIPoweredTool from './AIPoweredTool';
 import ToolLayout from '../components/ToolLayout';
 
 const GenericGeneratorTool = ({ tool }) => {
+
+
   const [result, setResult] = useState('');
   const [length, setLength] = useState(12);
   const [useNumbers, setUseNumbers] = useState(true);
   const [useSymbols, setUseSymbols] = useState(true);
   const toast = useToast();
+
+  const supported = ['password', 'uuid', 'randomNumber'];
+  if (!supported.includes(tool.config)) return <AIPoweredTool tool={tool} />;
 
   const generate = () => {
     let res = '';

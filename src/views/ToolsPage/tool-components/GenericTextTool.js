@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { Box, Textarea, Button, Flex, Text, useToast, VStack, HStack, Select } from '@chakra-ui/react';
 import { FaCopy, FaTrash, } from 'react-icons/fa';
+import AIPoweredTool from './AIPoweredTool';
 import ToolLayout from '../components/ToolLayout';
 
 const GenericTextTool = ({ tool }) => {
+
+
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [extraConfig, setExtraConfig] = useState('lowercase');
   const toast = useToast();
+
+  const supported = ['count', 'case', 'slug', 'space', 'emptyLine', 'sort', 'reverse', 'lorem'];
+  if (!supported.includes(tool.config)) return <AIPoweredTool tool={tool} />;
 
   const handleProcess = () => {
     let result = '';

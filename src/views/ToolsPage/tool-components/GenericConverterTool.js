@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Input, Button, Flex, Text, VStack,  Select, useToast } from '@chakra-ui/react';
 import { FaCopy, FaExchangeAlt } from 'react-icons/fa';
+import AIPoweredTool from './AIPoweredTool';
 import ToolLayout from '../components/ToolLayout';
 
 const conversionRates = {
@@ -11,6 +12,8 @@ const conversionRates = {
 };
 
 const GenericConverterTool = ({ tool }) => {
+
+
   const [amount, setAmount] = useState(1);
   const [fromUnit, setFromUnit] = useState('');
   const [toUnit, setToUnit] = useState('');
@@ -23,6 +26,9 @@ const GenericConverterTool = ({ tool }) => {
   // Initialize units
   if (units.length > 0 && !fromUnit) setFromUnit(units[0]);
   if (units.length > 1 && !toUnit) setToUnit(units[1]);
+
+  const supported = ['length', 'weight', 'time', 'data'];
+  if (!supported.includes(tool.config)) return <AIPoweredTool tool={tool} />;
 
   const handleConvert = () => {
     if (!rates[fromUnit] || !rates[toUnit]) {
