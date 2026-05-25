@@ -72,6 +72,7 @@ import AuthPage from './views/AuthPage/index.js';
 import EduGameRouter from './views/EduGamePage/EduGameRouter';
 import PortalRouter from "./views/PortalPage/PortalRouter.js";
 import DonasiRouter from './views/DonasiPage/index.js';
+import ToolsRouter from './views/ToolsPage/ToolsRouter';
 import TopupPage from './views/TopupPage/index.js';
 import DownloaderPage from './views/DownloaderPage/index.js';
 import CekPlagiatPage from './views/CekPlagiatPage/index.js';
@@ -319,6 +320,7 @@ function App() {
             <Route path="/donasi/*" element={<DonasiRouter />} />
             <Route path="/topup" element={<TopupPage />} />
             <Route path="/game/*" element={<EduGameRouter />} />
+            <Route path="/tools/*" element={<ToolsRouter />} />
 
             <Route path="/down" element={<TakedownPage />} />
             <Route path="/blocked" element={<BlockedPage />} />

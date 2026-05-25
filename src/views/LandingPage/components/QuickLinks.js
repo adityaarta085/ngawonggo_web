@@ -25,6 +25,7 @@ import {
   FaCompass,
   FaCloudDownloadAlt,
   FaFilm,
+  FaTools,
 }
 from 'react-icons/fa';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -121,6 +122,12 @@ const QuickLinks = ({ isHero }) => {
       icon: FaCloudDownloadAlt,
       href: '/downloader',
       color: 'teal.300',
+    },
+    {
+      label: language === 'id' ? 'Alat Universal' : 'Universal Tools',
+      icon: FaTools,
+      href: '/tools',
+      color: 'orange.500',
     },
     {
       label: language === 'id' ? 'Pengaduan' : 'Complaints',
