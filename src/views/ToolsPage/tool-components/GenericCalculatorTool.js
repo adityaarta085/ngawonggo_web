@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { Box, Input, Button, Text, VStack,  } from '@chakra-ui/react';
+import AIPoweredTool from './AIPoweredTool';
 import ToolLayout from '../components/ToolLayout';
 
 const GenericCalculatorTool = ({ tool }) => {
+
+
   const [val1, setVal1] = useState('');
   const [val2, setVal2] = useState('');
   const [result, setResult] = useState('');
+
+  const supported = ['bmi', 'discount'];
+  if (!supported.includes(tool.config)) return <AIPoweredTool tool={tool} />;
 
   const calculate = () => {
     const v1 = parseFloat(val1);
