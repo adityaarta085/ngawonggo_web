@@ -64,7 +64,7 @@ const Navbar = ({ user, isScrolled }) => {
     {
       label: t.explore || 'Jelajahi',
       children: [
-        { label: 'Dusun', subLabel: 'Jelajahi wilayah dusun', href: '/jelajahi' }, { label: 'Drama China', subLabel: 'Nonton Drama China', href: '/dracin' },
+        { label: 'Dusun', subLabel: 'Jelajahi wilayah dusun', href: '/jelajahi' }, { label: 'Drama China', subLabel: 'Nonton Drama China', href: '/dracin' }, { label: 'Alat Universal', subLabel: 'Kumpulan Tools Lengkap', href: '/tools' },
         { label: 'Kreativitas', subLabel: 'AI Text-to-Image Super Realistis', href: '/kreativitas' }
       ],
       href: '/jelajahi'
