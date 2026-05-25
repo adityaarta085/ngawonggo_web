@@ -7,6 +7,14 @@
   ],
   "rewrites": [
     {
+      "source": "/api/verify-turnstile",
+      "destination": "/api/health?action=verify-turnstile"
+    },
+    {
+      "source": "/api/berita-magelang",
+      "destination": "/api/health?action=berita-magelang"
+    },
+    {
       "source": "/health",
       "destination": "/api/health?action=master"
     },
