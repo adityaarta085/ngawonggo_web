@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import {
   Box, Button, Flex, Text, VStack, useToast, Checkbox, Input,

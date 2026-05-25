@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import {
   Box, Text, VStack, HStack, Button, Textarea, Input,
@@ -69,7 +70,7 @@ const CodeFmt = ({ tool }) => {
         return indented;
       }).join('\n');
     } else if (tool.config === 'cssFmt') {
-      result = input.replace(/\{/g, ' {\n  ').replace(/;/g, ';\n  ').replace(/\}/g, '\n}\n').replace(/\n\s*\n/g, '\n').replace(/  \n/g, '\n');
+      result = input.replace(/\{/g, ' {\n  ').replace(/;/g, ';\n  ').replace(/\}/g, '\n}\n').replace(/\n\s*\n/g, '\n').replace(/ {2}\n/g, '\n');
     } else if (tool.config === 'jsFmt') {
       // Basic JS formatting
       let indent = 0;

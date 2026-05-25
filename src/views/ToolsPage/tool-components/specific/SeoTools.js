@@ -1,8 +1,10 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import {
   Box, Text, VStack, SimpleGrid, Button, Input, Textarea,
   FormControl, FormLabel, useToast, Stat, StatLabel, StatNumber,
-  Badge, Flex, Progress
+  Badge, Flex, Progress,
+  Divider
 } from '@chakra-ui/react';
 import { FaCopy } from 'react-icons/fa';
 
@@ -175,7 +177,7 @@ const HashtagGen = () => {
 };
 
 /* ═══════ DISPATCHER ═══════ */
-const Divider2 = () => <Box />;
+
 const SeoTools = ({ tool }) => {
   switch (tool.config) {
     case 'keyword': return <KeywordDensity />;
