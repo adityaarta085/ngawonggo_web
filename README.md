@@ -1,3 +1,4 @@
+[![Better Stack Badge](https://uptime.betterstack.com/status-badges/v1/monitor/2nl0x.svg)](https://uptime.betterstack.com/?utm_source=status_badge)
 # Portal Resmi Desa Ngawonggo
 
 Portal informasi digital terintegrasi untuk Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang.
