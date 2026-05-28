@@ -86,7 +86,7 @@ const GameList = () => {
               display="flex"
               flexDirection="column"
               cursor="pointer"
-              onClick={() => navigate(`/game/${game.id}`)}
+              onClick={() => game.isRoute ? navigate(game.routePath) : navigate(`/game/${game.id}`)}
             >
               {game.isPremium && (
                  <Box
