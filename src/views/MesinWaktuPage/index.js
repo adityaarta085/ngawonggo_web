@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, VStack, Heading, Text, Button, Flex, Icon, Badge, HStack, Progress, useToast, Grid, GridItem
+  Box, VStack, Heading, Text, Button, Flex, Icon, Badge, HStack, Progress, useToast, Grid, GridItem, Spinner
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { FaRocket, FaHistory, FaShareAlt, FaUndo } from 'react-icons/fa';
 
-import { scenarios } from './MesinWaktuData';
-
-
 const MotionBox = motion(Box);
 const MotionFlex = motion(Flex);
-
 
 // Custom hook untuk audio
 const useAudio = (frequency, type = 'sine') => {
@@ -56,9 +52,9 @@ export default function MesinWaktuPage() {
   const [adventureData, setAdventureData] = useState(null);
   const [resultData, setResultData] = useState(null);
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [loading, setLoading] = useState(false);
 
   const toast = useToast();
-  // const { userSession } = useAuth(); // Asumsi menggunakan hook auth yang ada, jika tidak, bisa disesuaikan
 
   const playBleep = useAudio(800, 'square');
   const playWarp = useAudio(100, 'sawtooth');
@@ -74,7 +70,39 @@ export default function MesinWaktuPage() {
     setSelectedYear(year);
   };
 
-  const handleLaunch = () => {
+  const generateScenario = async (year) => {
+    try {
+        const response = await fetch('/api/mesin-waktu', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ year })
+        });
+        const data = await response.json();
+        if(!response.ok) throw new Error(data.error || 'Gagal membuat skenario');
+        return data;
+    } catch(err) {
+        console.error(err);
+        return null;
+    }
+  }
+
+  const generateResult = async (year, action) => {
+      try {
+        const response = await fetch('/api/mesin-waktu', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ year, action })
+        });
+        const data = await response.json();
+        if(!response.ok) throw new Error(data.error || 'Gagal membuat hasil');
+        return data;
+    } catch(err) {
+        console.error(err);
+        return null;
+    }
+  }
+
+  const handleLaunch = async () => {
     if (fuel < 20) {
       toast({ title: "Bahan Bakar Kritis!", description: "Minyak Srimpi Ghaib tidak cukup.", status: "error" });
       return;
@@ -83,17 +111,34 @@ export default function MesinWaktuPage() {
     setFuel(prev => prev - 20);
     setAppState('WARP');
 
+    // Minta AI membuat skenario sambil warp
+    const aiData = await generateScenario(selectedYear);
+
     setTimeout(() => {
-      setAdventureData(scenarios[selectedYear]);
+      if(aiData) {
+          setAdventureData(aiData);
+      } else {
+          toast({ title: "Kegagalan Mesin Waktu", description: "AI gagal menembus ruang dan waktu.", status: "error" });
+          setAppState('COCKPIT');
+          return;
+      }
       setAppState('ADVENTURE');
-    }, 4000); // Durasi warp
+    }, 4000); // Durasi warp minimum
   };
 
-  const handleChoice = (option) => {
+  const handleChoice = async (option) => {
     playBleep(0.1, 600);
-    setResultData(option);
-    setAppState('RESULT');
-    // Di sini kita bisa simpan ke Supabase jika user sedang login
+    setLoading(true);
+
+    const resData = await generateResult(selectedYear, option.text);
+    setLoading(false);
+
+    if(resData) {
+        setResultData(resData);
+        setAppState('RESULT');
+    } else {
+        toast({ title: "Kegagalan Paradox", description: "Masa depan tidak dapat diprediksi.", status: "error" });
+    }
   };
 
   const resetTimeline = () => {
@@ -133,6 +178,7 @@ export default function MesinWaktuPage() {
             key="adventure"
             data={adventureData}
             onChoice={handleChoice}
+            loading={loading}
           />
         )}
         {appState === 'RESULT' && (
@@ -153,7 +199,7 @@ export default function MesinWaktuPage() {
 // --- Komponen Layar ---
 
 const Cockpit = ({ selectedYear, onYearChange, onLaunch, fuel }) => {
-  const years = ["926 M", "1945", "2026", "3000"];
+  const years = ["926 M", "1945", "1998", "2026", "2050", "3000", "10000 SM"];
 
   return (
     <MotionFlex
@@ -163,7 +209,7 @@ const Cockpit = ({ selectedYear, onYearChange, onLaunch, fuel }) => {
       direction="column"
       align="center"
       justify="center"
-      h="100vh"
+      minH="100vh"
       p={4}
       bgImage="radial-gradient(circle at center, #1a202c 0%, #000000 100%)"
       position="relative"
@@ -180,12 +226,12 @@ const Cockpit = ({ selectedYear, onYearChange, onLaunch, fuel }) => {
 
       <VStack spacing={8} zIndex={1} maxW="md" w="full" bg="gray.900" p={8} borderRadius="2xl" border="2px solid" borderColor="cyan.500" boxShadow="0 0 20px rgba(0,255,255,0.3)">
         <Heading size="lg" color="cyan.400" textShadow="0 0 10px cyan" letterSpacing="widest" textAlign="center">
-          KOKPIT MESIN WAKTU
+          KOKPIT MESIN WAKTU (AI)
         </Heading>
 
         <Box w="full">
           <Text color="cyan.200" mb={2}>KOORDINAT TAHUN TUJUAN:</Text>
-          <HStack justify="space-between" bg="black" p={4} borderRadius="md" border="1px solid" borderColor="cyan.700">
+          <Flex flexWrap="wrap" gap={2} bg="black" p={4} borderRadius="md" border="1px solid" borderColor="cyan.700" justify="center">
             {years.map(y => (
               <Button
                 key={y}
@@ -197,7 +243,7 @@ const Cockpit = ({ selectedYear, onYearChange, onLaunch, fuel }) => {
                 {y}
               </Button>
             ))}
-          </HStack>
+          </Flex>
         </Box>
 
         <Box w="full">
@@ -280,13 +326,13 @@ const HyperspaceWarp = () => {
                 100% { transform: translate(1px, -2px) rotate(-1deg); }
             }
          `}</style>
-         <Text color="cyan.300">Menghitung probabilitas timeline...</Text>
+         <Text color="cyan.300">AI Sedang Menghitung probabilitas timeline...</Text>
       </VStack>
     </MotionFlex>
   );
 };
 
-const AdventureScreen = ({ data, onChoice }) => {
+const AdventureScreen = ({ data, onChoice, loading }) => {
   return (
     <MotionFlex
       initial={{ opacity: 0, y: 50 }}
@@ -318,10 +364,12 @@ const AdventureScreen = ({ data, onChoice }) => {
               py={4}
               onClick={() => onChoice(opt)}
               _hover={{ bg: 'cyan.900' }}
+              isDisabled={loading}
             >
               {opt.text}
             </Button>
           ))}
+          {loading && <Spinner color="cyan.400" />}
         </VStack>
       </VStack>
     </MotionFlex>
@@ -358,10 +406,10 @@ const ResultScreen = ({ data, year, onReset, onShare, windowSize }) => {
         </Badge>
 
         <Grid templateColumns="repeat(2, 1fr)" gap={4} w="full" mt={4}>
-           <StatBar label="Kemakmuran" value={data.impact.wealth} color="green" />
-           <StatBar label="Kemistisan" value={data.impact.mystic} color="purple" />
-           <StatBar label="Teknologi" value={data.impact.tech} color="cyan" />
-           <StatBar label="Keharmonisan" value={data.impact.harmony} color="pink" />
+           <StatBar label="Kemakmuran" value={data.impact?.wealth || 0} color="green" />
+           <StatBar label="Kemistisan" value={data.impact?.mystic || 0} color="purple" />
+           <StatBar label="Teknologi" value={data.impact?.tech || 0} color="cyan" />
+           <StatBar label="Keharmonisan" value={data.impact?.harmony || 0} color="pink" />
         </Grid>
 
         <HStack w="full" spacing={4} mt={6}>
