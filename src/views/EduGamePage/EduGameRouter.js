@@ -6,6 +6,7 @@ import GameDetail from './GameDetail';
 import Gameplay from './Gameplay';
 import GameResult from './GameResult';
 import GameDashboard from './GameDashboard';
+import MesinWaktuPage from '../MesinWaktuPage';
 
 const EduGameRouter = () => {
   const bg = useColorModeValue('gray.50', 'gray.900');
@@ -15,6 +16,7 @@ const EduGameRouter = () => {
       <Routes>
         <Route path="/" element={<GameList />} />
         <Route path="/dashboard" element={<GameDashboard />} />
+        <Route path="/mesin-waktu" element={<MesinWaktuPage />} />
         <Route path="/:id" element={<GameDetail />} />
         <Route path="/play/:id" element={<Gameplay />} />
         <Route path="/result/:id" element={<GameResult />} />

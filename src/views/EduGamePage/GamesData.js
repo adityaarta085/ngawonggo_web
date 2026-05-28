@@ -1,6 +1,28 @@
-import { FaNetworkWired, FaQuestionCircle, FaPuzzlePiece, FaCube, FaGhost, FaRocket, FaShapes } from 'react-icons/fa';
+import { FaNetworkWired, FaQuestionCircle, FaPuzzlePiece, FaCube, FaGhost, FaRocket, FaShapes, FaHistory } from 'react-icons/fa';
 
 export const gamesData = [
+  {
+    id: 'mesin-waktu',
+    title: 'Mesin Waktu Ngawonggo',
+    desc: 'Simulator perjalanan waktu AI interaktif. Ubah masa lalu, hadapi konsekuensinya!',
+    longDesc: 'Rasakan sensasi menjadi penjelajah waktu di Desa Ngawonggo. Pilih tahun tujuanmu, berikan instruksi kepada AI, dan lihat Butterfly Effect apa yang akan kamu ciptakan di masa depan.',
+    icon: FaHistory,
+    color: 'purple',
+    highlight: true,
+    isPremium: false,
+    category: 'Simulasi AI & Narasi',
+    difficulty: 'Mudah',
+    embedUrl: null,
+    howToPlay: [
+      'Pilih tahun tujuan (contoh: 1945, 2026, dll) di layar kokpit.',
+      'Klik tombol WARP! dan tunggu AI menyiapkan skenario.',
+      'Baca skenario dan pilih tindakan yang paling lucu/absurd.',
+      'Lihat hasil Butterfly Effect dari pilihanmu!'
+    ],
+    maxScore: 0,
+    isRoute: true,
+    routePath: '/game/mesin-waktu'
+  },
   {
     id: 'level-devil',
     title: 'Level Devil',
