@@ -23,7 +23,7 @@ export const dracinApi = {
     const res = await fetch(`${BASE_URL}/detail?id=${id}`);
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     const json = await res.json();
-    return json.result;
+    return json.result.data || json.result;
   },
   getEpisode: async (id, ep) => {
     const res = await fetch(`${BASE_URL}/stream_fast?id=${id}&ep=${ep}`);

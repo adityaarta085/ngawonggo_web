@@ -146,7 +146,7 @@ const DracinPage = () => {
                       <Heading size="2xl" mb={2} color="white" textShadow="2px 2px 4px rgba(0,0,0,0.8)">{heroDrama.title}</Heading>
                       <Text color="gray.300" mb={6} maxW="600px" noOfLines={2}>{heroDrama.description || "Drama pendek vertikal eksklusif."}</Text>
                       <HStack>
-                          <Button as={RouterLink} to={`/dracin/detail/${heroDrama.collection_id}`} leftIcon={<FaPlay />} size="lg" bg={dracinTheme.accentRed} color="white" _hover={{ bg: "red.700" }}>
+                          <Button as={RouterLink} to={`/dracin/detail/${heroDrama.id}`} leftIcon={<FaPlay />} size="lg" bg={dracinTheme.accentRed} color="white" _hover={{ bg: "red.700" }}>
                               Tonton Sekarang
                           </Button>
                       </HStack>

@@ -136,7 +136,7 @@ const DracinWatch = () => {
   }, [navigate, id, episode, epNum]);
 
   const handleNextEpisode = React.useCallback(() => {
-      if (detailData && epNum < detailData.total_episodes) {
+      if (detailData && epNum < (detailData.totalEpisodes || detailData.total_episodes)) {
           navigate(`/dracin/detail/${id}/${epNum + 1}/play`);
       }
   }, [navigate, id, epNum, detailData]);
@@ -160,7 +160,7 @@ const DracinWatch = () => {
   }, [navigate, id, epNum]);
 
   const handleVideoEnded = () => {
-      if (detailData && epNum < detailData.total_episodes) {
+      if (detailData && epNum < (detailData.totalEpisodes || detailData.total_episodes)) {
           setAutoplayCountdown(5);
       }
   };
@@ -321,7 +321,7 @@ const DracinWatch = () => {
                               isRound size="lg" boxSize="60px" fontSize="24px"
                               bg="rgba(0,0,0,0.6)" color="white" _hover={{ bg: "rgba(0,0,0,0.8)", transform: "scale(1.1)" }}
                               onClick={(e) => { e.stopPropagation(); handleNextEpisode(); }}
-                              isDisabled={!detailData || epNum >= detailData.total_episodes}
+                              isDisabled={!detailData || epNum >= (detailData.totalEpisodes || detailData.total_episodes)}
                               aria-label="Next Episode"
                           />
                       </HStack>
@@ -348,7 +348,7 @@ const DracinWatch = () => {
                           {detailData ? detailData.title : 'Memuat...'}
                       </Text>
                       <Text color={dracinTheme.accentGold} fontSize="md" fontWeight="bold" textShadow="1px 1px 4px black">
-                          Episode {episode} {detailData?.total_episodes ? `/ ${detailData.total_episodes}` : ''}
+                          Episode {episode} {detailData?.total_episodes ? `/ ${(detailData.totalEpisodes || detailData.total_episodes)}` : ''}
                       </Text>
                   </Box>
 
@@ -379,7 +379,7 @@ const DracinWatch = () => {
           <DrawerBody py={6}>
             {detailData && (
                 <Flex wrap="wrap" gap={3} justify="center">
-                    {Array.from({ length: detailData.total_episodes || 0 }, (_, i) => {
+                    {Array.from({ length: (detailData.totalEpisodes || detailData.total_episodes) || 0 }, (_, i) => {
                         const ep = i + 1;
                         const isFree = ep <= 3;
                         const unlocked = isFree || unlockedEps.includes(ep);

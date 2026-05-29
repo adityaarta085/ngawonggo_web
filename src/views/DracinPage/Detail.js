@@ -117,9 +117,9 @@ const DracinDetail = () => {
   if (loading) return <Box h="100vh"><DracinLoader /></Box>;
   if (error || !data) return <Center h="100vh" bg={dracinTheme.bg}><Text color="red.500">{error || "Data tidak ditemukan"}</Text></Center>;
 
-  const apiEpisodes = data.chapters || data.episodes;
-  const episodes = apiEpisodes && apiEpisodes.length > 0 ? apiEpisodes : Array.from({ length: data.total_episodes || 0 }, (_, i) => ({ number: i + 1 }));
-  const coverImage = (data.cover_urls && data.cover_urls.length > 0) ? data.cover_urls[0] : (data.cover || data.posterImg);
+  const apiEpisodes = data.episodes || data.chapters;
+  const episodes = apiEpisodes && apiEpisodes.length > 0 ? apiEpisodes : Array.from({ length: data.totalEpisodes || data.total_episodes || 0 }, (_, i) => ({ number: i + 1 }));
+  const coverImage = data.detailCover || data.cover || ((data.cover_urls && data.cover_urls.length > 0) ? data.cover_urls[0] : data.posterImg);
 
   const getEpCost = (epNum) => {
       if (epNum <= 3) return 0;
