@@ -10,7 +10,7 @@ import { supabase } from '../../lib/supabase';
 import { dracinTheme } from './theme';
 import Confetti from 'react-confetti';
 import { DracinLoader } from './components/DracinLoader';
-import ReactPlayer from "react-player";
+import Hls from "hls.js";
 
 const DracinWatch = () => {
   const { id, episode } = useParams();
@@ -159,6 +159,42 @@ const DracinWatch = () => {
       }
   }, [navigate, id, epNum]);
 
+
+  // HLS Video Logic
+  useEffect(() => {
+    let hls;
+    if (videoUrl && videoRef.current && !isLocked) {
+      const video = videoRef.current;
+      if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoUrl;
+      } else if (Hls.isSupported()) {
+        hls = new Hls({ xhrSetup: (xhr) => { xhr.withCredentials = false; } });
+        hls.loadSource(videoUrl);
+        hls.attachMedia(video);
+      }
+    }
+    return () => {
+      if (hls) hls.destroy();
+    };
+  }, [videoUrl, isLocked]);
+
+  // Swipe Gestures
+  const touchStartY = useRef(null);
+  const handleTouchStart = (e) => { touchStartY.current = e.touches[0].clientY; };
+  const handleTouchEnd = (e) => {
+      if (!touchStartY.current || isLocked || autoplayCountdown !== null) return;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diff = touchStartY.current - touchEndY;
+      if (diff > 50) {
+          // Swipe Up -> Next
+          if (detailData && epNum < detailData.totalEpisodes) handleNextEpisode();
+      } else if (diff < -50) {
+          // Swipe Down -> Prev
+          if (epNum > 1) handlePrevEpisode();
+      }
+      touchStartY.current = null;
+  };
+
   const handleVideoEnded = () => {
       if (detailData && epNum < (detailData.totalEpisodes || detailData.total_episodes)) {
           setAutoplayCountdown(5);
@@ -238,7 +274,7 @@ const DracinWatch = () => {
       <SEO title={`Eps ${episode} - Dracin`} />
       {showConfetti && <Box position="fixed" top={0} left={0} w="100%" h="100%" zIndex={99999} pointerEvents="none"><Confetti recycle={false} numberOfPieces={300} /></Box>}
 
-      <Box h="100%" w="100%" position="relative" onClick={handleScreenTap}>
+      <Box h="100%" w="100%" position="relative" onClick={(e) => { e.stopPropagation(); handleScreenTap(); }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
 
           {/* Top Back Button (Always visible or visible with controls depending on pref, making it visible with controls is cleaner) */}
           <Box position="absolute" top={4} left={4} zIndex={20} opacity={showControls || isLocked ? 1 : 0} transition="opacity 0.3s">
@@ -277,19 +313,16 @@ const DracinWatch = () => {
               </Center>
           ) : videoUrl ? (
               <Box w="100%" h="100%" bg="black" position="relative">
-                  <ReactPlayer
+
+                  <video
                       ref={videoRef}
-                      url={videoUrl}
-                      playing={isPlaying}
-                      controls={false}
-                      playsinline={true}
-                      width="100%"
-                      height="100%"
+                      autoPlay
+                      playsInline
                       onEnded={handleVideoEnded}
                       onPlay={() => setIsPlaying(true)}
                       onPause={() => setIsPlaying(false)}
-                      style={{ position: 'absolute', top: 0, left: 0 }}
-                      config={{ file: { attributes: { style: { objectFit: 'contain', width: '100%', height: '100%' } } } }}
+                      onClick={handleScreenTap}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', top: 0, left: 0 }}
                   />
 
                   {/* Custom Controls Overlay */}
