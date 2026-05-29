@@ -10,6 +10,7 @@ import { supabase } from '../../lib/supabase';
 import { dracinTheme } from './theme';
 import Confetti from 'react-confetti';
 import { DracinLoader } from './components/DracinLoader';
+import ReactPlayer from "react-player";
 
 const DracinWatch = () => {
   const { id, episode } = useParams();
@@ -223,24 +224,12 @@ const DracinWatch = () => {
 
   const togglePlayPause = (e) => {
       e.stopPropagation();
-      if (videoRef.current) {
-          if (isPlaying) {
-              videoRef.current.pause();
-          } else {
-              videoRef.current.play();
-          }
-          setIsPlaying(!isPlaying);
-      }
+      setIsPlaying(!isPlaying);
       // Reset controls hide timer
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
       controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
   };
 
-  const handleVideoStateChange = () => {
-      if (videoRef.current) {
-          setIsPlaying(!videoRef.current.paused);
-      }
-  };
 
   if (loading) return <Box h="100vh" w="100vw" position="fixed" zIndex={9999} bg="black"><DracinLoader /></Box>;
 
@@ -288,15 +277,19 @@ const DracinWatch = () => {
               </Center>
           ) : videoUrl ? (
               <Box w="100%" h="100%" bg="black" position="relative">
-                  <video
+                  <ReactPlayer
                       ref={videoRef}
-                      src={videoUrl}
-                      autoPlay
-                      playsInline
+                      url={videoUrl}
+                      playing={isPlaying}
+                      controls={false}
+                      playsinline={true}
+                      width="100%"
+                      height="100%"
                       onEnded={handleVideoEnded}
-                      onPlay={handleVideoStateChange}
-                      onPause={handleVideoStateChange}
-                      style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', top: 0, left: 0 }}
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
+                      style={{ position: 'absolute', top: 0, left: 0 }}
+                      config={{ file: { attributes: { style: { objectFit: 'contain', width: '100%', height: '100%' } } } }}
                   />
 
                   {/* Custom Controls Overlay */}
