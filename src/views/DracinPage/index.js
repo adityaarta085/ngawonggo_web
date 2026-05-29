@@ -4,12 +4,13 @@ import {
   Image, VStack, HStack, Icon, Input, InputGroup,
   InputLeftElement, InputRightElement, IconButton, Button, Flex, useDisclosure
 } from '@chakra-ui/react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { FaFire, FaStar, FaSearch, FaTimes, FaCoins, FaCalendarCheck, FaPlay, FaVideo } from 'react-icons/fa';
 import { SEO } from '../../components';
 import { dracinApi } from './api';
 import { dracinTheme } from './theme';
 import { DracinGrid } from './components/DracinGrid';
+import { DracinLoader } from './components/DracinLoader';
 import { CheckInModal } from './components/CheckInModal';
 import { AdsModal } from './components/AdsModal';
 import { supabase } from '../../lib/supabase';
@@ -17,6 +18,7 @@ import { supabase } from '../../lib/supabase';
 
 
 const DracinPage = () => {
+  const navigate = useNavigate();
   const [dataTrending, setDataTrending] = useState([]);
   const [dataForYou, setDataForYou] = useState([]);
 
@@ -39,8 +41,14 @@ const DracinPage = () => {
   useEffect(() => {
     let mounted = true;
     const fetchUserData = async () => {
+
         const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            navigate('/auth');
+            return;
+        }
         if (session && mounted) {
+
             setUserSession(session);
             const { data } = await supabase.from('user_currencies').select('coins').eq('user_id', session.user.id).single();
             if (data) setUserCoins(data.coins);
@@ -77,7 +85,7 @@ const DracinPage = () => {
     };
     loadHome();
     return () => { mounted = false; };
-  }, []);
+  }, [navigate]);
 
   const handleSearch = async (e) => {
       e.preventDefault();
@@ -114,12 +122,12 @@ const DracinPage = () => {
                 <Icon as={FaCoins} color={dracinTheme.accentGold} boxSize={6} />
                 <Text fontWeight="bold" fontSize="lg">{userCoins} Koin Desa</Text>
             </HStack>
-            <HStack spacing={4}>
+            <HStack spacing={4} wrap="wrap" justify="flex-end">
                 <Button leftIcon={<FaCalendarCheck />} size="sm" colorScheme="yellow" variant="solid" bg={dracinTheme.accentGold} color="black" _hover={{ bg: "yellow.500" }} onClick={onCheckInOpen}>
                     Check-In
-                <Button leftIcon={<FaVideo />} size="sm" colorScheme="blue" variant="solid" onClick={onAdsOpen}>
-                    Nonton Iklan
                 </Button>
+                <Button leftIcon={<FaVideo />} size="sm" colorScheme="blue" variant="solid" onClick={onAdsOpen}>
+                    Iklan
                 </Button>
                 <Button as={RouterLink} to="/topup" size="sm" colorScheme="red" variant="outline" borderColor={dracinTheme.accentRed} color={dracinTheme.accentRed} _hover={{ bg: "red.900" }}>
                     Top Up
@@ -184,7 +192,7 @@ const DracinPage = () => {
             </form>
         </Box>
 
-        {isSearching && <Center h="20vh"><div className="custom-loader"></div></Center>}
+        {isSearching && <Center h="20vh"><DracinLoader /></Center>}
         {error && <Center h="20vh"><Text color="red.500">{error}</Text></Center>}
 
         {!isSearching && searchResults.length > 0 && (
@@ -196,7 +204,7 @@ const DracinPage = () => {
             </Box>
         )}
 
-        {loading && !isSearching && <Center h="40vh"><div className="custom-loader"></div></Center>}
+        {loading && !isSearching && <Center h="40vh"><DracinLoader /></Center>}
 
         {!isSearching && searchResults.length === 0 && !loading && !error && (
             <VStack spacing={12} align="stretch">

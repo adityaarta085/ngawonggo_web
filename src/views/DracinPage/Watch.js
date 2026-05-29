@@ -1,5 +1,5 @@
 import React, { useState, useEffect, } from 'react';
-import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box, Text, Center, Flex, Button, IconButton, useToast, VStack, HStack, Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, useDisclosure, Icon
 } from '@chakra-ui/react';
@@ -9,7 +9,8 @@ import { dracinApi } from './api';
 import { supabase } from '../../lib/supabase';
 import { dracinTheme } from './theme';
 import Confetti from 'react-confetti';
-import ReactPlayer from 'react-player';
+import { DracinLoader } from './components/DracinLoader';
+import { FaStepForward } from 'react-icons/fa';
 
 const DracinWatch = () => {
   const { id, episode } = useParams();
@@ -52,8 +53,14 @@ const DracinWatch = () => {
         const cost = getCost(epNum);
         setEpCost(cost);
 
+
         const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            navigate('/auth');
+            return;
+        }
         if (session && mounted) {
+
             setUserSession(session);
             const { data: curr } = await supabase.from('user_currencies').select('coins').eq('user_id', session.user.id).single();
             if (curr) setUserCoins(curr.coins);
@@ -133,7 +140,7 @@ const DracinWatch = () => {
     loadEpisode();
 
     return () => { mounted = false; };
-  }, [id, episode, epNum]);
+  }, [id, episode, epNum, navigate]);
 
   const handleNextEpisode = React.useCallback(() => {
       navigate(`/dracin/detail/${id}/${epNum + 1}/play`);
@@ -227,7 +234,7 @@ const DracinWatch = () => {
     }
   };
 
-  if (loading) return <Center h="100vh" bg={dracinTheme.bg}><div className="custom-loader"></div></Center>;
+  if (loading) return <Box h="100vh"><DracinLoader /></Box>;
 
   return (
     <Box h="100vh" w="100vw" bg={dracinTheme.bg} position="fixed" top={0} left={0} zIndex={9999} overflow="hidden">
@@ -281,15 +288,25 @@ const DracinWatch = () => {
                   </Center>
               ) : videoUrl ? (
                   <Box w="100%" h="100%" bg="black" position="relative">
-                      <ReactPlayer
-                          url={videoUrl}
-                          playing={true}
-                          controls={true}
-                          width="100%"
-                          height="100%"
+
+                      <video
+                          src={videoUrl}
+                          autoPlay
+                          controls
+                          playsInline
                           onEnded={handleVideoEnded}
-                          config={{ file: { attributes: { style: { objectFit: 'contain' } } } }}
+                          style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', top: 0, left: 0 }}
                       />
+                      {/* Next Episode Floating Button */}
+                      <IconButton
+                          icon={<FaStepForward />}
+                          position="absolute" top="50%" right={4} transform="translateY(-50%)"
+                          zIndex={10} colorScheme="red" isRound size="md"
+                          onClick={handleNextEpisode}
+                          aria-label="Next Episode"
+                          boxShadow="0 0 10px rgba(0,0,0,0.5)"
+                      />
+
 
                       {/* Autoplay Overlay */}
                       {autoplayCountdown !== null && (
@@ -357,9 +374,7 @@ const DracinWatch = () => {
                         return (
                             <Button
                                 key={ep}
-                                as={RouterLink}
-                                to={`/dracin/detail/${id}/${ep}/play`}
-                                onClick={onClose}
+                                onClick={() => { onClose(); navigate(`/dracin/detail/${id}/${ep}/play`); }}
                                 bg={isCurrent ? dracinTheme.accentRed : dracinTheme.cardBg}
                                 color={isCurrent ? "white" : "gray.300"}
                                 border={`1px solid ${unlocked ? (isCurrent ? 'transparent' : 'gray') : dracinTheme.accentGold}`}

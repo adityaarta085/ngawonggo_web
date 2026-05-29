@@ -9,6 +9,7 @@ import { SEO } from '../../components';
 import { dracinApi } from './api';
 import { supabase } from '../../lib/supabase';
 import { dracinTheme } from './theme';
+import { DracinLoader } from './components/DracinLoader';
 import Confetti from 'react-confetti';
 
 const DracinDetail = () => {
@@ -30,8 +31,14 @@ const DracinDetail = () => {
     let mounted = true;
 
     const fetchUser = async () => {
+
         const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            navigate('/auth');
+            return;
+        }
         if (session && mounted) {
+
             setUserSession(session);
             const { data: curr } = await supabase.from('user_currencies').select('coins').eq('user_id', session.user.id).single();
             if (curr) setUserCoins(curr.coins);
@@ -60,7 +67,7 @@ const DracinDetail = () => {
     loadDetail();
 
     return () => { mounted = false; };
-  }, [id]);
+  }, [id, navigate]);
 
   const handleUnlock = async (epNumber, cost) => {
       if (!userSession) {
@@ -107,7 +114,7 @@ const DracinDetail = () => {
       }
   };
 
-  if (loading) return <Center h="100vh" bg={dracinTheme.bg}><div className="custom-loader"></div></Center>;
+  if (loading) return <Box h="100vh"><DracinLoader /></Box>;
   if (error || !data) return <Center h="100vh" bg={dracinTheme.bg}><Text color="red.500">{error || "Data tidak ditemukan"}</Text></Center>;
 
   const apiEpisodes = data.chapters || data.episodes;
