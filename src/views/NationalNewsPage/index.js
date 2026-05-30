@@ -19,7 +19,7 @@ import {
 import { FaNewspaper, FaChevronRight } from 'react-icons/fa';
 import CardNews from '../../components/CardNews.js';
 import SmallCardNews from '../../components/SmallCardNews';
-import { supabase } from '../../lib/supabase';
+import { getList } from '../../lib/dataFetcher';
 import { motion } from 'framer-motion';
 import { SEO } from '../../components';
 
@@ -31,8 +31,8 @@ export default function NationalNewsPage() {
 
   useEffect(() => {
     const fetchNews = async () => {
-      const { data, error } = await supabase.from('national_news').select('*').order('created_at', { ascending: false });
-      if (!error && data) {
+      const { data, ok } = await getList('national_news', { orderBy: 'created_at', order: 'desc', limit: 1000 });
+      if (ok && data) {
         // Map data to match CardNews expected props
         const mappedData = data.map(item => ({
           ...item,

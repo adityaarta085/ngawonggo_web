@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { getById } from '../lib/dataFetcher';
 import { useToast } from '@chakra-ui/react';
 
 export const MonetizationContext = createContext();
@@ -46,7 +47,7 @@ export const MonetizationProvider = ({ children }) => {
         }
 
         // Fetch Gacha Stats
-        const { data: gData } = await supabase.from('user_gacha_stats').select('*').eq('user_id', user.id).single();
+        const { data: gData } = await getById('user_gacha_stats', user.id);
         if (gData) {
             const today = new Date().toISOString().split('T')[0];
             setGachaStats({

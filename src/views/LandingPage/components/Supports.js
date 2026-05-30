@@ -14,7 +14,7 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import { supabase } from '../../../lib/supabase';
+import { getList } from '../../../lib/dataFetcher';
 import { GoogleMap } from '../../../components';
 
 const Supports = () => {
@@ -29,8 +29,8 @@ const Supports = () => {
 
   useEffect(() => {
     const fetchInstitutions = async () => {
-      const { data, error } = await supabase.from('institutions').select('*').order('id', { ascending: true });
-      if (!error && data) {
+      const { data, ok } = await getList('institutions', { orderBy: 'id', order: 'asc', limit: 1000 });
+      if (ok && data) {
         setGovLinks(data.filter(i => i.category === 'pemerintah'));
         setSecurityServices(data.filter(i => i.category === 'keamanan'));
         setPublicServices(data.filter(i => i.category === 'layanan'));

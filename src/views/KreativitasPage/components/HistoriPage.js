@@ -6,6 +6,7 @@ import {
 } from '@chakra-ui/react';
 import { FaArrowLeft, FaMagic, FaLock } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
+import { getById } from '../../../lib/dataFetcher';
 
 const HistoriPage = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const HistoriPage = () => {
     supabase.auth.getUser().then(({ data: { user } }) => {
 
         if (user) {
-            supabase.from('user_tiers').select('tier_name').eq('user_id', user.id).single().then(({ data }) => {
+            getById('user_tiers', user.id).then(({ data }) => {
                 if (data) {
                     setTier(data.tier_name);
                     if (data.tier_name === 'VIP') {

@@ -6,6 +6,7 @@ import {
 } from '@chakra-ui/react';
 import { FaArrowLeft, FaDownload, FaShare } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
+import { getById } from '../../../lib/dataFetcher';
 
 const CreateDetail = () => {
   const { id } = useParams();
@@ -22,7 +23,7 @@ const CreateDetail = () => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
       if (user) {
-        supabase.from('user_tiers').select('tier_name').eq('user_id', user.id).single().then(({ data }) => {
+        getById('user_tiers', user.id).then(({ data }) => {
           if (data) setTier(data.tier_name);
         });
       }

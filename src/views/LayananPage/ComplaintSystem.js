@@ -5,6 +5,7 @@ import {
 } from '@chakra-ui/react';
 import { FaPaperPlane, FaImage, FaSignOutAlt, FaSync, FaLock, FaHistory } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
+import { getById } from '../../lib/dataFetcher';
 import { uploadDeline } from '../../lib/uploader';
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -54,7 +55,7 @@ const ComplaintSystem = () => {
 
   const checkVip = async (userId) => {
     try {
-      const { data } = await supabase.from('user_tiers').select('tier_name').eq('user_id', userId).single();
+      const { data } = await getById('user_tiers', userId);
       if (data && data.tier_name !== 'Free' && data.tier_name) {
         setIsVip(true);
       }

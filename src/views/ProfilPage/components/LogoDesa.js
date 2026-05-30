@@ -3,12 +3,12 @@ import { Box, Flex, Text, Divider } from '@chakra-ui/react';
 import NgawonggoLogo from '../../../components/NgawonggoLogo';
 import DownloadSection from './DownloadSection';
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { getByColumn } from '../../../lib/dataFetcher';
 
 const LogoDesa = () => {
   const [content, setContent] = useState('');
   useEffect(() => {
-    supabase.from('site_settings').select('value').eq('key', 'profil_makna_logo').single()
+    getByColumn('site_settings', 'key', 'profil_makna_logo').then(({ data }) => ({ data }))
       .then(({data}) => { if(data) setContent(data.value) });
   }, []);
 

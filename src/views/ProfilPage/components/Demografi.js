@@ -9,7 +9,7 @@ import {
   Td,
   TableContainer,
 } from '@chakra-ui/react';
-import { supabase } from '../../../lib/supabase';
+import { getList, getByColumn } from '../../../lib/dataFetcher';
 
 const Demografi = () => {
   const [stats, setStats] = useState([]);
@@ -17,11 +17,11 @@ const Demografi = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: statsData, error: statsError } = await supabase.from('village_stats').select('*').order('id', { ascending: true });
-      if (!statsError && statsData) setStats(statsData);
+      const { data: statsData, ok: statsOk } = await getList('village_stats', { orderBy: 'id', order: 'asc', limit: 1000 });
+      if (statsOk && statsData) setStats(statsData);
 
-      const { data: descData, error: descError } = await supabase.from('site_settings').select('value').eq('key', 'profil_demografi').single();
-      if (!descError && descData) setDescription(descData.value);
+      const { data: descData, ok: descOk } = await getByColumn('site_settings', 'key', 'profil_demografi');
+      if (descOk && descData) setDescription(descData.value);
     };
     fetchData();
   }, []);

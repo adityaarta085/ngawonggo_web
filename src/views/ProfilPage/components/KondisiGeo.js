@@ -1,12 +1,12 @@
 
 import { Flex, Text, Box } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { getByColumn } from '../../../lib/dataFetcher';
 
 const KondisiGeo = () => {
   const [content, setContent] = useState('');
   useEffect(() => {
-    supabase.from('site_settings').select('value').eq('key', 'profil_kondisi_geo').single()
+    getByColumn('site_settings', 'key', 'profil_kondisi_geo').then(({ data }) => ({ data }))
       .then(({data}) => { if(data) setContent(data.value) });
   }, []);
 

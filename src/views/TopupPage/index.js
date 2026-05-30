@@ -5,6 +5,7 @@ import {
 } from '@chakra-ui/react';
 import { FaCoins, FaSearch, FaCheckCircle, FaQrcode, FaHistory } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
+import { getList } from '../../lib/dataFetcher';
 
 import { SEO } from '../../components';
 
@@ -65,7 +66,8 @@ const TopupPage = () => {
   }, []);
 
   const fetchHistory = async (userId) => {
-      const { data } = await supabase.from('transactions').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(5);
+      const { data: txData } = await getList('transactions', { orderBy: 'created_at', order: 'desc', limit: 1000 });
+      const data = txData?.filter(t => t.user_id === userId)?.slice(0, 5);
       if (data) setHistory(data);
   };
 

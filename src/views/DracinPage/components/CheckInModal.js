@@ -5,6 +5,7 @@ import {
 } from '@chakra-ui/react';
 import { FaCoins, FaCheckCircle } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
+import { getByColumn } from '../../../lib/dataFetcher';
 import { dracinTheme } from '../theme';
 import Confetti from 'react-confetti';
 
@@ -23,7 +24,7 @@ export const CheckInModal = ({ isOpen, onClose, userSession, onCheckInSuccess })
     }, [isOpen, userSession]);
 
     const fetchCheckinData = async () => {
-        const { data } = await supabase.from('dracin_checkins').select('*').eq('user_id', userSession.user.id).single();
+        const { data } = await getByColumn('dracin_checkins', 'user_id', userSession.user.id);
         if (data) {
             setStreak(data.streak);
             setLastCheckin(data.last_checkin_date);

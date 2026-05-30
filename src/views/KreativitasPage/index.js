@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { getById } from '../../lib/dataFetcher';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -50,7 +51,7 @@ export default function KreativitasPage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
         setUser(user);
         if (user) {
-            supabase.from('user_tiers').select('tier_name').eq('user_id', user.id).single().then(({ data }) => {
+            getById('user_tiers', user.id).then(({ data }) => {
                 if (data) setTier(data.tier_name);
             });
         }
