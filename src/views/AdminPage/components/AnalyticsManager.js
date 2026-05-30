@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../../lib/supabase';
 import {
   Box,
   Heading,
@@ -32,9 +31,13 @@ export default function AnalyticsManager() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const { data: result, error: rpcError } = await supabase.rpc('get_analytics_summary');
+        const response = await fetch('/api/neon-analytics?action=summary');
 
-        if (rpcError) throw rpcError;
+        if (!response.ok) {
+            throw new Error(`Failed to fetch analytics: ${response.statusText}`);
+        }
+
+        const result = await response.json();
 
         let workerTotal = 0;
         let fallbackTotal = 0;
