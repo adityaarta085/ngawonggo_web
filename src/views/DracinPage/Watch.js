@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Box, Text, Center, Flex, Button, IconButton, useToast, VStack, HStack, Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, useDisclosure, Icon
+  Box, Text, Center, Flex, Button, IconButton, useToast,  HStack, Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, useDisclosure, Icon, Slider, SliderTrack, SliderFilledTrack, SliderThumb
 } from '@chakra-ui/react';
 import { FaArrowLeft, FaShareAlt, FaListUl, FaLock, FaCoins, FaUnlock, FaStepForward, FaStepBackward, FaPlay, FaPause } from 'react-icons/fa';
 import { SEO } from '../../components';
@@ -31,6 +31,26 @@ const DracinWatch = () => {
   const [unlockedEps, setUnlockedEps] = useState([]);
 
   const [autoplayCountdown, setAutoplayCountdown] = useState(null);
+
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const formatTime = (time) => {
+      if (isNaN(time)) return "00:00";
+      const h = Math.floor(time / 3600);
+      const m = Math.floor((time % 3600) / 60);
+      const s = Math.floor(time % 60);
+      if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const handleSeek = (val) => {
+      if (videoRef.current) {
+          videoRef.current.currentTime = val;
+          setCurrentTime(val);
+      }
+  };
+
 
   // Custom Controls State
   const [isPlaying, setIsPlaying] = useState(true);
@@ -251,33 +271,63 @@ const DracinWatch = () => {
   // Custom Controls Logic
   const handleScreenTap = () => {
       if (isLocked || autoplayCountdown !== null) return;
-      setShowControls(prev => !prev);
+      const nextState = !showControls;
+      setShowControls(nextState);
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-      if (!showControls) {
+      if (nextState) {
           controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
       }
   };
 
   const togglePlayPause = (e) => {
       e.stopPropagation();
+      if (videoRef.current) {
+          if (isPlaying) {
+              videoRef.current.pause();
+          } else {
+              videoRef.current.play();
+          }
+      }
       setIsPlaying(!isPlaying);
       // Reset controls hide timer
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
       controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
   };
 
+  // Wheel Gestures
+  const lastScrollTime = useRef(0);
+  const handleWheel = (e) => {
+      if (isLocked || autoplayCountdown !== null) return;
+      const now = Date.now();
+      if (now - lastScrollTime.current < 1000) return; // Prevent multiple triggers within 1 second
+
+      if (e.deltaY > 50) {
+          // Scroll Down -> Next
+          if (detailData && epNum < (detailData.totalEpisodes || detailData.total_episodes)) {
+              lastScrollTime.current = now;
+              handleNextEpisode();
+          }
+      } else if (e.deltaY < -50) {
+          // Scroll Up -> Prev
+          if (epNum > 1) {
+              lastScrollTime.current = now;
+              handlePrevEpisode();
+          }
+      }
+  };
+
 
   if (loading) return <Box h="100vh" w="100vw" position="fixed" zIndex={9999} bg="black"><DracinLoader /></Box>;
 
   return (
-    <Box h="100vh" w="100vw" bg="black" position="fixed" top={0} left={0} zIndex={9999} overflow="hidden">
+    <Box h="100dvh" w="100vw" bg="black" position="fixed" top={0} left={0} zIndex={9999} overflow="hidden">
       <SEO title={`Eps ${episode} - Dracin`} />
       {showConfetti && <Box position="fixed" top={0} left={0} w="100%" h="100%" zIndex={99999} pointerEvents="none"><Confetti recycle={false} numberOfPieces={300} /></Box>}
 
-      <Box h="100%" w="100%" position="relative" onClick={(e) => { e.stopPropagation(); handleScreenTap(); }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <Box h="100%" w="100%" position="relative" onClick={(e) => { e.stopPropagation(); handleScreenTap(); }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onWheel={handleWheel}>
 
-          {/* Top Back Button (Always visible or visible with controls depending on pref, making it visible with controls is cleaner) */}
-          <Box position="absolute" top={4} left={4} zIndex={20} opacity={showControls || isLocked ? 1 : 0} transition="opacity 0.3s">
+          {/* Top Back Button */}
+          <Box position="absolute" top="env(safe-area-inset-top, 16px)" left="env(safe-area-inset-left, 16px)" zIndex={20} opacity={showControls || isLocked ? 1 : 0} transition="opacity 0.3s">
               <IconButton
                   icon={<FaArrowLeft />}
                   onClick={(e) => { e.stopPropagation(); navigate(`/dracin/detail/${id}`); }}
@@ -322,6 +372,8 @@ const DracinWatch = () => {
                       onPlay={() => setIsPlaying(true)}
                       onPause={() => setIsPlaying(false)}
                       onClick={handleScreenTap}
+                      onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
+                      onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
                       style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', top: 0, left: 0 }}
                   />
 
@@ -332,11 +384,19 @@ const DracinWatch = () => {
                       opacity={showControls ? 1 : 0}
                       transition="opacity 0.3s"
                       pointerEvents={showControls ? 'auto' : 'none'}
+                      onClick={(e) => { e.stopPropagation(); handleScreenTap(); }}
                   >
-                      <HStack spacing={8}>
+                      <HStack spacing={{ base: 4, md: 8 }}>
+                          <IconButton
+                              icon={<FaShareAlt />}
+                              isRound size="lg" boxSize={{ base: "50px", md: "60px" }} fontSize={{ base: "20px", md: "24px" }}
+                              bg="rgba(0,0,0,0.6)" color="white" _hover={{ bg: "rgba(0,0,0,0.8)", transform: "scale(1.1)" }}
+                              onClick={(e) => { e.stopPropagation(); handleShare(); }}
+                              aria-label="Bagikan"
+                          />
                           <IconButton
                               icon={<FaStepBackward />}
-                              isRound size="lg" boxSize="60px" fontSize="24px"
+                              isRound size="lg" boxSize={{ base: "50px", md: "60px" }} fontSize={{ base: "20px", md: "24px" }}
                               bg="rgba(0,0,0,0.6)" color="white" _hover={{ bg: "rgba(0,0,0,0.8)", transform: "scale(1.1)" }}
                               onClick={(e) => { e.stopPropagation(); handlePrevEpisode(); }}
                               isDisabled={epNum <= 1}
@@ -344,39 +404,49 @@ const DracinWatch = () => {
                           />
                           <IconButton
                               icon={isPlaying ? <FaPause /> : <FaPlay />}
-                              isRound size="lg" boxSize="80px" fontSize="32px"
+                              isRound size="lg" boxSize={{ base: "70px", md: "80px" }} fontSize={{ base: "28px", md: "32px" }}
                               bg="rgba(229,9,20,0.8)" color="white" _hover={{ bg: "red.600", transform: "scale(1.1)" }}
                               onClick={togglePlayPause}
                               aria-label="Play Pause"
                           />
                           <IconButton
                               icon={<FaStepForward />}
-                              isRound size="lg" boxSize="60px" fontSize="24px"
+                              isRound size="lg" boxSize={{ base: "50px", md: "60px" }} fontSize={{ base: "20px", md: "24px" }}
                               bg="rgba(0,0,0,0.6)" color="white" _hover={{ bg: "rgba(0,0,0,0.8)", transform: "scale(1.1)" }}
                               onClick={(e) => { e.stopPropagation(); handleNextEpisode(); }}
                               isDisabled={!detailData || epNum >= (detailData.totalEpisodes || detailData.total_episodes)}
                               aria-label="Next Episode"
                           />
+                          <IconButton
+                              icon={<FaListUl />}
+                              isRound size="lg" boxSize={{ base: "50px", md: "60px" }} fontSize={{ base: "20px", md: "24px" }}
+                              bg="rgba(0,0,0,0.6)" color="white" _hover={{ bg: "rgba(0,0,0,0.8)", transform: "scale(1.1)" }}
+                              onClick={(e) => { e.stopPropagation(); onOpen(); }}
+                              aria-label="List Episode"
+                          />
                       </HStack>
                   </Center>
 
-                  {/* Right Panel Actions */}
-                  <VStack
-                      position="absolute" right={4} bottom="20%" zIndex={15} spacing={6}
-                      opacity={showControls ? 1 : 0} transition="opacity 0.3s" pointerEvents={showControls ? 'auto' : 'none'}
-                  >
-                      <VStack spacing={1}>
-                          <IconButton icon={<FaShareAlt />} isRound size="lg" bg="rgba(0,0,0,0.6)" color="white" _hover={{ bg: "rgba(0,0,0,0.8)" }} onClick={(e) => { e.stopPropagation(); handleShare(); }} />
-                          <Text color="white" fontSize="xs" textShadow="1px 1px 2px black" fontWeight="bold">Bagikan</Text>
-                      </VStack>
-                      <VStack spacing={1}>
-                          <IconButton icon={<FaListUl />} isRound size="lg" bg="rgba(0,0,0,0.6)" color="white" _hover={{ bg: "rgba(0,0,0,0.8)" }} onClick={(e) => { e.stopPropagation(); onOpen(); }} />
-                          <Text color="white" fontSize="xs" textShadow="1px 1px 2px black" fontWeight="bold">Episode</Text>
-                      </VStack>
-                  </VStack>
+                  {/* Progress / Seek Bar */}
+                  <Box position="absolute" bottom="calc(env(safe-area-inset-bottom, 32px) + 80px)" left="env(safe-area-inset-left, 16px)" right="env(safe-area-inset-right, 16px)" zIndex={15} opacity={showControls ? 1 : 0} transition="opacity 0.3s" pointerEvents={showControls ? 'auto' : 'none'} onClick={(e) => e.stopPropagation()}>
+                      <HStack w="100%" spacing={4}>
+                          <Text color="white" fontSize="sm" fontWeight="bold" textShadow="1px 1px 2px black" w="50px" textAlign="right">
+                              {formatTime(currentTime)}
+                          </Text>
+                          <Slider aria-label="seek-bar" value={currentTime} min={0} max={duration} step={1} onChange={handleSeek} focusThumbOnChange={false}>
+                              <SliderTrack bg="whiteAlpha.400" h="4px">
+                                  <SliderFilledTrack bg={dracinTheme.accentRed} />
+                              </SliderTrack>
+                              <SliderThumb boxSize={4} bg={dracinTheme.accentRed} />
+                          </Slider>
+                          <Text color="white" fontSize="sm" fontWeight="bold" textShadow="1px 1px 2px black" w="50px">
+                              {formatTime(duration)}
+                          </Text>
+                      </HStack>
+                  </Box>
 
                   {/* Bottom Info */}
-                  <Box position="absolute" bottom={8} left={4} right={16} zIndex={15} opacity={showControls ? 1 : 0} transition="opacity 0.3s">
+                  <Box position="absolute" bottom="calc(env(safe-area-inset-bottom, 32px) + 32px)" left="env(safe-area-inset-left, 16px)" right="env(safe-area-inset-right, 16px)" zIndex={15} opacity={showControls ? 1 : 0} transition="opacity 0.3s">
                       <Text color="white" fontWeight="bold" fontSize="xl" textShadow="1px 1px 4px black" noOfLines={2} mb={1}>
                           {detailData ? detailData.title : 'Memuat...'}
                       </Text>
