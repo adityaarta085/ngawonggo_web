@@ -14,6 +14,7 @@ import { DracinLoader } from './components/DracinLoader';
 import { CheckInModal } from './components/CheckInModal';
 import { AdsModal } from './components/AdsModal';
 import { supabase } from '../../lib/supabase';
+import { getById } from '../../lib/dataFetcher';
 
 
 
@@ -50,7 +51,7 @@ const DracinPage = () => {
         if (session && mounted) {
 
             setUserSession(session);
-            const { data } = await supabase.from('user_currencies').select('coins').eq('user_id', session.user.id).single();
+            const { data } = await getById('user_currencies', session.user.id);
             if (data) setUserCoins(data.coins);
 
             // Fetch history

@@ -66,6 +66,7 @@ import TakedownPage from './views/TakedownPage/index.js';
 import BlockedPage from './views/BlockedPage/index.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
+import { getList } from './lib/dataFetcher';
 
 // User Portal Views
 import AuthPage from './views/AuthPage/index.js';
@@ -163,7 +164,8 @@ function App() {
   useEffect(() => {
     const checkTakedown = async () => {
       try {
-        const { data } = await supabase.from('site_settings').select('key, value').in('key', ['is_takedown', 'is_blocked']);
+        const { data: allSettings } = await getList('site_settings', { limit: 1000 });
+        const data = allSettings?.filter(s => ['is_takedown', 'is_blocked'].includes(s.key));
 
         if (data) {
           const takedownSetting = data.find((d) => d.key === 'is_takedown');

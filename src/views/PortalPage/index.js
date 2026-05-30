@@ -61,6 +61,7 @@ import {
     FaExclamationTriangle,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
+import { getList } from '../../lib/dataFetcher';
 import { useMonetization } from '../../contexts/MonetizationContext';
 import { uploadToSupabase } from '../../lib/uploader';
 import { FaCoins, FaLock, FaBell, FaCrown, FaStore, FaGift, FaTrophy, FaCreditCard } from "react-icons/fa";
@@ -227,7 +228,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
   useEffect(() => {
     const getUserData = async () => {
       try {
-        const { data: ld } = await supabase.from('leaderboard_view').select('*').limit(10);
+        const { data: ld } = await getList('leaderboard_view', { limit: 10 });
         if(ld) setLeaderboard(ld);
       } catch(e) {}
 
@@ -243,7 +244,7 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
         const [complaintsData, gamesData, quranData] = await Promise.all([
           supabase.from('complaints').select('id', { count: 'exact' }).eq('user_id', authUser.id),
           supabase.from('user_game_scores').select('id', { count: 'exact' }).eq('user_id', authUser.id),
-          supabase.from('user_quran_progress').select('*').eq('user_id', authUser.id).single()
+          import('../../lib/dataFetcher').then(m => m.getByColumn('user_quran_progress', 'user_id', authUser.id)).then(res => ({ data: res.data, error: !res.ok }))
         ]);
 
         setStats({

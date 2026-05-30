@@ -1,7 +1,7 @@
 
 import { Flex, Text, Box } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { getList } from '../../../lib/dataFetcher';
 
 const VisiMisi = () => {
   const [visi, setVisi] = useState('');
@@ -9,7 +9,8 @@ const VisiMisi = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const {data} = await supabase.from('site_settings').select('key, value').in('key', ['profil_visi', 'profil_misi']);
+      const { data: allSettings } = await getList('site_settings', { limit: 1000 });
+      const data = allSettings?.filter(s => ['profil_visi', 'profil_misi'].includes(s.key));
       if(data) {
         data.forEach(d => {
           if(d.key === 'profil_visi') setVisi(d.value);

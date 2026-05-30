@@ -1,7 +1,7 @@
 
 import { AspectRatio, Flex, Text, Box } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { getList } from '../../../lib/dataFetcher';
 
 const DataWilayah = () => {
   const [content, setContent] = useState('');
@@ -9,7 +9,8 @@ const DataWilayah = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const {data} = await supabase.from('site_settings').select('key, value').in('key', ['profil_data_wilayah', 'profil_data_wilayah_map']);
+      const { data: allSettings } = await getList('site_settings', { limit: 1000 });
+      const data = allSettings?.filter(s => ['profil_data_wilayah', 'profil_data_wilayah_map'].includes(s.key));
       if(data) {
         data.forEach(d => {
           if(d.key === 'profil_data_wilayah') setContent(d.value);

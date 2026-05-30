@@ -7,6 +7,7 @@ import { FaArrowLeft, FaShareAlt, FaListUl, FaLock, FaCoins, FaUnlock, FaStepFor
 import { SEO } from '../../components';
 import { dracinApi } from './api';
 import { supabase } from '../../lib/supabase';
+import { getById, getList } from '../../lib/dataFetcher';
 import { dracinTheme } from './theme';
 import Confetti from 'react-confetti';
 import { DracinLoader } from './components/DracinLoader';
@@ -83,10 +84,11 @@ const DracinWatch = () => {
         }
         if (session && mounted) {
             setUserSession(session);
-            const { data: curr } = await supabase.from('user_currencies').select('coins').eq('user_id', session.user.id).single();
+            const { data: curr } = await getById('user_currencies', session.user.id);
             if (curr) setUserCoins(curr.coins);
 
-            const { data: unlocks } = await supabase.from('dracin_unlocks').select('episode_number').eq('user_id', session.user.id).eq('drama_id', id);
+            const { data: allUnlocks } = await getList('dracin_unlocks', { limit: 1000 });
+            const unlocks = allUnlocks?.filter(u => u.user_id === session.user.id && u.drama_id === id);
             const unlockedList = unlocks ? unlocks.map(u => u.episode_number) : [];
             setUnlockedEps(unlockedList);
 

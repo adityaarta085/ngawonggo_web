@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Flex, Image, Text, Box } from '@chakra-ui/react';
 import { motion, useAnimation } from 'framer-motion';
-import { supabase } from '../lib/supabase';
+import { getList } from '../lib/dataFetcher';
 
 const MotionBox = motion(Box);
 const MotionImage = motion(Image);
@@ -25,7 +25,7 @@ const NgawonggoLogo = ({ color = "accent.green", fontSize = "xl", iconSize = 8, 
           }
         }
 
-        const { data } = await supabase.from('logo_settings').select('*').limit(1).single();
+        const { data } = await getList('logo_settings', { limit: 1 }).then(res => ({ data: res.data ? res.data[0] : null }));
         if (data) {
             setSettings(data);
             localStorage.setItem(CACHE_KEY, JSON.stringify({

@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react';
 import { FaChevronRight } from 'react-icons/fa';
 import { Link as RouterLink } from 'react-router-dom';
-import { supabase } from '../../../lib/supabase';
+import { getList } from '../../../lib/dataFetcher';
 import { useThemePreference } from '../../../contexts/ThemePreferenceContext';
 
 const DusunSection = () => {
@@ -25,8 +25,8 @@ const DusunSection = () => {
 
   useEffect(() => {
     const fetchDusuns = async () => {
-      const { data, error } = await supabase.from('dusuns').select('*').order('sort_order', { ascending: true });
-      if (!error && data) setDusuns(data);
+      const { data, ok } = await getList('dusuns', { orderBy: 'sort_order', order: 'asc', limit: 1000 });
+      if (ok && data) setDusuns(data);
     };
     fetchDusuns();
   }, []);

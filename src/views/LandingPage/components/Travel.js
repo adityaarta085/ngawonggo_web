@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import CardTravel from '../../../components/CardTravel';
 import { useLanguage } from '../../../contexts/LanguageContext';
-import { supabase } from '../../../lib/supabase';
+import { getList } from '../../../lib/dataFetcher';
 
 const Travel = () => {
   const { language } = useLanguage();
@@ -18,8 +18,8 @@ const Travel = () => {
 
   useEffect(() => {
     const fetchPlaces = async () => {
-      const { data, error } = await supabase.from('travel_places').select('*').order('id', { ascending: true });
-      if (!error && data) setPlaces(data);
+      const { data, ok } = await getList('travel_places', { orderBy: 'id', order: 'asc', limit: 1000 });
+      if (ok && data) setPlaces(data);
     };
     fetchPlaces();
   }, []);

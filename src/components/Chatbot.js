@@ -15,6 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { FaRobot, FaTimes, FaMinus, FaPaperPlane, FaHeadset } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
+import { getById, getList } from '../lib/dataFetcher';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -106,7 +107,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
 
         if (data) {
             // Find my own chat session by querying my own session created_at
-            const { data: myChat } = await supabase.from('chatsCS').select('created_at').eq('chat_id', chatSession).single();
+            const { data: myChat } = await getById('chatsCS', chatSession);
             if (myChat) {
                 const pos = data.findIndex(c => c.created_at === myChat.created_at) + 1;
                 setQueuePosition(pos);
@@ -152,7 +153,7 @@ const Chatbot = ({ isHidden = false, onHide }) => {
         const updated = payload.new;
         setCsStatus(updated.status);
         if (updated.status === 'active' && updated.assigned_to) {
-             const { data: csUser } = await supabase.from('usersCS').select('name').eq('id', updated.assigned_to).single();
+             const { data: csUser } = await getById('usersCS', updated.assigned_to);
              if (csUser) setCsAssigned(csUser.name);
         } else if (updated.status === 'closed') {
              setChatSession(null);
@@ -270,7 +271,9 @@ const Chatbot = ({ isHidden = false, onHide }) => {
   const handleEscalation = async (summary, reason) => {
       setIsLoading(true);
       // Check CS availability first
-      const { data: onlineCs, error: csError } = await supabase.from('usersCS').select('id').eq('status', 'online');
+      const { data: allCs, ok: csOk } = await getList('usersCS', { limit: 1000 });
+      const onlineCs = allCs?.filter(cs => cs.status === 'online');
+      const csError = !csOk;
       if (csError || !onlineCs || onlineCs.length === 0) {
           setMessages(prev => [...prev, { role: 'assistant', content: 'Mohon maaf, saat ini tidak ada Customer Service yang online. Silakan coba lagi nanti.' }]);
           setIsLoading(false);

@@ -4,6 +4,7 @@ import {
     Button, Box, Text, VStack, useToast, Progress
 } from '@chakra-ui/react';
 import { supabase } from '../../../lib/supabase';
+import { getById } from '../../../lib/dataFetcher';
 import { dracinTheme } from '../theme';
 import Confetti from 'react-confetti';
 
@@ -36,7 +37,7 @@ export const AdsModal = ({ isOpen, onClose, userSession, onRewardSuccess }) => {
             const reward = Math.floor(Math.random() * 56) + 20; // 20-75 coins
 
             // Assuming an RPC or direct update if permitted
-            const { data: userCurr } = await supabase.from('user_currencies').select('coins').eq('user_id', userSession.user.id).single();
+            const { data: userCurr } = await getById('user_currencies', userSession.user.id);
             if (userCurr) {
                 await supabase.from('user_currencies').update({ coins: userCurr.coins + reward }).eq('user_id', userSession.user.id);
 

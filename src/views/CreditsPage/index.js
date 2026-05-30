@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { getList } from '../../lib/dataFetcher';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -240,7 +240,8 @@ const DeveloperMediaList = () => {
   }, []);
 
   const fetchMedias = async () => {
-    const { data } = await supabase.from('developer_media').select('*').eq('is_active', true).order('created_at', { ascending: false });
+    const { data: allData } = await getList('developer_media', { orderBy: 'created_at', order: 'desc', limit: 1000 });
+    const data = (allData || []).filter(item => item.is_active === true);
     if (data) setMedias(data);
   };
 

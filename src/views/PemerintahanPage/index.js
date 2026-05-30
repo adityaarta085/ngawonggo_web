@@ -24,6 +24,7 @@ import PaywallModal from '../../components/Monetization/PaywallModal';
 
 import { Button } from '@chakra-ui/react';
 import { supabase } from '../../lib/supabase';
+import { getList } from '../../lib/dataFetcher';
 
 export default function PemerintahanPage({ previewData }) {
   const [data, setData] = useState({
@@ -88,7 +89,7 @@ export default function PemerintahanPage({ previewData }) {
         }
 
         // Fetch docs
-        const { data: docs } = await supabase.from('premium_documents').select('*');
+        const { data: docs } = await getList('premium_documents', { limit: 1000 });
         if(docs) setDocuments(docs);
       } catch (error) {
         console.error('Error fetching pemerintahan data:', error);
