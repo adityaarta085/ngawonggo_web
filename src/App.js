@@ -111,6 +111,7 @@ function App() {
   const isAuth = location.pathname.startsWith('/auth');
   const isDownPage = location.pathname === '/down';
   const isBlockedPage = location.pathname === '/blocked';
+  const isWatchPage = location.pathname.includes('/play') && location.pathname.startsWith('/dracin');
 
   const [adminSession, setAdminSession] = useState(() => {
     try {
@@ -238,7 +239,7 @@ function App() {
       )}
 
       <>
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && (
           <>
             <Box
               h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
@@ -263,10 +264,10 @@ function App() {
           </>
         )}
 
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <PopupNotification />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && <PopupNotification />}
 
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <LoginPromo user={userSession?.user} />}
-                {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && <LoginPromo user={userSession?.user} />}
+                {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && (
           <>
             <CustomAds placementType="popup_top" />
             <CustomAds placementType="popup_bottom" />
@@ -376,8 +377,8 @@ function App() {
           </>
         )}
 
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <InstallPWA />}
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && <Footer />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && <InstallPWA />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && <Footer />}
       </>
     </Box>
   );
