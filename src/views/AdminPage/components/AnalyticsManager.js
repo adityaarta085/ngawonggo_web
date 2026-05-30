@@ -31,7 +31,7 @@ export default function AnalyticsManager() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await fetch('/api/neon-analytics?action=summary');
+        const response = await fetch('/api/tools-proxy?action=neon_analytics_summary');
 
         if (!response.ok) {
             throw new Error(`Failed to fetch analytics: ${response.statusText}`);

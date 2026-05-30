@@ -9,7 +9,7 @@ export async function logAnalytics({ source, table, endpoint, type, status, reas
       reason
     };
 
-    const response = await fetch('/api/neon-analytics', {
+    const response = await fetch('/api/tools-proxy?action=neon_analytics_post', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
