@@ -1,4 +1,5 @@
 import { supabase } from './supabase'; // Adjust path if needed
+import { logAnalytics } from './analytics';
 
 const WORKER_BASE_URL = "https://supabase-d1-sync.adityaarta085.workers.dev";
 
@@ -78,6 +79,14 @@ export async function getList(table, options = {}) {
   try {
     const workerJson = await fetchWorkerJson(workerUrl, 3);
 
+    logAnalytics({
+      source: 'worker',
+      table,
+      endpoint: `/api/${table}`,
+      type: 'list',
+      status: 200
+    });
+
     return {
       ok: true,
       source: "worker",
@@ -85,6 +94,15 @@ export async function getList(table, options = {}) {
     };
   } catch (error) {
     console.warn("Worker gagal, fallback ke Supabase:", error?.message);
+
+    logAnalytics({
+      source: 'supabase_fallback',
+      table,
+      endpoint: `/api/${table}`,
+      type: 'list',
+      status: 200,
+      reason: error?.message || 'unknown_error'
+    });
 
     let query = supabase.from(table).select("*").range(offset, offset + limit - 1);
 
@@ -116,6 +134,14 @@ export async function getById(table, id) {
   try {
     const workerJson = await fetchWorkerJson(workerUrl, 3);
 
+    logAnalytics({
+      source: 'worker',
+      table,
+      endpoint: `/api/${table}/${id}`,
+      type: 'detail',
+      status: 200
+    });
+
     return {
       ok: true,
       source: "worker",
@@ -123,6 +149,15 @@ export async function getById(table, id) {
     };
   } catch (error) {
     console.warn("Worker detail gagal, fallback ke Supabase:", error?.message);
+
+    logAnalytics({
+      source: 'supabase_fallback',
+      table,
+      endpoint: `/api/${table}/${id}`,
+      type: 'detail',
+      status: 200,
+      reason: error?.message || 'unknown_error'
+    });
 
     const primaryKey = getPrimaryKey(table);
 
@@ -154,6 +189,14 @@ export async function getByColumn(table, column, value) {
   try {
     const workerJson = await fetchWorkerJson(workerUrl, 3);
 
+    logAnalytics({
+      source: 'worker',
+      table,
+      endpoint: `/api/${table}/by/${column}/${value}`,
+      type: 'detail',
+      status: 200
+    });
+
     return {
       ok: true,
       source: "worker",
@@ -161,6 +204,15 @@ export async function getByColumn(table, column, value) {
     };
   } catch (error) {
     console.warn("Worker by-column gagal, fallback ke Supabase:", error?.message);
+
+    logAnalytics({
+      source: 'supabase_fallback',
+      table,
+      endpoint: `/api/${table}/by/${column}/${value}`,
+      type: 'detail',
+      status: 200,
+      reason: error?.message || 'unknown_error'
+    });
 
     const { data, error: supabaseError } = await supabase
       .from(table)
