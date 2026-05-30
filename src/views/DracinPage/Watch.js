@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Box, Text, Center, Flex, Button, IconButton, useToast,  HStack, Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, useDisclosure, Icon
+  Box, Text, Center, Flex, Button, IconButton, useToast,  HStack, Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody, useDisclosure, Icon, Slider, SliderTrack, SliderFilledTrack, SliderThumb
 } from '@chakra-ui/react';
 import { FaArrowLeft, FaShareAlt, FaListUl, FaLock, FaCoins, FaUnlock, FaStepForward, FaStepBackward, FaPlay, FaPause } from 'react-icons/fa';
 import { SEO } from '../../components';
@@ -31,6 +31,26 @@ const DracinWatch = () => {
   const [unlockedEps, setUnlockedEps] = useState([]);
 
   const [autoplayCountdown, setAutoplayCountdown] = useState(null);
+
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const formatTime = (time) => {
+      if (isNaN(time)) return "00:00";
+      const h = Math.floor(time / 3600);
+      const m = Math.floor((time % 3600) / 60);
+      const s = Math.floor(time % 60);
+      if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const handleSeek = (val) => {
+      if (videoRef.current) {
+          videoRef.current.currentTime = val;
+          setCurrentTime(val);
+      }
+  };
+
 
   // Custom Controls State
   const [isPlaying, setIsPlaying] = useState(true);
@@ -352,6 +372,8 @@ const DracinWatch = () => {
                       onPlay={() => setIsPlaying(true)}
                       onPause={() => setIsPlaying(false)}
                       onClick={handleScreenTap}
+                      onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
+                      onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
                       style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', top: 0, left: 0 }}
                   />
 
@@ -404,6 +426,24 @@ const DracinWatch = () => {
                           />
                       </HStack>
                   </Center>
+
+                  {/* Progress / Seek Bar */}
+                  <Box position="absolute" bottom="calc(env(safe-area-inset-bottom, 32px) + 80px)" left="env(safe-area-inset-left, 16px)" right="env(safe-area-inset-right, 16px)" zIndex={15} opacity={showControls ? 1 : 0} transition="opacity 0.3s" pointerEvents={showControls ? 'auto' : 'none'} onClick={(e) => e.stopPropagation()}>
+                      <HStack w="100%" spacing={4}>
+                          <Text color="white" fontSize="sm" fontWeight="bold" textShadow="1px 1px 2px black" w="50px" textAlign="right">
+                              {formatTime(currentTime)}
+                          </Text>
+                          <Slider aria-label="seek-bar" value={currentTime} min={0} max={duration} step={1} onChange={handleSeek} focusThumbOnChange={false}>
+                              <SliderTrack bg="whiteAlpha.400" h="4px">
+                                  <SliderFilledTrack bg={dracinTheme.accentRed} />
+                              </SliderTrack>
+                              <SliderThumb boxSize={4} bg={dracinTheme.accentRed} />
+                          </Slider>
+                          <Text color="white" fontSize="sm" fontWeight="bold" textShadow="1px 1px 2px black" w="50px">
+                              {formatTime(duration)}
+                          </Text>
+                      </HStack>
+                  </Box>
 
                   {/* Bottom Info */}
                   <Box position="absolute" bottom="calc(env(safe-area-inset-bottom, 32px) + 32px)" left="env(safe-area-inset-left, 16px)" right="env(safe-area-inset-right, 16px)" zIndex={15} opacity={showControls ? 1 : 0} transition="opacity 0.3s">
