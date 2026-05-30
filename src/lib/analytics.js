@@ -15,7 +15,7 @@ export async function logAnalytics({ source, table, endpoint, type, status, reas
 
     // Call our serverless function to proxy to Axiom
     // We proxy it to avoid exposing AXIOM_TOKEN in the frontend
-    fetch('/api/axiom-ingest', {
+    fetch('/api/tools-proxy?action=axiom-ingest', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

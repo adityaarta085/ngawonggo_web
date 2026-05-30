@@ -29,7 +29,7 @@ export default function AnalyticsManager() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/analytics')
+    fetch('/api/tools-proxy?action=analytics')
       .then(res => res.json())
       .then(res => {
         if (!res.ok) throw new Error(res.error || 'Failed to fetch analytics');
