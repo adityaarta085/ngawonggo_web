@@ -251,9 +251,10 @@ const DracinWatch = () => {
   // Custom Controls Logic
   const handleScreenTap = () => {
       if (isLocked || autoplayCountdown !== null) return;
-      setShowControls(prev => !prev);
+      const nextState = !showControls;
+      setShowControls(nextState);
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
-      if (!showControls) {
+      if (nextState) {
           controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 3000);
       }
   };
@@ -361,6 +362,7 @@ const DracinWatch = () => {
                       opacity={showControls ? 1 : 0}
                       transition="opacity 0.3s"
                       pointerEvents={showControls ? 'auto' : 'none'}
+                      onClick={(e) => { e.stopPropagation(); handleScreenTap(); }}
                   >
                       <HStack spacing={{ base: 4, md: 8 }}>
                           <IconButton
