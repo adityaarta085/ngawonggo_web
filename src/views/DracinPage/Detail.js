@@ -86,7 +86,7 @@ const DracinDetail = () => {
           // Fake RPC call if not fully set up or use actual if it exists
           const { data: success, error } = await supabase.rpc('unlock_dracin_episode', {
               p_drama_id: id,
-              p_episode_number: epNumber,
+              p_episode_number: epNumber || 1,
               p_cost: cost
           });
 
@@ -188,7 +188,7 @@ const DracinDetail = () => {
                 {episodes.length > 0 && (
                     <Button
                         as={RouterLink}
-                        to={`/dracin/detail/${id}/${episodes[0].serialNumber || episodes[0].number || 1}/play`}
+                        to={`/dracin/detail/${id}/${episodes[0].episode || episodes[0].serialNumber || episodes[0].number || 1}/play`}
                         size="lg"
                         leftIcon={<FaPlay />}
                         mt={4}
@@ -213,7 +213,7 @@ const DracinDetail = () => {
                 </Heading>
                 <SimpleGrid columns={{ base: 2, sm: 3, md: 4, lg: 5 }} spacing={4}>
                     {episodes.map((ep, idx) => {
-                        const epNum = ep.serialNumber || ep.number || ep.episodeNumber;
+                        const epNum = ep.episode || ep.serialNumber || ep.number || ep.episodeNumber;
                         const isFree = epNum <= 3;
                         const cost = getEpCost(epNum);
                         const isUnlocked = isFree || unlockedEps.includes(epNum);

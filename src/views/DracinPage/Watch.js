@@ -216,7 +216,7 @@ const DracinWatch = () => {
       setUnlockLoading(true);
       try {
           const { data: success, error } = await supabase.rpc('unlock_dracin_episode', {
-              p_drama_id: id, p_episode_number: epNum, p_cost: epCost
+              p_drama_id: id, p_episode_number: epNum || 1, p_cost: epCost
           });
           if (error) throw new Error(error.message);
 
