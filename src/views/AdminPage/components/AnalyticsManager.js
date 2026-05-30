@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../../../lib/supabase';
 import {
   Box,
   Heading,
@@ -29,17 +30,41 @@ export default function AnalyticsManager() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/tools-proxy?action=analytics')
-      .then(res => res.json())
-      .then(res => {
-        if (!res.ok) throw new Error(res.error || 'Failed to fetch analytics');
-        setData(res);
-        setLoading(false);
-      })
-      .catch(err => {
+    const fetchAnalytics = async () => {
+      try {
+        const { data: result, error: rpcError } = await supabase.rpc('get_analytics_summary');
+
+        if (rpcError) throw rpcError;
+
+        let workerTotal = 0;
+        let fallbackTotal = 0;
+        let otherTotal = 0;
+
+        const sourceSummary = result.source_summary || [];
+
+        sourceSummary.forEach(item => {
+          if (item.source === 'worker') workerTotal += item.total;
+          else if (item.source === 'supabase_fallback') fallbackTotal += item.total;
+          else otherTotal += item.total;
+        });
+
+        const totalRequests = workerTotal + fallbackTotal + otherTotal;
+        const workerPercentage = totalRequests > 0 ? (workerTotal / totalRequests) * 100 : 0;
+        const fallbackPercentage = totalRequests > 0 ? (fallbackTotal / totalRequests) * 100 : 0;
+
+        setData({
+          ...result,
+          worker_percentage: parseFloat(workerPercentage.toFixed(2)),
+          fallback_percentage: parseFloat(fallbackPercentage.toFixed(2))
+        });
+      } catch (err) {
         setError(err.message);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchAnalytics();
   }, []);
 
   if (loading) return <Box p={6}><Spinner size="xl" /></Box>;
@@ -54,7 +79,7 @@ export default function AnalyticsManager() {
 
   const statusColor = getWorkerStatusColor(data.worker_percentage);
 
-  const totalRequests = data.source_summary.reduce((acc, curr) => acc + curr.total, 0);
+  const totalRequests = (data.source_summary || []).reduce((acc, curr) => acc + curr.total, 0);
 
   return (
     <Box p={6}>
