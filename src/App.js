@@ -63,6 +63,7 @@ import TTSReader from './components/TTSReader';
 
 import PopupNotification from './components/PopupNotification.js';
 import TakedownPage from './views/TakedownPage/index.js';
+import StatusPage from './views/StatusPage/index.js';
 import BlockedPage from './views/BlockedPage/index.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
@@ -324,6 +325,7 @@ function App() {
             <Route path="/topup" element={<TopupPage />} />
             <Route path="/game/*" element={<EduGameRouter />} />
             <Route path="/tools/*" element={<ToolsRouter />} />
+            <Route path="/status" element={<StatusPage />} />
 
             <Route path="/down" element={<TakedownPage />} />
             <Route path="/blocked" element={<BlockedPage />} />
