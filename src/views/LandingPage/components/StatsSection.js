@@ -104,12 +104,12 @@ const StatsSection = () => {
       {landingTheme === 'vibrant' ? (
         <>
           {/* Playful Floating Shapes */}
-          <Box position="absolute" top="-5%" right="-5%" w={{ base: "200px", md: "400px" }} h={{ base: "200px", md: "400px" }} bg="pink.400" opacity={op1} borderRadius="full" filter="blur(60px)" animation="spin 20s linear infinite" />
-          <Box position="absolute" bottom="-10%" left="-5%" w={{ base: "250px", md: "500px" }} h={{ base: "250px", md: "500px" }} bg="blue.400" opacity={op2} borderRadius="full" filter="blur(80px)" animation="spin 25s linear infinite reverse" />
-          <Box position="absolute" top="40%" left="30%" w="300px" h="300px" bg="yellow.400" opacity={op3} borderRadius="full" filter="blur(70px)" />
+          <Box position="absolute" top="-5%" right="-5%" w={{ base: "200px", md: "400px" }} h={{ base: "200px", md: "400px" }} bg="pink.400" opacity={op1} borderRadius="full" display={{ base: "none", md: "block" }} filter="blur(60px)" animation="spin 20s linear infinite" />
+          <Box position="absolute" bottom="-10%" left="-5%" w={{ base: "250px", md: "500px" }} h={{ base: "250px", md: "500px" }} bg="blue.400" opacity={op2} borderRadius="full" display={{ base: "none", md: "block" }} filter="blur(80px)" animation="spin 25s linear infinite reverse" />
+          <Box position="absolute" top="40%" left="30%" w="300px" h="300px" bg="yellow.400" opacity={op3} borderRadius="full" display={{ base: "none", md: "block" }} filter="blur(70px)" />
         </>
       ) : (
-        <Box position="absolute" top="-100px" right="-100px" w="400px" h="400px" bg="brand.500" opacity={0.03} borderRadius="full" filter="blur(80px)" />
+        <Box position="absolute" top="-100px" right="-100px" w="400px" h="400px" bg="brand.500" opacity={0.03} borderRadius="full" display={{ base: "none", md: "block" }} filter="blur(80px)" />
       )}
 
       <Container maxW="container.xl" position="relative" zIndex={1}>

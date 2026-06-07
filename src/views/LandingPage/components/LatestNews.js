@@ -47,7 +47,7 @@ const LatestNews = () => {
         <>
           {/* Dotted Pattern Overlay and Shapes */}
           <Box position="absolute" inset={0} bgImage="radial-gradient(#137fec 1px, transparent 1px)" bgSize="40px 40px" opacity={blobOp1} zIndex={0} />
-          <Box position="absolute" top="-10%" left="-10%" w="400px" h="400px" bg="green.400" opacity={blobOp2} borderRadius="full" filter="blur(80px)" animation="spin 30s linear infinite" />
+          <Box position="absolute" top="-10%" left="-10%" w="400px" h="400px" bg="green.400" opacity={blobOp2} borderRadius="full" display={{ base: "none", md: "block" }} filter="blur(80px)" animation="spin 30s linear infinite" />
         </>
       )}
 

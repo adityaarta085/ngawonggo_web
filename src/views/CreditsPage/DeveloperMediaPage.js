@@ -90,7 +90,7 @@ const DeveloperMediaPage = () => {
         w="40vw"
         h="40vw"
         bg="brand.500"
-        filter="blur(150px)"
+        filter="blur(150px)" display={{ base: "none", md: "block" }}
         opacity="0.3"
         borderRadius="full"
         zIndex={0}
@@ -102,7 +102,7 @@ const DeveloperMediaPage = () => {
         w="40vw"
         h="40vw"
         bg="purple.500"
-        filter="blur(150px)"
+        filter="blur(150px)" display={{ base: "none", md: "block" }}
         opacity="0.3"
         borderRadius="full"
         zIndex={0}

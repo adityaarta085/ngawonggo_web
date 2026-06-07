@@ -407,7 +407,7 @@ const AuthPage = () => {
         h="40%"
         bg="brand.50"
         borderRadius='full'
-        filter="blur(80px)"
+        filter="blur(80px)" display={{ base: "none", md: "block" }}
         opacity={0.6}
         zIndex={0}
       />
@@ -419,7 +419,7 @@ const AuthPage = () => {
         h="40%"
         bg="brand.50"
         borderRadius='full'
-        filter="blur(80px)"
+        filter="blur(80px)" display={{ base: "none", md: "block" }}
         opacity={0.6}
         zIndex={0}
       />
