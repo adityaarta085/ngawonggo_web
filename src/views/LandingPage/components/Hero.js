@@ -99,7 +99,7 @@ const MasterpieceFluidBackground = () => {
                 top="10%" left="20%"
                 w="40vw" h="40vw"
                 bg={isDark ? "blue.500" : "teal.300"}
-                filter="blur(100px)"
+                filter="blur(100px)" display={{ base: "none", md: "block" }}
                 opacity={isDark ? 0.3 : 0.4}
                 borderRadius="full"
                 style={{ animation: `${waveFloat} 15s ease-in-out infinite alternate` }}
@@ -109,7 +109,7 @@ const MasterpieceFluidBackground = () => {
                 bottom="10%" right="10%"
                 w="50vw" h="50vw"
                 bg={isDark ? "purple.600" : "blue.400"}
-                filter="blur(120px)"
+                filter="blur(120px)" display={{ base: "none", md: "block" }}
                 opacity={isDark ? 0.3 : 0.5}
                 borderRadius="full"
                 style={{ animation: `${waveFloat} 25s ease-in-out infinite alternate-reverse`, animationDelay: '2s' }}
@@ -125,7 +125,7 @@ const MasterpieceFluidBackground = () => {
                 position="absolute"
                 top="0" left="0" right="0" bottom="0"
                 bg={useColorModeValue("whiteAlpha.200", "blackAlpha.400")}
-                backdropFilter="blur(2px)"
+                backdropFilter={{ base: "none", md: "blur(2px)" }}
                 zIndex={2}
             />
         </Box>

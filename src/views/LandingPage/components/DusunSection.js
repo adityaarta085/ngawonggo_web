@@ -36,8 +36,8 @@ const DusunSection = () => {
       {landingTheme === 'vibrant' && (
         <>
           {/* Playful Colorful Background Blobs */}
-          <Box position="absolute" top="-10%" left="-10%" w="500px" h="500px" bg="purple.400" opacity={blobOpacity1} borderRadius="full" filter="blur(100px)" />
-          <Box position="absolute" bottom="-10%" right="-5%" w="600px" h="600px" bg="orange.400" opacity={blobOpacity1} borderRadius="full" filter="blur(120px)" />
+          <Box position="absolute" top="-10%" left="-10%" w="500px" h="500px" bg="purple.400" opacity={blobOpacity1} borderRadius="full" display={{ base: "none", md: "block" }} filter="blur(100px)" />
+          <Box position="absolute" bottom="-10%" right="-5%" w="600px" h="600px" bg="orange.400" opacity={blobOpacity1} borderRadius="full" display={{ base: "none", md: "block" }} filter="blur(120px)" />
         </>
       )}
       <Container maxW="container.xl" position="relative" zIndex={1}>

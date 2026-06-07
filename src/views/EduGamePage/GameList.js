@@ -24,8 +24,8 @@ const GameList = () => {
   return (
     <Box py={12} position="relative" overflow="hidden">
       {/* Background Decor */}
-      <Box position="absolute" top="-10%" left="-10%" w="40%" h="40%" bg="brand.100" opacity={0.3} filter="blur(120px)" borderRadius="full" />
-      <Box position="absolute" bottom="-10%" right="-10%" w="30%" h="30%" bg="purple.100" opacity={0.3} filter="blur(100px)" borderRadius="full" />
+      <Box position="absolute" top="-10%" left="-10%" w="40%" h="40%" bg="brand.100" opacity={0.3} display={{ base: "none", md: "block" }} filter="blur(120px)" borderRadius="full" />
+      <Box position="absolute" bottom="-10%" right="-10%" w="30%" h="30%" bg="purple.100" opacity={0.3} display={{ base: "none", md: "block" }} filter="blur(100px)" borderRadius="full" />
 
       <Container maxW="container.xl" position="relative" zIndex={1}>
         <Flex justify="space-between" align="center" mb={12} flexDir={{ base: 'column', md: 'row' }} gap={4}>

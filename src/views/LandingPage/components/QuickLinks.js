@@ -158,7 +158,7 @@ const QuickLinks = ({ isHero }) => {
                     p={4}
                     bg={landingTheme === 'vibrant' ? link.color : "whiteAlpha.100"}
                     color="white"
-                    backdropFilter={landingTheme === 'vibrant' ? 'none' : 'blur(10px)'}
+                    backdropFilter={{ base: 'none', md: landingTheme === 'vibrant' ? 'none' : 'blur(10px)' }}
                     borderRadius={landingTheme === 'vibrant' ? '3xl' : '2xl'}
                     border={landingTheme === 'vibrant' ? "4px solid" : "1px solid"}
                     borderColor={landingTheme === 'vibrant' ? "white" : "whiteAlpha.300"}
