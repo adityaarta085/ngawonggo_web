@@ -78,6 +78,9 @@ import ToolsRouter from './views/ToolsPage/ToolsRouter';
 import TopupPage from './views/TopupPage/index.js';
 import DownloaderPage from './views/DownloaderPage/index.js';
 import CekPlagiatPage from './views/CekPlagiatPage/index.js';
+import LandingLive from './views/LiveDisplay/pages/Landing';
+import DashboardLive from './views/LiveDisplay/pages/Dashboard';
+import DisplayView from './views/LiveDisplay/pages/DisplayView';
 
 
 const TopBar = ({ isScrolled }) => {
@@ -345,6 +348,10 @@ function App() {
             <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
             <Route path="/admin/cs/*" element={<CSApp />} />
 
+
+            <Route path="/live" element={<LandingLive />} />
+            <Route path="/dashboardlive/*" element={<DashboardLive />} />
+            <Route path="/live/display/:code" element={<DisplayView />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Box>
