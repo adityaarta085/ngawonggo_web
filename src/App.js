@@ -78,7 +78,6 @@ import ToolsRouter from './views/ToolsPage/ToolsRouter';
 import TopupPage from './views/TopupPage/index.js';
 import DownloaderPage from './views/DownloaderPage/index.js';
 import CekPlagiatPage from './views/CekPlagiatPage/index.js';
-import LandingLive from './views/LiveDisplay/pages/Landing';
 import DashboardLive from './views/LiveDisplay/pages/Dashboard';
 import DisplayView from './views/LiveDisplay/pages/DisplayView';
 
@@ -117,6 +116,7 @@ function App() {
   const isDownPage = location.pathname === '/down';
   const isBlockedPage = location.pathname === '/blocked';
   const isWatchPage = location.pathname.includes('/play') && location.pathname.startsWith('/dracin');
+  const isLiveDisplayPage = location.pathname.startsWith('/live/display');
 
   const [adminSession, setAdminSession] = useState(() => {
     try {
@@ -245,7 +245,7 @@ function App() {
       )}
 
       <>
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && (
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && (
           <>
             <Box
               h={{ base: scrolled ? '88px' : '128px', md: scrolled ? '104px' : '146px' }}
@@ -270,10 +270,10 @@ function App() {
           </>
         )}
 
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && <PopupNotification />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && <PopupNotification />}
 
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && <LoginPromo user={userSession?.user} />}
-                {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && (
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && <LoginPromo user={userSession?.user} />}
+                {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && (
           <>
             <CustomAds placementType="popup_top" />
             <CustomAds placementType="popup_bottom" />
@@ -349,14 +349,14 @@ function App() {
             <Route path="/admin/cs/*" element={<CSApp />} />
 
 
-            <Route path="/live" element={<LandingLive />} />
-            <Route path="/dashboardlive/*" element={<DashboardLive />} />
+            <Route path="/live" element={<Navigate to="/media" replace />} />
+            <Route path="/admin/live/*" element={adminSession ? <DashboardLive /> : <Navigate to="/admin/login" replace />} />
             <Route path="/live/display/:code" element={<DisplayView />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </Box>
 
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isLiveDisplayPage && (
           <>
             {isVerified && (
               <Chatbot
@@ -388,8 +388,8 @@ function App() {
           </>
         )}
 
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && <InstallPWA />}
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && <Footer />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && <InstallPWA />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && <Footer />}
       </>
     </Box>
   );

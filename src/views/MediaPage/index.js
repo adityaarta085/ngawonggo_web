@@ -28,12 +28,15 @@ import 'video.js/dist/video-js.css';
 import CommunityFeed from './CommunityFeed';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { translations } from '../../translations';
+import { supabase } from '../../lib/supabase';
 
 const MediaPage = () => {
   const { language } = useLanguage();
   const t = translations[language].media;
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(70);
+  const [displayStatus, setDisplayStatus] = useState('offline');
+  const [displayMode, setDisplayMode] = useState('normal');
 
   const audioRef = useRef(null);
   const videoRef = useRef(null);
@@ -47,6 +50,47 @@ const MediaPage = () => {
       playerRef.current.volume(volume / 100);
     }
   }, [volume]);
+
+  useEffect(() => {
+    const fetchDisplayInfo = async () => {
+      try {
+        const { data: display } = await supabase
+          .from('displays')
+          .select('id, status')
+          .eq('code', 'DEMO-TV')
+          .maybeSingle();
+        if (display) {
+          setDisplayStatus(display.status);
+          const { data: state } = await supabase
+            .from('display_states')
+            .select('mode')
+            .eq('display_id', display.id)
+            .maybeSingle();
+          if (state) {
+            setDisplayMode(state.mode);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching display status:', err);
+      }
+    };
+
+    fetchDisplayInfo();
+
+    const displayChannel = supabase
+      .channel('displays_realtime_media')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'displays', filter: 'code=eq.DEMO-TV' }, (payload) => {
+        setDisplayStatus(payload.new.status);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'display_states' }, () => {
+        fetchDisplayInfo();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(displayChannel);
+    };
+  }, []);
 
   useEffect(() => {
     // TVRI player init
@@ -98,7 +142,7 @@ const MediaPage = () => {
           </Box>
 
           <Tabs variant="soft-rounded" colorScheme="brand">
-            <TabList layerStyle="glassCard" p={2} mb={8} display="inline-flex">
+            <TabList layerStyle="glassCard" p={2} mb={8} display="inline-flex" flexWrap="wrap" gap={2}>
               <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
                 <Icon as={FaBroadcastTower} mr={2} /> Radio Gemilang
               </Tab>
@@ -107,6 +151,9 @@ const MediaPage = () => {
               </Tab>
               <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
                 <Icon as={FaUpload} mr={2} /> Komunitas
+              </Tab>
+              <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
+                <Icon as={FaTv} mr={2} /> Live Display (Uji Coba)
               </Tab>
             </TabList>
 
@@ -188,6 +235,78 @@ const MediaPage = () => {
               </TabPanel>
               <TabPanel p={0}>
                 <CommunityFeed />
+              </TabPanel>
+              <TabPanel p={0}>
+                <VStack spacing={6} align="stretch">
+                  <Box layerStyle="glassCard" p={6} borderRadius="3xl" bg="white" _dark={{ bg: "gray.800" }}>
+                    <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
+                      <VStack align="start" spacing={1}>
+                        <Heading size="md" color="gray.800" _dark={{ color: "white" }}>
+                          Ngawonggo Live TV Display (Uji Coba)
+                        </Heading>
+                        <Text color="gray.500" fontSize="sm">
+                          Sistem informasi TV Masjid realtime. Tampilan ini disinkronkan langsung dari dashboard admin.
+                        </Text>
+                      </VStack>
+                      <HStack spacing={3}>
+                        <Badge colorScheme={displayStatus === 'online' ? 'green' : 'red'} px={3} py={1} borderRadius="full">
+                          {displayStatus === 'online' ? '● ONLINE' : '○ OFFLINE'}
+                        </Badge>
+                        <Badge colorScheme="blue" px={3} py={1} borderRadius="full">
+                          Mode: {displayMode.toUpperCase()}
+                        </Badge>
+                        <IconButton
+                          as="a"
+                          href="/live/display/DEMO-TV"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          icon={<Icon as={FaTv} />}
+                          colorScheme="brand"
+                          aria-label="Buka Layar Penuh"
+                          title="Buka Layar Penuh"
+                          borderRadius="xl"
+                        />
+                      </HStack>
+                    </Flex>
+                  </Box>
+
+                  {/* TV Mockup Frame */}
+                  <Box
+                    position="relative"
+                    w="full"
+                    pb="56.25%" /* 16:9 Aspect Ratio */
+                    bg="black"
+                    borderRadius="2xl"
+                    boxShadow="2xl"
+                    border="12px solid"
+                    borderColor="gray.800"
+                    overflow="hidden"
+                  >
+                    <iframe
+                      src="/live/display/DEMO-TV"
+                      title="Ngawonggo Live TV Display Preview"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        border: 'none',
+                      }}
+                    />
+                  </Box>
+
+                  <Box p={6} layerStyle="glassCard" borderRadius="2xl" bg="white" _dark={{ bg: "gray.800" }}>
+                    <Heading size="sm" mb={2} color="gray.800" _dark={{ color: "white" }}>
+                      Panduan Uji Coba:
+                    </Heading>
+                    <Text color="gray.600" _dark={{ color: "gray.400" }} fontSize="sm" lineHeight="relaxed">
+                      1. TV Display di atas merupakan cerminan (preview) dari sistem display yang terpasang di Masjid Ngawonggo.<br />
+                      2. Anda dapat mengubah konten, memicu adzan/iqomah, memulai siaran langsung, atau mempublikasikan poster baru melalui dashboard admin di rute <Box as="span" fontWeight="bold" color="brand.500">/admin/live</Box>.<br />
+                      3. Klik tombol TV di kanan atas preview untuk membuka mode layar penuh (sangat cocok untuk Smart TV atau Monitor Informasi).
+                    </Text>
+                  </Box>
+                </VStack>
               </TabPanel>
             </TabPanels>
           </Tabs>
