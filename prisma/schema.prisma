@@ -1,0 +1,92 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Mosque {
+  id        String    @id @default(uuid())
+  name      String
+  displays  Display[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Display {
+  id        String        @id @default(uuid())
+  mosqueId  String
+  code      String        @unique
+  name      String
+  status    String        @default("offline")
+  mosque    Mosque        @relation(fields: [mosqueId], references: [id])
+  state     DisplayState?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model Content {
+  id        String    @id @default(uuid())
+  type      String    // announcement, running_text, poster, video, agenda, donation_qr, finance_report, hadith
+  title     String
+  mediaUrl  String?
+  startAt   DateTime?
+  endAt     DateTime?
+  priority  Int       @default(0)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Schedule {
+  id        String    @id @default(uuid())
+  title     String
+  speaker   String?
+  time      DateTime
+  type      String    // kajian, khutbah
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model LiveStream {
+  id        String    @id @default(uuid())
+  mode      String    // peerjs_camera, youtube, external_url
+  url       String?
+  isActive  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model PrayerSetting {
+  id          String   @id @default(uuid())
+  prayer      String   @unique // subuh, dzuhur, ashar, maghrib, isya
+  iqomahDelay Int      // in minutes
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model DisplayState {
+  id        String   @id @default(uuid())
+  displayId String   @unique
+  mode      String   @default("normal") // normal, live, adhan, iqomah, emergency
+  message   String?
+  display   Display  @relation(fields: [displayId], references: [id])
+  updatedAt DateTime @updatedAt
+}
+
+model DisplayEvent {
+  id        String   @id @default(uuid())
+  type      String
+  payload   Json
+  createdAt DateTime @default(now())
+}
