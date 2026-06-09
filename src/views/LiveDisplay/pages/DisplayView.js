@@ -11,10 +11,11 @@ import {
   Image,
   Badge,
   Icon,
+  Spinner,
 } from '@chakra-ui/react';
 import { socketService } from '../services/socketService';
 import { supabase } from '../../../lib/supabase';
-import { format } from 'date-fns';
+import { format, differenceInSeconds } from 'date-fns';
 import { id } from 'date-fns/locale';
 import axios from 'axios';
 import ReactPlayer from 'react-player';
@@ -281,6 +282,7 @@ const DisplayView = () => {
       socketService.disconnect();
       document.body.style.overflow = 'auto';
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
   // 2. Realtime loops (Ticks)

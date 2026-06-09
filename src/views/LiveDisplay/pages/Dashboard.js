@@ -53,21 +53,27 @@ import { supabase } from '../../../lib/supabase';
 import { socketService } from '../services/socketService';
 
 // Stat Card Component
-const StatCard = ({ title, value, icon, color }) => (
-  <Box p={6} bg={useColorModeValue('white', 'gray.800')} rounded="2xl" shadow="md" borderWidth="1px" borderColor={useColorModeValue('gray.100', 'gray.700')}>
-    <Flex justify="space-between" align="center">
-      <VStack align="start" spacing={1}>
-        <Text color={useColorModeValue('gray.500', 'gray.400')} fontSize="sm" fontWeight="bold">
-          {title}
-        </Text>
-        <Heading size="lg">{value}</Heading>
-      </VStack>
-      <Box p={3} bg={`${color}.50`} color={`${color}.500`} _dark={{ bg: 'whiteAlpha.100' }} rounded="xl">
-        <Icon as={icon} w={6} h={6} />
-      </Box>
-    </Flex>
-  </Box>
-);
+const StatCard = ({ title, value, icon, color }) => {
+  const cardBg = useColorModeValue('white', 'gray.800');
+  const cardBorder = useColorModeValue('gray.100', 'gray.700');
+  const labelColor = useColorModeValue('gray.500', 'gray.400');
+
+  return (
+    <Box p={6} bg={cardBg} rounded="2xl" shadow="md" borderWidth="1px" borderColor={cardBorder}>
+      <Flex justify="space-between" align="center">
+        <VStack align="start" spacing={1}>
+          <Text color={labelColor} fontSize="sm" fontWeight="bold">
+            {title}
+          </Text>
+          <Heading size="lg">{value}</Heading>
+        </VStack>
+        <Box p={3} bg={`${color}.50`} color={`${color}.500`} _dark={{ bg: 'whiteAlpha.100' }} rounded="xl">
+          <Icon as={icon} w={6} h={6} />
+        </Box>
+      </Flex>
+    </Box>
+  );
+};
 
 // SIDEBAR ITEM
 const SidebarItem = ({ icon, children, to, isActive }) => {
@@ -107,6 +113,9 @@ const SidebarItem = ({ icon, children, to, isActive }) => {
 
 // 1. DASHBOARD HOME (OVERVIEW)
 const DashboardHome = () => {
+  const boxBg = useColorModeValue('white', 'gray.850');
+  const boxBorder = useColorModeValue('gray.100', 'gray.700');
+  
   const [counts, setCounts] = useState({ displays: 0, contents: 0, schedules: 0 });
   const [displays, setDisplays] = useState([]);
   const [liveStream, setLiveStream] = useState(null);
@@ -177,7 +186,7 @@ const DashboardHome = () => {
     <Box p={8}>
       <Flex justify="space-between" align="center" mb={6}>
         <Heading size="lg">Overview</Heading>
-        <Button leftIcon={<FaSyncAlt />} onClick={fetchOverview} size="sm" colorScheme="gray">
+        <Button leftIcon={<FaSyncAlt />} onClick={fetchOverview} size="sm" color="gray">
           Refresh Data
         </Button>
       </Flex>
@@ -194,7 +203,7 @@ const DashboardHome = () => {
         />
       </SimpleGrid>
 
-      <Box bg={useColorModeValue('white', 'gray.850')} p={6} rounded="2xl" border="1px solid" borderColor={useColorModeValue('gray.100', 'gray.700')}>
+      <Box bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder}>
         <Heading size="md" mb={4}>TV Display yang Terhubung</Heading>
         <Table variant="simple">
           <Thead>
@@ -239,6 +248,9 @@ const DashboardHome = () => {
 
 // 2. KONTEN DISPLAY MANAGER
 const ContentManager = () => {
+  const boxBg = useColorModeValue('white', 'gray.850');
+  const boxBorder = useColorModeValue('gray.100', 'gray.700');
+
   const [contents, setContents] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -355,7 +367,7 @@ const ContentManager = () => {
       {loading ? (
         <Flex justify="center" p={12}><Spinner size="xl" color="brand.500" /></Flex>
       ) : (
-        <Box bg={useColorModeValue('white', 'gray.850')} p={6} rounded="2xl" border="1px solid" borderColor={useColorModeValue('gray.100', 'gray.700')}>
+        <Box bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder}>
           <Table variant="simple">
             <Thead>
               <Tr>
@@ -458,6 +470,13 @@ const ContentManager = () => {
 
 // 3. LIVE STREAM CONTROL
 const LiveStreamControl = () => {
+  const boxBg = useColorModeValue('white', 'gray.850');
+  const boxBorder = useColorModeValue('gray.100', 'gray.700');
+  const iconBoxBg = useColorModeValue('green.50', 'whiteAlpha.100');
+  const iconColor = useColorModeValue('green.500', 'green.300');
+  const offlineIconBoxBg = useColorModeValue('red.50', 'whiteAlpha.100');
+  const offlineIconColor = useColorModeValue('red.500', 'red.300');
+
   const [activeLive, setActiveLive] = useState(null);
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [loading, setLoading] = useState(true);
@@ -503,9 +522,9 @@ const LiveStreamControl = () => {
       await supabase.from('display_livestreams').update({ is_active: false }).eq('is_active', true);
       
       // 2. Tambah data siaran baru
-      const { data: newLive, error } = await supabase.from('display_livestreams').insert([
+      const { error } = await supabase.from('display_livestreams').insert([
         { url: youtubeUrl, mode: 'youtube', is_active: true }
-      ]).select().single();
+      ]);
       
       if (error) throw error;
       
@@ -566,7 +585,7 @@ const LiveStreamControl = () => {
 
       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
         {/* Kontrol Kiri */}
-        <VStack bg={useColorModeValue('white', 'gray.850')} p={6} rounded="2xl" border="1px solid" borderColor={useColorModeValue('gray.100', 'gray.700')} spacing={6} align="stretch">
+        <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} spacing={6} align="stretch">
           <Heading size="md">Konfigurasi Siaran</Heading>
           
           <FormControl isRequired>
@@ -591,8 +610,8 @@ const LiveStreamControl = () => {
         </VStack>
 
         {/* Status Kanan */}
-        <VStack bg={useColorModeValue('white', 'gray.850')} p={6} rounded="2xl" border="1px solid" borderColor={useColorModeValue('gray.100', 'gray.700')} justify="center" align="center" textAlign="center" spacing={4}>
-          <Box p={4} rounded="full" bg={activeLive ? 'green.50' : 'red.50'} color={activeLive ? 'green.500' : 'red.500'}>
+        <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} justify="center" align="center" textAlign="center" spacing={4}>
+          <Box p={4} rounded="full" bg={activeLive ? iconBoxBg : offlineIconBoxBg} color={activeLive ? iconColor : offlineIconColor}>
             <Icon as={FaBroadcastTower} w={16} h={16} animation={activeLive ? "pulse 2s infinite" : "none"} />
           </Box>
           <Heading size="md">Status TV Saat Ini</Heading>
@@ -612,6 +631,9 @@ const LiveStreamControl = () => {
 
 // 4. JADWAL & AGENDA MANAGER
 const ScheduleManager = () => {
+  const boxBg = useColorModeValue('white', 'gray.850');
+  const boxBorder = useColorModeValue('gray.100', 'gray.700');
+
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -729,7 +751,7 @@ const ScheduleManager = () => {
       {loading ? (
         <Flex justify="center" p={12}><Spinner size="xl" color="brand.500" /></Flex>
       ) : (
-        <Box bg={useColorModeValue('white', 'gray.850')} p={6} rounded="2xl" border="1px solid" borderColor={useColorModeValue('gray.100', 'gray.700')}>
+        <Box bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder}>
           <Table variant="simple">
             <Thead>
               <Tr>
@@ -816,6 +838,9 @@ const ScheduleManager = () => {
 
 // 5. MANAGE TV / DISPLAYS & PRAYER SETTINGS
 const DisplaysManager = () => {
+  const boxBg = useColorModeValue('white', 'gray.850');
+  const boxBorder = useColorModeValue('gray.100', 'gray.700');
+
   const [displays, setDisplays] = useState([]);
   const [prayerSettings, setPrayerSettings] = useState([]);
   const [emergencyText, setEmergencyText] = useState('');
@@ -955,7 +980,7 @@ const DisplaysManager = () => {
 
       <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={8}>
         {/* KIRI: Iqomah Delay settings */}
-        <VStack bg={useColorModeValue('white', 'gray.850')} p={6} rounded="2xl" border="1px solid" borderColor={useColorModeValue('gray.100', 'gray.700')} spacing={4} align="stretch">
+        <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} spacing={4} align="stretch">
           <Heading size="md">Jeda Iqomah (Menit)</Heading>
           <Text fontSize="sm" color="gray.500">
             Atur waktu tunggu adzan ke iqomah secara spesifik untuk masing-masing waktu sholat.
@@ -989,7 +1014,7 @@ const DisplaysManager = () => {
         {/* KANAN: Emergency & Test triggers */}
         <VStack spacing={8} align="stretch">
           {/* Emergency card */}
-          <VStack bg={useColorModeValue('white', 'gray.850')} p={6} rounded="2xl" border="1px solid" borderColor={useColorModeValue('gray.100', 'gray.700')} spacing={4} align="stretch">
+          <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} spacing={4} align="stretch">
             <Heading size="md" display="flex" alignItems="center" color="red.500">
               <Icon as={FaExclamationTriangle} mr={2} /> Pengumuman Darurat (Emergency)
             </Heading>
@@ -1011,7 +1036,7 @@ const DisplaysManager = () => {
           </VStack>
 
           {/* Test trigger card */}
-          <VStack bg={useColorModeValue('white', 'gray.850')} p={6} rounded="2xl" border="1px solid" borderColor={useColorModeValue('gray.100', 'gray.700')} spacing={4} align="stretch">
+          <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} spacing={4} align="stretch">
             <Heading size="md">Uji Coba Fungsi TV</Heading>
             <Text fontSize="sm" color="gray.500">
               Uji transisi layar TV ke mode-mode spesifik secara manual tanpa menunggu waktu sholat.
@@ -1036,14 +1061,18 @@ const DashboardLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const mainBg = useColorModeValue('gray.50', 'gray.900');
+  const sidebarBg = useColorModeValue('white', 'gray.850');
+  const borderCol = useColorModeValue('gray.200', 'gray.750');
+
   return (
-    <Flex minH="100vh" bg={useColorModeValue('gray.5', 'gray.900')} pt="100px">
+    <Flex minH="100vh" bg={mainBg} pt="100px">
       {/* Sidebar */}
       <Box
         w="280px"
-        bg={useColorModeValue('white', 'gray.850')}
+        bg={sidebarBg}
         borderRight="1px"
-        borderColor={useColorModeValue('gray.200', 'gray.750')}
+        borderColor={borderCol}
         pos="fixed"
         h="full"
         py={6}
@@ -1081,7 +1110,7 @@ const DashboardLayout = () => {
       </Box>
 
       {/* Main Content */}
-      <Box ml="280px" w="full" minH="85vh" bg={useColorModeValue('gray.50', 'gray.900')}>
+      <Box ml="280px" w="full" minH="85vh" bg={mainBg}>
         <Routes>
           <Route path="/" element={<DashboardHome />} />
           <Route path="/content" element={<ContentManager />} />
