@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Flex, Heading, Text, VStack, HStack, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, Heading, Text, VStack, HStack } from '@chakra-ui/react';
 import { socketService } from '../services/socketService';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';

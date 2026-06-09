@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Flex, VStack, Heading, Text, SimpleGrid, Icon, useColorModeValue, Button } from '@chakra-ui/react';
 import { FaTv, FaBroadcastTower, FaCalendarAlt, FaImages } from 'react-icons/fa';
-import { useNavigate, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 
 const StatCard = ({ title, value, icon, color }) => (
   <Box p={6} bg={useColorModeValue('white', 'gray.800')} rounded="xl" shadow="sm" borderWidth="1px">
@@ -33,36 +33,42 @@ const DashboardHome = () => {
   );
 };
 
-const SidebarItem = ({ icon, children, to, isActive }) => (
-  <Link to={to} style={{ width: '100%' }}>
-    <Flex
-      align="center"
-      p="4"
-      mx="4"
-      borderRadius="lg"
-      role="group"
-      cursor="pointer"
-      bg={isActive ? 'brand.500' : 'transparent'}
-      color={isActive ? 'white' : useColorModeValue('gray.600', 'gray.300')}
-      _hover={{
-        bg: isActive ? 'brand.600' : useColorModeValue('gray.100', 'gray.700'),
-        color: isActive ? 'white' : useColorModeValue('gray.900', 'white'),
-      }}
-    >
-      <Icon
-        mr="4"
-        fontSize="16"
-        _groupHover={{ color: isActive ? 'white' : useColorModeValue('gray.900', 'white') }}
-        as={icon}
-      />
-      {children}
-    </Flex>
-  </Link>
-);
+const SidebarItem = ({ icon, children, to, isActive }) => {
+  const normalColor = useColorModeValue('gray.600', 'gray.300');
+  const hoverBg = useColorModeValue('gray.100', 'gray.700');
+  const hoverColor = useColorModeValue('gray.900', 'white');
+
+  return (
+    <Link to={to} style={{ width: '100%' }}>
+      <Flex
+        align="center"
+        p="4"
+        mx="4"
+        borderRadius="lg"
+        role="group"
+        cursor="pointer"
+        bg={isActive ? 'brand.500' : 'transparent'}
+        color={isActive ? 'white' : normalColor}
+        _hover={{
+          bg: isActive ? 'brand.600' : hoverBg,
+          color: isActive ? 'white' : hoverColor,
+        }}
+      >
+        <Icon
+          mr="4"
+          fontSize="16"
+          _groupHover={{ color: isActive ? 'white' : hoverColor }}
+          as={icon}
+        />
+        {children}
+      </Flex>
+    </Link>
+  );
+};
 
 const DashboardLayout = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+
 
   return (
     <Flex minH="100vh" bg={useColorModeValue('gray.50', 'gray.900')} pt="100px">
