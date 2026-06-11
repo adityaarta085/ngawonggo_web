@@ -153,7 +153,7 @@ const MediaPage = () => {
                 <Icon as={FaUpload} mr={2} /> Komunitas
               </Tab>
               <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
-                <Icon as={FaTv} mr={2} /> Live Display (Uji Coba)
+                <Icon as={FaTv} mr={2} /> Ngawonggo TV (Uji Coba)
               </Tab>
             </TabList>
 
@@ -242,10 +242,10 @@ const MediaPage = () => {
                     <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
                       <VStack align="start" spacing={1}>
                         <Heading size="md" color="gray.800" _dark={{ color: "white" }}>
-                          Ngawonggo Live TV Display (Uji Coba)
+                          Ngawonggo TV (Uji Coba)
                         </Heading>
                         <Text color="gray.500" fontSize="sm">
-                          Sistem informasi TV Masjid realtime. Tampilan ini disinkronkan langsung dari dashboard admin.
+                          Sistem penyiaran televisi Ngawonggo TV realtime. Disinkronkan langsung dari dashboard kontrol TV.
                         </Text>
                       </VStack>
                       <HStack spacing={3}>
@@ -284,7 +284,7 @@ const MediaPage = () => {
                   >
                     <iframe
                       src="/live/display/DEMO-TV"
-                      title="Ngawonggo Live TV Display Preview"
+                      title="Ngawonggo TV Preview"
                       style={{
                         position: 'absolute',
                         top: 0,
@@ -301,9 +301,9 @@ const MediaPage = () => {
                       Panduan Uji Coba:
                     </Heading>
                     <Text color="gray.600" _dark={{ color: "gray.400" }} fontSize="sm" lineHeight="relaxed">
-                      1. TV Display di atas merupakan cerminan (preview) dari sistem display yang terpasang di Masjid Ngawonggo.<br />
-                      2. Anda dapat mengubah konten, memicu adzan/iqomah, memulai siaran langsung, atau mempublikasikan poster baru melalui dashboard admin di rute <Box as="span" fontWeight="bold" color="brand.500">/admin/live</Box>.<br />
-                      3. Klik tombol TV di kanan atas preview untuk membuka mode layar penuh (sangat cocok untuk Smart TV atau Monitor Informasi).
+                      1. TV Display di atas merupakan cerminan (preview) dari siaran Ngawonggo TV (Uji Coba).<br />
+                      2. Anda dapat mengubah konten, mengatur siaran langsung, atau mempublikasikan running text baru melalui dashboard admin di rute <Box as="span" fontWeight="bold" color="brand.500">/admin/live</Box>.<br />
+                      3. Klik tombol TV di kanan atas preview untuk membuka mode layar penuh.
                     </Text>
                   </Box>
                 </VStack>

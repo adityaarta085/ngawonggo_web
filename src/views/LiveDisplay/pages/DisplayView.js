@@ -69,10 +69,11 @@ const DisplayView = () => {
   const [prayerTimes, setPrayerTimes] = useState(null);
   const [nextPrayer, setNextPrayer] = useState(null);
   const [countdownStr, setCountdownStr] = useState('00:00:00');
-  const [runningText, setRunningText] = useState('Selamat datang di Masjid Ngawonggo.');
+  const [runningText, setRunningText] = useState('Selamat datang di Ngawonggo TV.');
   const [contents, setContents] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [liveUrl, setLiveUrl] = useState(null);
+  const [liveStreamData, setLiveStreamData] = useState(null);
   
   // Carousel slide index
   const [slideIndex, setSlideIndex] = useState(0);
@@ -93,6 +94,8 @@ const DisplayView = () => {
   });
 
   const adhanAudioRef = useRef(null);
+  const playerRef = useRef(null);
+  const hasSeekedRef = useRef(false);
 
   // Play audio chime
   const playAlert = () => {
@@ -103,6 +106,28 @@ const DisplayView = () => {
       adhanAudioRef.current.play().catch(e => console.log('Chime autoplay blocked by browser', e));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // Reset seek state when stream URL changes
+  useEffect(() => {
+    hasSeekedRef.current = false;
+  }, [liveUrl]);
+
+  // Handle simulated live synchronization
+  const handleDuration = (duration) => {
+    if (liveStreamData && liveStreamData.mode === 'simulated') {
+      if (duration > 0 && !hasSeekedRef.current) {
+        const startedAt = new Date(liveStreamData.created_at);
+        const now = new Date();
+        const diffSeconds = Math.max(0, Math.floor((now.getTime() - startedAt.getTime()) / 1000));
+        const seekTime = diffSeconds % duration;
+        console.log(`Syncing video player: elapsed=${diffSeconds}s, duration=${duration}s, seeking to=${seekTime}s`);
+        if (playerRef.current) {
+          playerRef.current.seekTo(seekTime, 'seconds');
+          hasSeekedRef.current = true;
+        }
+      }
     }
   };
 
@@ -200,8 +225,10 @@ const DisplayView = () => {
         .limit(1)
         .maybeSingle();
       if (data) {
+        setLiveStreamData(data);
         setLiveUrl(data.url);
       } else {
+        setLiveStreamData(null);
         setLiveUrl(null);
       }
     } catch (err) {
@@ -232,13 +259,32 @@ const DisplayView = () => {
       alert(`Pesan Masjid: ${payload.message}`);
     });
 
+    socketService.on('play-chime', () => {
+      console.log('Realtime play-chime received');
+      playAlert();
+    });
+
+    socketService.on('sync-player', () => {
+      console.log('Realtime sync-player received');
+      hasSeekedRef.current = false;
+      if (playerRef.current && liveStreamData) {
+        const duration = playerRef.current.getDuration();
+        if (duration && duration > 0) {
+          handleDuration(duration);
+        }
+      }
+    });
+
     socketService.on('set-mode', (payload) => {
       console.log('Realtime set-mode:', payload);
       setDisplayMode(payload.mode);
       if (payload.mode === 'emergency') {
         setEmergencyMessage(payload.message || 'Pemberitahuan penting dari pengurus masjid.');
       } else if (payload.mode === 'live') {
-        setLiveUrl(payload.url || null);
+        loadData();
+      } else if (payload.mode === 'normal') {
+        setLiveStreamData(null);
+        setLiveUrl(null);
       } else if (payload.mode === 'adhan') {
         setActivePrayerName(payload.prayer || 'Sholat');
         setAdhanTimer(180); // 3 mins
@@ -251,13 +297,14 @@ const DisplayView = () => {
       }
     });
 
-    socketService.on('start-live', (payload) => {
+    socketService.on('start-live', () => {
       setDisplayMode('live');
-      setLiveUrl(payload.url);
+      loadData();
     });
 
     socketService.on('stop-live', () => {
       setDisplayMode('normal');
+      setLiveStreamData(null);
       setLiveUrl(null);
     });
 
@@ -394,6 +441,36 @@ const DisplayView = () => {
     return () => clearInterval(carouselTimer);
   }, [contents]);
 
+  // 3.5 Auto-sync interval check
+  useEffect(() => {
+    if (displayMode !== 'live' || !liveStreamData || liveStreamData.mode !== 'simulated' || !hasSeekedRef.current) return;
+
+    const syncInterval = setInterval(() => {
+      if (playerRef.current) {
+        const startedAt = new Date(liveStreamData.created_at);
+        const now = new Date();
+        const diffSeconds = Math.max(0, Math.floor((now.getTime() - startedAt.getTime()) / 1000));
+        
+        try {
+          const duration = playerRef.current.getDuration();
+          if (duration && duration > 0) {
+            const targetTime = diffSeconds % duration;
+            const currentTime = playerRef.current.getCurrentTime();
+            
+            if (Math.abs(currentTime - targetTime) > 2.5) {
+              console.log(`Auto-Sync: adjusting player from ${currentTime}s to ${targetTime}s (diff=${Math.abs(currentTime - targetTime)}s)`);
+              playerRef.current.seekTo(targetTime, 'seconds');
+            }
+          }
+        } catch (e) {
+          console.warn('Sync check failed:', e);
+        }
+      }
+    }, 10000);
+
+    return () => clearInterval(syncInterval);
+  }, [displayMode, liveStreamData]);
+
   // 4. Render Helper for modes
   const renderMode = () => {
     switch (displayMode) {
@@ -412,16 +489,73 @@ const DisplayView = () => {
         return (
           <Box h="full" w="full" bg="black" position="relative">
             {liveUrl ? (
-              <ReactPlayer
-                url={liveUrl}
-                width="100%"
-                height="100%"
-                playing={true}
-                controls={true}
-                muted={false}
-                volume={0.8}
-                style={{ position: 'absolute', top: 0, left: 0 }}
-              />
+              <>
+                <ReactPlayer
+                  ref={playerRef}
+                  url={liveUrl}
+                  width="100%"
+                  height="100%"
+                  playing={true}
+                  controls={true}
+                  muted={false}
+                  volume={0.8}
+                  onDuration={handleDuration}
+                  style={{ position: 'absolute', top: 0, left: 0 }}
+                />
+
+                {/* Floating Premium TV Indicator Overlay */}
+                <Flex
+                  position="absolute"
+                  top={6}
+                  right={6}
+                  bg="rgba(0, 0, 0, 0.6)"
+                  backdropFilter="blur(8px)"
+                  px={4}
+                  py={2}
+                  borderRadius="full"
+                  align="center"
+                  gap={3}
+                  border="1px solid rgba(255, 255, 255, 0.2)"
+                  pointerEvents="none"
+                  zIndex={10}
+                >
+                  <Box w={3} h={3} bg="red.500" borderRadius="full" animation="pulse-blink 1.5s infinite" />
+                  <Text fontSize="lg" fontWeight="black" letterSpacing="widest" color="white">
+                    LIVE
+                  </Text>
+                  <Box w="1px" h="16px" bg="whiteAlpha.400" />
+                  <Text fontSize="md" fontWeight="bold" color="brand.300">
+                    Ngawonggo TV
+                  </Text>
+                </Flex>
+
+                {/* Bottom Watermark or Station Tag */}
+                <Box
+                  position="absolute"
+                  bottom={20}
+                  left={6}
+                  bg="rgba(0, 0, 0, 0.5)"
+                  backdropFilter="blur(8px)"
+                  px={4}
+                  py={2}
+                  borderRadius="xl"
+                  border="1px solid rgba(255, 255, 255, 0.1)"
+                  pointerEvents="none"
+                  zIndex={10}
+                >
+                  <Text fontSize="xs" fontWeight="bold" color="whiteAlpha.700" textTransform="uppercase">
+                    Mata Acara: {liveStreamData?.mode === 'simulated' ? 'Siaran Edukasi / Budaya (Simulated Live)' : 'Siaran Langsung'}
+                  </Text>
+                </Box>
+                
+                <style>{`
+                  @keyframes pulse-blink {
+                    0% { opacity: 0.3; transform: scale(0.9); }
+                    50% { opacity: 1; transform: scale(1.1); }
+                    100% { opacity: 0.3; transform: scale(0.9); }
+                  }
+                `}</style>
+              </>
             ) : (
               <Flex h="full" justify="center" align="center">
                 <VStack spacing={4}>
@@ -494,7 +628,7 @@ const DisplayView = () => {
             <Flex justify="space-between" align="start">
               <VStack align="start" spacing={2}>
                 <Heading size="3xl" color="brand.400" fontWeight="extrabold" textShadow="0 2px 8px rgba(0,0,0,0.3)">
-                  Masjid Ngawonggo
+                  Ngawonggo TV
                 </Heading>
                 {nextPrayer && (
                   <HStack spacing={3} bg="whiteAlpha.100" p={2} px={4} borderRadius="full" backdropFilter="blur(8px)">
@@ -535,14 +669,14 @@ const DisplayView = () => {
                     </Box>
                     <Box bg="blackAlpha.700" p={6} borderTop="1px solid" borderColor="whiteAlpha.100">
                       <Heading size="md" color="white" mb={1}>{activeSlide.title}</Heading>
-                      <Text size="sm" color="gray.450">Pengumuman Masjid Ngawonggo</Text>
+                      <Text size="sm" color="gray.450">Pengumuman Ngawonggo TV</Text>
                     </Box>
                   </Flex>
                 ) : (
                   // Default Slide
                   <Flex h="full" direction="column" align="center" justify="center" p={10} textAlign="center" bgGradient="linear(to-br, brand.900, slate.900)">
                     <Image src="/logo.svg" w={32} h={32} mb={6} filter="drop-shadow(0px 4px 10px rgba(0,0,0,0.5))" />
-                    <Heading size="xl" color="brand.400" mb={4}>Masjid Ngawonggo</Heading>
+                    <Heading size="xl" color="brand.400" mb={4}>Ngawonggo TV</Heading>
                     <Text fontSize="xl" maxW="2xl" color="gray.300">
                       "Hanyalah yang memakmurkan masjid-masjid Allah ialah orang-orang yang beriman kepada Allah dan hari kemudian." (QS. At-Tawbah: 18)
                     </Text>

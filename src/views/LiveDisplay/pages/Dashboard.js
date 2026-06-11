@@ -51,6 +51,8 @@ import {
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import { socketService } from '../services/socketService';
+import { FaBell, FaPlay, FaStop, FaVideo } from 'react-icons/fa';
+import ReactPlayer from 'react-player';
 
 // Stat Card Component
 const StatCard = ({ title, value, icon, color }) => {
@@ -477,10 +479,41 @@ const LiveStreamControl = () => {
   const offlineIconBoxBg = useColorModeValue('red.50', 'whiteAlpha.100');
   const offlineIconColor = useColorModeValue('red.500', 'red.300');
 
+  // Declare all ColorModeValue variables at the top of the component to comply with Hook rules
+  const monitorBorderColor = useColorModeValue('gray.200', 'gray.700');
+  const presetBg = useColorModeValue('gray.50', 'gray.800');
+  const presetBorder = useColorModeValue('gray.200', 'gray.700');
+  const presetTextCol = useColorModeValue('gray.800', 'white');
+  const statusBoxBg = useColorModeValue('gray.50', 'gray.800');
+
   const [activeLive, setActiveLive] = useState(null);
   const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [broadcastMode, setBroadcastMode] = useState('simulated'); // simulated or live
   const [loading, setLoading] = useState(true);
   const toast = useToast();
+
+  const PRESET_VIDEOS = [
+    {
+      title: 'Profil Desa & Wisata Ngawonggo',
+      url: 'https://www.youtube.com/watch?v=kYV3V5d9Dk8',
+      mode: 'simulated'
+    },
+    {
+      title: 'Sejarah dan Kebudayaan Magelang',
+      url: 'https://www.youtube.com/watch?v=0kG7-KkOqU8',
+      mode: 'simulated'
+    },
+    {
+      title: 'Kajian Subuh Live Stream (Simulator)',
+      url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+      mode: 'simulated'
+    },
+    {
+      title: 'Siaran HLS Live Stream (TVRI)',
+      url: 'https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8',
+      mode: 'live'
+    }
+  ];
 
   const fetchLiveStatus = useCallback(async () => {
     try {
@@ -496,8 +529,10 @@ const LiveStreamControl = () => {
       setActiveLive(data);
       if (data) {
         setYoutubeUrl(data.url);
+        setBroadcastMode(data.mode || 'simulated');
       } else {
         setYoutubeUrl('');
+        setBroadcastMode('simulated');
       }
     } catch (err) {
       console.error(err);
@@ -510,9 +545,12 @@ const LiveStreamControl = () => {
     fetchLiveStatus();
   }, [fetchLiveStatus]);
 
-  const handleStartLive = async () => {
-    if (!youtubeUrl.trim()) {
-      toast({ title: 'Harap masukkan URL YouTube Live', status: 'warning', duration: 2500 });
+  const handleStartLive = async (customUrl = null, customMode = null) => {
+    const targetUrl = customUrl || youtubeUrl;
+    const targetMode = customMode || broadcastMode;
+
+    if (!targetUrl.trim()) {
+      toast({ title: 'Harap masukkan URL Video/Siaran', status: 'warning', duration: 2500 });
       return;
     }
     try {
@@ -523,7 +561,7 @@ const LiveStreamControl = () => {
       
       // 2. Tambah data siaran baru
       const { error } = await supabase.from('display_livestreams').insert([
-        { url: youtubeUrl, mode: 'youtube', is_active: true }
+        { url: targetUrl, mode: targetMode, is_active: true }
       ]);
       
       if (error) throw error;
@@ -535,8 +573,8 @@ const LiveStreamControl = () => {
       }
 
       // 4. Kirim broadcast realtime ke TV
-      await socketService.emit('DEMO-TV', 'start-live', { url: youtubeUrl });
-      await socketService.emit('DEMO-TV', 'set-mode', { mode: 'live', url: youtubeUrl });
+      await socketService.emit('DEMO-TV', 'start-live', { url: targetUrl });
+      await socketService.emit('DEMO-TV', 'set-mode', { mode: 'live', url: targetUrl });
 
       toast({ title: 'Siaran langsung dimulai!', status: 'success', duration: 3000 });
       fetchLiveStatus();
@@ -575,54 +613,256 @@ const LiveStreamControl = () => {
     }
   };
 
+  const handleForceSync = async () => {
+    try {
+      await socketService.emit('DEMO-TV', 'sync-player');
+      toast({ title: 'Sinyal sinkronisasi dikirim ke semua TV!', status: 'success', duration: 2000 });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Gagal mengirim instruksi sinkronisasi', status: 'error', duration: 2000 });
+    }
+  };
+
+  const handlePlayChime = async () => {
+    try {
+      await socketService.emit('DEMO-TV', 'play-chime');
+      toast({ title: 'Nada lonceng dipicu di semua TV!', status: 'success', duration: 2000 });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Gagal memicu nada lonceng', status: 'error', duration: 2000 });
+    }
+  };
+
+  const handleForceReload = async () => {
+    if (!window.confirm('Muat ulang seluruh layar TV sekarang?')) return;
+    try {
+      await socketService.emit('DEMO-TV', 'reload');
+      toast({ title: 'Sinyal muat ulang dikirim!', status: 'success', duration: 2000 });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Gagal mengirim perintah reload', status: 'error', duration: 2000 });
+    }
+  };
+
   if (loading) {
     return <Flex justify="center" p={12}><Spinner size="xl" color="brand.500" /></Flex>;
   }
 
   return (
     <Box p={8}>
-      <Heading size="lg" mb={6}>Kontrol Siaran Live Streaming</Heading>
+      <Heading size="lg" mb={6}>Master Control Penyiaran Ngawonggo TV</Heading>
 
-      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
-        {/* Kontrol Kiri */}
-        <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} spacing={6} align="stretch">
-          <Heading size="md">Konfigurasi Siaran</Heading>
-          
-          <FormControl isRequired>
-            <FormLabel>YouTube Live URL / Video URL</FormLabel>
-            <Input
-              value={youtubeUrl}
-              onChange={e => setYoutubeUrl(e.target.value)}
-              placeholder="https://www.youtube.com/watch?v=VIDEO_ID atau https://youtu.be/..."
-              disabled={!!activeLive}
-            />
-          </FormControl>
+      <SimpleGrid columns={{ base: 1, lg: 12 }} spacing={8}>
+        {/* KOLOM KIRI: Live Preview & Presets (7 columns) */}
+        <VStack spacing={8} align="stretch" gridColumn={{ base: 'span 1', lg: 'span 7' }}>
+          {/* Live Preview Monitor */}
+          <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} align="stretch" spacing={4}>
+            <Heading size="sm">Monitor Siaran Studio</Heading>
+            {activeLive ? (
+              <Box
+                position="relative"
+                pb="56.25%"
+                bg="black"
+                borderRadius="2xl"
+                overflow="hidden"
+                border="4px solid"
+                borderColor="brand.500"
+                boxShadow="xl"
+              >
+                <ReactPlayer
+                  url={activeLive.url}
+                  width="100%"
+                  height="100%"
+                  playing={true}
+                  muted={true}
+                  controls={true}
+                  style={{ position: 'absolute', top: 0, left: 0 }}
+                />
+                <Badge position="absolute" top={4} left={4} colorScheme="red" variant="solid" px={3} py={1} borderRadius="full" fontSize="xs">
+                  ● LIVE MONITOR (MUTED)
+                </Badge>
+              </Box>
+            ) : (
+              <Flex
+                h="250px"
+                bg="gray.900"
+                borderRadius="2xl"
+                direction="column"
+                justify="center"
+                align="center"
+                color="whiteAlpha.600"
+                border="2px dashed"
+                borderColor={monitorBorderColor}
+              >
+                <Icon as={FaTv} w={12} h={12} mb={3} animation="pulse 2s infinite" />
+                <Text fontWeight="bold">SIARAN STANDBY / OFFLINE</Text>
+                <Text fontSize="xs">Pilih video di bawah atau masukkan URL untuk mulai bersiaran</Text>
+              </Flex>
+            )}
+          </VStack>
 
-          {activeLive ? (
-            <Button colorScheme="red" leftIcon={<FaBroadcastTower />} onClick={handleStopLive} h={12} fontSize="lg">
-              Hentikan Siaran Live TV
-            </Button>
-          ) : (
-            <Button colorScheme="green" leftIcon={<FaBroadcastTower />} onClick={handleStartLive} h={12} fontSize="lg">
-              Mulai Siaran Live TV
-            </Button>
-          )}
+          {/* Preset Video Library */}
+          <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} align="stretch" spacing={4}>
+            <Heading size="sm">Preset Pustaka Video Siaran Cepat</Heading>
+            <Text fontSize="xs" color="gray.500">Mulai siaran langsung secara instan dengan memilih video preset di bawah ini:</Text>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+              {PRESET_VIDEOS.map((video, idx) => (
+                <VStack
+                  key={idx}
+                  p={4}
+                  bg={presetBg}
+                  borderRadius="xl"
+                  border="1px solid"
+                  borderColor={presetBorder}
+                  align="start"
+                  spacing={3}
+                  _hover={{ shadow: 'md', borderColor: 'brand.500', transform: 'translateY(-2px)' }}
+                  transition="all 0.2s"
+                  cursor="pointer"
+                  onClick={() => {
+                    setYoutubeUrl(video.url);
+                    setBroadcastMode(video.mode);
+                    toast({ title: `Preset dipilih: ${video.title}`, status: 'info', duration: 2000 });
+                  }}
+                >
+                  <HStack spacing={2} w="full" justify="space-between">
+                    <Icon as={FaVideo} color="brand.400" />
+                    <Badge colorScheme={video.mode === 'simulated' ? 'purple' : 'green'} fontSize="xx-small">
+                      {video.mode === 'simulated' ? 'SIMULATED LIVE' : 'REAL LIVE'}
+                    </Badge>
+                  </HStack>
+                  <Text fontWeight="bold" fontSize="sm" color={presetTextCol} noOfLines={2}>
+                    {video.title}
+                  </Text>
+                  <Button
+                    size="xs"
+                    colorScheme="brand"
+                    w="full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartLive(video.url, video.mode);
+                    }}
+                  >
+                    Mulai Siarkan
+                  </Button>
+                </VStack>
+              ))}
+            </SimpleGrid>
+          </VStack>
         </VStack>
 
-        {/* Status Kanan */}
-        <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} justify="center" align="center" textAlign="center" spacing={4}>
-          <Box p={4} rounded="full" bg={activeLive ? iconBoxBg : offlineIconBoxBg} color={activeLive ? iconColor : offlineIconColor}>
-            <Icon as={FaBroadcastTower} w={16} h={16} animation={activeLive ? "pulse 2s infinite" : "none"} />
-          </Box>
-          <Heading size="md">Status TV Saat Ini</Heading>
-          <Badge fontSize="lg" px={4} py={1} borderRadius="full" colorScheme={activeLive ? 'green' : 'red'}>
-            {activeLive ? 'SEDANG MENYIARKAN LIVE' : 'SIARAN OFFLINE'}
-          </Badge>
-          {activeLive && (
-            <Text color="gray.500" fontSize="sm" maxW="xs" isTruncated>
-              URL: {activeLive.url}
-            </Text>
-          )}
+        {/* KOLOM KANAN: Broadcast Controller & Interactive Actions (5 columns) */}
+        <VStack spacing={8} align="stretch" gridColumn={{ base: 'span 1', lg: 'span 5' }}>
+          {/* Siaran Configuration Card */}
+          <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} spacing={5} align="stretch">
+            <Heading size="sm">Konfigurasi Siaran Aktif</Heading>
+            
+            <FormControl isRequired>
+              <FormLabel fontSize="xs" fontWeight="bold">Video / Stream URL</FormLabel>
+              <Input
+                value={youtubeUrl}
+                onChange={e => setYoutubeUrl(e.target.value)}
+                placeholder="YouTube URL atau file .mp4/.m3u8..."
+                disabled={!!activeLive}
+                size="md"
+                borderRadius="xl"
+              />
+            </FormControl>
+
+            <FormControl isRequired>
+              <FormLabel fontSize="xs" fontWeight="bold">Mode Penyiaran</FormLabel>
+              <Select
+                value={broadcastMode}
+                onChange={e => setBroadcastMode(e.target.value)}
+                disabled={!!activeLive}
+                borderRadius="xl"
+              >
+                <option value="simulated">Simulated Live (Pemutaran Sinkron)</option>
+                <option value="live">Real Live Stream (HLS/YouTube Live)</option>
+              </Select>
+              <Text fontSize="xx-small" color="gray.500" mt={1}>
+                * Simulated Live: Menjamin semua TV memutar detik video yang sama secara presisi.
+              </Text>
+            </FormControl>
+
+            {activeLive ? (
+              <Button colorScheme="red" leftIcon={<FaStop />} onClick={handleStopLive} h={12} borderRadius="xl" fontSize="md">
+                Hentikan Siaran TV
+              </Button>
+            ) : (
+              <Button colorScheme="green" leftIcon={<FaPlay />} onClick={() => handleStartLive()} h={12} borderRadius="xl" fontSize="md">
+                Mulai Siarkan Sekarang
+              </Button>
+            )}
+          </VStack>
+
+          {/* Interactive Live Actions Console */}
+          <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} spacing={4} align="stretch">
+            <Heading size="sm">Konsol Aksi Real-Time TV</Heading>
+            <Text fontSize="xs" color="gray.500">Kirim instruksi instan ke seluruh layar TV yang sedang aktif:</Text>
+            
+            <VStack spacing={3} align="stretch">
+              <Button
+                leftIcon={<FaSyncAlt />}
+                onClick={handleForceSync}
+                colorScheme="blue"
+                variant="outline"
+                isDisabled={!activeLive || broadcastMode !== 'simulated'}
+                size="md"
+                borderRadius="xl"
+                justifyContent="start"
+              >
+                Paksa Sinkronisasi Video
+              </Button>
+              
+              <Button
+                leftIcon={<FaBell />}
+                onClick={handlePlayChime}
+                colorScheme="teal"
+                variant="outline"
+                size="md"
+                borderRadius="xl"
+                justifyContent="start"
+              >
+                Kirim Nada Lonceng (Chime)
+              </Button>
+
+              <Button
+                leftIcon={<FaSyncAlt />}
+                onClick={handleForceReload}
+                colorScheme="orange"
+                variant="outline"
+                size="md"
+                borderRadius="xl"
+                justifyContent="start"
+              >
+                Paksa Reload Layar TV
+              </Button>
+            </VStack>
+          </VStack>
+
+          {/* Status Box */}
+          <VStack bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} justify="center" align="center" textAlign="center" spacing={4}>
+            <Box p={4} rounded="full" bg={activeLive ? iconBoxBg : offlineIconBoxBg} color={activeLive ? iconColor : offlineIconColor}>
+              <Icon as={FaBroadcastTower} w={12} h={12} animation={activeLive ? "pulse 2s infinite" : "none"} />
+            </Box>
+            <VStack spacing={1}>
+              <Heading size="xs">Status Penyiaran</Heading>
+              <Badge fontSize="sm" px={4} py={1} borderRadius="full" colorScheme={activeLive ? 'green' : 'red'}>
+                {activeLive ? 'ON AIR' : 'OFF AIR'}
+              </Badge>
+            </VStack>
+            {activeLive && (
+              <Box w="full" bg={statusBoxBg} p={2} borderRadius="md" border="1px solid" borderColor={boxBorder}>
+                <Text fontSize="xx-small" color="gray.500" textAlign="left" noOfLines={1}>
+                  Tipe: {activeLive.mode.toUpperCase()}
+                </Text>
+                <Text fontSize="xx-small" color="gray.500" textAlign="left" noOfLines={1} mt={1}>
+                  Mulai: {new Date(activeLive.created_at).toLocaleTimeString('id-ID')}
+                </Text>
+              </Box>
+            )}
+          </VStack>
         </VStack>
       </SimpleGrid>
     </Box>
