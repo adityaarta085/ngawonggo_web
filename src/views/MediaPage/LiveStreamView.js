@@ -81,12 +81,22 @@ const LiveStreamView = () => {
       ) : liveStreamUrl ? (
         <ReactPlayer
           url={liveStreamUrl}
-          width="100%"
-          height="100%"
+          width="100vw"
+          height="100vh"
           playing={true}
           controls={true}
           muted={false}
           style={{ position: 'absolute', top: 0, left: 0 }}
+          config={{
+            youtube: {
+              playerVars: { autoplay: 1, controls: 1 }
+            },
+            file: {
+              attributes: {
+                controlsList: 'nodownload'
+              }
+            }
+          }}
         />
       ) : (
         <Flex w="full" h="full" align="center" justify="center" direction="column">

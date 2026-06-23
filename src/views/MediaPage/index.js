@@ -111,7 +111,7 @@ const MediaPage = () => {
                 <Icon as={FaUpload} mr={2} /> Komunitas
               </Tab>
               {/* Ngawonggo TV link instead of a tab */}
-              <Box as="a" href="/media/live" display="inline-flex" alignItems="center" fontWeight="700" borderRadius="2xl" p="8px 16px" color="white" bg="red.500" _hover={{ bg: 'red.600', transform: 'scale(1.05)' }} transition="all 0.2s">
+              <Box as="a" href="/media/live" target="_blank" display="inline-flex" alignItems="center" fontWeight="700" borderRadius="2xl" p="8px 16px" color="white" bg="red.500" _hover={{ bg: 'red.600', transform: 'scale(1.05)' }} transition="all 0.2s">
                 <Icon as={FaTv} mr={2} /> Ngawonggo TV (Live)
               </Box>
             </TabList>
