@@ -25,6 +25,7 @@ import {
 import { FaBroadcastTower, FaTv, FaPlay, FaPause, FaVolumeUp, FaUpload } from 'react-icons/fa';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import ReactPlayer from 'react-player';
 import CommunityFeed from './CommunityFeed';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { translations } from '../../translations';
@@ -37,6 +38,7 @@ const MediaPage = () => {
   const [volume, setVolume] = useState(70);
   const [displayStatus, setDisplayStatus] = useState('offline');
   const [displayMode, setDisplayMode] = useState('normal');
+  const [liveStreamUrl, setLiveStreamUrl] = useState(null);
 
   const audioRef = useRef(null);
   const videoRef = useRef(null);
@@ -54,6 +56,21 @@ const MediaPage = () => {
   useEffect(() => {
     const fetchDisplayInfo = async () => {
       try {
+
+        const { data: stream } = await supabase
+          .from('display_livestreams')
+          .select('url')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (stream) {
+          setLiveStreamUrl(stream.url);
+        } else {
+          setLiveStreamUrl(null);
+        }
+
         const { data: display } = await supabase
           .from('displays')
           .select('id, status')
@@ -83,6 +100,9 @@ const MediaPage = () => {
         setDisplayStatus(payload.new.status);
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'display_states' }, () => {
+        fetchDisplayInfo();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'display_livestreams' }, () => {
         fetchDisplayInfo();
       })
       .subscribe();
@@ -282,18 +302,23 @@ const MediaPage = () => {
                     borderColor="gray.800"
                     overflow="hidden"
                   >
-                    <iframe
-                      src="/live/display/DEMO-TV"
-                      title="Ngawonggo TV Preview"
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        border: 'none',
-                      }}
-                    />
+                    {liveStreamUrl ? (
+                      <ReactPlayer
+                        url={liveStreamUrl}
+                        width="100%"
+                        height="100%"
+                        playing={true}
+                        controls={true}
+                        muted={false}
+                        style={{ position: 'absolute', top: 0, left: 0 }}
+                      />
+                    ) : (
+                      <Flex position="absolute" top={0} left={0} w="100%" h="100%" align="center" justify="center" direction="column">
+                        <Icon as={FaTv} w={16} h={16} color="gray.600" mb={4} />
+                        <Heading size="md" color="gray.500">Siaran Sedang Offline</Heading>
+                        <Text color="gray.600">Menunggu admin memulai siaran langsung</Text>
+                      </Flex>
+                    )}
                   </Box>
 
                   <Box p={6} layerStyle="glassCard" borderRadius="2xl" bg="white" _dark={{ bg: "gray.800" }}>
@@ -301,7 +326,7 @@ const MediaPage = () => {
                       Panduan Uji Coba:
                     </Heading>
                     <Text color="gray.600" _dark={{ color: "gray.400" }} fontSize="sm" lineHeight="relaxed">
-                      1. TV Display di atas merupakan cerminan (preview) dari siaran Ngawonggo TV (Uji Coba).<br />
+                      1. TV Display di atas menayangkan siaran langsung Ngawonggo TV.<br />
                       2. Anda dapat mengubah konten, mengatur siaran langsung, atau mempublikasikan running text baru melalui dashboard admin di rute <Box as="span" fontWeight="bold" color="brand.500">/admin/live</Box>.<br />
                       3. Klik tombol TV di kanan atas preview untuk membuka mode layar penuh.
                     </Text>
