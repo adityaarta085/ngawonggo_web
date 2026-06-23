@@ -25,20 +25,17 @@ import {
 import { FaBroadcastTower, FaTv, FaPlay, FaPause, FaVolumeUp, FaUpload } from 'react-icons/fa';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
-import ReactPlayer from 'react-player';
+
 import CommunityFeed from './CommunityFeed';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { translations } from '../../translations';
-import { supabase } from '../../lib/supabase';
+
 
 const MediaPage = () => {
   const { language } = useLanguage();
   const t = translations[language].media;
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(70);
-  const [displayStatus, setDisplayStatus] = useState('offline');
-  const [displayMode, setDisplayMode] = useState('normal');
-  const [liveStreamUrl, setLiveStreamUrl] = useState(null);
 
   const audioRef = useRef(null);
   const videoRef = useRef(null);
@@ -52,65 +49,6 @@ const MediaPage = () => {
       playerRef.current.volume(volume / 100);
     }
   }, [volume]);
-
-  useEffect(() => {
-    const fetchDisplayInfo = async () => {
-      try {
-
-        const { data: stream } = await supabase
-          .from('display_livestreams')
-          .select('url')
-          .eq('is_active', true)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (stream) {
-          setLiveStreamUrl(stream.url);
-        } else {
-          setLiveStreamUrl(null);
-        }
-
-        const { data: display } = await supabase
-          .from('displays')
-          .select('id, status')
-          .eq('code', 'DEMO-TV')
-          .maybeSingle();
-        if (display) {
-          setDisplayStatus(display.status);
-          const { data: state } = await supabase
-            .from('display_states')
-            .select('mode')
-            .eq('display_id', display.id)
-            .maybeSingle();
-          if (state) {
-            setDisplayMode(state.mode);
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching display status:', err);
-      }
-    };
-
-    fetchDisplayInfo();
-
-    const displayChannel = supabase
-      .channel('displays_realtime_media')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'displays', filter: 'code=eq.DEMO-TV' }, (payload) => {
-        setDisplayStatus(payload.new.status);
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'display_states' }, () => {
-        fetchDisplayInfo();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'display_livestreams' }, () => {
-        fetchDisplayInfo();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(displayChannel);
-    };
-  }, []);
 
   useEffect(() => {
     // TVRI player init
@@ -172,9 +110,10 @@ const MediaPage = () => {
               <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
                 <Icon as={FaUpload} mr={2} /> Komunitas
               </Tab>
-              <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
-                <Icon as={FaTv} mr={2} /> Ngawonggo TV (Uji Coba)
-              </Tab>
+              {/* Ngawonggo TV link instead of a tab */}
+              <Box as="a" href="/media/live" display="inline-flex" alignItems="center" fontWeight="700" borderRadius="2xl" p="8px 16px" color="white" bg="red.500" _hover={{ bg: 'red.600', transform: 'scale(1.05)' }} transition="all 0.2s">
+                <Icon as={FaTv} mr={2} /> Ngawonggo TV (Live)
+              </Box>
             </TabList>
 
             <TabPanels>
@@ -256,83 +195,7 @@ const MediaPage = () => {
               <TabPanel p={0}>
                 <CommunityFeed />
               </TabPanel>
-              <TabPanel p={0}>
-                <VStack spacing={6} align="stretch">
-                  <Box layerStyle="glassCard" p={6} borderRadius="3xl" bg="white" _dark={{ bg: "gray.800" }}>
-                    <Flex justify="space-between" align="center" wrap="wrap" gap={4}>
-                      <VStack align="start" spacing={1}>
-                        <Heading size="md" color="gray.800" _dark={{ color: "white" }}>
-                          Ngawonggo TV (Uji Coba)
-                        </Heading>
-                        <Text color="gray.500" fontSize="sm">
-                          Sistem penyiaran televisi Ngawonggo TV realtime. Disinkronkan langsung dari dashboard kontrol TV.
-                        </Text>
-                      </VStack>
-                      <HStack spacing={3}>
-                        <Badge colorScheme={displayStatus === 'online' ? 'green' : 'red'} px={3} py={1} borderRadius="full">
-                          {displayStatus === 'online' ? '● ONLINE' : '○ OFFLINE'}
-                        </Badge>
-                        <Badge colorScheme="blue" px={3} py={1} borderRadius="full">
-                          Mode: {displayMode.toUpperCase()}
-                        </Badge>
-                        <IconButton
-                          as="a"
-                          href="/live/display/DEMO-TV"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          icon={<Icon as={FaTv} />}
-                          colorScheme="brand"
-                          aria-label="Buka Layar Penuh"
-                          title="Buka Layar Penuh"
-                          borderRadius="xl"
-                        />
-                      </HStack>
-                    </Flex>
-                  </Box>
 
-                  {/* TV Mockup Frame */}
-                  <Box
-                    position="relative"
-                    w="full"
-                    pb="56.25%" /* 16:9 Aspect Ratio */
-                    bg="black"
-                    borderRadius="2xl"
-                    boxShadow="2xl"
-                    border="12px solid"
-                    borderColor="gray.800"
-                    overflow="hidden"
-                  >
-                    {liveStreamUrl ? (
-                      <ReactPlayer
-                        url={liveStreamUrl}
-                        width="100%"
-                        height="100%"
-                        playing={true}
-                        controls={true}
-                        muted={false}
-                        style={{ position: 'absolute', top: 0, left: 0 }}
-                      />
-                    ) : (
-                      <Flex position="absolute" top={0} left={0} w="100%" h="100%" align="center" justify="center" direction="column">
-                        <Icon as={FaTv} w={16} h={16} color="gray.600" mb={4} />
-                        <Heading size="md" color="gray.500">Siaran Sedang Offline</Heading>
-                        <Text color="gray.600">Menunggu admin memulai siaran langsung</Text>
-                      </Flex>
-                    )}
-                  </Box>
-
-                  <Box p={6} layerStyle="glassCard" borderRadius="2xl" bg="white" _dark={{ bg: "gray.800" }}>
-                    <Heading size="sm" mb={2} color="gray.800" _dark={{ color: "white" }}>
-                      Panduan Uji Coba:
-                    </Heading>
-                    <Text color="gray.600" _dark={{ color: "gray.400" }} fontSize="sm" lineHeight="relaxed">
-                      1. TV Display di atas menayangkan siaran langsung Ngawonggo TV.<br />
-                      2. Anda dapat mengubah konten, mengatur siaran langsung, atau mempublikasikan running text baru melalui dashboard admin di rute <Box as="span" fontWeight="bold" color="brand.500">/admin/live</Box>.<br />
-                      3. Klik tombol TV di kanan atas preview untuk membuka mode layar penuh.
-                    </Text>
-                  </Box>
-                </VStack>
-              </TabPanel>
             </TabPanels>
           </Tabs>
         </VStack>
