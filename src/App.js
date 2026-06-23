@@ -80,6 +80,7 @@ import DownloaderPage from './views/DownloaderPage/index.js';
 import CekPlagiatPage from './views/CekPlagiatPage/index.js';
 import DashboardLive from './views/LiveDisplay/pages/Dashboard';
 import DisplayView from './views/LiveDisplay/pages/DisplayView';
+import LiveStreamView from './views/MediaPage/LiveStreamView';
 
 
 const TopBar = ({ isScrolled }) => {
@@ -351,6 +352,7 @@ function App() {
 
             <Route path="/live" element={<Navigate to="/media" replace />} />
             <Route path="/admin/live/*" element={adminSession ? <DashboardLive /> : <Navigate to="/admin/login" replace />} />
+            <Route path="/media/live" element={<LiveStreamView />} />
             <Route path="/live/display/:code" element={<DisplayView />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>

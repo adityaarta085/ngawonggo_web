@@ -677,6 +677,11 @@ const LiveStreamControl = () => {
                   muted={true}
                   controls={true}
                   style={{ position: 'absolute', top: 0, left: 0 }}
+                  config={{
+                    youtube: {
+                      playerVars: { autoplay: 1 }
+                    }
+                  }}
                 />
                 <Badge position="absolute" top={4} left={4} colorScheme="red" variant="solid" px={3} py={1} borderRadius="full" fontSize="xs">
                   ● LIVE MONITOR (MUTED)
