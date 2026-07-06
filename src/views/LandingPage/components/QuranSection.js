@@ -23,11 +23,11 @@ import {
   IconButton,
   Flex,
   Badge,
-  Divider,
+  // Divider removed (unused)
   useToast,
   Center,
 } from '@chakra-ui/react';
-import { FaSearch, FaPlay, FaPause, FaBookOpen, FaList, FaQuran } from 'react-icons/fa';
+import { FaSearch, FaPlay, FaPause, FaList, FaQuran } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import Loading from '../../../components/Loading';
 
