@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { lazy, Suspense } from 'react';
 import { Box, Spinner, Center } from '@chakra-ui/react';
 import ToolLayout from '../components/ToolLayout';

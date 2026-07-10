@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useState, useMemo } from 'react';
 import { Box, Textarea, Button, Flex, Text, useToast, VStack, HStack, Select, Input, FormControl, FormLabel, Checkbox, NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper, SimpleGrid, Stat, StatLabel, StatNumber, useColorModeValue } from '@chakra-ui/react';
 import { FaCopy, FaTrash } from 'react-icons/fa';

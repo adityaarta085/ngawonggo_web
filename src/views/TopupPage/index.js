@@ -62,8 +62,7 @@ const TopupPage = () => {
             fetchHistory(user.id);
         }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    }, []);
 
   const fetchHistory = async (userId) => {
       const { data: txData } = await getList('transactions', { orderBy: 'created_at', order: 'desc', limit: 1000 });
@@ -143,8 +142,7 @@ const TopupPage = () => {
       }, 5000); // 5 seconds polling
     }
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModalOpen, qrisData]);
+    }, [isModalOpen, qrisData, checkPaymentStatus]);
 
   const checkPaymentStatus = async () => {
     if (!qrisData) return;

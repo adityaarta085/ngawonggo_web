@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useState, useCallback } from 'react';
 import { Box, Input, Button, Flex, Text, VStack, Select, useToast, SimpleGrid, FormControl, FormLabel, HStack } from '@chakra-ui/react';
 import { FaCopy, FaExchangeAlt } from 'react-icons/fa';

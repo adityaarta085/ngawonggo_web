@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Box, Text, VStack, HStack, SimpleGrid, Button, Input, Select,

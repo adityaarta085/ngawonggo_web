@@ -60,8 +60,7 @@ const AISummary = ({ newsId, type, content, initialSummary }) => {
         handleGenerate();
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isVIP, usageCount, initialSummary, summary, loading]);
+  }, [user, isVIP, usageCount, initialSummary, summary, loading, handleGenerate]);
 
 
   const handleGenerate = async () => {
