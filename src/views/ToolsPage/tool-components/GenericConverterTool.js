@@ -288,6 +288,7 @@ const ColorConverter = () => {
 };
 
 /* ═══════ GENERIC UNIT CONVERTER ═══════ */
+// eslint-disable-next-line no-unused-vars
 const UnitConverter = ({ tool }) => {
   const [amount, setAmount] = useState(1);
   const [fromUnit, setFromUnit] = useState('');

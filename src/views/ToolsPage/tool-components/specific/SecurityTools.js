@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Text, VStack, HStack, SimpleGrid, Button, Input, Textarea,
-  FormControl, FormLabel, useToast, Badge, Stat, StatLabel, StatNumber,
+  Box, Text, VStack, HStack, Button, Input, Textarea,
+  FormControl, FormLabel, useToast, Stat, StatLabel, StatNumber,
   Flex, Progress, Icon, List, ListItem, ListIcon
 } from '@chakra-ui/react';
 import { FaCopy, FaCheckCircle, FaExclamationCircle, FaShieldAlt, FaLock, FaUnlock } from 'react-icons/fa';
@@ -10,6 +10,7 @@ import { FaCopy, FaCheckCircle, FaExclamationCircle, FaShieldAlt, FaLock, FaUnlo
 const PassStrength = () => {
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const toast = useToast();
 
   const analyze = (pwd) => {

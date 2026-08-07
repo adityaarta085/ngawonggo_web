@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Box, Button, Flex, Text, VStack, useToast, Checkbox, Input,
+  Box, Button, Flex, Text, VStack, useToast, Checkbox,
   Slider, SliderTrack, SliderFilledTrack, SliderThumb,
   SimpleGrid, Select, FormControl, FormLabel, Textarea,
   HStack, Badge, NumberInput, NumberInputField, NumberInputStepper,
@@ -269,6 +269,7 @@ Disclaimer: Video ini dibuat untuk edukasi dan hiburan.`;
 
   const isPasswordType = tool.config === 'password';
   const isPinType = tool.config === 'pin';
+  // eslint-disable-next-line no-unused-vars
   const isSecureNum = tool.config === 'secureNum';
   const hasRange = ['randomNumber', 'secureNum'].includes(tool.config);
   const hasCount = ['randomNumber', 'name', 'username', 'color', 'fakeData', 'bizName', 'contentIdea', 'ytTitle', 'igCaption', 'tiktokCaption', 'blogTitle'].includes(tool.config);

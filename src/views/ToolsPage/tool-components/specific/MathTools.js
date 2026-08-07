@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import {
   Box, Text, VStack, HStack, SimpleGrid, Button, Input, Textarea,
   FormControl, FormLabel, useToast, Stat, StatLabel, StatNumber,
-  Select, Divider, Badge, Table, Thead, Tbody, Tr, Th, Td,
-  Flex, RadioGroup, Radio, Stack
+  Select, Badge, Flex, RadioGroup, Radio, Stack
 } from '@chakra-ui/react';
-import { FaCopy } from 'react-icons/fa';
 
 /* ═══════ GRAPH PLOTTER ═══════ */
 const GraphPlotter = () => {
@@ -25,7 +23,9 @@ const GraphPlotter = () => {
     for (let i = 0; i <= 10; i++) { ctx.beginPath(); ctx.moveTo(i * w / 10, 0); ctx.lineTo(i * w / 10, h); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i * h / 10); ctx.lineTo(w, i * h / 10); ctx.stroke(); }
 
     // Axes
-    const xRange = xMax - xMin; const yScale = h / 2;
+    const xRange = xMax - xMin;
+    // eslint-disable-next-line no-unused-vars
+    const yScale = h / 2;
     ctx.strokeStyle = '#999'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2); ctx.stroke();
     const zeroX = (-xMin / xRange) * w;

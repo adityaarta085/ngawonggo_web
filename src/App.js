@@ -81,7 +81,7 @@ import CekPlagiatPage from './views/CekPlagiatPage/index.js';
 import DashboardLive from './views/LiveDisplay/pages/Dashboard';
 import DisplayView from './views/LiveDisplay/pages/DisplayView';
 import LiveStreamView from './views/MediaPage/LiveStreamView';
-
+import SiteMascot from './components/SiteMascot';
 
 const TopBar = ({ isScrolled }) => {
   return (
@@ -391,6 +391,7 @@ function App() {
         )}
 
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && <InstallPWA />}
+        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && <SiteMascot />}
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && <Footer />}
       </>
     </Box>

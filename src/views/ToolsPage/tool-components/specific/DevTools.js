@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import {
   Box, Text, VStack, HStack, Button, Textarea, Input,
-  FormControl, FormLabel, useToast, Select, SimpleGrid,
-  Stat, StatLabel, StatNumber, Badge, Flex, Checkbox,
-  Table, Thead, Tbody, Tr, Th, Td
+  FormControl, FormLabel, useToast, Select, SimpleGrid, Badge, Flex
 } from '@chakra-ui/react';
 import { FaCopy, FaCheck, FaTimes } from 'react-icons/fa';
 

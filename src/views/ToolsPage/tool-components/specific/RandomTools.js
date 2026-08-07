@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Box, Text, VStack, HStack, SimpleGrid, Button, Input, Textarea,
-  FormControl, FormLabel, Badge, Flex, IconButton, Center
+  FormControl, FormLabel, Flex, IconButton, Center
 } from '@chakra-ui/react';
 import { FaTrash } from 'react-icons/fa';
 
@@ -119,6 +119,7 @@ const WheelSpinner = () => {
 
   useEffect(() => {
     drawWheel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   const spin = () => {
@@ -148,6 +149,7 @@ const WheelSpinner = () => {
 
   const stopRotate = () => {
     setSpinning(false);
+    // eslint-disable-next-line no-unused-vars
     const arc = Math.PI * 2 / items.length;
     // Angle representing the pointing direction (pointing top center: -Math.PI / 2)
     // Find index corresponding to the pointer

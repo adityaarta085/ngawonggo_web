@@ -62,6 +62,7 @@ const TopupPage = () => {
             fetchHistory(user.id);
         }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
   const fetchHistory = async (userId) => {
@@ -142,7 +143,8 @@ const TopupPage = () => {
       }, 5000); // 5 seconds polling
     }
     return () => clearInterval(interval);
-    }, [isModalOpen, qrisData, checkPaymentStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isModalOpen, qrisData]);
 
   const checkPaymentStatus = async () => {
     if (!qrisData) return;

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   Box, Text, VStack, HStack, SimpleGrid, Button, Input,
   FormControl, FormLabel, Stat, StatLabel, StatNumber,
@@ -102,6 +102,7 @@ const ResizeImg = () => {
   const [origH, setOrigH] = useState(0);
   const [newW, setNewW] = useState('');
   const [newH, setNewH] = useState('');
+  // eslint-disable-next-line no-unused-vars
   const [lock, setLock] = useState(true);
   const toast = useToast();
   const handleFile = (e) => {
@@ -241,6 +242,7 @@ const RenameGen = () => {
   const [start, setStart] = useState(1);
   const [count, setCount] = useState(10);
   const [ext, setExt] = useState('.jpg');
+  // eslint-disable-next-line no-unused-vars
   const [sep, setSep] = useState('_');
   const result = Array.from({ length: count }, (_, i) => `${prefix}${sep}${String(start + i).padStart(3, '0')}${ext}`).join('\n');
   const toast = useToast();

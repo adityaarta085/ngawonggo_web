@@ -5,7 +5,7 @@ import {
   useToast, Flex, Badge, Slider, SliderTrack, SliderFilledTrack,
   SliderThumb, Image, Select
 } from '@chakra-ui/react';
-import { FaCopy, FaDownload } from 'react-icons/fa';
+import { FaDownload } from 'react-icons/fa';
 
 /* ═══════ COLOR PICKER ═══════ */
 const ColorPicker = () => {

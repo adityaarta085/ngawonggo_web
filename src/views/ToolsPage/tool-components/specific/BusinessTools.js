@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Text, VStack, HStack, Button, Input, Textarea,
   FormControl, FormLabel, useToast, Stat, StatLabel, StatNumber,
-  Divider, Badge, Flex, IconButton, Checkbox, Table, Thead, Tbody,
-  Tr, Th, Td, Progress
+  Divider, Badge, Flex, IconButton, Checkbox, Progress
 } from '@chakra-ui/react';
 import { FaCopy, FaPlus, FaTrash, FaPlay, FaPause, FaRedo } from 'react-icons/fa';
 

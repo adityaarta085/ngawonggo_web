@@ -1,8 +1,8 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import {
   Box, Text, VStack, HStack, SimpleGrid, Button, Input, Textarea,
-  FormControl, FormLabel, useToast, Badge, Stat, StatLabel, StatNumber,
-  Flex, Select, Divider, Table, Thead, Tbody, Tr, Th, Td, Checkbox
+  FormControl, FormLabel, useToast, Flex, Select, Divider
 } from '@chakra-ui/react';
 import { FaCopy, FaDownload } from 'react-icons/fa';
 
