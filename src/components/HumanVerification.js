@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, VStack, Heading, Text, Button, ScaleFade, Image, useToast } from '@chakra-ui/react';
+import { Box, VStack, Heading, Text, Button, ScaleFade, Image, useToast, Link } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 import { Turnstile } from '@marsidev/react-turnstile';
 import axios from 'axios';
 import Loading from './Loading';
@@ -163,9 +164,14 @@ const HumanVerification = ({ onVerified }) => {
               Lanjutkan ke Portal
             </Button>
 
-            <Text fontSize="xs" color="gray.400">
-              Powered by Cloudflare Turnstile & Desa Digital Ngawonggo
-            </Text>
+            <VStack spacing={1}>
+              <Text fontSize="xs" color="gray.400">
+                Powered by Cloudflare Turnstile & Desa Digital Ngawonggo
+              </Text>
+              <Link as={RouterLink} to="/security-policy" fontSize="xs" color="blue.400" _hover={{ color: "blue.500", textDecoration: "underline" }} mt={2} textAlign="center">
+                Mengalami masalah? Baca Kebijakan Keamanan Siber & Larangan Bot/AI
+              </Link>
+            </VStack>
           </VStack>
         </ScaleFade>
       )}
