@@ -65,6 +65,7 @@ import PopupNotification from './components/PopupNotification.js';
 import TakedownPage from './views/TakedownPage/index.js';
 import StatusPage from './views/StatusPage/index.js';
 import BlockedPage from './views/BlockedPage/index.js';
+import SecurityPolicyPage from './views/SecurityPolicyPage/index.js';
 import usePageTracking from './hooks/usePageTracking';
 import { supabase } from './lib/supabase';
 import { getList } from './lib/dataFetcher';
@@ -330,6 +331,7 @@ function App() {
             <Route path="/game/*" element={<EduGameRouter />} />
             <Route path="/tools/*" element={<ToolsRouter />} />
             <Route path="/status" element={<StatusPage />} />
+            <Route path="/security-policy" element={<SecurityPolicyPage />} />
 
             <Route path="/down" element={<TakedownPage />} />
             <Route path="/blocked" element={<BlockedPage />} />
