@@ -1,6 +1,9 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Allow: /
+Allow: /security-policy
+Allow: /privacy-policy
+Allow: /terms-conditions
 
 # Sitemap
 Sitemap: https://ngawonggo.web.id/sitemap.xml

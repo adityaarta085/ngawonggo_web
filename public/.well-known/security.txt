@@ -1,0 +1,6 @@
+# Security Policy for Desa Ngawonggo (RFC 9116)
+Contact: mailto:ngawonggodesa@gmail.com
+Policy: https://ngawonggo.web.id/security-policy
+Canonical: https://ngawonggo.web.id/.well-known/security.txt
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: id, en

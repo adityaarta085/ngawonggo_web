@@ -119,6 +119,7 @@ function App() {
   const isBlockedPage = location.pathname === '/blocked';
   const isWatchPage = location.pathname.includes('/play') && location.pathname.startsWith('/dracin');
   const isLiveDisplayPage = location.pathname.startsWith('/live/display');
+  const isSecurityPolicyPage = location.pathname === '/security-policy';
 
   const [adminSession, setAdminSession] = useState(() => {
     try {
@@ -227,7 +228,7 @@ function App() {
 
   return (
     <Box overflowX="hidden" maxW="100vw">
-      {!isBypassed && !isAdmin && !isAuth && !isDownPage && !isBlockedPage && (
+      {!isBypassed && !isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isSecurityPolicyPage && (
         <>
           {showPreloader ? (
             <Preloader onComplete={() => setShowPreloader(false)} timeout={3000} />
