@@ -15,7 +15,8 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPaperPlane, FaTimes, FaMinus, FaHeadset, FaRobot, FaRedo, FaSmile } from 'react-icons/fa';
+import { FaPaperPlane, FaTimes, FaMinus, FaHeadset, FaRobot, FaRedo, FaSmile, FaLock } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { supabase } from '../lib/supabase';
 import { getById, getList } from '../lib/dataFetcher';
@@ -186,6 +187,7 @@ const QUICK_PROMPTS = [
 ];
 
 const SiteMascot = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(true);
   const [eyePos, setEyePos] = useState({ x: 0, y: 0 });
@@ -205,13 +207,16 @@ const SiteMascot = () => {
   const mascotContainerRef = useRef(null);
   const scrollRef = useRef(null);
 
-  // Theme values
+  // Theme values - Clean neutral glassmorphism without blue background
   const bgCard = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('purple.100', 'purple.900');
   const userBubbleBg = useColorModeValue('purple.600', 'purple.500');
   const botBubbleBg = useColorModeValue('gray.100', 'gray.700');
   const textColorBot = useColorModeValue('gray.800', 'gray.100');
   const inputBg = useColorModeValue('gray.50', 'gray.900');
+  const widgetBg = useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(26, 32, 44, 0.95)');
+  const headerBg = useColorModeValue('purple.700', 'gray.900');
+  const widgetBorderColor = useColorModeValue('purple.300', 'purple.700');
 
   // Mouse move eye-tracking listener
   useEffect(() => {
@@ -299,6 +304,11 @@ const SiteMascot = () => {
 
   // Handle CS Escalation
   const handleEscalation = async (summary, reason) => {
+    if (!sessionUser) {
+      setMessages(prev => [...prev, { role: 'assistant', content: '🔒 Anda harus login terlebih dahulu untuk menghubungkan ke Customer Service.' }]);
+      return;
+    }
+
     setIsLoading(true);
     const { data: allCs, ok: csOk } = await getList('usersCS', { limit: 1000 });
     const onlineCs = allCs?.filter(cs => cs.status === 'online');
@@ -328,7 +338,7 @@ const SiteMascot = () => {
         message: `Ringkasan Permintaan: ${summary || 'Bantuan CS'}`
       });
 
-      setMessages(prev => [...prev, { role: 'assistant', content: ' Menghubungkan Anda ke Customer Service Desa... Mohon tunggu sebentar.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Menghubungkan Anda ke Customer Service Desa... Mohon tunggu sebentar.' }]);
     } catch (err) {
       console.error('Escalation error:', err);
       setMessages(prev => [...prev, { role: 'assistant', content: 'Gagal membuat sesi CS. Silakan coba lagi.' }]);
@@ -339,6 +349,11 @@ const SiteMascot = () => {
 
   // Send message action
   const handleSendMessage = async (textToSend) => {
+    if (!sessionUser) {
+      setMessages(prev => [...prev, { role: 'assistant', content: '🔒 Anda harus login terlebih dahulu sebelum dapat menggunakan Asisten AI.' }]);
+      return;
+    }
+
     const queryText = (textToSend || input).trim();
     if (!queryText || isLoading) return;
 
@@ -447,7 +462,7 @@ const SiteMascot = () => {
             >
               {/* Header with Mini Geometric Mascot & Status */}
               <Flex
-                bgGradient="linear(to-r, purple.600, brand.600, purple.700)"
+                bg={headerBg}
                 p={3.5}
                 align="center"
                 justify="space-between"
@@ -485,7 +500,7 @@ const SiteMascot = () => {
                 </Flex>
 
                 <HStack spacing={1}>
-                  {messages.length > 2 && (
+                  {messages.length > 2 && sessionUser && (
                     <Tooltip label="Reset Chat" fontSize="xs">
                       <IconButton
                         icon={<FaRedo />}
@@ -573,6 +588,47 @@ const SiteMascot = () => {
                   );
                 })}
 
+                {/* Login Required Notice for Guests */}
+                {!sessionUser && (
+                  <Box
+                    p={4}
+                    bg="purple.50"
+                    _dark={{ bg: "purple.950", borderColor: "purple.800" }}
+                    borderRadius="2xl"
+                    borderWidth="1px"
+                    borderColor="purple.200"
+                    textAlign="center"
+                    my={2}
+                    boxShadow="sm"
+                  >
+                    <Flex justify="center" align="center" color="purple.600" mb={2}>
+                      <FaLock size={22} />
+                    </Flex>
+                    <Text fontWeight="extrabold" fontSize="xs" color="purple.900" _dark={{ color: "purple.100" }} mb={1}>
+                      Akses AI Chatbot Terkunci 🔒
+                    </Text>
+                    <Text fontSize="2xs" color="gray.600" _dark={{ color: "gray.300" }} mb={3} lineHeight="relaxed">
+                      Anda harus masuk (login) ke akun Anda terlebih dahulu sebelum dapat menggunakan fitur Asisten AI Desa Ngawonggo.
+                    </Text>
+                    <Button
+                      size="xs"
+                      colorScheme="purple"
+                      borderRadius="full"
+                      px={5}
+                      py={3}
+                      fontSize="xs"
+                      fontWeight="bold"
+                      boxShadow="md"
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate('/auth');
+                      }}
+                    >
+                      🔑 Login Sekarang
+                    </Button>
+                  </Box>
+                )}
+
                 {isLoading && (
                   <Flex align="center" gap={2} color="purple.500" fontSize="2xs" fontWeight="bold">
                     <Spinner size="xs" color="purple.500" />
@@ -582,7 +638,7 @@ const SiteMascot = () => {
               </VStack>
 
               {/* Quick Prompts Chips */}
-              {messages.length < 4 && !isLoading && (
+              {messages.length < 4 && !isLoading && sessionUser && (
                 <Flex px={3} py={1.5} gap={1.5} overflowX="auto" borderTopWidth="1px" borderColor={borderColor}>
                   {QUICK_PROMPTS.map((qp, idx) => (
                     <Button
@@ -603,17 +659,19 @@ const SiteMascot = () => {
 
               {/* Input Footer */}
               <Box p={3} borderTopWidth="1px" borderColor={borderColor} bg={bgCard}>
-                {!sessionUser && (
-                  <Text fontSize="3xs" color="gray.400" textAlign="center" mb={1.5}>
-                    💡 Tips: Anda dapat bertanya sebagai tamu atau login untuk simpan riwayat.
-                  </Text>
-                )}
                 <Flex gap={2} align="center">
                   <Input
-                    placeholder={csStatus === 'active' ? "Tulis pesan ke CS..." : "Tanya Maskot Desa..."}
+                    placeholder={
+                      !sessionUser
+                        ? "Silakan login untuk mengirim pesan..."
+                        : csStatus === 'active'
+                        ? "Tulis pesan ke CS..."
+                        : "Tanya Maskot Desa..."
+                    }
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
+                    isDisabled={!sessionUser}
                     size="sm"
                     borderRadius="full"
                     bg={inputBg}
@@ -627,7 +685,7 @@ const SiteMascot = () => {
                     borderRadius="full"
                     aria-label="Kirim Pesan"
                     isLoading={isLoading}
-                    isDisabled={!input.trim()}
+                    isDisabled={!sessionUser || !input.trim()}
                     onClick={() => handleSendMessage()}
                   />
                 </Flex>
@@ -636,7 +694,7 @@ const SiteMascot = () => {
           )}
         </AnimatePresence>
 
-        {/* Floating Mascot Button */}
+        {/* Floating Mascot Button without solid blue background */}
         <Box position="relative">
           {/* Greeting Tooltip Bubble */}
           <AnimatePresence>
@@ -685,7 +743,7 @@ const SiteMascot = () => {
             )}
           </AnimatePresence>
 
-          {/* Interactive Floating Mascot Button with Mouse Pupil Tracking */}
+          {/* Interactive Floating Mascot Button - Transparent Glass Background */}
           <MotionBox
             whileHover={{ scale: 1.12, rotate: [0, -4, 4, 0] }}
             whileTap={{ scale: 0.92 }}
@@ -694,17 +752,18 @@ const SiteMascot = () => {
               if (showTooltip) setShowTooltip(false);
             }}
             cursor="pointer"
-            bgGradient="linear(to-br, purple.600, brand.500, purple.700)"
-            p={2}
+            bg={widgetBg}
+            backdropFilter="blur(12px)"
+            p={1.5}
             borderRadius="full"
-            boxShadow="0 10px 25px -5px rgba(108, 92, 231, 0.5)"
+            boxShadow="0 12px 30px -4px rgba(108, 92, 231, 0.3)"
             display="flex"
             alignItems="center"
             justifyContent="center"
             w="64px"
             h="64px"
             borderWidth="2px"
-            borderColor="whiteAlpha.800"
+            borderColor={widgetBorderColor}
           >
             <MiniGeometricMascot eyePos={eyePos} isLoading={isLoading} size="normal" />
           </MotionBox>
