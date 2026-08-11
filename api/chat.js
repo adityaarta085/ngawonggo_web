@@ -14,14 +14,14 @@ module.exports = async (req, res) => {
   const { year, action, isMesinWaktu } = req.body;
   if (isMesinWaktu) {
     try {
-        const OPENAI_API_KEY = "acv-5ba0703e794843d66034b8eeb4801bdfd402471740e2f44f04ca225b2e465659";
-        const client = new OpenAI({
-            apiKey: OPENAI_API_KEY,
-            baseURL: "https://www.aichixia.xyz/api/v1",
-        });
+      const OPENAI_API_KEY = "acv-72ac0d2177c199ac9d9a8f4e1cd4ada406ec99cd309890ba8f4f3dbaa1927053";
+      const client = new OpenAI({
+        apiKey: OPENAI_API_KEY,
+        baseURL: "https://www.aichixia.xyz/api/v1",
+      });
 
-        if (action) {
-           const prompt = `Anda adalah narator game fiksi ilmiah komedi bahasa Indonesia tentang penjelajah waktu yang datang ke Desa Ngawonggo di tahun ${year}. User memilih tindakan: "${action}".
+      if (action) {
+        const prompt = `Anda adalah narator game fiksi ilmiah komedi bahasa Indonesia tentang penjelajah waktu yang datang ke Desa Ngawonggo di tahun ${year}. User memilih tindakan: "${action}".
 
     Buatlah hasil dari tindakan tersebut.
     Kembalikan respon DALAM FORMAT JSON SEPERTI INI (TANPA MARKDOWN, TANPA TEKS LAIN):
@@ -35,21 +35,21 @@ module.exports = async (req, res) => {
         "harmony": <angka dampak keharmonisan dari -100 sampai 100>
       }
     }`;
-            const response = await client.chat.completions.create({
-                model: "gpt-5-mini",
-                messages: [{ role: 'user', content: prompt }],
-                temperature: 0.8,
-            });
-            let data;
-            try {
-                data = JSON.parse(response.choices[0].message.content.trim());
-            } catch (e) {
-                console.error("AI JSON Parse Error:", response.choices[0].message.content);
-                throw new Error("Invalid JSON from AI");
-            }
-            return res.status(200).json(data);
-        } else {
-            const prompt = `Anda adalah narator game fiksi ilmiah komedi bahasa Indonesia tentang penjelajah waktu. User baru saja mendarat di Desa Ngawonggo pada tahun ${year}.
+        const response = await client.chat.completions.create({
+          model: "gpt-5-mini",
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.8,
+        });
+        let data;
+        try {
+          data = JSON.parse(response.choices[0].message.content.trim());
+        } catch (e) {
+          console.error("AI JSON Parse Error:", response.choices[0].message.content);
+          throw new Error("Invalid JSON from AI");
+        }
+        return res.status(200).json(data);
+      } else {
+        const prompt = `Anda adalah narator game fiksi ilmiah komedi bahasa Indonesia tentang penjelajah waktu. User baru saja mendarat di Desa Ngawonggo pada tahun ${year}.
     Buatlah deskripsi kedatangan yang unik, absurd, atau epik, dan berikan 3 pilihan tindakan yang lucu, tidak masuk akal, atau sangat spesifik.
 
     Kembalikan respon DALAM FORMAT JSON SEPERTI INI (TANPA MARKDOWN, TANPA TEKS LAIN):
@@ -63,23 +63,23 @@ module.exports = async (req, res) => {
         { "text": "<pilihan tindakan 3>" }
       ]
     }`;
-            const response = await client.chat.completions.create({
-                model: "gpt-5-mini",
-                messages: [{ role: 'user', content: prompt }],
-                temperature: 0.8,
-            });
-            let data;
-            try {
-                data = JSON.parse(response.choices[0].message.content.trim());
-            } catch (e) {
-                console.error("AI JSON Parse Error:", response.choices[0].message.content);
-                throw new Error("Invalid JSON from AI");
-            }
-            return res.status(200).json(data);
+        const response = await client.chat.completions.create({
+          model: "gpt-5-mini",
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.8,
+        });
+        let data;
+        try {
+          data = JSON.parse(response.choices[0].message.content.trim());
+        } catch (e) {
+          console.error("AI JSON Parse Error:", response.choices[0].message.content);
+          throw new Error("Invalid JSON from AI");
         }
+        return res.status(200).json(data);
+      }
     } catch (error) {
-        console.error('Mesin Waktu AI Error:', error);
-        return res.status(500).json({ error: error.message || 'Failed to generate content' });
+      console.error('Mesin Waktu AI Error:', error);
+      return res.status(500).json({ error: error.message || 'Failed to generate content' });
     }
   }
 
@@ -130,8 +130,8 @@ module.exports = async (req, res) => {
 
     if (usageCount >= limit) {
       return res.status(403).json({
-          error: `Daily limit reached. ${isVIP ? 'You have used your 50 daily chats.' : 'Upgrade to VIP for 50 chats/day.'}`,
-          limitReached: true
+        error: `Daily limit reached. ${isVIP ? 'You have used your 50 daily chats.' : 'Upgrade to VIP for 50 chats/day.'}`,
+        limitReached: true
       });
     }
 
@@ -139,7 +139,7 @@ module.exports = async (req, res) => {
     let systemPrompt = defaultPromptSetting?.value || 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.';
 
     if (customPrompt) {
-        systemPrompt = customPrompt;
+      systemPrompt = customPrompt;
     }
 
     systemPrompt += `\n\nDi akhir setiap jawaban Anda, WAJIB sertakan watermark dan informasi kontak ini persis seperti berikut:\n\n---\n*Jawaban ini dihasilkan oleh AI (Asisten AI DESA).*\n*Mungkin terdapat kesalahan atau informasi yang kurang akurat.*\n*Untuk pertanyaan atau bantuan lebih lanjut, silakan hubungi email: desangawonggoku@gmail.com*`;
@@ -155,18 +155,18 @@ Jika tidak perlu eskalasi, jawablah seperti biasa dengan teks biasa.`;
 
     // 4. Call OpenAI API
     const client = new OpenAI({
-        apiKey: OPENAI_API_KEY,
-        baseURL: "https://www.aichixia.xyz/api/v1",
+      apiKey: OPENAI_API_KEY,
+      baseURL: "https://www.aichixia.xyz/api/v1",
     });
 
     const response = await client.chat.completions.create({
-        model: "gpt-5-mini",
-        messages: [
-            { role: 'system', content: systemPrompt },
-            ...messages.map(msg => ({ role: msg.role, content: msg.content }))
-        ],
-        temperature: 0.7,
-        max_tokens: 1024,
+      model: "gpt-5-mini",
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages.map(msg => ({ role: msg.role, content: msg.content }))
+      ],
+      temperature: 0.7,
+      max_tokens: 1024,
     });
 
     // 5. Increment Usage
