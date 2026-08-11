@@ -3,7 +3,7 @@ import DracinDetail from "./views/DracinPage/Detail";
 import DracinWatch from "./views/DracinPage/Watch";
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import CustomAds from './components/CustomAds';
-import { Box, Flex, Tooltip, HStack, Collapse } from '@chakra-ui/react';
+import { Box, Flex, HStack, Collapse } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
@@ -52,7 +52,6 @@ import ScrollToTop from './components/ScrollToTop.js';
 import Preloader from './components/Preloader.js';
 import SplashScreen from './components/SplashScreen.js';
 import HumanVerification from './components/HumanVerification.js';
-import Chatbot from './components/Chatbot.js';
 import RunningText from './components/RunningText.js';
 import TopBarWeather from './components/TopBarWeather.js';
 // eslint-disable-next-line no-unused-vars
@@ -147,7 +146,6 @@ function App() {
   const [isTakedown, setIsTakedown] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
 
-  const [isFloatingHidden, setIsFloatingHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const ticking = useRef(false);
 
@@ -361,37 +359,6 @@ function App() {
           </Routes>
         </Box>
 
-        {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isLiveDisplayPage && (
-          <>
-            {isVerified && (
-              <Chatbot
-                isHidden={isFloatingHidden}
-                onHide={() => setIsFloatingHidden(true)}
-              />
-            )}
-
-            {isFloatingHidden && isVerified && (
-              <Tooltip label="Tampilkan Panel" placement="left" aria-label="Restore Panels">
-                <Box
-                  position="fixed"
-                  right={0}
-                  top="50%"
-                  transform="translateY(-50%)"
-                  w="8px"
-                  h="120px"
-                  bg="brand.500"
-                  cursor="pointer"
-                  zIndex={2000}
-                  borderLeftRadius="full"
-                  onClick={() => setIsFloatingHidden(false)}
-                  _hover={{ w: '12px', bg: 'brand.400' }}
-                  transition="all 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-                  boxShadow="lg"
-                />
-              </Tooltip>
-            )}
-          </>
-        )}
 
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && <InstallPWA />}
         {!isAdmin && !isAuth && !isDownPage && !isBlockedPage && !isWatchPage && !isLiveDisplayPage && <SiteMascot />}
