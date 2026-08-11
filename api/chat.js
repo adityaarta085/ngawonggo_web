@@ -105,7 +105,7 @@ module.exports = async (req, res) => {
     const openAiKeySetting = settings?.find(s => s.key === 'openai_api_key');
     const defaultPromptSetting = settings?.find(s => s.key === 'default_ai_prompt');
 
-    const OPENAI_API_KEY = openAiKeySetting?.value || "acv-5ba0703e794843d66034b8eeb4801bdfd402471740e2f44f04ca225b2e465659";
+    const OPENAI_API_KEY = openAiKeySetting?.value || "acv-72ac0d2177c199ac9d9a8f4e1cd4ada406ec99cd309890ba8f4f3dbaa1927053";
 
     // 2. Check limits
     const { data: tierData } = await supabase

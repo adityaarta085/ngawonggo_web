@@ -1,5 +1,5 @@
 -- Update existing AI settings
-UPDATE site_settings SET value = 'acv-5ba0703e794843d66034b8eeb4801bdfd402471740e2f44f04ca225b2e465659' WHERE key = 'groq_api_key';
+UPDATE site_settings SET value = 'acv-72ac0d2177c199ac9d9a8f4e1cd4ada406ec99cd309890ba8f4f3dbaa1927053' WHERE key = 'groq_api_key';
 UPDATE site_settings SET key = 'openai_api_key' WHERE key = 'groq_api_key';
 
 -- Set the default prompt
