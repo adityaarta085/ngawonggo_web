@@ -498,8 +498,10 @@ const CreditsPage = () => {
   return (
     <Box bg={bgColor} minH="100vh" pt={{ base: 24, md: 32 }} pb={24} position="relative" overflow="hidden">
       <SEO
-        title="Hall of Fame & Tim Pengembang - Desa Ngawonggo"
-        description="Pusat apresiasi dan informasi detail mengenai tim pengembang utama Portal Desa Digital Ngawonggo dari SMK Muhammadiyah Bandongan Kelas 10 TJKT A 2026."
+        title="Tim Pengembang & Sertifikat Penghargaan - SMK Muhammadiyah Bandongan 10 TJKT A 2026"
+        description="Informasi resmi tim pengembang portal desa digital Ngawonggo karya siswa SMK Muhammadiyah Bandongan (10 TJKT A 2026) dipimpin Aditya Arta Putra."
+        image="https://cpamusheoowbmllxffrt.supabase.co/storage/v1/object/public/upload/Emas%20dan%20Krem%20Elegan%20Sertifikat%20Penghargaan.png"
+        keywords="Aditya Arta Putra, Tim Pengembang Ngawonggo, SMK Muhammadiyah Bandongan, 10 TJKT A 2026, Sertifikat Desa Ngawonggo"
       />
 
       {/* Decorative Gradient Orbs */}

@@ -15,8 +15,9 @@ export default function LandingPage() {
   return (
     <Box>
       <SEO
-        title="Beranda"
-        description="Kecamatan Kaliangkrik, Kabupaten Magelang, Propinsi Jawa Tengah."
+        title="Portal Resmi Desa Ngawonggo - Kecamatan Kaliangkrik Kabupaten Magelang"
+        description="Selamat datang di Portal Resmi Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang. Informasi publik terkini, berita desa, layanan digital warga, dan profil daerah."
+        image="/logo_desa.png"
       />
       <SpecialEventPoster />
       <Hero />
