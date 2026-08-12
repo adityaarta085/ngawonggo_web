@@ -60,13 +60,89 @@ const theme = extendTheme({
     liquidGlass: {
       bg: 'rgba(255, 255, 255, 0.45)',
       _dark: {
-        bg: 'rgba(26, 32, 44, 0.45)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        bg: 'rgba(15, 23, 42, 0.55)',
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        boxShadow: 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.15), 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 20px rgba(19, 127, 236, 0.15)',
       },
-      backdropFilter: 'blur(30px) saturate(210%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(210%)',
-      border: '1px solid rgba(255, 255, 255, 0.25)',
-      boxShadow: '0 12px 40px 0 rgba(31, 38, 135, 0.12)',
+      backdropFilter: 'blur(24px) saturate(200%)',
+      WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+      border: '1px solid',
+      borderColor: 'rgba(255, 255, 255, 0.45)',
+      boxShadow: 'inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.7), 0 16px 40px rgba(31, 38, 135, 0.12), 0 0 20px rgba(255, 255, 255, 0.3)',
+    },
+    liquidGlassCard: {
+      bg: 'rgba(255, 255, 255, 0.55)',
+      _dark: {
+        bg: 'rgba(15, 23, 42, 0.65)',
+        borderColor: 'rgba(255, 255, 255, 0.12)',
+        boxShadow: 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.12), 0 12px 35px rgba(0, 0, 0, 0.4)',
+      },
+      backdropFilter: 'blur(20px) saturate(180%)',
+      WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+      border: '1px solid',
+      borderColor: 'rgba(255, 255, 255, 0.5)',
+      borderRadius: '3xl',
+      boxShadow: 'inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.6), 0 10px 30px rgba(0, 0, 0, 0.08)',
+      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+      _hover: {
+        transform: 'translateY(-4px) scale(1.01)',
+        boxShadow: 'inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.8), 0 20px 45px rgba(19, 127, 236, 0.15)',
+        borderColor: 'rgba(19, 127, 236, 0.4)',
+      }
+    },
+    liquidGlassButton: {
+      bg: 'rgba(255, 255, 255, 0.65)',
+      _dark: {
+        bg: 'rgba(30, 41, 59, 0.65)',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        color: 'white',
+      },
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+      border: '1px solid',
+      borderColor: 'rgba(255, 255, 255, 0.6)',
+      boxShadow: 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.8), 0 4px 15px rgba(0, 0, 0, 0.05)',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+      _hover: {
+        bg: 'rgba(255, 255, 255, 0.85)',
+        _dark: { bg: 'rgba(51, 65, 85, 0.85)' },
+        transform: 'translateY(-2px)',
+        boxShadow: 'inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.9), 0 8px 25px rgba(19, 127, 236, 0.2)',
+      },
+      _active: {
+        transform: 'scale(0.97)',
+      }
+    },
+    liquidGlassPill: {
+      bg: 'rgba(255, 255, 255, 0.4)',
+      _dark: {
+        bg: 'rgba(15, 23, 42, 0.5)',
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+      },
+      backdropFilter: 'blur(16px) saturate(190%)',
+      WebkitBackdropFilter: 'blur(16px) saturate(190%)',
+      border: '1px solid',
+      borderColor: 'rgba(255, 255, 255, 0.5)',
+      borderRadius: 'full',
+      boxShadow: 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.5), 0 4px 15px rgba(0,0,0,0.04)',
+    },
+    liquidGlassInput: {
+      bg: 'rgba(255, 255, 255, 0.5)',
+      _dark: {
+        bg: 'rgba(15, 23, 42, 0.5)',
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        color: 'white',
+      },
+      backdropFilter: 'blur(16px)',
+      WebkitBackdropFilter: 'blur(16px)',
+      border: '1px solid',
+      borderColor: 'rgba(255, 255, 255, 0.4)',
+      borderRadius: 'xl',
+      boxShadow: 'inset 0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+      _focus: {
+        borderColor: 'brand.400',
+        boxShadow: 'inset 0 1px 2px 0 rgba(255, 255, 255, 0.6), 0 0 0 3px rgba(19, 127, 236, 0.25)',
+      }
     }
   },
   colors: {

@@ -7,6 +7,8 @@ import { Box, Flex, HStack, Collapse } from '@chakra-ui/react';
 import Navbar from './components/Navbar.js';
 import LandingPage from './views/LandingPage/index.js';
 import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import PageTransition from './components/PageTransition';
 import NewsPage from './views/NewsPage/index.js';
 import InstallPWA from "./components/InstallPWA";
 import Footer from './components/Footer.js';
@@ -285,78 +287,82 @@ function App() {
         <CustomContextMenu />
 
         <Box pt={0} minH="80vh">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/news" element={<NewsPage />} />
-            <Route path="/news/nasional" element={<NationalNewsPage />} />
-            <Route path="/news/nasional/:slug" element={<NationalNewsDetail />} />
-            <Route path="/news/:id" element={<NewsDetail />} />
-            <Route path="/profil" element={<ProfilPage />} />
-            <Route path="/pemerintahan" element={<PemerintahanPage />} />
-            <Route path="/pemerintahan/dokumen" element={<DokumenPage />} />
-            <Route path="/layanan" element={<LayananPage />} />
-            <Route path="/layanan/history" element={<ComplaintHistory />} />
-            <Route path="/layanan/lacak" element={<ComplaintTrack />} />
-            <Route path="/jelajahi" element={<JelajahiPage />} />
-            <Route path="/kreativitas" element={<KreativitasPage />} />
-            <Route path="/kreativitas/create/:id" element={<CreateDetail />} />
-            <Route path="/kreativitas/publik" element={<PublikPage />} />
-            <Route path="/kreativitas/publik/:id" element={<ImageDetail />} />
-            <Route path="/kreativitas/histori" element={<HistoriPage />} />
-            <Route path="/downloader" element={<DownloaderPage />} />
-            <Route path="/cekplagiat" element={<CekPlagiatPage />} />
+          <AnimatePresence mode="wait">
+            <PageTransition key={location.pathname}>
+              <Routes location={location} key={location.pathname}>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/news" element={<NewsPage />} />
+                <Route path="/news/nasional" element={<NationalNewsPage />} />
+                <Route path="/news/nasional/:slug" element={<NationalNewsDetail />} />
+                <Route path="/news/:id" element={<NewsDetail />} />
+                <Route path="/profil" element={<ProfilPage />} />
+                <Route path="/pemerintahan" element={<PemerintahanPage />} />
+                <Route path="/pemerintahan/dokumen" element={<DokumenPage />} />
+                <Route path="/layanan" element={<LayananPage />} />
+                <Route path="/layanan/history" element={<ComplaintHistory />} />
+                <Route path="/layanan/lacak" element={<ComplaintTrack />} />
+                <Route path="/jelajahi" element={<JelajahiPage />} />
+                <Route path="/kreativitas" element={<KreativitasPage />} />
+                <Route path="/kreativitas/create/:id" element={<CreateDetail />} />
+                <Route path="/kreativitas/publik" element={<PublikPage />} />
+                <Route path="/kreativitas/publik/:id" element={<ImageDetail />} />
+                <Route path="/kreativitas/histori" element={<HistoriPage />} />
+                <Route path="/downloader" element={<DownloaderPage />} />
+                <Route path="/cekplagiat" element={<CekPlagiatPage />} />
 
-            <Route path="/transparansi" element={<TransparansiPage />} />
-            <Route path="/kontak" element={<KontakPage />} />
-            <Route path="/media" element={<MediaPage />} />
-            <Route path="/media/komunitas/:id" element={<MediaDetail />} />
-            <Route path="/media/pemerintah" element={<MediaPemerintah />} />
-            <Route path="/dracin" element={<DracinPage />} />
-            <Route path="/dracin/detail/:id" element={<DracinDetail />} />
-            <Route path="/dracin/detail/:id/:episode/play" element={<DracinWatch />} />
-            <Route path="/anime" element={<AnimePage />} />
-            <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
-            <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />
-            <Route path="/anime/:provider/batch/:batchId" element={<AnimeBatch />} />
-            <Route path="/dusun/:slug" element={<DusunPage />} />
-            <Route path="/quran" element={<QuranPage />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-conditions" element={<TermsConditions />} />
-            <Route path="/credits" element={<CreditsPage />} />
-            <Route path="/credits/media" element={<DeveloperMediaPage />} />
-            <Route path="/credits/media/:id" element={<CreditsMediaDetail />} />
-            <Route path="/donasi/*" element={<DonasiRouter />} />
-            <Route path="/topup" element={<TopupPage />} />
-            <Route path="/game/*" element={<EduGameRouter />} />
-            <Route path="/tools/*" element={<ToolsRouter />} />
-            <Route path="/status" element={<StatusPage />} />
-            <Route path="/security-policy" element={<SecurityPolicyPage />} />
+                <Route path="/transparansi" element={<TransparansiPage />} />
+                <Route path="/kontak" element={<KontakPage />} />
+                <Route path="/media" element={<MediaPage />} />
+                <Route path="/media/komunitas/:id" element={<MediaDetail />} />
+                <Route path="/media/pemerintah" element={<MediaPemerintah />} />
+                <Route path="/dracin" element={<DracinPage />} />
+                <Route path="/dracin/detail/:id" element={<DracinDetail />} />
+                <Route path="/dracin/detail/:id/:episode/play" element={<DracinWatch />} />
+                <Route path="/anime" element={<AnimePage />} />
+                <Route path="/anime/:provider/detail/:slug" element={<AnimeDetail />} />
+                <Route path="/anime/:provider/episode/:slug" element={<AnimeWatch />} />
+                <Route path="/anime/:provider/batch/:batchId" element={<AnimeBatch />} />
+                <Route path="/dusun/:slug" element={<DusunPage />} />
+                <Route path="/quran" element={<QuranPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-conditions" element={<TermsConditions />} />
+                <Route path="/credits" element={<CreditsPage />} />
+                <Route path="/credits/media" element={<DeveloperMediaPage />} />
+                <Route path="/credits/media/:id" element={<CreditsMediaDetail />} />
+                <Route path="/donasi/*" element={<DonasiRouter />} />
+                <Route path="/topup" element={<TopupPage />} />
+                <Route path="/game/*" element={<EduGameRouter />} />
+                <Route path="/tools/*" element={<ToolsRouter />} />
+                <Route path="/status" element={<StatusPage />} />
+                <Route path="/security-policy" element={<SecurityPolicyPage />} />
 
-            <Route path="/down" element={<TakedownPage />} />
-            <Route path="/blocked" element={<BlockedPage />} />
+                <Route path="/down" element={<TakedownPage />} />
+                <Route path="/blocked" element={<BlockedPage />} />
 
-            <Route path="/auth" element={isSessionLoading ? null : (userSession ? <Navigate to="/portal" replace /> : <AuthPage />)} />
-            <Route
-                path="/portal/*"
-                element={isSessionLoading ? null : (userSession ? <PortalRouter /> : <Navigate to="/auth" replace />)}
-            />
+                <Route path="/auth" element={isSessionLoading ? null : (userSession ? <Navigate to="/portal" replace /> : <AuthPage />)} />
+                <Route
+                    path="/portal/*"
+                    element={isSessionLoading ? null : (userSession ? <PortalRouter /> : <Navigate to="/auth" replace />)}
+                />
 
-            <Route
-              path="/admin"
-              element={
-                adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
-              }
-            />
-            <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
-            <Route path="/admin/cs/*" element={<CSApp />} />
+                <Route
+                  path="/admin"
+                  element={
+                    adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
+                  }
+                />
+                <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
+                <Route path="/admin/cs/*" element={<CSApp />} />
 
 
-            <Route path="/live" element={<Navigate to="/media" replace />} />
-            <Route path="/admin/live/*" element={adminSession ? <DashboardLive /> : <Navigate to="/admin/login" replace />} />
-            <Route path="/media/live" element={<LiveStreamView />} />
-            <Route path="/live/display/:code" element={<DisplayView />} />
-            <Route path="*" element={<PageNotFound />} />
-          </Routes>
+                <Route path="/live" element={<Navigate to="/media" replace />} />
+                <Route path="/admin/live/*" element={adminSession ? <DashboardLive /> : <Navigate to="/admin/login" replace />} />
+                <Route path="/media/live" element={<LiveStreamView />} />
+                <Route path="/live/display/:code" element={<DisplayView />} />
+                <Route path="*" element={<PageNotFound />} />
+              </Routes>
+            </PageTransition>
+          </AnimatePresence>
         </Box>
 
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -18,6 +18,7 @@ import {
   HStack,
   VStack,
   Tooltip,
+  Badge,
 } from '@chakra-ui/react';
 import {
   HamburgerIcon,
@@ -25,7 +26,8 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
 } from '@chakra-ui/icons';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { ColorModeSwitcher } from '../ColorModeSwitcher';
 import GlobalSearch from './GlobalSearch';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -35,8 +37,9 @@ import { FaUserCircle, FaLock, FaSearch } from 'react-icons/fa';
 const Navbar = ({ user, isScrolled }) => {
   const { isOpen, onToggle, onClose } = useDisclosure();
   const { isOpen: isSearchOpen, onOpen: onSearchOpen, onClose: onSearchClose } = useDisclosure();
+  const location = useLocation();
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
@@ -46,162 +49,247 @@ const Navbar = ({ user, isScrolled }) => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onSearchOpen]);
+
   const { language } = useLanguage();
   const t = (translations[language] && translations[language].nav) ? translations[language].nav : {};
 
   const NAV_ITEMS = [
     {
       label: t.profile || 'Profil',
+      href: '/profil',
       children: [
         { label: 'Sejarah Desa', subLabel: 'Asal usul Kabupaten Magelang', href: '/profil#sejarah' },
         { label: 'Visi & Misi', subLabel: 'Tujuan & cita-cita desa', href: '/profil#visimisi' },
         { label: 'Wilayah Desa', subLabel: 'Data geografis & administratif', href: '/profil#wilayah' },
       ],
-      href: '/profil'
     },
-    { label: t.government || 'Pemerintahan', children: [{ label: 'Struktur Organisasi', href: '/pemerintahan' }, { label: 'Dokumen Publikasi', href: '/pemerintahan/dokumen' }] },
+    {
+      label: t.government || 'Pemerintahan',
+      href: '/pemerintahan',
+      children: [
+        { label: 'Struktur Organisasi', href: '/pemerintahan' },
+        { label: 'Dokumen Publikasi', href: '/pemerintahan/dokumen' },
+      ],
+    },
     { label: t.services || 'Layanan', href: '/layanan' },
     {
       label: t.explore || 'Jelajahi',
+      href: '/jelajahi',
       children: [
-        { label: 'Dusun', subLabel: 'Jelajahi wilayah dusun', href: '/jelajahi' }, { label: 'Drama China', subLabel: 'Nonton Drama China', href: '/dracin' }, { label: 'Mesin Waktu', subLabel: 'Simulator Timeline', href: '/game/mesin-waktu' }, { label: 'Alat Universal', subLabel: 'Kumpulan Tools Lengkap', href: '/tools' },
-        { label: 'Kreativitas', subLabel: 'AI Text-to-Image Super Realistis', href: '/kreativitas' }
+        { label: 'Dusun', subLabel: 'Jelajahi wilayah dusun', href: '/jelajahi' },
+        { label: 'Drama China', subLabel: 'Nonton Drama China', href: '/dracin' },
+        { label: 'Mesin Waktu', subLabel: 'Simulator Timeline', href: '/game/mesin-waktu' },
+        { label: 'Alat Universal', subLabel: 'Kumpulan Tools Lengkap', href: '/tools' },
+        { label: 'Kreativitas', subLabel: 'AI Text-to-Image Super Realistis', href: '/kreativitas' },
       ],
-      href: '/jelajahi'
     },
     { label: 'Donasi', href: '/donasi' },
     {
       label: t.news || 'Berita',
+      href: '/news',
       children: [
         { label: 'Pemerintah', subLabel: 'Kabar dan kegiatan desa', href: '/news' },
         { label: 'Nasional', subLabel: 'Berita dari seluruh Indonesia', href: '/news/nasional' },
       ],
-      href: '/news'
     },
-    { label: t.media || 'Media', children: [{ label: 'Streaming & Komunitas', href: '/media' }, { label: 'Media Pemerintah', href: '/media/pemerintah' }] },
+    {
+      label: t.media || 'Media',
+      href: '/media',
+      children: [
+        { label: 'Streaming & Komunitas', href: '/media' },
+        { label: 'Media Pemerintah', href: '/media/pemerintah' },
+      ],
+    },
     { label: t.contact || 'Kontak', href: '/kontak' },
-
   ];
 
   const navBg = useColorModeValue(
-    isScrolled ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.15)',
-    isScrolled ? 'rgba(15, 23, 42, 0.4)' : 'rgba(15, 23, 42, 0.15)'
+    isScrolled ? 'rgba(255, 255, 255, 0.45)' : 'rgba(255, 255, 255, 0.25)',
+    isScrolled ? 'rgba(15, 23, 42, 0.55)' : 'rgba(15, 23, 42, 0.35)'
   );
 
   const navBorder = useColorModeValue(
-    isScrolled ? 'whiteAlpha.500' : 'whiteAlpha.300',
-    isScrolled ? 'whiteAlpha.200' : 'whiteAlpha.100'
+    isScrolled ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.45)',
+    isScrolled ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.12)'
   );
+
+  const textColor = useColorModeValue('gray.700', 'white');
+  const brandTitleColor = useColorModeValue('brand.600', 'white');
+  const hamburgerHoverBg = useColorModeValue('whiteAlpha.600', 'whiteAlpha.200');
+  const searchHoverBg = useColorModeValue('whiteAlpha.800', 'whiteAlpha.200');
 
   return (
     <Box>
-      <Container maxW="container.xl" pt={2} px={4}>
+      <Container maxW="container.xl" pt={2} px={{ base: 2, sm: 4 }}>
         <Flex
           as={'nav'}
           layerStyle="liquidGlass"
           bg={navBg}
           borderColor={navBorder}
-          color={useColorModeValue('gray.600', 'white')}
+          color={textColor}
           minH={'64px'}
           py={{ base: 2 }}
-          px={{ base: 4, md: 8 }}
+          px={{ base: 3, md: 6 }}
           align={'center'}
           borderRadius={isScrolled ? 'full' : '3xl'}
-          transition="all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
-          boxShadow={isScrolled ? 'xl' : 'lg'}
+          transition="all 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
+          position="relative"
+          className="liquid-nav-container liquid-sheen-effect"
         >
+          {/* Mobile hamburger button */}
           <Flex
             flex={{ base: 1, lg: 'auto' }}
-            ml={{ base: -2 }}
+            ml={{ base: -1 }}
             display={{ base: 'flex', lg: 'none' }}
           >
             <IconButton
               onClick={onToggle}
               icon={
-                isOpen ? <CloseIcon w={3} h={3} /> : <HamburgerIcon w={5} h={5} />
+                isOpen ? <CloseIcon w={3.5} h={3.5} /> : <HamburgerIcon w={5} h={5} />
               }
               variant={'ghost'}
               aria-label={'Toggle Navigation'}
               borderRadius="full"
+              _hover={{
+                bg: hamburgerHoverBg,
+              }}
             />
           </Flex>
+
+          {/* Logo & Brand */}
           <Flex flex={{ base: 1 }} justify={{ base: 'center', lg: 'start' }} align="center">
-            <HStack as={RouterLink} to="/" spacing={3} _hover={{ textDecoration: 'none' }} transition="transform 0.2s" _active={{ transform: 'scale(0.95)' }}>
-                <Box bg="brand.600" p={1} borderRadius="md" display="flex" alignItems="center"><Image src="/logo_desa.png" h={{ base: "24px", md: "32px" }} alt="Logo" style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.5))" }} /></Box>
-                <VStack align="start" spacing={0} display={{ base: 'none', sm: 'flex' }}>
-                   <Text
-                    fontWeight="900"
-                    color={useColorModeValue('brand.600', 'white')}
-                    fontSize={{ base: "md", md: "lg" }}
-                    letterSpacing="tight"
-                    lineHeight="1"
-                    fontFamily="heading"
-                  >
-                    DESA NGAWONGGO
-                  </Text>
-                  <Text fontSize="10px" fontWeight="800" color="brand.400" letterSpacing="widest">KAB. MAGELANG</Text>
-                </VStack>
+            <HStack
+              as={RouterLink}
+              to="/"
+              spacing={3}
+              _hover={{ textDecoration: 'none' }}
+              transition="transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)"
+              _active={{ transform: 'scale(0.95)' }}
+            >
+              <Box
+                bg="brand.600"
+                p={1.5}
+                borderRadius="xl"
+                display="flex"
+                alignItems="center"
+                boxShadow="0 4px 15px rgba(19, 127, 236, 0.4)"
+              >
+                <Image
+                  src="/logo_desa.png"
+                  h={{ base: '24px', md: '30px' }}
+                  alt="Logo Desa Ngawonggo"
+                  style={{ filter: 'drop-shadow(0px 1px 2px rgba(0,0,0,0.5))' }}
+                />
+              </Box>
+              <VStack align="start" spacing={0} display={{ base: 'none', sm: 'flex' }}>
+                <Text
+                  fontWeight="900"
+                  color={brandTitleColor}
+                  fontSize={{ base: 'md', md: 'lg' }}
+                  letterSpacing="tight"
+                  lineHeight="1"
+                  fontFamily="heading"
+                >
+                  DESA NGAWONGGO
+                </Text>
+                <Text fontSize="10px" fontWeight="800" color="brand.400" letterSpacing="widest">
+                  KAB. MAGELANG
+                </Text>
+              </VStack>
             </HStack>
 
-            <Flex display={{ base: 'none', lg: 'flex' }} ml={10}>
-              <DesktopNav navItems={NAV_ITEMS} />
+            {/* Desktop Navigation */}
+            <Flex display={{ base: 'none', lg: 'flex' }} ml={8}>
+              <DesktopNav navItems={NAV_ITEMS} currentPath={location.pathname} />
             </Flex>
           </Flex>
 
+          {/* Action buttons */}
           <Stack
             flex={{ base: 1, lg: 0 }}
             justify={'flex-end'}
             direction={'row'}
-            spacing={4}
+            spacing={{ base: 2, sm: 3 }}
+            align="center"
           >
-            <Tooltip label="Pencarian Cepat" placement="bottom" hasArrow>
-              <IconButton aria-label="Search" icon={<FaSearch />} variant="ghost" onClick={onSearchOpen} borderRadius="full" />
+            <Tooltip label="Pencarian Cepat (Ctrl+K)" placement="bottom" hasArrow>
+              <IconButton
+                aria-label="Search"
+                icon={<FaSearch />}
+                variant="ghost"
+                onClick={onSearchOpen}
+                borderRadius="full"
+                size="sm"
+                _hover={{
+                  bg: searchHoverBg,
+                  transform: 'scale(1.08)',
+                }}
+                transition="all 0.2s"
+              />
             </Tooltip>
-            <ColorModeSwitcher justifySelf="flex-end" />
-             {user ? (
-                <Tooltip label="Portal Warga" placement="bottom" hasArrow>
-                   <Button
-                      as={RouterLink}
-                      to="/portal"
-                      variant="solid"
-                      colorScheme="brand"
-                      leftIcon={<FaUserCircle />}
-                      borderRadius="full"
-                      px={6}
-                      size="sm"
-                      boxShadow="lg"
-                    >
-                      {user.email.split('@')[0]}
-                    </Button>
-                </Tooltip>
-             ) : (
-                <Tooltip label="Akses Layanan Digital" placement="bottom" hasArrow>
-                    <Button
-                      as={RouterLink}
-                      to="/auth"
-                      fontSize={'xs'}
-                      fontWeight={800}
-                      variant={'outline'}
-                      colorScheme="brand"
-                      borderRadius="full"
-                      px={6}
-                      size="sm"
-                      leftIcon={<FaLock />}
-                      _hover={{
-                        bg: 'brand.500',
-                        color: 'white',
-                        transform: 'translateY(-2px)'
-                      }}
-                    >
-                      MASUK
-                    </Button>
-                </Tooltip>
-             )}
+            <ColorModeSwitcher justifySelf="flex-end" size="sm" borderRadius="full" />
+
+            {user ? (
+              <Tooltip label="Portal Warga" placement="bottom" hasArrow>
+                <Button
+                  as={RouterLink}
+                  to="/portal"
+                  variant="solid"
+                  colorScheme="brand"
+                  leftIcon={<FaUserCircle />}
+                  borderRadius="full"
+                  px={5}
+                  size="sm"
+                  boxShadow="0 4px 14px rgba(19, 127, 236, 0.4)"
+                  _hover={{
+                    transform: 'translateY(-2px) scale(1.02)',
+                    boxShadow: '0 8px 25px rgba(19, 127, 236, 0.5)',
+                  }}
+                  _active={{ transform: 'scale(0.97)' }}
+                  transition="all 0.25s"
+                >
+                  {user.email.split('@')[0]}
+                </Button>
+              </Tooltip>
+            ) : (
+              <Tooltip label="Akses Layanan Digital Warga" placement="bottom" hasArrow>
+                <Button
+                  as={RouterLink}
+                  to="/auth"
+                  fontSize={'xs'}
+                  fontWeight={800}
+                  variant={'outline'}
+                  colorScheme="brand"
+                  borderRadius="full"
+                  px={5}
+                  size="sm"
+                  leftIcon={<FaLock />}
+                  layerStyle="liquidGlassPill"
+                  _hover={{
+                    bg: 'brand.500',
+                    color: 'white',
+                    borderColor: 'brand.500',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 20px rgba(19, 127, 236, 0.35)',
+                  }}
+                  _active={{ transform: 'scale(0.97)' }}
+                  transition="all 0.25s"
+                >
+                  MASUK
+                </Button>
+              </Tooltip>
+            )}
           </Stack>
         </Flex>
 
+        {/* Mobile Navigation Drawer */}
         <Collapse in={isOpen} animateOpacity>
-          <MobileNav navItems={NAV_ITEMS} user={user} onClose={onClose} onSearchOpen={onSearchOpen} />
+          <MobileNav
+            navItems={NAV_ITEMS}
+            user={user}
+            onClose={onClose}
+            onSearchOpen={onSearchOpen}
+          />
         </Collapse>
       </Container>
       <GlobalSearch isOpen={isSearchOpen} onClose={onSearchClose} />
@@ -209,66 +297,135 @@ const Navbar = ({ user, isScrolled }) => {
   );
 };
 
-const DesktopNav = ({ navItems }) => {
-  const linkColor = useColorModeValue('gray.600', 'gray.200');
-  const linkHoverColor = useColorModeValue('brand.500', 'white');
-  const popoverContentBgColor = useColorModeValue('white', 'gray.800');
-  const popoverHoverBg = useColorModeValue('brand.50', 'whiteAlpha.100');
+const DesktopNav = ({ navItems, currentPath }) => {
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+
+  const linkColor = useColorModeValue('gray.700', 'gray.200');
+  const activeColor = useColorModeValue('brand.600', 'white');
+  const popoverContentBg = useColorModeValue('rgba(255, 255, 255, 0.85)', 'rgba(15, 23, 42, 0.85)');
+  const popoverBorder = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(255, 255, 255, 0.15)');
 
   return (
-    <Stack direction={'row'} spacing={1} overflowX="auto" maxW="full">
-      {navItems.map((navItem, index) => (
-        <Box key={`${navItem.label}-${index}`}>
-          <Popover trigger={'hover'} placement={'bottom-start'}>
-            <PopoverTrigger>
-              <Box
-                as={RouterLink}
-                p={2}
-                to={navItem.href ?? '#'}
-                fontSize={'xs'}
-                fontWeight={800}
-                color={linkColor}
-                borderRadius="full"
-                transition="all 0.2s"
-                _hover={{
-                  textDecoration: 'none',
-                  color: linkHoverColor,
-                  bg: popoverHoverBg,
-                }}
-                textTransform="uppercase"
-                letterSpacing="wider"
-                whiteSpace="nowrap"
-              >
-                {navItem.label}
-              </Box>
-            </PopoverTrigger>
+    <HStack
+      spacing={1}
+      align="center"
+      position="relative"
+      onMouseLeave={() => setHoveredIndex(null)}
+    >
+      {navItems.map((navItem, index) => {
+        const isCurrentRoute =
+          navItem.href === '/'
+            ? currentPath === '/'
+            : currentPath.startsWith(navItem.href);
 
-            {navItem.children && (
-              <PopoverContent
-                border={0}
-                boxShadow={'2xl'}
-                bg={popoverContentBgColor}
-                p={4}
-                rounded={'2xl'}
-                minW={'sm'}
-                backdropFilter="blur(16px)"
-              >
-                <Stack>
-                  {navItem.children.map((child, childIndex) => (
-                    <DesktopSubNav key={`${child.label}-${childIndex}`} {...child} />
-                  ))}
-                </Stack>
-              </PopoverContent>
-            )}
-          </Popover>
-        </Box>
-      ))}
-    </Stack>
+        const isHovered = hoveredIndex === index;
+
+        return (
+          <Box
+            key={`${navItem.label}-${index}`}
+            position="relative"
+            onMouseEnter={() => setHoveredIndex(index)}
+          >
+            <Popover trigger={'hover'} placement={'bottom-start'} gutter={12}>
+              <PopoverTrigger>
+                <Box
+                  as={RouterLink}
+                  to={navItem.href ?? '#'}
+                  py={2}
+                  px={3.5}
+                  fontSize={'xs'}
+                  fontWeight={800}
+                  color={isCurrentRoute ? activeColor : linkColor}
+                  borderRadius="full"
+                  position="relative"
+                  zIndex={1}
+                  transition="color 0.2s ease"
+                  textTransform="uppercase"
+                  letterSpacing="wider"
+                  whiteSpace="nowrap"
+                  display="inline-flex"
+                  alignItems="center"
+                  gap={1}
+                  _hover={{ textDecoration: 'none' }}
+                >
+                  {/* Dynamic Sliding Liquid Pill background */}
+                  {(isHovered || (isCurrentRoute && hoveredIndex === null)) && (
+                    <motion.div
+                      layoutId="liquidNavPill"
+                      initial={false}
+                      animate={{
+                        opacity: 1,
+                        scale: 1,
+                      }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 450,
+                        damping: 32,
+                      }}
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        borderRadius: '9999px',
+                        background: isCurrentRoute
+                          ? 'linear-gradient(135deg, rgba(19, 127, 236, 0.22) 0%, rgba(19, 127, 236, 0.1) 100%)'
+                          : 'rgba(255, 255, 255, 0.45)',
+                        border: '1px solid rgba(255, 255, 255, 0.6)',
+                        boxShadow: 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.8), 0 4px 14px rgba(19, 127, 236, 0.15)',
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        zIndex: -1,
+                      }}
+                    />
+                  )}
+                  {navItem.label}
+                  {navItem.children && (
+                    <Icon
+                      as={ChevronDownIcon}
+                      w={3.5}
+                      h={3.5}
+                      transition="transform 0.2s"
+                      transform={isHovered ? 'rotate(180deg)' : 'none'}
+                    />
+                  )}
+                </Box>
+              </PopoverTrigger>
+
+              {navItem.children && (
+                <PopoverContent
+                  border="1px solid"
+                  borderColor={popoverBorder}
+                  boxShadow={'inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.7), 0 20px 40px rgba(0,0,0,0.15)'}
+                  bg={popoverContentBg}
+                  p={3}
+                  rounded={'2xl'}
+                  minW={'18rem'}
+                  backdropFilter="blur(24px) saturate(180%)"
+                  WebkitBackdropFilter="blur(24px) saturate(180%)"
+                  _focus={{ boxShadow: 'none' }}
+                >
+                  <Stack spacing={1}>
+                    {navItem.children.map((child, childIndex) => (
+                      <DesktopSubNav key={`${child.label}-${childIndex}`} {...child} />
+                    ))}
+                  </Stack>
+                </PopoverContent>
+              )}
+            </Popover>
+          </Box>
+        );
+      })}
+    </HStack>
   );
 };
 
 const DesktopSubNav = ({ label, href, subLabel }) => {
-  const hoverBg = useColorModeValue('brand.50', 'gray.900');
+  const hoverBg = useColorModeValue(
+    'linear-gradient(135deg, rgba(19, 127, 236, 0.12) 0%, rgba(255, 255, 255, 0.6) 100%)',
+    'linear-gradient(135deg, rgba(19, 127, 236, 0.25) 0%, rgba(30, 41, 59, 0.6) 100%)'
+  );
+  const titleColor = useColorModeValue('gray.800', 'white');
+  const subLabelColor = useColorModeValue('gray.500', 'gray.400');
   const activeColor = 'brand.500';
 
   return (
@@ -277,131 +434,172 @@ const DesktopSubNav = ({ label, href, subLabel }) => {
       to={href}
       role={'group'}
       display={'block'}
-      p={2}
-      rounded={'md'}
-      _hover={{ bg: hoverBg }}
+      p={2.5}
+      rounded={'xl'}
+      transition="all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
+      _hover={{
+        bg: hoverBg,
+        transform: 'translateX(4px)',
+        textDecoration: 'none',
+        boxShadow: 'inset 0 1px 1px 0 rgba(255, 255, 255, 0.6), 0 4px 12px rgba(0,0,0,0.05)',
+      }}
     >
-      <Stack direction={'row'} align={'center'}>
+      <HStack align={'center'} justify="space-between">
         <Box>
           <Text
-            transition={'all .3s ease'}
+            transition={'all .2s ease'}
             _groupHover={{ color: activeColor }}
-            fontWeight={500}
+            fontWeight={700}
+            fontSize="sm"
+            color={titleColor}
           >
             {label}
           </Text>
-          <Text fontSize={'sm'}>{subLabel}</Text>
+          {subLabel && (
+            <Text fontSize={'xs'} color={subLabelColor}>
+              {subLabel}
+            </Text>
+          )}
         </Box>
         <Flex
-          transition={'all .3s ease'}
-          transform={'translateX(-10px)'}
+          transition={'all .2s ease'}
+          transform={'translateX(-8px)'}
           opacity={0}
-          _groupHover={{ opacity: '100%', transform: 'translateX(0)' }}
-          justify={'flex-end'}
+          _groupHover={{ opacity: 1, transform: 'translateX(0)' }}
           align={'center'}
-          flex={1}
         >
-          <Icon color={activeColor} w={5} h={5} as={ChevronRightIcon} />
+          <Icon color={activeColor} w={4} h={4} as={ChevronRightIcon} />
         </Flex>
-      </Stack>
+      </HStack>
     </Box>
   );
 };
 
 const MobileNav = ({ navItems, user, onClose, onSearchOpen }) => {
-  const bg = useColorModeValue('rgba(255, 255, 255, 0.7)', 'rgba(15, 23, 42, 0.7)');
+  const bg = useColorModeValue('rgba(255, 255, 255, 0.75)', 'rgba(15, 23, 42, 0.85)');
+  const border = useColorModeValue('rgba(255, 255, 255, 0.6)', 'rgba(255, 255, 255, 0.12)');
+  const headerBorder = useColorModeValue('gray.100', 'whiteAlpha.100');
+
   return (
     <Stack
       layerStyle="liquidGlass"
       p={4}
       display={{ lg: 'none' }}
       borderRadius="2xl"
-      mt={2}
-      mx={2}
-      boxShadow="xl"
+      mt={3}
+      mx={1}
+      boxShadow="0 20px 40px rgba(0,0,0,0.15)"
       bg={bg}
-      backdropFilter="blur(24px)"
-      maxH="70vh"
+      borderColor={border}
+      backdropFilter="blur(28px) saturate(200%)"
+      WebkitBackdropFilter="blur(28px) saturate(200%)"
+      maxH="75vh"
       overflowY="auto"
+      spacing={3}
     >
-      <ColorModeSwitcher alignSelf="center" mb={4} />
+      <HStack justify="space-between" align="center" pb={2} borderBottom="1px solid" borderColor={headerBorder}>
+        <Text fontSize="xs" fontWeight="800" color="gray.500" letterSpacing="wider" textTransform="uppercase">
+          Navigasi Utama
+        </Text>
+        <ColorModeSwitcher size="sm" />
+      </HStack>
+
       <Button
         leftIcon={<FaSearch />}
         variant="ghost"
-        mb={4}
-        justifyContent="flex-start"
-        onClick={() => { onClose(); onSearchOpen(); }}
+        justifyContent="space-between"
+        size="md"
+        borderRadius="xl"
+        layerStyle="liquidGlassPill"
+        onClick={() => {
+          onClose();
+          onSearchOpen();
+        }}
+        fontSize="sm"
+        fontWeight="700"
       >
-        Pencarian Cepat (Ctrl+K)
+        <Text>Pencarian Cepat</Text>
+        <Badge colorScheme="brand" borderRadius="md" px={2} fontSize="10px">
+          Ctrl + K
+        </Badge>
       </Button>
-      {/* Pencarian Cepat Mobile */}
+
       {user ? (
-          <Button
-            key="portal-btn"
-            as={RouterLink}
-            to="/portal"
-            leftIcon={<FaUserCircle />}
-            colorScheme="brand"
-            variant="solid"
-            mb={4}
-            borderRadius="xl"
-            onClick={onClose}
+        <Button
+          key="portal-btn"
+          as={RouterLink}
+          to="/portal"
+          leftIcon={<FaUserCircle />}
+          colorScheme="brand"
+          variant="solid"
+          borderRadius="xl"
+          onClick={onClose}
+          size="md"
+          boxShadow="0 4px 15px rgba(19, 127, 236, 0.4)"
         >
-            Portal: {user.email.split('@')[0]}
+          Portal: {user.email.split('@')[0]}
         </Button>
       ) : (
-          <Button
-            key="auth-btn"
-            as={RouterLink}
-            to="/auth"
-            leftIcon={<FaLock />}
-            colorScheme="brand"
-            variant="outline"
-            mb={4}
-            borderRadius="xl"
-            onClick={onClose}
+        <Button
+          key="auth-btn"
+          as={RouterLink}
+          to="/auth"
+          leftIcon={<FaLock />}
+          colorScheme="brand"
+          variant="outline"
+          borderRadius="xl"
+          onClick={onClose}
+          size="md"
+          layerStyle="liquidGlassPill"
         >
-            Masuk Portal Warga
+          Masuk Portal Warga
         </Button>
       )}
 
-      {navItems.map((navItem, index) => (
-        <MobileNavItem key={`${navItem.label}-${index}`} {...navItem} onClose={onClose} />
-      ))}
+      <Stack spacing={1} pt={1}>
+        {navItems.map((navItem, index) => (
+          <MobileNavItem key={`${navItem.label}-${index}`} {...navItem} onClose={onClose} />
+        ))}
+      </Stack>
     </Stack>
   );
 };
 
 const MobileNavItem = ({ label, children, href, onClose }) => {
   const { isOpen, onToggle } = useDisclosure();
-  const textColor = useColorModeValue('gray.600', 'gray.200');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const textColor = useColorModeValue('gray.800', 'gray.100');
+  const borderColor = useColorModeValue('rgba(19, 127, 236, 0.2)', 'rgba(255, 255, 255, 0.15)');
+  const itemHoverBg = useColorModeValue('rgba(19, 127, 236, 0.08)', 'rgba(255, 255, 255, 0.08)');
+  const childColor = useColorModeValue('gray.600', 'gray.300');
+  const childHoverBg = useColorModeValue('whiteAlpha.600', 'whiteAlpha.100');
 
-  const handleLinkClick = () => {
-    if (!children) {
-      onClose();
-    } else {
+  const handleLinkClick = (e) => {
+    if (children) {
+      e.preventDefault();
       onToggle();
+    } else {
+      onClose();
     }
   };
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={1}>
       <Flex
-        py={2}
+        py={2.5}
+        px={3}
         as={RouterLink}
         to={href ?? '#'}
         justify={'space-between'}
         align={'center'}
+        borderRadius="xl"
+        transition="all 0.2s"
         _hover={{
+          bg: itemHoverBg,
           textDecoration: 'none',
         }}
         onClick={handleLinkClick}
       >
-        <Text
-          fontWeight={600}
-          color={textColor}
-        >
+        <Text fontWeight={700} fontSize="sm" color={textColor}>
           {label}
         </Text>
         {children && (
@@ -409,20 +607,22 @@ const MobileNavItem = ({ label, children, href, onClose }) => {
             as={ChevronDownIcon}
             transition={'all .25s ease-in-out'}
             transform={isOpen ? 'rotate(180deg)' : ''}
-            w={6}
-            h={6}
+            w={5}
+            h={5}
+            color="gray.500"
           />
         )}
       </Flex>
 
       <Collapse in={isOpen} animateOpacity style={{ marginTop: '0!important' }}>
         <Stack
-          mt={2}
-          pl={4}
-          borderLeft={1}
-          borderStyle={'solid'}
+          mt={1}
+          ml={3}
+          pl={3}
+          borderLeft="2px solid"
           borderColor={borderColor}
           align={'start'}
+          spacing={1}
         >
           {children &&
             children.map((child, index) => (
@@ -430,8 +630,19 @@ const MobileNavItem = ({ label, children, href, onClose }) => {
                 as={RouterLink}
                 key={`${child.label}-${index}`}
                 py={2}
+                px={2}
                 to={child.href}
                 onClick={onClose}
+                fontSize="xs"
+                fontWeight="600"
+                color={childColor}
+                borderRadius="lg"
+                width="100%"
+                _hover={{
+                  color: 'brand.500',
+                  bg: childHoverBg,
+                  textDecoration: 'none',
+                }}
               >
                 {child.label}
               </Box>
