@@ -120,7 +120,7 @@ const Navbar = ({ user, isScrolled }) => {
 
   return (
     <Box>
-      <Container maxW="container.xl" pt={2} px={{ base: 2, sm: 4 }}>
+      <Container maxW="container.2xl" pt={2} px={{ base: 2, sm: 3, md: 4 }}>
         <Flex
           as={'nav'}
           layerStyle="liquidGlass"
@@ -129,7 +129,7 @@ const Navbar = ({ user, isScrolled }) => {
           color={textColor}
           minH={'64px'}
           py={{ base: 2 }}
-          px={{ base: 3, md: 6 }}
+          px={{ base: 3, md: 4, xl: 5 }}
           align={'center'}
           borderRadius={isScrolled ? 'full' : '3xl'}
           transition="all 0.4s cubic-bezier(0.16, 1, 0.3, 1)"
@@ -161,45 +161,40 @@ const Navbar = ({ user, isScrolled }) => {
             <HStack
               as={RouterLink}
               to="/"
-              spacing={3}
+              spacing={{ base: 2, md: 3 }}
               _hover={{ textDecoration: 'none' }}
               transition="transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)"
               _active={{ transform: 'scale(0.95)' }}
+              flexShrink={0}
             >
-              <Box
-                bg="brand.600"
-                p={1.5}
-                borderRadius="xl"
-                display="flex"
-                alignItems="center"
-                boxShadow="0 4px 15px rgba(19, 127, 236, 0.4)"
-              >
-                <Image
-                  src="/logo_desa.png"
-                  h={{ base: '24px', md: '30px' }}
-                  alt="Logo Desa Ngawonggo"
-                  style={{ filter: 'drop-shadow(0px 1px 2px rgba(0,0,0,0.5))' }}
-                />
-              </Box>
+              <Image
+                src="/logo_desa.png"
+                h={{ base: '32px', md: '38px' }}
+                w="auto"
+                objectFit="contain"
+                alt="Logo Desa Ngawonggo"
+                style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))' }}
+              />
               <VStack align="start" spacing={0} display={{ base: 'none', sm: 'flex' }}>
                 <Text
                   fontWeight="900"
                   color={brandTitleColor}
-                  fontSize={{ base: 'md', md: 'lg' }}
+                  fontSize={{ base: 'sm', md: 'md', lg: 'lg' }}
                   letterSpacing="tight"
                   lineHeight="1"
                   fontFamily="heading"
+                  whiteSpace="nowrap"
                 >
                   DESA NGAWONGGO
                 </Text>
-                <Text fontSize="10px" fontWeight="800" color="brand.400" letterSpacing="widest">
+                <Text fontSize="10px" fontWeight="800" color="brand.400" letterSpacing="widest" whiteSpace="nowrap">
                   KAB. MAGELANG
                 </Text>
               </VStack>
             </HStack>
 
             {/* Desktop Navigation */}
-            <Flex display={{ base: 'none', lg: 'flex' }} ml={8}>
+            <Flex display={{ base: 'none', lg: 'flex' }} ml={{ lg: 2, xl: 4 }}>
               <DesktopNav navItems={NAV_ITEMS} currentPath={location.pathname} />
             </Flex>
           </Flex>
@@ -209,8 +204,9 @@ const Navbar = ({ user, isScrolled }) => {
             flex={{ base: 1, lg: 0 }}
             justify={'flex-end'}
             direction={'row'}
-            spacing={{ base: 2, sm: 3 }}
+            spacing={{ base: 1.5, sm: 2, md: 2.5 }}
             align="center"
+            flexShrink={0}
           >
             <Tooltip label="Pencarian Cepat (Ctrl+K)" placement="bottom" hasArrow>
               <IconButton
@@ -238,8 +234,9 @@ const Navbar = ({ user, isScrolled }) => {
                   colorScheme="brand"
                   leftIcon={<FaUserCircle />}
                   borderRadius="full"
-                  px={5}
+                  px={{ base: 3, md: 4 }}
                   size="sm"
+                  maxW={{ base: '120px', md: '160px' }}
                   boxShadow="0 4px 14px rgba(19, 127, 236, 0.4)"
                   _hover={{
                     transform: 'translateY(-2px) scale(1.02)',
@@ -248,7 +245,9 @@ const Navbar = ({ user, isScrolled }) => {
                   _active={{ transform: 'scale(0.97)' }}
                   transition="all 0.25s"
                 >
-                  {user.email.split('@')[0]}
+                  <Text isTruncated fontSize="xs">
+                    {user.email.split('@')[0]}
+                  </Text>
                 </Button>
               </Tooltip>
             ) : (
@@ -261,7 +260,7 @@ const Navbar = ({ user, isScrolled }) => {
                   variant={'outline'}
                   colorScheme="brand"
                   borderRadius="full"
-                  px={5}
+                  px={{ base: 3.5, md: 5 }}
                   size="sm"
                   leftIcon={<FaLock />}
                   layerStyle="liquidGlassPill"
@@ -307,7 +306,7 @@ const DesktopNav = ({ navItems, currentPath }) => {
 
   return (
     <HStack
-      spacing={1}
+      spacing={{ lg: 0.5, xl: 1 }}
       align="center"
       position="relative"
       onMouseLeave={() => setHoveredIndex(null)}
@@ -332,8 +331,8 @@ const DesktopNav = ({ navItems, currentPath }) => {
                   as={RouterLink}
                   to={navItem.href ?? '#'}
                   py={2}
-                  px={3.5}
-                  fontSize={'xs'}
+                  px={{ lg: 2, xl: 3 }}
+                  fontSize={{ lg: '11px', xl: 'xs' }}
                   fontWeight={800}
                   color={isCurrentRoute ? activeColor : linkColor}
                   borderRadius="full"
@@ -341,11 +340,11 @@ const DesktopNav = ({ navItems, currentPath }) => {
                   zIndex={1}
                   transition="color 0.2s ease"
                   textTransform="uppercase"
-                  letterSpacing="wider"
+                  letterSpacing="wide"
                   whiteSpace="nowrap"
                   display="inline-flex"
                   alignItems="center"
-                  gap={1}
+                  gap={0.5}
                   _hover={{ textDecoration: 'none' }}
                 >
                   {/* Dynamic Sliding Liquid Pill background */}

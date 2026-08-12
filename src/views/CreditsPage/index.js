@@ -57,7 +57,7 @@ const teamMembers = [
     contribution: "40%",
     isLeader: true,
     photo: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEifh-gSAUfCfZSZASMU_3xe-LtUUl94TKvEuX7_xF7MSlkiEwWKIyOUExxYxLxHIXBSAVNfDw6pwsA1w9Mlwf3UDBQb4Z4sK7HbVHihuTkmg-8qgjpDQT2nmdwxnWsFj7fUCYAaDDslfbKe9grVOsCCeQ4R1EUVsAUySd7BGzK-i5l1eZPSOvhlq1IfGpw/s320/10%20TJKT%20A%20ADITYA%20ARTA%20PUTRA.JPG",
-    certificate: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilVHKf4rAAnNsXQ9rCmDp1wDaHGD-54HwjNQkUSLzUwhCY3csZ9AeRpBkCL1tulzAg_BRcOgm4rremf6CxK-CKiqocFpf5s-9x_qeDnfquLIyRkPte3dzxKA-sOiLmVt97BGWFtGLc7DTE70AfiebK2KnrT8m9j5DSXTdBGCvOdXT9IaTtB4IKxJYbBg0/s320/1.png",
+    certificate: "https://cpamusheoowbmllxffrt.supabase.co/storage/v1/object/public/upload/Emas%20dan%20Krem%20Elegan%20Sertifikat%20Penghargaan.png",
     description: "Ketua proyek sekaligus pengembang utama yang merancang dan membangun arsitektur portal desa digital Ngawonggo dari hulu ke hilir dengan dedikasi tinggi."
   },
   {
@@ -280,7 +280,7 @@ const LeaderSpotlightCard = ({ leader }) => {
       </MotionBox>
 
       {/* Leader Certificate Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
+      <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered scrollBehavior="inside">
         <ModalOverlay backdropFilter="blur(12px)" bg="blackAlpha.700" />
         <ModalContent borderRadius="3xl" overflow="hidden" mx={4} border="2px solid" borderColor="yellow.500">
           <ModalHeader bg="gray.900" color="white" py={4} display="flex" align="center" gap={2}>
@@ -292,6 +292,9 @@ const LeaderSpotlightCard = ({ leader }) => {
               src={leader.certificate}
               alt={`Sertifikat ${leader.name}`}
               w="100%"
+              maxH="75vh"
+              objectFit="contain"
+              mx="auto"
               borderRadius="2xl"
               boxShadow="2xl"
             />
