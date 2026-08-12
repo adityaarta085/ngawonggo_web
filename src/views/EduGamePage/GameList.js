@@ -15,6 +15,7 @@ import { FaGamepad, FaBrain, FaTrophy, FaArrowLeft, FaCertificate, FaCrown } fro
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { gamesData } from './GamesData';
+import SEO from '../../components/SEO';
 
 const MotionBox = motion(Box);
 
@@ -23,6 +24,11 @@ const GameList = () => {
 
   return (
     <Box py={12} position="relative" overflow="hidden">
+      <SEO
+        title="Game Edukasi Desa Ngawonggo"
+        description="Pusat Permainan Edukatif & Mini Game Interaktif Warga Desa Ngawonggo Kaliangkrik Magelang."
+        keywords="Game Edukasi Ngawonggo, EduGame Desa Ngawonggo, Permainan Edukatif"
+      />
       {/* Background Decor */}
       <Box position="absolute" top="-10%" left="-10%" w="40%" h="40%" bg="brand.100" opacity={0.3} display={{ base: "none", md: "block" }} filter="blur(120px)" borderRadius="full" />
       <Box position="absolute" bottom="-10%" right="-10%" w="30%" h="30%" bg="purple.100" opacity={0.3} display={{ base: "none", md: "block" }} filter="blur(100px)" borderRadius="full" />

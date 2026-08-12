@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { FaRocket, FaHistory, FaShareAlt, FaUndo } from 'react-icons/fa';
 
+import SEO from '../../components/SEO';
+
 const MotionBox = motion(Box);
 const MotionFlex = motion(Flex);
 
@@ -162,6 +164,11 @@ export default function MesinWaktuPage() {
 
   return (
     <Box minH="100vh" bg="black" color="white" overflow="hidden" position="relative" fontFamily="mono">
+      <SEO
+        title="Simulator Mesin Waktu Desa Ngawonggo"
+        description="Simulator Mesin Waktu Interaktif AI Desa Ngawonggo. Jelajahi sejarang masa lalu dan prediksi masa depan desa secara interaktif."
+        keywords="Mesin Waktu Ngawonggo, Simulator Desa Ngawonggo, Sejarah Ngawonggo Kaliangkrik"
+      />
       <AnimatePresence mode="wait">
         {appState === 'COCKPIT' && (
           <Cockpit

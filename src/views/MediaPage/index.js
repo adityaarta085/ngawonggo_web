@@ -29,7 +29,7 @@ import 'video.js/dist/video-js.css';
 import CommunityFeed from './CommunityFeed';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { translations } from '../../translations';
-
+import SEO from '../../components/SEO';
 
 const MediaPage = () => {
   const { language } = useLanguage();
@@ -84,7 +84,12 @@ const MediaPage = () => {
   };
 
   return (
-    <Box  pt={0} pb={32} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
+    <Box pt={0} pb={32} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
+      <SEO
+        title="Streaming & Media Komunitas Warga Ngawonggo"
+        description="Pusat media digital, radio online, video streaming, dan komunitas publik warga Desa Ngawonggo Kaliangkrik Magelang."
+        keywords="Media Ngawonggo, Radio Ngawonggo, Live Streaming Desa Ngawonggo, Komunitas Ngawonggo"
+      />
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
           <Box textAlign="center">

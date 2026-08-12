@@ -23,6 +23,7 @@ import ToolCard from './components/ToolCard';
 import GenericTextTool from './tool-components/GenericTextTool';
 import GenericConverterTool from './tool-components/GenericConverterTool';
 import GenericGeneratorTool from './tool-components/GenericGeneratorTool';
+import SEO from '../../components/SEO';
 import GenericCalculatorTool from './tool-components/GenericCalculatorTool';
 import SpecificTools from './tool-components/SpecificTools';
 
@@ -104,6 +105,11 @@ const ToolsPage = () => {
 
   return (
     <Box pt={{ base: '88px', md: '104px' }} minH="100vh" bg={bg}>
+      <SEO
+        title="Alat Universal Online - Portal Desa Ngawonggo"
+        description="Kumpulan 50+ alat digital online gratis lengkap: pengolah teks, konverter, kalkulator, generator, dan utilitas pengembang di Portal Desa Ngawonggo."
+        keywords="Alat Universal Online, Tools Gratis, Tools Desa Ngawonggo, Kalkulator Online, Konverter Online"
+      />
       <Container maxW="container.xl" py={8}>
 
         <Box textAlign="center" mb={10}>

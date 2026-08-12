@@ -1,3 +1,4 @@
+import { SEO } from '../../components';
 import {
   Box,
   Heading,
@@ -14,7 +15,12 @@ import {
 
 export default function TransparansiPage() {
   return (
-    <Box  pt={0} py={12} minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }}>
+    <Box pt={0} py={12} minH="100vh" bg="gray.50" _dark={{ bg: "gray.900" }}>
+      <SEO
+        title="Transparansi APBDes & Dana Desa Ngawonggo"
+        description="Laporan Keterbukaan Informasi Publik Pengelolaan Anggaran Pendapatan dan Belanja Desa (APBDes) Ngawonggo, Kaliangkrik, Kabupaten Magelang."
+        keywords="Transparansi Desa Ngawonggo, APBDes Ngawonggo, Anggaran Desa Kaliangkrik, Dana Desa Ngawonggo"
+      />
       <Container maxW="container.xl">
         <VStack spacing={12} align="stretch">
           <Box layerStyle="glassCard" p={10} bgGradient="linear(to-br, brand.500, blue.600)" color="white">
