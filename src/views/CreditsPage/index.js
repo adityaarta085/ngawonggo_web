@@ -541,7 +541,7 @@ const CreditsPage = () => {
               size="3xl"
               fontWeight="900"
               letterSpacing="tight"
-              bgGradient="linear(to-r, brand.600, amber.500, purple.600)"
+              bgGradient="linear(to-r, #0066cc, #d97706, #9333ea)"
               bgClip="text"
               mb={4}
             >
@@ -592,7 +592,7 @@ const CreditsPage = () => {
           <Flex gap={4} mt={6} flexWrap="wrap" justify="center">
             <Button
               as={Link}
-              href="https://docs.google.com/document/d/1HPfKm_yJZreKNEyVk-bG7Yg8EKQd0UwA/edit?usp=sharing&ouid=105570846013465124362&rtpof=true&sd=true"
+              href="https://drive.google.com/file/d/14fYy1YTkYKDLjVXBensBrQT9BdfFn9VI/view"
               isExternal
               leftIcon={<FaFileAlt />}
               rightIcon={<FaExternalLinkAlt fontSize="12px" />}
@@ -603,7 +603,7 @@ const CreditsPage = () => {
               boxShadow="md"
               _hover={{ textDecoration: 'none', transform: 'translateY(-2px)', boxShadow: 'lg' }}
             >
-              Proposal Proyek Resmi
+              Laporan Proyek Resmi
             </Button>
             <Button
               as={Link}
