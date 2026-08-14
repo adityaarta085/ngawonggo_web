@@ -3,7 +3,7 @@ import { Box } from '@chakra-ui/react';
 import Hero from './components/Hero.js';
 import LatestNews from './components/LatestNews.js';
 import DusunSection from './components/DusunSection.js';
-import VideoPromo from './components/VideoPromo.js';
+import PodcastSection from './components/PodcastSection.js';
 import Supports from './components/Supports.js';
 import StatsSection from './components/StatsSection.js';
 import PengaduanSection from './components/PengaduanSection.js';
@@ -27,7 +27,7 @@ export default function LandingPage() {
       <StatsSection />
       <DusunSection />
       <LatestNews />
-      <VideoPromo />
+      <PodcastSection />
       <QuranAccess />
       <PengaduanSection />
       <Supports />
