@@ -5,13 +5,34 @@ const supabaseServiceKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciO
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
+ * Fetch dynamic AI model configuration from Supabase site_settings
+ */
+async function getAIModelConfig() {
+  try {
+    const { data } = await supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', ['ai_primary_model', 'ai_fallback_models']);
+
+    const primary = data?.find(s => s.key === 'ai_primary_model')?.value || 'mistral-agent';
+    const fallbacksRaw = data?.find(s => s.key === 'ai_fallback_models')?.value || 'deepseek,islamic-ai,codestral';
+    const fallbacks = fallbacksRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+    return [primary, ...fallbacks, 'mistral-agent', 'deepseek'];
+  } catch (e) {
+    return ['mistral-agent', 'deepseek', 'islamic-ai'];
+  }
+}
+
+/**
  * Call AI Engine to generate summary
  */
 async function generateSummaryWithAI(cleanText) {
   const prompt = `langsung ringkaskan berita berikut secara singkat, padat, dan jelas (maksimal 3-4 kalimat), langsung ke inti berita tanpa kalimat pembuka atau penutup:\n\n${cleanText}`;
-  const models = ['mistral-agent', 'deepseek', 'islamic-ai'];
+  const models = await getAIModelConfig();
+  const uniqueModels = [...new Set(models.filter(Boolean))];
 
-  for (const model of models) {
+  for (const model of uniqueModels) {
     try {
       const response = await fetch('https://ai.alfisy.my.id/api/chat', {
         method: 'POST',
@@ -27,7 +48,7 @@ async function generateSummaryWithAI(cleanText) {
       const data = await response.json();
       const reply = (data.reply || data.analysis || data.message || '').trim();
 
-      if (reply && !reply.startsWith('Maaf, terjadi kesalahan')) {
+      if (reply && !reply.startsWith('Maaf, terjadi kesalahan') && !reply.startsWith('Gagal terhubung')) {
         return reply;
       }
     } catch (err) {

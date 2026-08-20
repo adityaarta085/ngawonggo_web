@@ -42,12 +42,53 @@ Anda memiliki pengetahuan lengkap seputar Desa Ngawonggo, Kecamatan Kaliangkrik,
   "reason": "<alasan eskalasi>"
 }`;
 
+const SUPPORTED_MODELS = [
+  { id: 'mistral-agent', name: 'AlfiXD Mistral Agent', category: 'General / Agent', description: 'Model Cepat, Ringan & Serba Bisa untuk Percakapan Umum', recommended: true },
+  { id: 'deepseek', name: 'DeepSeek V3', category: 'Reasoning & Intelligence', description: 'Penalaran Mendalam, Bahasa Indonesia Sangat Natural & Cerdas', recommended: true },
+  { id: 'islamic-ai', name: 'Islamic AI Specialist', category: 'Islamic / Religion', description: 'Spesialis Dalil Al-Quran, Fiqih, Sholat, dan Keagamaan', recommended: true },
+  { id: 'codestral', name: 'Codestral High-Logic', category: 'Logic & Code', description: 'Optimal untuk Struktur Data, Logika Komputasi, & Format JSON' },
+  { id: 'pixtral', name: 'Pixtral Vision', category: 'Vision & Multimodal', description: 'Analisis Visual & Pemrosesan Gambar Dokumen' },
+  { id: 'zai-glm', name: 'Z.AI GLM-4.7', category: 'Large Language Model', description: 'Zhipu AI Multilingual Engine' },
+  { id: 'gpt5', name: 'GPT-5 Turbo', category: 'Next-Gen Interface', description: 'Model OpenAI Next-Generation Compatible' },
+  { id: 'claude', name: 'Claude Sonnet 4.5', category: 'Advanced Conversational', description: 'Anthropic High-Precision Contextual Assistant' },
+  { id: 'gemini', name: 'Gemini 3 Flash', category: 'Google Multimodal', description: 'Google Deepmind Ultra-fast Processing' },
+  { id: 'kimi', name: 'Kimi K2', category: 'Long-Context', description: 'Moonshot AI Extended Contextual Memory' }
+];
+
 /**
- * Call AI Engine with fallback providers/models
+ * Fetch dynamic AI model configuration from Supabase site_settings
  */
-async function callAIEngine(prompt, preferredModel = 'mistral-agent') {
-  const modelsToTry = [preferredModel, 'mistral-agent', 'deepseek', 'islamic-ai'];
-  const uniqueModels = [...new Set(modelsToTry)];
+async function getAIModelConfig() {
+  try {
+    const { data } = await supabase
+      .from('site_settings')
+      .select('key, value')
+      .in('key', ['ai_primary_model', 'ai_fallback_models']);
+
+    const primary = data?.find(s => s.key === 'ai_primary_model')?.value || 'mistral-agent';
+    const fallbacksRaw = data?.find(s => s.key === 'ai_fallback_models')?.value || 'deepseek,islamic-ai,codestral';
+    const fallbacks = fallbacksRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+    return { primary, fallbacks };
+  } catch (e) {
+    return { primary: 'mistral-agent', fallbacks: ['deepseek', 'islamic-ai', 'codestral'] };
+  }
+}
+
+/**
+ * Call AI Engine with dynamic prioritized models and fallbacks
+ */
+async function callAIEngine(prompt, requestedModel = null) {
+  const config = await getAIModelConfig();
+  const modelsToTry = [
+    ...(requestedModel ? [requestedModel] : []),
+    config.primary,
+    ...config.fallbacks,
+    'mistral-agent',
+    'deepseek',
+    'islamic-ai'
+  ];
+  const uniqueModels = [...new Set(modelsToTry.filter(Boolean))];
 
   for (const model of uniqueModels) {
     try {
@@ -66,7 +107,7 @@ async function callAIEngine(prompt, preferredModel = 'mistral-agent') {
       const reply = (data.reply || data.analysis || data.message || '').trim();
 
       // Ensure reply is not empty or an internal error string
-      if (reply && !reply.startsWith('Maaf, terjadi kesalahan saat memproses permintaan')) {
+      if (reply && !reply.startsWith('Maaf, terjadi kesalahan saat memproses permintaan') && !reply.startsWith('Gagal terhubung')) {
         return {
           content: reply,
           reasoning: data.reasoning || '',
@@ -74,7 +115,7 @@ async function callAIEngine(prompt, preferredModel = 'mistral-agent') {
         };
       }
     } catch (err) {
-      console.warn(`Model ${model} failed, trying next...`, err.message);
+      console.warn(`Model ${model} failed, trying next fallback...`, err.message);
     }
   }
 
@@ -96,8 +137,52 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
+  if (req.method === 'GET') {
+    const config = await getAIModelConfig();
+    return res.status(200).json({
+      success: true,
+      config,
+      models: SUPPORTED_MODELS
+    });
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // --- Admin Model Testing Action ---
+  if (req.body?.action === 'test_model') {
+    const modelToTest = req.body.model || 'mistral-agent';
+    const t0 = Date.now();
+    try {
+      const response = await fetch('https://ai.alfisy.my.id/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Halo, respon dalam 1 kalimat pendek: saya siap.',
+          model: modelToTest,
+        }),
+      });
+      const data = await response.json();
+      const latency = Date.now() - t0;
+      const text = (data.reply || data.analysis || data.message || '').trim();
+      const isOnline = response.ok && text && !text.startsWith('Maaf, terjadi kesalahan') && !text.startsWith('Gagal terhubung');
+      return res.status(200).json({
+        success: isOnline,
+        model: modelToTest,
+        latency,
+        reply: text,
+        status: isOnline ? 'online' : 'error'
+      });
+    } catch (e) {
+      return res.status(200).json({
+        success: false,
+        model: modelToTest,
+        latency: Date.now() - t0,
+        error: e.message,
+        status: 'failed'
+      });
+    }
   }
 
   // --- Mesin Waktu Requests ---
