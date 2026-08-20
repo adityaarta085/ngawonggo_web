@@ -1,89 +1,101 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://cpamusheoowbmllxffrt.supabase.co';
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYW11c2hlb293Ym1sbHhmZnJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzQxODMsImV4cCI6MjA4NTQ1MDE4M30.5J-ObKNsLXZL6yNeiGNjLy3jpAUx0hGC-2oJPYdcmMs';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const GPTOSS_BASE_URL = "https://gptoss-proxy-production.adityaarta085.workers.dev/v1/chat/completions";
+const DEFAULT_KNOWLEDGE_PROMPT = `Anda adalah Asisten AI Desa Ngawonggo yang ramah, cerdas, informatif, dan membantu warga maupun pengunjung.
+Anda memiliki pengetahuan lengkap seputar Desa Ngawonggo, Kecamatan Kaliangkrik, Kabupaten Magelang, Jawa Tengah serta seluruh fitur pada website resmi Desa Ngawonggo:
+
+1. 🕌 Al-Quran Digital & Jadwal Sholat:
+   - Tersedia di menu/halaman "/quran".
+   - Menyediakan Al-Quran 30 Juz lengkap dengan teks Arab, terjemahan bahasa Indonesia, audio murottal per ayat, serta Jadwal Waktu Sholat otomatis yang akurat untuk wilayah Kabupaten Magelang & sekitarnya.
+
+2. 📜 Layanan Administrasi & Surat Online:
+   - Tersedia di menu/halaman "/layanan".
+   - Warga dapat mengajukan berbagai surat keterangan (Surat Pengantar KTP/KK, Domisili, Usaha, Kelahiran, Kematian, Tidak Mampu, dll) secara mandiri dan cepat secara online.
+
+3. 📢 Pengaduan & Aspirasi Warga:
+   - Tersedia di menu "/layanan" (bagian Form Pengaduan).
+   - Setiap pengaduan langsung diproses dan dapat dipantau status penanganannya oleh perangkat desa.
+
+4. 📰 Berita & Portal Informasi Desa:
+   - Tersedia di menu "/berita" dan "/portal" untuk kabar terkini kegiatan masyarakat, pembangunan desa, dan info agrikultur lereng Gunung Sumbing.
+
+5. ⏳ Mesin Waktu Ngawonggo:
+   - Tersedia di menu "/mesin-waktu" untuk game simulasi penjelajahan waktu fiksi sejarah Desa Ngawonggo dari masa ke masa secara interaktif.
+
+6. 🎨 Kreativitas & Komunitas:
+   - Tersedia di menu "/kreativitas" (Generator Gambar AI Desa) dan "/media" (Galeri foto/video karya warga).
+
+7. 🤝 Donasi & Topup Koin:
+   - Tersedia di menu "/donasi" dan "/topup" untuk program sosial kemasyarakatan dan transaksi fitur premium.
+
+8. 🏛️ Profil & Pemerintahan Desa:
+   - Tersedia di menu "/profil" (Sejarah sejak 1904, Visi Misi SEGER, Demografi, Peta Wilayah) dan "/pemerintahan" (Struktur perangkat desa).
+
+9. 🎧 Customer Service (CS) Desa:
+   - Jika warga meminta berbicara langsung dengan Petugas / Customer Service / manusia, atau pertanyaan membutuhkan penanganan admin, Anda WAJIB membalas HANYA dengan format JSON eskalasi berikut:
+{
+  "escalate": true,
+  "summary": "<ringkasan kebutuhan user>",
+  "reason": "<alasan eskalasi>"
+}`;
 
 /**
- * Call GPT-OSS Proxy Worker API with stream: true, model: gpt-oss-120b, reasoning_effort: high
+ * Call AI Engine with fallback providers/models
  */
-async function callGptOssWorker({ messages, userId, threadId }) {
-  const effectiveUserId = userId || 'anonymous_user';
-  const effectiveThreadId = threadId || `thr_${Date.now()}`;
+async function callAIEngine(prompt, preferredModel = 'mistral-agent') {
+  const modelsToTry = [preferredModel, 'mistral-agent', 'deepseek', 'islamic-ai'];
+  const uniqueModels = [...new Set(modelsToTry)];
 
-  const response = await fetch(GPTOSS_BASE_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Reasoning-Effort': 'high',
-      'X-GPTOSS-User-Id': effectiveUserId,
-      'X-GPTOSS-Thread-Id': effectiveThreadId,
-    },
-    body: JSON.stringify({
-      model: 'gpt-oss-120b',
-      messages,
-      stream: true,
-      metadata: {
-        gptoss_user_id: effectiveUserId,
-        gptoss_thread_id: effectiveThreadId,
-        reasoning_effort: 'high',
-      },
-    }),
-  });
+  for (const model of uniqueModels) {
+    try {
+      const response = await fetch('https://ai.alfisy.my.id/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: prompt,
+          model: model,
+        }),
+      });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`GPT-OSS API Error (${response.status}): ${errText}`);
-  }
+      if (!response.ok) continue;
 
-  return response;
-}
+      const data = await response.json();
+      const reply = (data.reply || data.analysis || data.message || '').trim();
 
-/**
- * Helper to collect streaming response into full text & reasoning content
- */
-async function collectStreamResponse(response) {
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let fullContent = '';
-  let fullReasoning = '';
-  let buffer = '';
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split('\n');
-    buffer = lines.pop() || '';
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed || !trimmed.startsWith('data: ')) continue;
-      const dataStr = trimmed.slice(6).trim();
-      if (dataStr === '[DONE]') break;
-
-      try {
-        const parsed = JSON.parse(dataStr);
-        const delta = parsed.choices?.[0]?.delta || {};
-        if (delta.reasoning_content) {
-          fullReasoning += delta.reasoning_content;
-        }
-        if (delta.content) {
-          fullContent += delta.content;
-        }
-      } catch (e) {
-        // Continue parsing next line
+      // Ensure reply is not empty or an internal error string
+      if (reply && !reply.startsWith('Maaf, terjadi kesalahan saat memproses permintaan')) {
+        return {
+          content: reply,
+          reasoning: data.reasoning || '',
+          model: model,
+        };
       }
+    } catch (err) {
+      console.warn(`Model ${model} failed, trying next...`, err.message);
     }
   }
 
-  return { content: fullContent, reasoning: fullReasoning };
+  // Final fallback text if all models had connection issues
+  return {
+    content: 'Halo! Mohon maaf, saat ini server AI sedang mengalami sedikit kendala jaringan. Anda dapat langsung mengakses menu Al-Quran di "/quran", Layanan Surat di "/layanan", atau hubungi Customer Service kami.',
+    reasoning: '',
+    model: 'fallback',
+  };
 }
 
 module.exports = async (req, res) => {
+  // Enable CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Reasoning-Effort, X-GPTOSS-Thread-Id, X-GPTOSS-User-Id');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -92,29 +104,27 @@ module.exports = async (req, res) => {
   const { year, action, isMesinWaktu } = req.body;
   if (isMesinWaktu) {
     try {
-      const threadId = `thr_mesin_waktu_${year || '926'}`;
       let prompt = '';
-
       if (action) {
-        prompt = `Anda adalah narator game fiksi ilmiah komedi bahasa Indonesia tentang penjelajah waktu yang datang ke Desa Ngawonggo di tahun ${year}. User memilih tindakan: "${action}".
+        prompt = `Anda adalah narator game fiksi ilmiah komedi bahasa Indonesia tentang penjelajah waktu yang mendarat di Desa Ngawonggo pada tahun ${year}. User memilih tindakan: "${action}".
 
-Buatlah hasil dari tindakan tersebut.
-Kembalikan respon DALAM FORMAT JSON SEPERTI INI (TANPA MARKDOWN, TANPA TEKS LAIN):
+Buatlah deskripsi hasil dari tindakan tersebut yang seru, absurd, atau epik.
+Kembalikan respon HANYA DALAM FORMAT JSON BERIKUT (TANPA MARKDOWN, TANPA TEKS LAIN):
 {
   "result": "<deskripsi hasil tindakan yang lucu, absurd, cyberpunk, atau epik>",
   "title": "<julukan singkat dan keren untuk user, maksimal 4 kata>",
   "impact": {
-    "wealth": <angka dampak kekayaan dari -100 sampai 100>,
-    "mystic": <angka dampak mistis dari -100 sampai 100>,
-    "tech": <angka dampak teknologi dari -100 sampai 100>,
-    "harmony": <angka dampak keharmonisan dari -100 sampai 100>
+    "wealth": 20,
+    "mystic": 15,
+    "tech": 10,
+    "harmony": 25
   }
 }`;
       } else {
         prompt = `Anda adalah narator game fiksi ilmiah komedi bahasa Indonesia tentang penjelajah waktu. User baru saja mendarat di Desa Ngawonggo pada tahun ${year}.
-Buatlah deskripsi kedatangan yang unik, absurd, atau epik, dan berikan 3 pilihan tindakan yang lucu, tidak masuk akal, atau sangat spesifik.
+Buatlah deskripsi kedatangan yang unik, absurd, atau epik, dan berikan 3 pilihan tindakan yang menarik atau tidak terduga.
 
-Kembalikan respon DALAM FORMAT JSON SEPERTI INI (TANPA MARKDOWN, TANPA TEKS LAIN):
+Kembalikan respon HANYA DALAM FORMAT JSON BERIKUT (TANPA MARKDOWN, TANPA TEKS LAIN):
 {
   "year": "${year}",
   "title": "<Judul Era yang dramatis>",
@@ -127,13 +137,7 @@ Kembalikan respon DALAM FORMAT JSON SEPERTI INI (TANPA MARKDOWN, TANPA TEKS LAIN
 }`;
       }
 
-      const streamRes = await callGptOssWorker({
-        messages: [{ role: 'user', content: prompt }],
-        userId: req.body.userId || 'mesin_waktu_user',
-        threadId,
-      });
-
-      const { content } = await collectStreamResponse(streamRes);
+      const { content } = await callAIEngine(prompt, 'mistral-agent');
       let cleanContent = content.trim();
       if (cleanContent.startsWith('```json')) {
         cleanContent = cleanContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
@@ -145,20 +149,19 @@ Kembalikan respon DALAM FORMAT JSON SEPERTI INI (TANPA MARKDOWN, TANPA TEKS LAIN
       try {
         data = JSON.parse(cleanContent);
       } catch (e) {
-        console.error("AI JSON Parse Error:", content);
-        // Fallback response if AI returns non-JSON text
+        console.error('Mesin Waktu JSON Parse Error, using structured fallback:', content);
         data = action ? {
-          result: `Tindakan "${action}" memicu kejutan waktu di Desa Ngawonggo!`,
-          title: "Penjelajah Dimensi",
-          impact: { wealth: 10, mystic: 20, tech: 15, harmony: 25 }
+          result: `Tindakan "${action}" memicu resonansi waktu di sekitar perkebunan lereng Gunung Sumbing Desa Ngawonggo!`,
+          title: "Penjelajah Dimensi Sumbing",
+          impact: { wealth: 15, mystic: 25, tech: 20, harmony: 30 }
         } : {
           year: String(year),
-          title: `Era ${year} Ngawonggo`,
-          description: `Anda mendarat dengan selamat di Desa Ngawonggo tahun ${year}. Suasana misterius namun ramah menyambut Anda.`,
+          title: `Era ${year} Misteri Ngawonggo`,
+          description: `Anda mendarat dengan selamat di perbukitan Desa Ngawonggo tahun ${year}. Udara sejuk lereng gunung menyambut petualangan Anda.`,
           options: [
-            { text: "Melihat situasi sekitar desa" },
-            { text: "Bicara dengan tetua desa" },
-            { text: "Mencari teknologi/artefak lokal" }
+            { text: "Menyapa warga dan tetua desa yang sedang berkumpul" },
+            { text: "Menjelajahi mata air dan sawah terasering desa" },
+            { text: "Mencari petunjuk artefak peradaban masa lalu" }
           ]
         };
       }
@@ -171,133 +174,192 @@ Kembalikan respon DALAM FORMAT JSON SEPERTI INI (TANPA MARKDOWN, TANPA TEKS LAIN
   }
 
   // --- Normal Chat Requests ---
-  const { messages, customPrompt, userId, threadId, stream } = req.body;
+  const { messages, customPrompt, userId, stream } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Messages are required' });
   }
 
-  if (!userId) {
-    return res.status(401).json({ error: 'Unauthorized: User ID is required to use the chatbot.' });
-  }
+  const effectiveUserId = userId || 'anonymous_user';
 
   try {
-    // 1. Get Settings from Supabase
-    const { data: settings } = await supabase
-      .from('site_settings')
-      .select('key, value')
-      .in('key', ['default_ai_prompt']);
+    // 1. Get Settings from Supabase if available
+    let systemPrompt = DEFAULT_KNOWLEDGE_PROMPT;
+    try {
+      const { data: settings } = await supabase
+        .from('site_settings')
+        .select('key, value')
+        .in('key', ['default_ai_prompt']);
 
-    const defaultPromptSetting = settings?.find(s => s.key === 'default_ai_prompt');
-
-    // 2. Check limits
-    const { data: tierData } = await supabase
-      .from('user_tiers')
-      .select('tier_name')
-      .eq('user_id', userId)
-      .single();
-
-    const isVIP = tierData && tierData.tier_name !== 'Free';
-    const limit = isVIP ? 50 : 5;
-
-    const today = new Date().toISOString().split('T')[0];
-    const { data: usageData } = await supabase
-      .from('user_feature_usage')
-      .select('usage_count')
-      .eq('user_id', userId)
-      .eq('feature_name', 'ai_chat')
-      .eq('usage_date', today)
-      .single();
-
-    const usageCount = usageData ? usageData.usage_count : 0;
-
-    if (usageCount >= limit) {
-      return res.status(403).json({
-        error: `Daily limit reached. ${isVIP ? 'You have used your 50 daily chats.' : 'Upgrade to VIP for 50 chats/day.'}`,
-        limitReached: true
-      });
+      const defaultPromptSetting = settings?.find(s => s.key === 'default_ai_prompt');
+      if (defaultPromptSetting && defaultPromptSetting.value) {
+        systemPrompt = `${defaultPromptSetting.value}\n\n${DEFAULT_KNOWLEDGE_PROMPT}`;
+      }
+    } catch (dbErr) {
+      console.warn('Could not fetch site_settings prompt:', dbErr.message);
     }
-
-    // 3. Setup System Prompt
-    let systemPrompt = defaultPromptSetting?.value || 'Anda adalah Asisten AI Desa Ngawonggo. Anda ramah, cerdas, dan membantu. Anda memberikan informasi tentang Desa Ngawonggo Kabupaten Magelang, seperti berita desa, tempat wisata (Wisata Ngawonggo, dll), layanan publik, dan lembaga desa. Jika tidak tahu, sarankan untuk menghubungi kantor desa.';
 
     if (customPrompt) {
-      systemPrompt = customPrompt;
+      systemPrompt = `${customPrompt}\n\n${DEFAULT_KNOWLEDGE_PROMPT}`;
     }
 
-    systemPrompt += `\n\nDi akhir setiap jawaban Anda, WAJIB sertakan watermark dan informasi kontak ini persis seperti berikut:\n\n---\n*Jawaban ini dihasilkan oleh AI (Asisten AI DESA).* \n*Mungkin terdapat kesalahan atau informasi yang kurang akurat.*\n*Untuk pertanyaan atau bantuan lebih lanjut, silakan hubungi email: desangawonggoku@gmail.com*`;
+    // 2. Check limits for authenticated users
+    let isVIP = false;
+    if (userId && userId !== 'anonymous_user' && userId !== 'takedown_user') {
+      try {
+        const { data: tierData } = await supabase
+          .from('user_tiers')
+          .select('tier_name')
+          .eq('user_id', userId)
+          .single();
 
-    systemPrompt += `\n\nIMPORTANT INSTRUCTION FOR ESCALATION:
-Jika user meminta berbicara dengan Customer Service (CS) / manusia, ATAU jika Anda tidak mampu menjawab pertanyaan karena terlalu kompleks atau di luar pengetahuan Anda, Anda WAJIB membalas HANYA dengan JSON berikut (tanpa markdown, tanpa teks lain):
-{
-  "escalate": true,
-  "summary": "<ringkasan singkat masalah user>",
-  "reason": "<alasan kenapa butuh CS, misal 'User meminta CS' atau 'Pertanyaan terlalu kompleks'>"
-}
-Jika tidak perlu eskalasi, jawablah seperti biasa dengan teks biasa.`;
+        isVIP = tierData && tierData.tier_name !== 'Free';
+        const limit = isVIP ? 50 : 15; // Generous 15 chats for free tier
 
-    const fullMessages = [
-      { role: 'system', content: systemPrompt },
-      ...messages.map(msg => ({ role: msg.role, content: msg.content }))
-    ];
+        const today = new Date().toISOString().split('T')[0];
+        const { data: usageData } = await supabase
+          .from('user_feature_usage')
+          .select('usage_count')
+          .eq('user_id', userId)
+          .eq('feature_name', 'ai_chat')
+          .eq('usage_date', today)
+          .single();
 
-    const effectiveThreadId = threadId || `thr_chat_${userId}`;
+        const usageCount = usageData ? usageData.usage_count : 0;
 
-    // Update usage count in Supabase
-    if (usageData) {
-      await supabase
-        .from('user_feature_usage')
-        .update({ usage_count: usageCount + 1, last_used_at: new Date().toISOString() })
-        .eq('user_id', userId)
-        .eq('feature_name', 'ai_chat')
-        .eq('usage_date', today);
-    } else {
-      await supabase
-        .from('user_feature_usage')
-        .insert({
-          user_id: userId,
-          feature_name: 'ai_chat',
-          usage_date: today,
-          usage_count: 1
-        });
+        if (usageCount >= limit) {
+          return res.status(403).json({
+            error: `Limit harian tercapai. ${isVIP ? 'Anda telah mencapai 50 chat hari ini.' : 'Upgrade ke VIP untuk 50 chat/hari.'}`,
+            limitReached: true
+          });
+        }
+
+        // Increment usage count
+        if (usageData) {
+          await supabase
+            .from('user_feature_usage')
+            .update({ usage_count: usageCount + 1, last_used_at: new Date().toISOString() })
+            .eq('user_id', userId)
+            .eq('feature_name', 'ai_chat')
+            .eq('usage_date', today);
+        } else {
+          await supabase
+            .from('user_feature_usage')
+            .insert({
+              user_id: userId,
+              feature_name: 'ai_chat',
+              usage_date: today,
+              usage_count: 1
+            });
+        }
+      } catch (usageErr) {
+        console.warn('Usage check warning:', usageErr.message);
+      }
     }
 
-    // Call GPT-OSS Proxy Worker API
-    const gptOssRes = await callGptOssWorker({
-      messages: fullMessages,
-      userId,
-      threadId: effectiveThreadId,
-    });
+    // 3. Prepare AI Prompt
+    const conversationHistory = messages.map(m => `${m.role === 'user' ? 'Warga/User' : 'Asisten'}: ${m.content}`).join('\n');
+    const fullPrompt = `${systemPrompt}\n\nRiwayat Percakapan:\n${conversationHistory}\n\nAsisten AI Desa Ngawonggo:`;
+
+    // 4. Call AI Engine
+    const { content: rawContent, reasoning, model: usedModel } = await callAIEngine(fullPrompt, 'mistral-agent');
+
+    let finalContent = rawContent;
+
+    // Check if output is escalation JSON
+    let isEscalation = false;
+    let cleanForJson = rawContent.trim();
+    if (cleanForJson.startsWith('```json')) {
+      cleanForJson = cleanForJson.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    } else if (cleanForJson.startsWith('```')) {
+      cleanForJson = cleanForJson.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    }
+    try {
+      const parsedJson = JSON.parse(cleanForJson);
+      if (parsedJson.escalate) {
+        isEscalation = true;
+        finalContent = JSON.stringify(parsedJson);
+      }
+    } catch (e) {
+      // Not JSON escalation, treat as normal text
+    }
+
+    // Append standard watermark to regular text answers
+    if (!isEscalation && !finalContent.includes('Jawaban ini dihasilkan oleh AI')) {
+      finalContent += `\n\n---\n*Jawaban ini dihasilkan oleh AI (Asisten AI Desa Ngawonggo).* \n*Mungkin terdapat kesalahan informasi. Untuk layanan resmi silakan hubungi email: desangawonggoku@gmail.com*`;
+    }
 
     const isClientStreaming = stream !== false;
 
     if (isClientStreaming) {
-      // Stream SSE back to client
-      res.setHeader('Content-Type', 'text/event-stream');
-      res.setHeader('Cache-Control', 'no-cache');
+      // Stream SSE tokens to client with standard OpenAI event-stream format
+      res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
       res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no');
 
-      const reader = gptOssRes.body.getReader();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        res.write(value);
+      // Send reasoning chunk if available
+      if (reasoning) {
+        const reasoningChunk = {
+          id: `chatcmpl_${Date.now()}`,
+          object: 'chat.completion.chunk',
+          created: Math.floor(Date.now() / 1000),
+          model: usedModel,
+          choices: [{
+            index: 0,
+            delta: { reasoning_content: reasoning },
+            finish_reason: null
+          }]
+        };
+        res.write(`data: ${JSON.stringify(reasoningChunk)}\n\n`);
       }
+
+      // Stream content in small chunks
+      const words = finalContent.split(' ');
+      for (let i = 0; i < words.length; i++) {
+        const chunkText = (i === 0 ? '' : ' ') + words[i];
+        const contentChunk = {
+          id: `chatcmpl_${Date.now()}`,
+          object: 'chat.completion.chunk',
+          created: Math.floor(Date.now() / 1000),
+          model: usedModel,
+          choices: [{
+            index: 0,
+            delta: { content: chunkText },
+            finish_reason: null
+          }]
+        };
+        res.write(`data: ${JSON.stringify(contentChunk)}\n\n`);
+      }
+
+      // Send finish chunk & [DONE]
+      const finishChunk = {
+        id: `chatcmpl_${Date.now()}`,
+        object: 'chat.completion.chunk',
+        created: Math.floor(Date.now() / 1000),
+        model: usedModel,
+        choices: [{
+          index: 0,
+          delta: {},
+          finish_reason: 'stop'
+        }]
+      };
+      res.write(`data: ${JSON.stringify(finishChunk)}\n\n`);
+      res.write('data: [DONE]\n\n');
       return res.end();
     } else {
-      // Non-streaming response collection for standard callers
-      const { content, reasoning } = await collectStreamResponse(gptOssRes);
+      // Non-streaming response for Axios/REST callers
       return res.status(200).json({
         id: `chatcmpl_${Date.now()}`,
         object: 'chat.completion',
         created: Math.floor(Date.now() / 1000),
-        model: 'gpt-oss-120b',
+        model: usedModel,
         choices: [
           {
             index: 0,
             message: {
               role: 'assistant',
-              content: content || 'Maaf, Asisten AI Desa Ngawonggo belum memiliki jawaban untuk pertanyaan ini.',
+              content: finalContent,
               reasoning_content: reasoning || '',
             },
             finish_reason: 'stop',
@@ -305,6 +367,7 @@ Jika tidak perlu eskalasi, jawablah seperti biasa dengan teks biasa.`;
         ],
       });
     }
+
   } catch (error) {
     console.error('Chat API Error:', error);
     if (!res.headersSent) {

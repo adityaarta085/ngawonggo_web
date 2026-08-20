@@ -373,11 +373,6 @@ const SiteMascot = () => {
 
   // Send message action with Streaming SSE & Reasoning (CoT)
   const handleSendMessage = async (textToSend) => {
-    if (!sessionUser) {
-      setMessages(prev => [...prev, { role: 'assistant', content: '🔒 Anda harus login terlebih dahulu sebelum dapat menggunakan Asisten AI.' }]);
-      return;
-    }
-
     const queryText = (textToSend || input).trim();
     if (!queryText || isLoading) return;
 
@@ -419,7 +414,7 @@ const SiteMascot = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: updatedMessages.slice(-10),
-          userId: sessionUser?.id || null,
+          userId: sessionUser?.id || 'guest_user',
           threadId: threadId,
           stream: true,
         }),

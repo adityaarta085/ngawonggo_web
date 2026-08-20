@@ -4,7 +4,8 @@ import { FaRobot, FaCrown } from 'react-icons/fa';
 import { supabase } from '../lib/supabase';
 
 const AISummary = ({ newsId, type, content, initialSummary }) => {
-  const [summary, setSummary] = useState(initialSummary || null);
+  const cleanInitialSummary = (initialSummary && initialSummary !== 'Ringkasan tidak dapat dibuat untuk artikel ini.') ? initialSummary : null;
+  const [summary, setSummary] = useState(cleanInitialSummary);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [isVIP, setIsVIP] = useState(false);
@@ -31,7 +32,7 @@ const AISummary = ({ newsId, type, content, initialSummary }) => {
         setIsVIP(userIsVIP);
 
         // Check Usage
-        if (!userIsVIP && !initialSummary) {
+        if (!userIsVIP && !cleanInitialSummary) {
           const today = new Date().toISOString().split('T')[0];
           const { data: usageData } = await supabase
             .from('user_feature_usage')
@@ -48,20 +49,18 @@ const AISummary = ({ newsId, type, content, initialSummary }) => {
       }
     };
     checkUser();
-  }, [initialSummary]);
-
-
+  }, [cleanInitialSummary]);
 
   useEffect(() => {
     // Auto-generate if summary is not present, user exists, and they have quota
-    if (!summary && !initialSummary && user && !loading && !autoTriggered.current) {
+    if (!summary && !cleanInitialSummary && user && !loading && !autoTriggered.current) {
       if (isVIP || usageCount < 1) {
         autoTriggered.current = true;
         handleGenerate();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isVIP, usageCount, initialSummary, summary, loading]);
+  }, [user, isVIP, usageCount, cleanInitialSummary, summary, loading]);
 
 
   const handleGenerate = async () => {

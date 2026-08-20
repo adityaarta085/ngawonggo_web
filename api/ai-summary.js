@@ -1,12 +1,59 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabaseServiceKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://cpamusheoowbmllxffrt.supabase.co';
+const supabaseServiceKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwYW11c2hlb293Ym1sbHhmZnJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzQxODMsImV4cCI6MjA4NTQ1MDE4M30.5J-ObKNsLXZL6yNeiGNjLy3jpAUx0hGC-2oJPYdcmMs';
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-const GPTOSS_BASE_URL = "https://gptoss-proxy-production.adityaarta085.workers.dev/v1/chat/completions";
+/**
+ * Call AI Engine to generate summary
+ */
+async function generateSummaryWithAI(cleanText) {
+  const prompt = `langsung ringkaskan berita berikut secara singkat, padat, dan jelas (maksimal 3-4 kalimat), langsung ke inti berita tanpa kalimat pembuka atau penutup:\n\n${cleanText}`;
+  const models = ['mistral-agent', 'deepseek', 'islamic-ai'];
+
+  for (const model of models) {
+    try {
+      const response = await fetch('https://ai.alfisy.my.id/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: prompt,
+          model: model,
+        }),
+      });
+
+      if (!response.ok) continue;
+
+      const data = await response.json();
+      const reply = (data.reply || data.analysis || data.message || '').trim();
+
+      if (reply && !reply.startsWith('Maaf, terjadi kesalahan')) {
+        return reply;
+      }
+    } catch (err) {
+      console.warn(`Summary model ${model} failed, trying next:`, err.message);
+    }
+  }
+
+  // Fallback: Smart extractive summary if AI service unreachable
+  const sentences = cleanText.split(/(?<=[.?!])\s+/).filter(s => s.trim().length > 15);
+  if (sentences.length > 0) {
+    return sentences.slice(0, 3).join(' ');
+  }
+
+  return cleanText.slice(0, 200) + '...';
+}
 
 module.exports = async (req, res) => {
+  // CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -20,137 +67,80 @@ module.exports = async (req, res) => {
   const tableName = type === 'national' ? 'national_news' : 'news';
 
   try {
-    // 1. Check if summary already exists in DB
+    // 1. Check if valid summary already exists in DB
     const { data: newsData, error: newsError } = await supabase
       .from(tableName)
       .select('ai_summary')
       .eq('id', newsId)
       .single();
 
-    if (newsError) throw newsError;
-
-    if (newsData && newsData.ai_summary) {
-      // Return cached summary, no limit check needed
-      return res.status(200).json({ success: true, summary: newsData.ai_summary, cached: true });
-    }
-
-    // 2. Summary doesn't exist. Check user limits.
-    const { data: tierData } = await supabase
-      .from('user_tiers')
-      .select('tier_name')
-      .eq('user_id', userId)
-      .single();
-
-    const isVIP = tierData && tierData.tier_name !== 'Free';
-    const limit = isVIP ? -1 : 1; // -1 means unlimited
-
-    // Check usage for today
-    const today = new Date().toISOString().split('T')[0];
-    const { data: usageData } = await supabase
-      .from('user_feature_usage')
-      .select('usage_count')
-      .eq('user_id', userId)
-      .eq('feature_name', 'ai_summary')
-      .eq('usage_date', today)
-      .single();
-
-    const usageCount = usageData ? usageData.usage_count : 0;
-
-    if (!isVIP && usageCount >= limit) {
-      return res.status(403).json({ error: 'Daily limit reached. Upgrade to VIP for unlimited summaries.', limitReached: true });
-    }
-
-    // 3. Fetch summary from GPT-OSS 120B API with stream: true and reasoning_effort: high
-    const cleanContent = content.replace(/<[^>]*>?/gm, ''); // basic html strip
-    const prompt = `langsung ringkaskan berita berikut secara singkat dan jelas, langsung ke isi ringkasan tanpa pembuka atau penutup: ${cleanContent}`;
-
-    const threadId = `news_summary_${newsId}`;
-
-    const aiResponse = await fetch(GPTOSS_BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Reasoning-Effort': 'high',
-        'X-GPTOSS-User-Id': userId,
-        'X-GPTOSS-Thread-Id': threadId,
-      },
-      body: JSON.stringify({
-        model: 'gpt-oss-120b',
-        messages: [{ role: 'user', content: prompt }],
-        stream: true,
-        metadata: {
-          gptoss_user_id: userId,
-          gptoss_thread_id: threadId,
-          reasoning_effort: 'high',
-        },
-      }),
-    });
-
-    if (!aiResponse.ok) {
-      const errText = await aiResponse.text();
-      throw new Error(`Failed to fetch from GPT-OSS service: ${errText}`);
-    }
-
-    // Collect streamed chunks
-    const reader = aiResponse.body.getReader();
-    const decoder = new TextDecoder();
-    let summary = '';
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith('data: ')) continue;
-        const dataStr = trimmed.slice(6).trim();
-        if (dataStr === '[DONE]') break;
-
-        try {
-          const parsed = JSON.parse(dataStr);
-          const delta = parsed.choices?.[0]?.delta || {};
-          if (delta.content) {
-            summary += delta.content;
-          }
-        } catch (e) {
-          // continue
-        }
+    if (!newsError && newsData && newsData.ai_summary) {
+      const existingSummary = newsData.ai_summary.trim();
+      // Only return cached if it's NOT the old broken error message
+      if (existingSummary && existingSummary !== 'Ringkasan tidak dapat dibuat untuk artikel ini.') {
+        return res.status(200).json({ success: true, summary: existingSummary, cached: true });
       }
     }
 
-    summary = summary.trim();
-    if (!summary) {
-      summary = "Ringkasan tidak dapat dibuat untuk artikel ini.";
-    }
+    // 2. Check user limits
+    let isVIP = false;
+    if (userId !== 'anonymous_user') {
+      const { data: tierData } = await supabase
+        .from('user_tiers')
+        .select('tier_name')
+        .eq('user_id', userId)
+        .single();
 
-    // 4. Save to DB
-    await supabase
-      .from(tableName)
-      .update({ ai_summary: summary })
-      .eq('id', newsId);
+      isVIP = tierData && tierData.tier_name !== 'Free';
+      const limit = isVIP ? 9999 : 5; // 5 summaries per day for free tier
 
-    // 5. Update user usage
-    if (usageData) {
-      await supabase
+      const today = new Date().toISOString().split('T')[0];
+      const { data: usageData } = await supabase
         .from('user_feature_usage')
-        .update({ usage_count: usageCount + 1, last_used_at: new Date().toISOString() })
+        .select('usage_count')
         .eq('user_id', userId)
         .eq('feature_name', 'ai_summary')
-        .eq('usage_date', today);
-    } else {
+        .eq('usage_date', today)
+        .single();
+
+      const usageCount = usageData ? usageData.usage_count : 0;
+
+      if (!isVIP && usageCount >= limit) {
+        return res.status(403).json({ error: 'Limit harian ringkasan tercapai. Upgrade ke VIP untuk akses tak terbatas.', limitReached: true });
+      }
+
+      // Update usage
+      if (usageData) {
+        await supabase
+          .from('user_feature_usage')
+          .update({ usage_count: usageCount + 1, last_used_at: new Date().toISOString() })
+          .eq('user_id', userId)
+          .eq('feature_name', 'ai_summary')
+          .eq('usage_date', today);
+      } else {
+        await supabase
+          .from('user_feature_usage')
+          .insert({
+            user_id: userId,
+            feature_name: 'ai_summary',
+            usage_date: today,
+            usage_count: 1
+          });
+      }
+    }
+
+    // 3. Generate summary with AI
+    const cleanContent = content.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+    const summary = await generateSummaryWithAI(cleanContent);
+
+    // 4. Save clean summary to DB
+    try {
       await supabase
-        .from('user_feature_usage')
-        .insert({
-          user_id: userId,
-          feature_name: 'ai_summary',
-          usage_date: today,
-          usage_count: 1
-        });
+        .from(tableName)
+        .update({ ai_summary: summary })
+        .eq('id', newsId);
+    } catch (saveErr) {
+      console.warn('Could not save ai_summary to database:', saveErr.message);
     }
 
     return res.status(200).json({ success: true, summary, cached: false, isVIP });
