@@ -15,9 +15,8 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPaperPlane, FaTimes, FaMinus, FaHeadset, FaRobot, FaRedo, FaSmile, FaLock } from 'react-icons/fa';
+import { FaPaperPlane, FaTimes, FaMinus, FaHeadset, FaRobot, FaRedo, FaSmile, FaLock, FaBrain } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { supabase } from '../lib/supabase';
 import { getById, getList } from '../lib/dataFetcher';
 
@@ -192,6 +191,16 @@ const SiteMascot = () => {
   const [showTooltip, setShowTooltip] = useState(true);
   const [eyePos, setEyePos] = useState({ x: 0, y: 0 });
 
+  // Persistent thread ID for conversation continuity
+  const [threadId] = useState(() => {
+    let stored = sessionStorage.getItem('gptoss_mascot_thread_id');
+    if (!stored) {
+      stored = `thr_mascot_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      sessionStorage.setItem('gptoss_mascot_thread_id', stored);
+    }
+    return stored;
+  });
+
   // Chatbot logic states
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Halo! 👋 Saya Maskot AI Desa Ngawonggo. Ada yang bisa saya bantu hari ini?' }
@@ -347,7 +356,22 @@ const SiteMascot = () => {
     }
   };
 
-  // Send message action
+  const updateLastAssistantMessage = (content, reasoning) => {
+    setMessages(prev => {
+      const copy = [...prev];
+      const lastIdx = copy.length - 1;
+      if (lastIdx >= 0 && copy[lastIdx].role === 'assistant') {
+        copy[lastIdx] = {
+          ...copy[lastIdx],
+          content,
+          reasoning,
+        };
+      }
+      return copy;
+    });
+  };
+
+  // Send message action with Streaming SSE & Reasoning (CoT)
   const handleSendMessage = async (textToSend) => {
     if (!sessionUser) {
       setMessages(prev => [...prev, { role: 'assistant', content: '🔒 Anda harus login terlebih dahulu sebelum dapat menggunakan Asisten AI.' }]);
@@ -358,12 +382,12 @@ const SiteMascot = () => {
     if (!queryText || isLoading) return;
 
     const userMessage = { role: 'user', content: queryText };
-    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
     // Active CS session message forward
     if (csStatus === 'active' || csStatus === 'waiting') {
+      setMessages(prev => [...prev, userMessage]);
       try {
         await supabase.from('messagesCS').insert({
           chat_id: chatSession,
@@ -380,52 +404,103 @@ const SiteMascot = () => {
 
     // Direct CS request trigger check
     if (queryText.toLowerCase().includes('hubungi cs') || queryText.toLowerCase().includes('customer service')) {
+      setMessages(prev => [...prev, userMessage]);
       await handleEscalation('Permintaan CS Langsung', 'Diakses via tombol / chat');
       return;
     }
 
-    // AI API Call
+    // Prepare assistant message entry in state for live streaming updates
+    const updatedMessages = [...messages, userMessage];
+    setMessages([...updatedMessages, { role: 'assistant', content: '', reasoning: '' }]);
+
     try {
-      const response = await axios.post('/api/chat', {
-        messages: [...messages, userMessage].slice(-6),
-        userId: sessionUser?.id || null
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: updatedMessages.slice(-10),
+          userId: sessionUser?.id || null,
+          threadId: threadId,
+          stream: true,
+        }),
       });
 
-      if (response.data.limitReached) {
-        setMessages(prev => [...prev, { role: 'assistant', content: response.data.error }]);
+      if (response.status === 403) {
+        const errData = await response.json();
+        setMessages([...updatedMessages, { role: 'assistant', content: errData.error || 'Limit harian AI telah tercapai.' }]);
         setIsLoading(false);
         return;
       }
 
-      const botMsg = response.data.choices[0].message;
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server error (${response.status})`);
+      }
 
-      // Check for escalation JSON format
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let accumulatedContent = '';
+      let accumulatedReasoning = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith('data: ')) continue;
+          const dataStr = trimmed.slice(6).trim();
+          if (dataStr === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(dataStr);
+            const delta = parsed.choices?.[0]?.delta || {};
+
+            if (delta.reasoning_content) {
+              accumulatedReasoning += delta.reasoning_content;
+            }
+            if (delta.content) {
+              accumulatedContent += delta.content;
+            }
+
+            updateLastAssistantMessage(accumulatedContent, accumulatedReasoning);
+          } catch (e) {
+            // Ignore JSON parse errors for partial chunks
+          }
+        }
+      }
+
+      // Check for escalation JSON format in final content
       let isEscalation = false;
       try {
-        let cleanContent = botMsg.content.trim();
+        let cleanContent = accumulatedContent.trim();
         if (cleanContent.startsWith('```json')) {
-          cleanContent = cleanContent.replace(/^```json\n/, '').replace(/\n```$/, '');
+          cleanContent = cleanContent.replace(/^```json\s*/, '').replace(/\s*```$/, '');
         } else if (cleanContent.startsWith('```')) {
-          cleanContent = cleanContent.replace(/^```\n/, '').replace(/\n```$/, '');
+          cleanContent = cleanContent.replace(/^```\s*/, '').replace(/\s*```$/, '');
         }
         const parsed = JSON.parse(cleanContent);
         if (parsed.escalate) {
           isEscalation = true;
-          handleEscalation(parsed.summary, parsed.reason);
+          setMessages(prev => prev.slice(0, -1)); // Remove temporary JSON assistant bubble
+          await handleEscalation(parsed.summary, parsed.reason);
         }
       } catch (e) {
         // Normal text response
       }
 
-      if (!isEscalation) {
-        setMessages(prev => [...prev, botMsg]);
+      if (!isEscalation && !accumulatedContent) {
+        updateLastAssistantMessage('Maaf, Asisten AI Desa Ngawonggo belum memiliki jawaban untuk pertanyaan ini.', accumulatedReasoning);
       }
+
     } catch (error) {
       console.error('Chat Error:', error);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Maaf, Maskot sedang mengalami gangguan koneksi ke server. ' + (error.response?.data?.error || 'Silakan coba beberapa saat lagi!')
-      }]);
+      updateLastAssistantMessage('Maaf, Maskot sedang mengalami gangguan koneksi ke server. ' + (error.message || 'Silakan coba beberapa saat lagi!'), '');
     } finally {
       setIsLoading(false);
     }
@@ -483,7 +558,7 @@ const SiteMascot = () => {
                   <Box>
                     <Flex align="center" gap={1.5}>
                       <Text fontWeight="extrabold" fontSize="sm" letterSpacing="tight">
-                        Maskot Ngawonggo
+                        Maskot Ngawonggo (GPT-OSS 120B)
                       </Text>
                       <Badge colorScheme="green" variant="solid" borderRadius="full" px={1.5} py={0.2} fontSize="3xs">
                         {csStatus === 'active' ? 'CS Online' : 'AI Online'}
@@ -509,7 +584,11 @@ const SiteMascot = () => {
                         color="white"
                         _hover={{ bg: "whiteAlpha.300" }}
                         aria-label="Reset Chat"
-                        onClick={() => setMessages([{ role: 'assistant', content: 'Halo! Percakapan telah diperbarui. Ada yang bisa Maskot bantu?' }])}
+                        onClick={() => {
+                          const newThreadId = `thr_mascot_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+                          sessionStorage.setItem('gptoss_mascot_thread_id', newThreadId);
+                          setMessages([{ role: 'assistant', content: 'Halo! Sesi percakapan telah diperbarui. Ada yang bisa Maskot bantu?' }]);
+                        }}
                       />
                     </Tooltip>
                   )}
@@ -582,7 +661,28 @@ const SiteMascot = () => {
                         lineHeight="relaxed"
                         boxShadow="xs"
                       >
-                        {msg.content}
+                        {/* Render Reasoning / CoT if present */}
+                        {msg.reasoning && (
+                          <Box
+                            mb={2}
+                            p={2}
+                            bg="purple.50"
+                            _dark={{ bg: "purple.950" }}
+                            borderRadius="md"
+                            borderLeft="3px solid"
+                            borderColor="purple.400"
+                            fontSize="3xs"
+                          >
+                            <Flex align="center" gap={1} fontWeight="bold" color="purple.600" _dark={{ color: "purple.300" }} mb={1}>
+                              <FaBrain size={10} />
+                              <Text fontSize="3xs">Penalaran AI (CoT):</Text>
+                            </Flex>
+                            <Text color="gray.600" _dark={{ color: "gray.300" }} whiteSpace="pre-wrap" fontStyle="italic">
+                              {msg.reasoning}
+                            </Text>
+                          </Box>
+                        )}
+                        <Text whiteSpace="pre-wrap">{msg.content || (isLoading && idx === messages.length - 1 ? '...' : '')}</Text>
                       </Box>
                     </Flex>
                   );
@@ -694,7 +794,7 @@ const SiteMascot = () => {
           )}
         </AnimatePresence>
 
-        {/* Floating Mascot Button without solid blue background */}
+        {/* Floating Mascot Button */}
         <Box position="relative">
           {/* Greeting Tooltip Bubble */}
           <AnimatePresence>

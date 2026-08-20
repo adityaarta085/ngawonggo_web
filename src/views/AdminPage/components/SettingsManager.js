@@ -31,10 +31,10 @@ import ImageUploadInput from './ImageUploadInput';
 const SettingsManager = () => {
   const [settings, setSettings] = useState({
     groq_api_key: '',
-    groq_model: 'llama3-8b-8192',
+    groq_model: 'gpt-oss-120b',
     default_ai_prompt: '',
     is_takedown: 'false',
-        is_blocked: 'false',
+    is_blocked: 'false',
     takedown_message: '',
     takedown_image: '',
     takedown_ai_prompt: '',
@@ -55,7 +55,7 @@ const SettingsManager = () => {
 
       const mapped = {
         groq_api_key: '',
-        groq_model: 'llama3-8b-8192',
+        groq_model: 'gpt-oss-120b',
         default_ai_prompt: '',
         is_takedown: 'false',
         takedown_message: '',
@@ -128,14 +128,14 @@ const SettingsManager = () => {
         <Card variant="outline" borderRadius="xl" borderLeft="4px solid" borderLeftColor="brand.500">
           <CardBody>
             <VStack spacing={4} align="stretch">
-              <Heading size="xs" color="brand.600" textTransform="uppercase">Konfigurasi API</Heading>
+              <Heading size="xs" color="brand.600" textTransform="uppercase">Konfigurasi API AI</Heading>
               <FormControl>
-                <FormLabel fontWeight="bold">Groq API Key</FormLabel>
+                <FormLabel fontWeight="bold">GPT-OSS Proxy API Key / Token (Opsional)</FormLabel>
                 <InputGroup size="md">
                   <Input
                     pr="4.5rem"
                     type={showKey ? 'text' : 'password'}
-                    placeholder="Masukkan Groq API Key"
+                    placeholder="Masukkan API Key (jika diperlukan)"
                     value={settings.groq_api_key}
                     onChange={(e) => handleChange('groq_api_key', e.target.value)}
                   />
@@ -150,20 +150,21 @@ const SettingsManager = () => {
                   </InputRightElement>
                 </InputGroup>
                 <Text mt={2} fontSize="xs" color="gray.500">
-                  Dapatkan API Key di console.groq.com. Key ini digunakan untuk layanan Asisten AI Desa.
+                  Key ini digunakan untuk autentikasi layanan Asisten AI Desa Ngawonggo.
                 </Text>
               </FormControl>
 
               <FormControl mt={4}>
-                <FormLabel fontWeight="bold">Groq Model</FormLabel>
+                <FormLabel fontWeight="bold">Model AI Utama</FormLabel>
                 <Input
                   type="text"
-                  placeholder="Contoh: llama3-8b-8192"
+                  placeholder="Contoh: gpt-oss-120b"
                   value={settings.groq_model}
                   onChange={(e) => handleChange('groq_model', e.target.value)}
+                  isReadOnly
                 />
                 <Text mt={2} fontSize="xs" color="gray.500">
-                  Pilih model AI yang akan digunakan (default: llama3-8b-8192). Jika salah mengisi, Groq dapat menggunakan model fallback otomatis (seperti gpt-oss-120b).
+                  Model AI terkonfigurasi pada: gpt-oss-120b (Streaming & Reasoning High).
                 </Text>
               </FormControl>
 
@@ -183,11 +184,6 @@ const SettingsManager = () => {
             </VStack>
           </CardBody>
         </Card>
-
-
-
-
-
 
         {/* Telegram Bot Settings */}
         <Card variant="outline" borderRadius="xl" borderLeft="4px solid" borderLeftColor="#0088cc">
@@ -240,9 +236,7 @@ const SettingsManager = () => {
           </CardBody>
         </Card>
 
-
         {/* Blocked Mode Settings */}
-
         <Card variant="outline" borderRadius="xl" borderLeft="4px solid" borderLeftColor="orange.500">
           <CardBody>
             <VStack spacing={6} align="stretch">
