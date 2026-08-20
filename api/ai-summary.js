@@ -1,9 +1,10 @@
 const { createClient } = require('@supabase/supabase-js');
-const axios = require('axios');
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseServiceKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+const GPTOSS_BASE_URL = "https://gptoss-proxy-production.adityaarta085.workers.dev/v1/chat/completions";
 
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
@@ -59,17 +60,73 @@ module.exports = async (req, res) => {
       return res.status(403).json({ error: 'Daily limit reached. Upgrade to VIP for unlimited summaries.', limitReached: true });
     }
 
-    // 3. Fetch summary from AI
+    // 3. Fetch summary from GPT-OSS 120B API with stream: true and reasoning_effort: high
     const cleanContent = content.replace(/<[^>]*>?/gm, ''); // basic html strip
-    const prompt = `langsung ringkaskan berita, langsung ke isi ringkasan. ${cleanContent}`;
+    const prompt = `langsung ringkaskan berita berikut secara singkat dan jelas, langsung ke isi ringkasan tanpa pembuka atau penutup: ${cleanContent}`;
 
-    const aiResponse = await axios.get(`https://api.nexray.eu.cc/ai/claude?text=${encodeURIComponent(prompt)}`);
+    const threadId = `news_summary_${newsId}`;
 
-    if (!aiResponse.data || !aiResponse.data.result) {
-      throw new Error('Failed to fetch from AI service');
+    const aiResponse = await fetch(GPTOSS_BASE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Reasoning-Effort': 'high',
+        'X-GPTOSS-User-Id': userId,
+        'X-GPTOSS-Thread-Id': threadId,
+      },
+      body: JSON.stringify({
+        model: 'gpt-oss-120b',
+        messages: [{ role: 'user', content: prompt }],
+        stream: true,
+        metadata: {
+          gptoss_user_id: userId,
+          gptoss_thread_id: threadId,
+          reasoning_effort: 'high',
+        },
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      const errText = await aiResponse.text();
+      throw new Error(`Failed to fetch from GPT-OSS service: ${errText}`);
     }
 
-    const summary = aiResponse.data.result;
+    // Collect streamed chunks
+    const reader = aiResponse.body.getReader();
+    const decoder = new TextDecoder();
+    let summary = '';
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data: ')) continue;
+        const dataStr = trimmed.slice(6).trim();
+        if (dataStr === '[DONE]') break;
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          const delta = parsed.choices?.[0]?.delta || {};
+          if (delta.content) {
+            summary += delta.content;
+          }
+        } catch (e) {
+          // continue
+        }
+      }
+    }
+
+    summary = summary.trim();
+    if (!summary) {
+      summary = "Ringkasan tidak dapat dibuat untuk artikel ini.";
+    }
 
     // 4. Save to DB
     await supabase

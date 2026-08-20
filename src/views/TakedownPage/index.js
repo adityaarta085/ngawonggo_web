@@ -15,10 +15,9 @@ import {
   chakra,
   ScaleFade,
 } from '@chakra-ui/react';
-import { FaRobot, FaPaperPlane, FaExclamationTriangle } from 'react-icons/fa';
+import { FaRobot, FaPaperPlane, FaExclamationTriangle, FaBrain } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
-import axios from 'axios';
 import SEO from '../../components/SEO';
 
 const MotionBox = chakra(motion.div);
@@ -29,6 +28,16 @@ const TakedownPage = () => {
     image: '',
     prompt: ''
   });
+
+  const [threadId] = useState(() => {
+    let stored = sessionStorage.getItem('gptoss_takedown_thread_id');
+    if (!stored) {
+      stored = `thr_takedown_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      sessionStorage.setItem('gptoss_takedown_thread_id', stored);
+    }
+    return stored;
+  });
+
   const [messages, setMessages] = useState([
     { role: 'assistant', content: 'Halo. Saya Asisten AI Desa Ngawonggo. Meskipun website sedang dalam pemeliharaan, saya di sini untuk menjawab pertanyaan Anda seputar informasi desa. Apa yang ingin Anda tanyakan?' }
   ]);
@@ -71,28 +80,91 @@ const TakedownPage = () => {
     }
   }, [messages]);
 
+  const updateLastAssistantMessage = (content, reasoning) => {
+    setMessages(prev => {
+      const copy = [...prev];
+      const lastIdx = copy.length - 1;
+      if (lastIdx >= 0 && copy[lastIdx].role === 'assistant') {
+        copy[lastIdx] = {
+          ...copy[lastIdx],
+          content,
+          reasoning,
+        };
+      }
+      return copy;
+    });
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages([...updatedMessages, { role: 'assistant', content: '', reasoning: '' }]);
     setInput('');
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/chat', {
-        messages: [...messages, userMessage].slice(-10),
-        customPrompt: settings.prompt
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: updatedMessages.slice(-10),
+          customPrompt: settings.prompt,
+          userId: 'takedown_user',
+          threadId: threadId,
+          stream: true,
+        }),
       });
 
-      const botMessage = response.data.choices[0].message;
-      setMessages(prev => [...prev, botMessage]);
+      if (!response.ok) {
+        throw new Error(`Server error (${response.status})`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let accumulatedContent = '';
+      let accumulatedReasoning = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith('data: ')) continue;
+          const dataStr = trimmed.slice(6).trim();
+          if (dataStr === '[DONE]') break;
+
+          try {
+            const parsed = JSON.parse(dataStr);
+            const delta = parsed.choices?.[0]?.delta || {};
+
+            if (delta.reasoning_content) {
+              accumulatedReasoning += delta.reasoning_content;
+            }
+            if (delta.content) {
+              accumulatedContent += delta.content;
+            }
+
+            updateLastAssistantMessage(accumulatedContent, accumulatedReasoning);
+          } catch (e) {
+            // Ignore JSON parse errors for partial chunks
+          }
+        }
+      }
+
+      if (!accumulatedContent) {
+        updateLastAssistantMessage('Maaf, sistem AI sedang mengalami gangguan. Silakan coba beberapa saat lagi.', accumulatedReasoning);
+      }
     } catch (error) {
       console.error('Chat Error:', error);
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        content: 'Maaf, sistem AI sedang mengalami gangguan. Silakan coba beberapa saat lagi.'
-      }]);
+      updateLastAssistantMessage('Maaf, sistem AI sedang mengalami gangguan. Silakan coba beberapa saat lagi.', '');
     } finally {
       setIsLoading(false);
     }
@@ -183,8 +255,8 @@ const TakedownPage = () => {
               <Flex bg="red.600" color="white" w="full" px={6} py={4} align="center" gap={3}>
                 <FaRobot size="24px" />
                 <VStack align="start" spacing={0}>
-                  <Heading size="xs">ASISTEN DARURAT AI</Heading>
-                  <Text fontSize="10px" opacity={0.8}>Tanya</Text>
+                  <Heading size="xs">ASISTEN DARURAT AI (GPT-OSS 120B)</Heading>
+                  <Text fontSize="10px" opacity={0.8}>Tanya seputar Desa Ngawonggo</Text>
                 </VStack>
               </Flex>
 
@@ -219,7 +291,27 @@ const TakedownPage = () => {
                           border={msg.role === 'assistant' ? '1px solid' : 'none'}
                           borderColor="gray.100"
                         >
-                          <Text whiteSpace="pre-wrap">{msg.content}</Text>
+                          {msg.reasoning && (
+                            <Box
+                              mb={2}
+                              p={2}
+                              bg="red.50"
+                              _dark={{ bg: "red.950" }}
+                              borderRadius="md"
+                              borderLeft="3px solid"
+                              borderColor="red.400"
+                              fontSize="xs"
+                            >
+                              <Flex align="center" gap={1} fontWeight="bold" color="red.600" mb={1}>
+                                <FaBrain size={12} />
+                                <Text fontSize="xs">Penalaran AI (CoT):</Text>
+                              </Flex>
+                              <Text color="gray.600" _dark={{ color: "gray.300" }} whiteSpace="pre-wrap" fontStyle="italic">
+                                {msg.reasoning}
+                              </Text>
+                            </Box>
+                          )}
+                          <Text whiteSpace="pre-wrap">{msg.content || (isLoading && i === messages.length - 1 ? '...' : '')}</Text>
                         </Box>
                       </Flex>
                     </ScaleFade>
