@@ -28,10 +28,12 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loading, SEO } from '../../components';
 import { supabase } from '../../lib/supabase';
+import { useMonetization } from '../../contexts/MonetizationContext';
 
 const MotionBox = motion(Box);
 
 const QuranPage = () => {
+  const { user, isVIP, settings, currency, deductCurrency, checkFeatureLimit } = useMonetization();
   const [surahs, setSurahs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -46,8 +48,6 @@ const QuranPage = () => {
   const [isAutoScroll, setIsAutoScroll] = useState(true);
   const [audioLoading, setAudioLoading] = useState(false);
   const [showTafsir, setShowTafsir] = useState({});
-  const [user, setUser] = useState(null);
-
   const [visibleLimit, setVisibleLimit] = useState(20);
 
   const audioRef = useRef(null);
@@ -81,7 +81,6 @@ const QuranPage = () => {
   }, [toast]);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
     fetchSurahs();
   }, [fetchSurahs]);
 
@@ -223,8 +222,41 @@ const QuranPage = () => {
     }
   };
 
-  const toggleTafsir = (index) => {
-    setShowTafsir(prev => ({ ...prev, [index]: !prev[index] }));
+  const toggleTafsir = async (index) => {
+    if (showTafsir[index]) {
+      setShowTafsir(prev => ({ ...prev, [index]: false }));
+      return;
+    }
+
+    if (settings?.monetization_enabled && !isVIP && user) {
+      const quranLimit = settings.quran_free_daily_limit || 5;
+      const tafsirPrice = settings.tafsir_ai_price || 10;
+      const { allowed } = await checkFeatureLimit('quran_tafsir', quranLimit, 1);
+
+      if (!allowed) {
+        if (currency?.coins >= tafsirPrice) {
+          const confirmPay = window.confirm(
+            `Batas gratis buka tafsir (${quranLimit}x/hari) telah tercapai.\n\nGunakan ${tafsirPrice} Koin untuk membuka tafsir ayat ini?`
+          );
+          if (confirmPay) {
+            const deducted = await deductCurrency(tafsirPrice, 'coins', 'Buka Tafsir Quran');
+            if (!deducted) return;
+          } else {
+            return;
+          }
+        } else {
+          toast({
+            title: 'Limit Harian Tafsir Tercapai',
+            description: `Batas gratis (${quranLimit}x/hari) tercapai. Butuh ${tafsirPrice} Koin untuk membuka tafsir tambahan atau upgrade ke VIP.`,
+            status: 'warning',
+            duration: 5000,
+          });
+          return;
+        }
+      }
+    }
+
+    setShowTafsir(prev => ({ ...prev, [index]: true }));
   };
 
   const filteredSurahs = useMemo(() => {

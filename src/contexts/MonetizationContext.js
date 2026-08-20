@@ -9,11 +9,62 @@ export const MonetizationProvider = ({ children }) => {
   const [currency, setCurrency] = useState({ coins: 0 });
   const [gachaStats, setGachaStats] = useState({ total_pulls: 0, vip_cards: 0, canClaimDaily: false });
   const [tier, setTier] = useState({ name: 'Free', expires_at: null });
+  const [settings, setSettings] = useState({
+    monetization_enabled: true,
+    badge_vip_price: 500,
+    fast_track_price: 50,
+    theme_premium_price: 100,
+    tafsir_ai_price: 10,
+    ai_free_daily_limit: 3,
+    quran_free_daily_limit: 5,
+    layanan_free_limit_days: 1,
+    layanan_free_limit_count: 1,
+    layanan_vip_limit_days: 3,
+    layanan_vip_limit_count: 3,
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const toast = useToast();
 
+  const fetchSiteSettings = async () => {
+    try {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('key, value')
+        .in('key', [
+          'monetization_enabled',
+          'badge_vip_price',
+          'fast_track_price',
+          'theme_premium_price',
+          'tafsir_ai_price',
+          'ai_free_daily_limit',
+          'quran_free_daily_limit',
+          'layanan_free_limit_days',
+          'layanan_free_limit_count',
+          'layanan_vip_limit_days',
+          'layanan_vip_limit_count',
+        ]);
+
+      if (data) {
+        const parsed = {};
+        data.forEach(item => {
+          if (item.key === 'monetization_enabled') {
+            parsed[item.key] = item.value !== 'false';
+          } else {
+            const num = parseInt(item.value, 10);
+            parsed[item.key] = isNaN(num) ? item.value : num;
+          }
+        });
+        setSettings(prev => ({ ...prev, ...parsed }));
+      }
+    } catch (e) {
+      console.warn('Error fetching monetization site_settings:', e);
+    }
+  };
+
   useEffect(() => {
+    fetchSiteSettings();
+
     const fetchMonetizationData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
@@ -82,7 +133,7 @@ export const MonetizationProvider = ({ children }) => {
       if (currency[type] < amount) {
            toast({
                title: `Saldo ${type} tidak cukup`,
-               description: `Anda butuh ${amount} ${type} untuk menggunakan fitur ini.`,
+               description: `Anda butuh ${amount} ${type} untuk menggunakan fitur ${featureName !== 'Unknown' ? featureName : 'ini'}.`,
                status: 'warning',
                duration: 3000,
            });
@@ -112,6 +163,7 @@ export const MonetizationProvider = ({ children }) => {
 
   const checkFeatureLimit = async (featureName, limit, windowDays = 1) => {
       if (!user) return { allowed: false };
+      if (!settings.monetization_enabled) return { allowed: true }; // Unlimited if monetization disabled
       if (tier.name === 'VIP' || tier.name === 'Subscription') return { allowed: true }; // Unlimited for VIP/Sub
 
       try {
@@ -145,7 +197,7 @@ export const MonetizationProvider = ({ children }) => {
 
   const rollGacha = async () => {
       if (!user || currency.coins < 10) {
-          toast({ title: 'Koin tidak cukup', status: 'warning' });
+          toast({ title: 'Koin tidak cukup', description: 'Butuh 10 Koin untuk 1x Gacha', status: 'warning' });
           return null;
       }
       const { data } = await supabase.rpc('roll_gacha', { p_user_id: user.id });
@@ -194,13 +246,14 @@ export const MonetizationProvider = ({ children }) => {
   };
 
   const purchaseVipDirect = async () => {
-      if (!user || currency.coins < 500) {
-          toast({ title: "Koin tidak cukup", description: "Butuh 500 Koin", status: "warning" });
+      const price = settings.badge_vip_price || 500;
+      if (!user || currency.coins < price) {
+          toast({ title: "Koin tidak cukup", description: `Butuh ${price} Koin untuk VIP Card`, status: "warning" });
           return false;
       }
       const { data } = await supabase.rpc("purchase_vip_card", { p_user_id: user.id });
       if (data) {
-          setCurrency(prev => ({ coins: prev.coins - 500 }));
+          setCurrency(prev => ({ coins: prev.coins - price }));
           setGachaStats(prev => ({ ...prev, vip_cards: prev.vip_cards + 1 }));
           toast({ title: "Berhasil!", description: "VIP Card berhasil ditambahkan ke tas Anda.", status: "success" });
           return true;
@@ -216,6 +269,7 @@ export const MonetizationProvider = ({ children }) => {
       user,
       currency,
       tier,
+      settings,
       isLoading,
       isVIP,
       isSubscription,
@@ -226,7 +280,8 @@ export const MonetizationProvider = ({ children }) => {
       rollGacha,
       activateVipCard,
       purchaseVipDirect,
-      giftVipCard
+      giftVipCard,
+      fetchSiteSettings
     }}>
       {children}
     </MonetizationContext.Provider>

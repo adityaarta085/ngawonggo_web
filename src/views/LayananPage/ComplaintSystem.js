@@ -3,11 +3,11 @@ import {
   Box, VStack, HStack, Input, Button, Text, Heading, useToast, Flex, Avatar,
   IconButton, Badge, Select, Textarea, FormControl, FormLabel, Icon, Image
 } from '@chakra-ui/react';
-import { FaPaperPlane, FaImage, FaSignOutAlt, FaSync, FaLock, FaHistory } from 'react-icons/fa';
+import { FaPaperPlane, FaImage, FaSignOutAlt, FaSync, FaLock, FaHistory, FaRocket } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
-import { getById } from '../../lib/dataFetcher';
 import { uploadDeline } from '../../lib/uploader';
 import { Link as RouterLink } from 'react-router-dom';
+import { useMonetization } from '../../contexts/MonetizationContext';
 
 const ComplaintSystem = () => {
   const [user, setUser] = useState(null);
@@ -19,7 +19,8 @@ const ComplaintSystem = () => {
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [complaintData, setComplaintData] = useState(null);
-  const [isVip, setIsVip] = useState(false);
+
+  const { isVIP, settings, currency, deductCurrency } = useMonetization();
   const toast = useToast();
   const fileInputRef = useRef();
   const chatEndRef = useRef(null);
@@ -29,14 +30,12 @@ const ComplaintSystem = () => {
       setUser(session?.user || null);
       if (session?.user) {
         setContact(session.user.email || '');
-        checkVip(session.user.id);
       }
     });
 
     if (complaintId) {
       fetchComplaint(complaintId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
 
     const subscription = supabase
       .channel('public:complaint_messages')
@@ -46,23 +45,12 @@ const ComplaintSystem = () => {
       .subscribe();
 
     return () => supabase.removeChannel(subscription);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [complaintId]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  const checkVip = async (userId) => {
-    try {
-      const { data } = await getById('user_tiers', userId);
-      if (data && data.tier_name !== 'Free' && data.tier_name) {
-        setIsVip(true);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const fetchComplaint = async (id) => {
     setLoading(true);
@@ -96,15 +84,56 @@ const ComplaintSystem = () => {
     if (!newMessage.trim() || !user) return;
     setLoading(true);
 
-    const newId = `NGA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
-
     try {
+      // 1. Check dynamic limits from Monetization settings
+      if (settings?.monetization_enabled) {
+        const limitDays = isVIP ? (settings.layanan_vip_limit_days || 3) : (settings.layanan_free_limit_days || 1);
+        const limitCount = isVIP ? (settings.layanan_vip_limit_count || 3) : (settings.layanan_free_limit_count || 1);
+        const sinceDate = new Date(Date.now() - limitDays * 24 * 60 * 60 * 1000).toISOString();
+
+        const { count: recentCount } = await supabase
+          .from('complaints')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .gte('created_at', sinceDate);
+
+        if (recentCount !== null && recentCount >= limitCount) {
+          const fastTrackPrice = settings.fast_track_price || 50;
+          if (currency?.coins >= fastTrackPrice) {
+            const confirmFastTrack = window.confirm(
+              `Batas pengaduan tercapai (${recentCount}/${limitCount} dalam ${limitDays} hari).\n\nApakah Anda ingin menggunakan Fast Track (${fastTrackPrice} Koin) untuk langsung mengajukan laporan ini tanpa menunggu cooldown?`
+            );
+            if (confirmFastTrack) {
+              const deducted = await deductCurrency(fastTrackPrice, 'coins', 'Fast Track Pengaduan');
+              if (!deducted) {
+                setLoading(false);
+                return;
+              }
+            } else {
+              setLoading(false);
+              return;
+            }
+          } else {
+            toast({
+              title: 'Batas Pengaduan Tercapai',
+              description: `Batas pengaduan akun Anda adalah ${limitCount} laporan per ${limitDays} hari. Butuh ${fastTrackPrice} Koin untuk Fast Track atau upgrade ke VIP.`,
+              status: 'warning',
+              duration: 7000
+            });
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
+      const newId = `NGA-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+
       const { error } = await supabase.from('complaints').insert([{
         id: newId,
         user_id: user.id,
         name: fullName,
-        contact: contact,
+        contact: contact || user.email,
         category: category,
         status: 'pending'
       }]);
@@ -117,45 +146,53 @@ const ComplaintSystem = () => {
         message: newMessage
       }]);
 
-
+      // Telegram notification to admin
       fetch('/api/telegram', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: `<b>Ada Pengaduan/Laporan Baru!</b>\n\n<b>Pelapor:</b> ${fullName}\n<b>NIK:</b> ${contact}\n<b>Kategori:</b> ${category}\n<b>Laporan:</b> ${newMessage}\n\n<a href="https://ngawonggo.web.id/admin">Lihat Detail di Admin Panel</a>` })
+        body: JSON.stringify({ message: `<b>Ada Pengaduan/Laporan Baru!</b>\n\n<b>Pelapor:</b> ${fullName}\n<b>Email/Kontak:</b> ${contact || user.email}\n<b>Kategori:</b> ${category}\n<b>Laporan:</b> ${newMessage}\n\n<a href="https://ngawonggo.web.id/admin">Lihat Detail di Admin Panel</a>` })
       }).catch(err => console.error("Telegram error:", err));
 
-
-      fetch('/api/telegram', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: `<b>Ada Pengaduan/Laporan Baru!</b>\n\n<b>Pelapor:</b> ${fullName}\n<b>NIK:</b> ${contact}\n<b>Kategori:</b> ${category}\n<b>Laporan:</b> ${newMessage}\n\n<a href="https://ngawonggo.web.id/admin">Lihat Detail di Admin Panel</a>` })
-      }).catch(err => console.error("Telegram error:", err));
-
-      fetch('/api/broadcast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: 'adityaarta085@gmail.com',
-          subject: `Laporan Baru [${category}] - ${fullName}`,
-          content: `<p>Ada keluhan baru dengan ID <strong>${newId}</strong>.</p><p>Pengirim: ${fullName}</p><p>Kontak: ${contact}</p><p>Pesan:<br/>${newMessage}</p>`
-        })
-      }).catch(console.error);
-
-      if (!isVip && user.email) {
-          fetch('/api/broadcast', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              to: user.email,
-              subject: `Akses Pengaduan Anda: ${newId}`,
-              content: `<p>Terima kasih telah melapor, ${fullName}.</p><p>Gunakan ID ini jika Anda perlu melacak nanti: <strong>${newId}</strong>.</p><p>Tingkatkan akun Anda menjadi VIP untuk menyimpan riwayat ini secara otomatis di web.</p>`
-            })
-          }).catch(console.error);
-          toast({ title: 'ID Keluhan Terkirim ke Email', description: 'Silakan cek email Anda karena Anda pengguna Free Tier.', status: 'info', duration: 7000 });
+      // Email confirmation to user's registered login email
+      if (user.email) {
+        fetch('/api/broadcast', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: user.email,
+            subject: `Akses Pengaduan Anda [${newId}] - Desa Ngawonggo`,
+            content: `
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <h2 style="color: #6C5CE7; margin-bottom: 8px;">Pengaduan Anda Berhasil Diterima</h2>
+                <p>Halo <b>${fullName}</b>,</p>
+                <p>Terima kasih telah menyampaikan pengaduan di Desa Ngawonggo. Laporan Anda telah tercatat dengan detail:</p>
+                <div style="background: #f7fafc; padding: 12px 16px; border-radius: 4px; margin: 16px 0;">
+                  <p style="margin: 4px 0;"><b>ID Pengaduan:</b> <span style="color: #6C5CE7; font-weight: bold;">${newId}</span></p>
+                  <p style="margin: 4px 0;"><b>Kategori:</b> ${category}</p>
+                  <p style="margin: 4px 0;"><b>Pesan:</b> "${newMessage}"</p>
+                </div>
+                <p>Perangkat desa akan segera meninjau dan merespon pengaduan Anda. Anda akan menerima email notifikasi saat ada respon baru.</p>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                <p style="font-size: 12px; color: #718096; margin: 0;">Sistem Informasi Layanan Desa Ngawonggo</p>
+              </div>
+            `
+          })
+        }).catch(console.error);
+        toast({ title: 'Pengaduan Terkirim', description: `ID ${newId} dan notifikasi dikirim ke ${user.email}`, status: 'success', duration: 5000 });
       }
 
+      // In-app notification
+      try {
+        await supabase.rpc('send_system_notification', {
+          p_user_id: user.id,
+          p_title: 'Pengaduan Terkirim',
+          p_message: `Pengaduan Anda [${newId}] berhasil diajukan dan sedang dalam antrean review admin.`,
+          p_type: 'complaint'
+        });
+      } catch (e) {}
+
       setComplaintId(newId);
-      if (!isVip) {
+      if (!isVIP) {
         localStorage.setItem('complaint_id', newId);
       }
       setNewMessage('');
@@ -238,11 +275,24 @@ const ComplaintSystem = () => {
             </Text>
           </Box>
 
-          <HStack justify="space-between" bg="brand.50" p={4} borderRadius="xl">
-             <Text fontSize="sm" fontWeight="bold">Pengguna: {user.user_metadata?.full_name || user.email}</Text>
-             <Button as={RouterLink} to="/layanan/history" size="sm" colorScheme="brand" variant="outline" leftIcon={<FaHistory />}>
-               Riwayat VIP
-             </Button>
+          <HStack justify="space-between" bg="purple.50" _dark={{ bg: "purple.950" }} p={4} borderRadius="xl" flexWrap="wrap" gap={2}>
+             <VStack align="start" spacing={0.5}>
+               <Text fontSize="sm" fontWeight="bold">Pengguna: {user.user_metadata?.full_name || user.email}</Text>
+               <HStack spacing={2} fontSize="xs">
+                 <Badge colorScheme={isVIP ? "teal" : "purple"}>{isVIP ? "👑 VIP Member" : "Warga (Free)"}</Badge>
+                 <Text color="gray.600" _dark={{ color: "gray.300" }} fontSize="xs">
+                   Kuota: {isVIP ? `${settings.layanan_vip_limit_count || 3} laporan / ${settings.layanan_vip_limit_days || 3} hari` : `${settings.layanan_free_limit_count || 1} laporan / ${settings.layanan_free_limit_days || 1} hari`}
+                 </Text>
+               </HStack>
+             </VStack>
+             <HStack spacing={2}>
+               <Button as={RouterLink} to="/topup" size="xs" colorScheme="orange" leftIcon={<FaRocket />}>
+                 Fast Track ({settings.fast_track_price || 50} Koin)
+               </Button>
+               <Button as={RouterLink} to="/layanan/history" size="xs" colorScheme="purple" variant="outline" leftIcon={<FaHistory />}>
+                 Riwayat VIP
+               </Button>
+             </HStack>
           </HStack>
 
 

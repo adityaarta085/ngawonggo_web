@@ -298,8 +298,18 @@ Kembalikan respon HANYA DALAM FORMAT JSON BERIKUT (TANPA MARKDOWN, TANPA TEKS LA
           .eq('user_id', userId)
           .single();
 
+        // 2. Check dynamic limits from Supabase site_settings
+        const { data: settingsData } = await supabase
+          .from('site_settings')
+          .select('key, value')
+          .in('key', ['ai_free_daily_limit', 'monetization_enabled']);
+
+        const freeLimitVal = parseInt(settingsData?.find(s => s.key === 'ai_free_daily_limit')?.value || '3', 10);
+        const freeLimit = isNaN(freeLimitVal) ? 3 : freeLimitVal;
+        const monetizationEnabled = settingsData?.find(s => s.key === 'monetization_enabled')?.value !== 'false';
+
         isVIP = tierData && tierData.tier_name !== 'Free';
-        const limit = isVIP ? 50 : 15; // Generous 15 chats for free tier
+        const limit = !monetizationEnabled ? 9999 : (isVIP ? 50 : freeLimit);
 
         const today = new Date().toISOString().split('T')[0];
         const { data: usageData } = await supabase
@@ -314,7 +324,7 @@ Kembalikan respon HANYA DALAM FORMAT JSON BERIKUT (TANPA MARKDOWN, TANPA TEKS LA
 
         if (usageCount >= limit) {
           return res.status(403).json({
-            error: `Limit harian tercapai. ${isVIP ? 'Anda telah mencapai 50 chat hari ini.' : 'Upgrade ke VIP untuk 50 chat/hari.'}`,
+            error: `Limit harian AI tercapai (${usageCount}/${limit} pesan). ${isVIP ? 'Anda telah mencapai kuota 50 chat hari ini.' : `Batas harian akun gratis adalah ${limit} pesan/hari. Upgrade ke akun VIP untuk 50 pesan/hari!`}`,
             limitReached: true
           });
         }

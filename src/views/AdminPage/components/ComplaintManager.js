@@ -33,8 +33,11 @@ const ComplaintManager = () => {
   const [uploading, setUploading] = useState(false);
   const [notifyUser, setNotifyUser] = useState(true);
   const [adminName, setAdminName] = useState('Admin');
+  const [userEmailMap, setUserEmailMap] = useState({});
 
-
+  const toast = useToast();
+  const chatEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const session = localStorage.getItem('adminSession');
@@ -44,11 +47,34 @@ const ComplaintManager = () => {
         if (parsed && parsed.username) setAdminName(parsed.username);
       } catch (e) {}
     }
+
+    const fetchUsers = async () => {
+      try {
+        const { data } = await supabase.rpc('get_all_users');
+        if (data) {
+          const map = {};
+          data.forEach(u => {
+            if (u.id && u.email) map[u.id] = u.email;
+          });
+          setUserEmailMap(map);
+        }
+      } catch (e) {
+        console.warn('Could not fetch user email map:', e);
+      }
+    };
+    fetchUsers();
   }, []);
 
-  const toast = useToast();
-  const chatEndRef = useRef(null);
-  const fileInputRef = useRef(null);
+  const getUserEmail = useCallback((complaint) => {
+    if (!complaint) return '';
+    if (complaint.user_id && userEmailMap[complaint.user_id]) {
+      return userEmailMap[complaint.user_id];
+    }
+    if (complaint.contact && complaint.contact.includes('@')) {
+      return complaint.contact;
+    }
+    return '';
+  }, [userEmailMap]);
 
   const fetchComplaints = useCallback(async () => {
     const { data, error } = await supabase
@@ -87,33 +113,60 @@ const ComplaintManager = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-
   const handleSendMessage = async (imgUrl = null) => {
     if (!newMessage && !imgUrl) return;
+    const messageText = newMessage;
+    setNewMessage('');
+
     const { error } = await supabase
       .from('complaint_messages')
       .insert([{
         complaint_id: selectedComplaint.id,
         sender_type: 'admin',
-        message: newMessage,
+        message: messageText,
         image_url: imgUrl
       }]);
 
     if (!error) {
-       // Optional notification to user
-       if (notifyUser && selectedComplaint) {
-          if (selectedComplaint.contact && selectedComplaint.contact.includes('@')) {
-             try {
-                await axios.post('/api/broadcast', {
-                  to: selectedComplaint.contact,
-                  subject: 'Respon Pengaduan - Desa Ngawonggo',
-                  content: `<h2>Halo ${selectedComplaint.name},</h2><p>Pengaduan Anda mendapat respon dari Admin (<b>${adminName}</b>):</p><p><i>"${newMessage}"</i></p><p>Silakan kunjungi portal desa untuk melihat lampiran dan informasi selengkapnya.</p>`
-                });
-                toast({ title: 'Notifikasi Email Terkirim', status: 'success', duration: 3000 });
-             } catch (e) {}
+       const targetEmail = getUserEmail(selectedComplaint);
+
+       // Send email notification to user's registered email
+       if (notifyUser && targetEmail) {
+          try {
+             await axios.post('/api/broadcast', {
+               to: targetEmail,
+               subject: `Respon Pengaduan [${selectedComplaint.id}] - Desa Ngawonggo`,
+               content: `
+                 <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                   <h2 style="color: #6C5CE7; margin-bottom: 8px;">Respon Pengaduan Warga Desa Ngawonggo</h2>
+                   <p>Halo <b>${selectedComplaint.name || 'Warga'}</b>,</p>
+                   <p>Laporan pengaduan Anda dengan ID: <b>${selectedComplaint.id}</b> telah mendapat tanggapan dari Perangkat Desa (<b>${adminName}</b>):</p>
+                   <div style="background: #f7fafc; border-left: 4px solid #6C5CE7; padding: 12px 16px; margin: 16px 0; border-radius: 4px;">
+                     <p style="margin: 0; font-style: italic;">"${messageText || (imgUrl ? '[Melampirkan Gambar/Dokumen]' : '')}"</p>
+                   </div>
+                   <p>Silakan kunjungi portal layanan pengaduan Desa Ngawonggo untuk melihat detail atau membalas pesan.</p>
+                   <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                   <p style="font-size: 12px; color: #718096; margin: 0;">Email ini dikirim secara otomatis oleh Sistem Informasi Layanan Desa Ngawonggo.</p>
+                 </div>
+               `
+             });
+             toast({ title: 'Notifikasi Email Terkirim', description: `Terkirim ke ${targetEmail}`, status: 'success', duration: 3000 });
+          } catch (e) {
+             console.error('Email send error:', e);
           }
        }
-       setNewMessage('');
+
+       // In-app notification
+       if (selectedComplaint.user_id) {
+         try {
+           await supabase.rpc('send_system_notification', {
+             p_user_id: selectedComplaint.user_id,
+             p_title: `Tanggapan Pengaduan [${selectedComplaint.id}]`,
+             p_message: `Admin (${adminName}): "${messageText ? messageText.slice(0, 100) : 'Lampiran baru'}"`,
+             p_type: 'complaint'
+           });
+         } catch (e) {}
+       }
     }
   };
 
@@ -129,27 +182,47 @@ const ComplaintManager = () => {
     }
   };
 
-
   const markResolved = async (id) => {
     const { error } = await supabase.from('complaints').update({ status: 'resolved' }).eq('id', id);
     if (!error) {
-      toast({ title: 'Selesai', status: 'success' });
+      toast({ title: 'Pengaduan Diselesaikan', status: 'success' });
       fetchComplaints();
       if(selectedComplaint?.id === id) setSelectedComplaint({...selectedComplaint, status: 'resolved'});
 
-      const comp = complaints.find(c => c.id === id);
-      if (comp) {
-        if (comp.contact && comp.contact.includes('@')) {
-            try {
-              await axios.post('/api/broadcast', {
-                to: comp.contact,
-                subject: 'Pengaduan Selesai - Desa Ngawonggo',
-                content: `<h2>Halo ${comp.name},</h2><p>Pengaduan Anda dengan ID <b>${id}</b> telah selesai ditindaklanjuti oleh <b>${adminName}</b>. Terima kasih atas partisipasi Anda.</p>`
-              });
-            } catch (err) {
-              console.error('Failed to send completion email:', err);
-            }
+      const comp = complaints.find(c => c.id === id) || selectedComplaint;
+      const targetEmail = getUserEmail(comp);
+
+      if (targetEmail) {
+        try {
+          await axios.post('/api/broadcast', {
+            to: targetEmail,
+            subject: `Pengaduan Selesai [${id}] - Desa Ngawonggo`,
+            content: `
+              <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <h2 style="color: #38A169; margin-bottom: 8px;">Pengaduan Anda Telah Selesai Ditindaklanjuti ✅</h2>
+                <p>Halo <b>${comp?.name || 'Warga'}</b>,</p>
+                <p>Pengaduan Anda dengan ID: <b>${id}</b> telah dinyatakan <b>SELESAI</b> ditindaklanjuti oleh Perangkat Desa (<b>${adminName}</b>).</p>
+                <p>Terima kasih atas kepedulian dan partisipasi Anda dalam membangun Desa Ngawonggo yang lebih baik.</p>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                <p style="font-size: 12px; color: #718096; margin: 0;">Email ini dikirim secara otomatis oleh Sistem Informasi Layanan Desa Ngawonggo.</p>
+              </div>
+            `
+          });
+          toast({ title: 'Notifikasi Selesai Terkirim', description: `Email dikirim ke ${targetEmail}`, status: 'info' });
+        } catch (err) {
+          console.error('Failed to send completion email:', err);
         }
+      }
+
+      if (comp?.user_id) {
+        try {
+          await supabase.rpc('send_system_notification', {
+            p_user_id: comp.user_id,
+            p_title: `Pengaduan [${id}] Telah Selesai`,
+            p_message: `Laporan Anda telah berhasil diselesaikan oleh perangkat desa (${adminName}). Terima kasih!`,
+            p_type: 'complaint'
+          });
+        } catch (e) {}
       }
     }
   };
@@ -166,6 +239,8 @@ const ComplaintManager = () => {
   };
 
   if (selectedComplaint) {
+    const targetEmail = getUserEmail(selectedComplaint);
+
     return (
       <Box bg="white" _dark={{ bg: "gray.800" }} p={6} borderRadius="xl" boxShadow="sm" h="700px" display="flex" flexDirection="column">
         <HStack mb={4} justify="space-between" align="start">
@@ -175,8 +250,13 @@ const ComplaintManager = () => {
               <Text fontWeight="bold" fontSize="lg">{selectedComplaint.name}</Text>
               <Badge colorScheme="purple">{selectedComplaint.id}</Badge>
             </HStack>
-            <HStack fontSize="sm" color="gray.600">
+            <HStack fontSize="sm" color="gray.600" flexWrap="wrap">
                <Text><b>Kontak:</b> {selectedComplaint.contact || '-'}</Text>
+               <Text>•</Text>
+               <Text><b>Email Akun:</b></Text>
+               <Badge colorScheme={targetEmail ? "teal" : "gray"} fontSize="xs">
+                 {targetEmail || 'Tidak terdeteksi'}
+               </Badge>
                <Text>•</Text>
                <Text><b>Kategori:</b> {selectedComplaint.category || '-'}</Text>
             </HStack>
@@ -190,7 +270,7 @@ const ComplaintManager = () => {
            <VStack spacing={4} align="stretch">
              {messages.map(msg => (
                <Flex key={msg.id} justify={msg.sender_type === 'admin' ? 'flex-end' : 'flex-start'}>
-                 <Box maxW="70%" bg={msg.sender_type === 'admin' ? 'blue.500' : 'gray.100'} color={msg.sender_type === 'admin' ? 'white' : 'black'} p={3} borderRadius="lg">
+                 <Box maxW="70%" bg={msg.sender_type === 'admin' ? 'purple.600' : 'gray.100'} color={msg.sender_type === 'admin' ? 'white' : 'black'} p={3} borderRadius="lg">
                     {msg.message && <Text fontSize="sm">{msg.message}</Text>}
                     {msg.image_url && <Image src={msg.image_url} mt={2} borderRadius="md" maxH="200px" />}
                     <Text fontSize="10px" mt={1} opacity={0.7}>{new Date(msg.created_at).toLocaleString()}</Text>
@@ -202,18 +282,17 @@ const ComplaintManager = () => {
         </Box>
 
         <HStack>
-          <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Ketik balasan admin..." />
+          <Input value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Ketik balasan admin..." onKeyPress={(e) => { if (e.key === 'Enter') handleSendMessage(); }} />
           <input type="file" hidden ref={fileInputRef} onChange={handleFileUpload} />
-          <IconButton icon={<FaImage />} onClick={() => fileInputRef.current.click()} isLoading={uploading} />
-          <IconButton icon={<FaPaperPlane />} colorScheme="blue" onClick={() => handleSendMessage()} />
+          <IconButton icon={<FaImage />} onClick={() => fileInputRef.current.click()} isLoading={uploading} aria-label="Unggah gambar" />
+          <IconButton icon={<FaPaperPlane />} colorScheme="purple" onClick={() => handleSendMessage()} aria-label="Kirim balasan" />
 
-          <Tooltip label="Kirim Notifikasi ke Pengguna" placement="top">
-             <Checkbox isChecked={notifyUser} onChange={(e) => setNotifyUser(e.target.checked)} colorScheme="green" mr={2}>
-                Beritahu Pengguna
+          <Tooltip label={targetEmail ? `Kirim email notifikasi otomatis ke: ${targetEmail}` : 'Email pengguna belum terdaftar'} placement="top">
+             <Checkbox isChecked={notifyUser} onChange={(e) => setNotifyUser(e.target.checked)} colorScheme="purple" mr={2}>
+                Beritahu Pengguna {targetEmail ? `(${targetEmail})` : ''}
              </Checkbox>
           </Tooltip>
           {selectedComplaint.status !== 'resolved' && (
-
             <Button colorScheme="green" leftIcon={<FaCheck />} onClick={() => markResolved(selectedComplaint.id)}>Selesaikan</Button>
           )}
         </HStack>
@@ -228,6 +307,7 @@ const ComplaintManager = () => {
           <Tr>
             <Th>ID</Th>
             <Th>Nama & Kontak</Th>
+            <Th>Email Akun</Th>
             <Th>Kategori</Th>
             <Th>Status</Th>
             <Th>Tanggal</Th>
@@ -235,31 +315,39 @@ const ComplaintManager = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {complaints.map(c => (
-            <Tr key={c.id}>
-              <Td><Badge>{c.id}</Badge></Td>
-              <Td>
-                <VStack align="start" spacing={0}>
-                  <Text fontWeight="bold">{c.name}</Text>
-                  <Text fontSize="xs" color="gray.500">{c.contact}</Text>
-                </VStack>
-              </Td>
-              <Td>
-                <Badge variant="outline" colorScheme="blue">{c.category}</Badge>
-              </Td>
-              <Td>
-                <Badge colorScheme={c.status === 'resolved' ? 'green' : 'orange'}>{c.status}</Badge>
-              </Td>
-              <Td fontSize="xs">{new Date(c.created_at).toLocaleDateString()}</Td>
-              <Td>
-                <HStack>
-                  <IconButton size="sm" icon={<FaReply />} onClick={() => setSelectedComplaint(c)} />
-                  <IconButton size="sm" icon={<FaCheck />} colorScheme="green" onClick={() => markResolved(c.id)} isDisabled={c.status === 'resolved'} />
-                  <IconButton size="sm" icon={<FaTrash />} colorScheme="red" onClick={() => deleteComplaint(c.id)} />
-                </HStack>
-              </Td>
-            </Tr>
-          ))}
+          {complaints.map(c => {
+            const targetEmail = getUserEmail(c);
+            return (
+              <Tr key={c.id}>
+                <Td><Badge colorScheme="purple">{c.id}</Badge></Td>
+                <Td>
+                  <VStack align="start" spacing={0}>
+                    <Text fontWeight="bold">{c.name}</Text>
+                    <Text fontSize="xs" color="gray.500">{c.contact}</Text>
+                  </VStack>
+                </Td>
+                <Td>
+                  <Text fontSize="xs" color="teal.600" fontWeight="medium">
+                    {targetEmail || '-'}
+                  </Text>
+                </Td>
+                <Td>
+                  <Badge variant="outline" colorScheme="blue">{c.category}</Badge>
+                </Td>
+                <Td>
+                  <Badge colorScheme={c.status === 'resolved' ? 'green' : 'orange'}>{c.status}</Badge>
+                </Td>
+                <Td fontSize="xs">{new Date(c.created_at).toLocaleDateString()}</Td>
+                <Td>
+                  <HStack>
+                    <IconButton size="sm" icon={<FaReply />} onClick={() => setSelectedComplaint(c)} aria-label="Buka Chat" />
+                    <IconButton size="sm" icon={<FaCheck />} colorScheme="green" onClick={() => markResolved(c.id)} isDisabled={c.status === 'resolved'} aria-label="Selesaikan" />
+                    <IconButton size="sm" icon={<FaTrash />} colorScheme="red" onClick={() => deleteComplaint(c.id)} aria-label="Hapus" />
+                  </HStack>
+                </Td>
+              </Tr>
+            );
+          })}
         </Tbody>
       </Table>
     </Box>
