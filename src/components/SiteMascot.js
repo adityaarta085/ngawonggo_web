@@ -182,8 +182,11 @@ const QUICK_PROMPTS = [
   { label: '📜 Surat & Layanan', query: 'Bagaimana cara mengurus surat keterangan di Desa Ngawonggo?' },
   { label: '🕌 Quran & Sholat', query: 'Di mana saya bisa melihat fitur Quran dan Jadwal Sholat?' },
   { label: '📢 Berita Desa', query: 'Apa berita terbaru dari Desa Ngawonggo?' },
+  { label: '⏳ Mesin Waktu', query: 'Bagaimana cara bermain game Mesin Waktu Desa Ngawonggo?' },
   { label: '🎧 Hubungi CS', query: 'Saya butuh bantuan langsung dengan Customer Service' },
 ];
+
+const GUEST_MAX_MESSAGES = 5;
 
 const SiteMascot = () => {
   const navigate = useNavigate();
@@ -193,17 +196,34 @@ const SiteMascot = () => {
 
   // Persistent thread ID for conversation continuity
   const [threadId] = useState(() => {
-    let stored = sessionStorage.getItem('gptoss_mascot_thread_id');
+    let stored = sessionStorage.getItem('ai_mascot_thread_id');
     if (!stored) {
       stored = `thr_mascot_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      sessionStorage.setItem('gptoss_mascot_thread_id', stored);
+      sessionStorage.setItem('ai_mascot_thread_id', stored);
     }
     return stored;
   });
 
+  // Guest message counter
+  const [guestCount, setGuestCount] = useState(() => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const savedDate = localStorage.getItem('ngawonggo_guest_ai_date');
+      const savedCount = parseInt(localStorage.getItem('ngawonggo_guest_ai_count') || '0', 10);
+      if (savedDate !== today) {
+        localStorage.setItem('ngawonggo_guest_ai_date', today);
+        localStorage.setItem('ngawonggo_guest_ai_count', '0');
+        return 0;
+      }
+      return isNaN(savedCount) ? 0 : savedCount;
+    } catch (e) {
+      return 0;
+    }
+  });
+
   // Chatbot logic states
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Halo! 👋 Saya Maskot AI Desa Ngawonggo. Ada yang bisa saya bantu hari ini?' }
+    { role: 'assistant', content: 'Halo! 👋 Saya Maskot AI Desa Ngawonggo. Ada yang bisa saya bantu hari ini seputar pelayanan, Al-Quran, berita, atau informasi desa?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -224,8 +244,11 @@ const SiteMascot = () => {
   const textColorBot = useColorModeValue('gray.800', 'gray.100');
   const inputBg = useColorModeValue('gray.50', 'gray.900');
   const widgetBg = useColorModeValue('rgba(255, 255, 255, 0.95)', 'rgba(26, 32, 44, 0.95)');
-  const headerBg = useColorModeValue('purple.700', 'gray.900');
+  const headerBg = useColorModeValue('linear-gradient(135deg, #6C5CE7 0%, #4834D4 100%)', 'linear-gradient(135deg, #2D3436 0%, #1E1E24 100%)');
   const widgetBorderColor = useColorModeValue('purple.300', 'purple.700');
+
+  const remainingGuestMessages = Math.max(0, GUEST_MAX_MESSAGES - guestCount);
+  const isGuestLocked = !sessionUser && remainingGuestMessages <= 0;
 
   // Mouse move eye-tracking listener
   useEffect(() => {
@@ -314,7 +337,7 @@ const SiteMascot = () => {
   // Handle CS Escalation
   const handleEscalation = async (summary, reason) => {
     if (!sessionUser) {
-      setMessages(prev => [...prev, { role: 'assistant', content: '🔒 Anda harus login terlebih dahulu untuk menghubungkan ke Customer Service.' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: '🔒 Untuk terhubung langsung dengan Customer Service manusia, Anda perlu login ke akun Anda terlebih dahulu.' }]);
       return;
     }
 
@@ -375,6 +398,20 @@ const SiteMascot = () => {
   const handleSendMessage = async (textToSend) => {
     const queryText = (textToSend || input).trim();
     if (!queryText || isLoading) return;
+
+    // Check guest lock
+    if (isGuestLocked) return;
+
+    // If guest, increment count
+    if (!sessionUser) {
+      const newCount = guestCount + 1;
+      setGuestCount(newCount);
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem('ngawonggo_guest_ai_date', today);
+        localStorage.setItem('ngawonggo_guest_ai_count', String(newCount));
+      } catch (e) {}
+    }
 
     const userMessage = { role: 'user', content: queryText };
     setInput('');
@@ -520,8 +557,8 @@ const SiteMascot = () => {
               transition={{ duration: 0.35, ease: "cubic-bezier(0.16, 1, 0.3, 1)" }}
               direction="column"
               bg={bgCard}
-              w={{ base: "calc(100vw - 32px)", sm: "380px" }}
-              h={{ base: "480px", sm: "530px" }}
+              w={{ base: "calc(100vw - 32px)", sm: "390px" }}
+              h={{ base: "500px", sm: "550px" }}
               borderRadius="3xl"
               boxShadow="0 25px 50px -12px rgba(108, 92, 231, 0.25), 0 0 0 1px rgba(108, 92, 231, 0.15)"
               borderWidth="1px"
@@ -553,10 +590,23 @@ const SiteMascot = () => {
                   <Box>
                     <Flex align="center" gap={1.5}>
                       <Text fontWeight="extrabold" fontSize="sm" letterSpacing="tight">
-                        Maskot Ngawonggo (GPT-OSS 120B)
+                        Tanya Maskot AI Desa Ngawonggo
                       </Text>
-                      <Badge colorScheme="green" variant="solid" borderRadius="full" px={1.5} py={0.2} fontSize="3xs">
-                        {csStatus === 'active' ? 'CS Online' : 'AI Online'}
+                      <Badge
+                        colorScheme={csStatus === 'active' ? 'green' : sessionUser ? 'teal' : isGuestLocked ? 'red' : 'yellow'}
+                        variant="solid"
+                        borderRadius="full"
+                        px={2}
+                        py={0.2}
+                        fontSize="3xs"
+                      >
+                        {csStatus === 'active'
+                          ? 'CS Online'
+                          : sessionUser
+                          ? 'Warga Login'
+                          : isGuestLocked
+                          ? 'Batas Tamu Habis'
+                          : `Tamu: ${remainingGuestMessages}/5`}
                       </Badge>
                     </Flex>
                     <Text fontSize="2xs" color="whiteAlpha.800" fontWeight="medium">
@@ -564,14 +614,16 @@ const SiteMascot = () => {
                         ? `Terhubung dengan: ${csAssigned || 'Petugas CS'}`
                         : csStatus === 'waiting'
                         ? `Antrean #${queuePosition} - Menunggu CS...`
-                        : 'Asisten AI & Pelayanan Digital Desa'}
+                        : !sessionUser
+                        ? `Mode Tamu (${remainingGuestMessages} dari 5 pesan gratis)`
+                        : 'Asisten Cerdas & Pelayanan Digital Desa'}
                     </Text>
                   </Box>
                 </Flex>
 
                 <HStack spacing={1}>
-                  {messages.length > 2 && sessionUser && (
-                    <Tooltip label="Reset Chat" fontSize="xs">
+                  {messages.length > 1 && (
+                    <Tooltip label="Reset Percakapan" fontSize="xs">
                       <IconButton
                         icon={<FaRedo />}
                         size="xs"
@@ -581,7 +633,7 @@ const SiteMascot = () => {
                         aria-label="Reset Chat"
                         onClick={() => {
                           const newThreadId = `thr_mascot_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-                          sessionStorage.setItem('gptoss_mascot_thread_id', newThreadId);
+                          sessionStorage.setItem('ai_mascot_thread_id', newThreadId);
                           setMessages([{ role: 'assistant', content: 'Halo! Sesi percakapan telah diperbarui. Ada yang bisa Maskot bantu?' }]);
                         }}
                       />
@@ -644,7 +696,7 @@ const SiteMascot = () => {
                         </Box>
                       )}
                       <Box
-                        maxW="80%"
+                        maxW="82%"
                         bg={isUser ? userBubbleBg : botBubbleBg}
                         color={isUser ? 'white' : textColorBot}
                         px={3.5}
@@ -683,8 +735,8 @@ const SiteMascot = () => {
                   );
                 })}
 
-                {/* Login Required Notice for Guests */}
-                {!sessionUser && (
+                {/* Login Required Notice when guest has reached 5 message limit */}
+                {isGuestLocked && (
                   <Box
                     p={4}
                     bg="purple.50"
@@ -697,20 +749,19 @@ const SiteMascot = () => {
                     boxShadow="sm"
                   >
                     <Flex justify="center" align="center" color="purple.600" mb={2}>
-                      <FaLock size={22} />
+                      <FaLock size={24} />
                     </Flex>
                     <Text fontWeight="extrabold" fontSize="xs" color="purple.900" _dark={{ color: "purple.100" }} mb={1}>
-                      Akses AI Chatbot Terkunci 🔒
+                      Batas 5 Pesan Tamu Tercapai 🔒
                     </Text>
                     <Text fontSize="2xs" color="gray.600" _dark={{ color: "gray.300" }} mb={3} lineHeight="relaxed">
-                      Anda harus masuk (login) ke akun Anda terlebih dahulu sebelum dapat menggunakan fitur Asisten AI Desa Ngawonggo.
+                      Anda telah menggunakan 5 pesan gratis mode tamu. Masuk atau daftar akun warga gratis sekarang untuk melanjutkan tanya jawab tanpa batas dengan Maskot AI!
                     </Text>
                     <Button
-                      size="xs"
+                      size="sm"
                       colorScheme="purple"
                       borderRadius="full"
-                      px={5}
-                      py={3}
+                      px={6}
                       fontSize="xs"
                       fontWeight="bold"
                       boxShadow="md"
@@ -719,7 +770,7 @@ const SiteMascot = () => {
                         navigate('/auth');
                       }}
                     >
-                      🔑 Login Sekarang
+                      🔑 Masuk / Daftar Akun Gratis
                     </Button>
                   </Box>
                 )}
@@ -733,7 +784,7 @@ const SiteMascot = () => {
               </VStack>
 
               {/* Quick Prompts Chips */}
-              {messages.length < 4 && !isLoading && sessionUser && (
+              {messages.length < 5 && !isLoading && !isGuestLocked && (
                 <Flex px={3} py={1.5} gap={1.5} overflowX="auto" borderTopWidth="1px" borderColor={borderColor}>
                   {QUICK_PROMPTS.map((qp, idx) => (
                     <Button
@@ -757,16 +808,18 @@ const SiteMascot = () => {
                 <Flex gap={2} align="center">
                   <Input
                     placeholder={
-                      !sessionUser
-                        ? "Silakan login untuk mengirim pesan..."
+                      isGuestLocked
+                        ? "Batas 5 pesan tamu tercapai. Silakan login..."
                         : csStatus === 'active'
                         ? "Tulis pesan ke CS..."
-                        : "Tanya Maskot Desa..."
+                        : !sessionUser
+                        ? `Tanya Maskot Desa (Sisa ${remainingGuestMessages} pesan)...`
+                        : "Tanya Maskot AI Desa Ngawonggo..."
                     }
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    isDisabled={!sessionUser}
+                    isDisabled={isGuestLocked}
                     size="sm"
                     borderRadius="full"
                     bg={inputBg}
@@ -780,7 +833,7 @@ const SiteMascot = () => {
                     borderRadius="full"
                     aria-label="Kirim Pesan"
                     isLoading={isLoading}
-                    isDisabled={!sessionUser || !input.trim()}
+                    isDisabled={isGuestLocked || !input.trim()}
                     onClick={() => handleSendMessage()}
                   />
                 </Flex>
@@ -822,7 +875,7 @@ const SiteMascot = () => {
               >
                 <FaSmile color="#6C5CE7" />
                 <Text fontSize="xs" fontWeight="bold" color="purple.700" _dark={{ color: "purple.200" }}>
-                  Ada yang bisa Maskot bantu? 💬
+                  Tanya Maskot AI Desa Ngawonggo 💬
                 </Text>
                 <IconButton
                   icon={<FaTimes />}

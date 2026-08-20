@@ -30,10 +30,10 @@ const TakedownPage = () => {
   });
 
   const [threadId] = useState(() => {
-    let stored = sessionStorage.getItem('gptoss_takedown_thread_id');
+    let stored = sessionStorage.getItem('ai_takedown_thread_id');
     if (!stored) {
       stored = `thr_takedown_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      sessionStorage.setItem('gptoss_takedown_thread_id', stored);
+      sessionStorage.setItem('ai_takedown_thread_id', stored);
     }
     return stored;
   });
@@ -255,7 +255,7 @@ const TakedownPage = () => {
               <Flex bg="red.600" color="white" w="full" px={6} py={4} align="center" gap={3}>
                 <FaRobot size="24px" />
                 <VStack align="start" spacing={0}>
-                  <Heading size="xs">ASISTEN DARURAT AI (GPT-OSS 120B)</Heading>
+                  <Heading size="xs">ASISTEN DARURAT AI DESA NGAWONGGO</Heading>
                   <Text fontSize="10px" opacity={0.8}>Tanya seputar Desa Ngawonggo</Text>
                 </VStack>
               </Flex>
