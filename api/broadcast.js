@@ -17,14 +17,14 @@ module.exports = async (req, res) => {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: 'noreply.ngawonggo@gmail.com',
-      pass: 'cccu iodg zvqi afdn',
+      user: process.env.SMTP_USER || 'desangawonggoku@gmail.com',
+      pass: process.env.SMTP_PASS || 'jrxl gywv fnsk ierj',
     },
   });
 
   try {
     const info = await transporter.sendMail({
-      from: '"Desa Ngawonggo" <noreply.ngawonggo@gmail.com>',
+      from: '"Desa Ngawonggo" <desangawonggoku@gmail.com>',
       to: to,
       subject: subject,
       html: content,
