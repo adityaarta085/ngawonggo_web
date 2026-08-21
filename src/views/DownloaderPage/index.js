@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Container,
@@ -17,9 +17,11 @@ import {
   Icon
 } from '@chakra-ui/react';
 import { SiTiktok } from 'react-icons/si';
-import { FaDownload, FaSearch, FaLink } from 'react-icons/fa';
+import { FaDownload, FaSearch, FaLink, FaCoins, FaCrown } from 'react-icons/fa';
 import SEO from '../../components/SEO';
 import '../../App.css'; // Make sure the loader CSS is available
+import { useMonetization } from '../../contexts/MonetizationContext';
+import PaywallModal from '../../components/Monetization/PaywallModal';
 
 import {
   FaYoutube,
@@ -64,7 +66,21 @@ const DownloaderPage = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [showBeta, setShowBeta] = useState(false);
+  const [quota, setQuota] = useState({ remaining: 5, limit: 5, is_vip: false, allowed: true });
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const toast = useToast();
+
+  const { isVIP, settings, consumeFeatureOrCoins, getFeatureQuota } = useMonetization();
+
+  const fetchQuota = useCallback(async () => {
+    const freeLimit = settings.downloader_free_daily_limit || 5;
+    const q = await getFeatureQuota('downloader', freeLimit, 1);
+    setQuota(q);
+  }, [settings.downloader_free_daily_limit, getFeatureQuota]);
+
+  useEffect(() => {
+    fetchQuota();
+  }, [fetchQuota]);
 
   const handleServiceChange = (e) => {
     const service = SERVICES.find((s) => s.id === e.target.value);
@@ -81,6 +97,20 @@ const DownloaderPage = () => {
         duration: 3000,
         isClosable: true,
       });
+      return;
+    }
+
+    // Check Monetization Quota & Coins
+    const freeLimit = settings.downloader_free_daily_limit || 5;
+    const coinCost = settings.downloader_coin_price || 2;
+
+    const quotaResult = await consumeFeatureOrCoins('downloader', freeLimit, 1, coinCost, 'Media Downloader');
+    if (!quotaResult.success) {
+      if (quotaResult.error === 'insufficient_coins' || quotaResult.error === 'quota_exceeded') {
+        setIsPaywallOpen(true);
+      } else {
+        toast({ title: 'Batas Kuota', description: quotaResult.message || 'Batas harian unduhan tercapai.', status: 'warning' });
+      }
       return;
     }
 
@@ -103,6 +133,7 @@ const DownloaderPage = () => {
 
       if (data.status) {
         setResult(data.result);
+        fetchQuota();
       } else {
         throw new Error('Gagal mengambil data atau respons tidak valid.');
       }
@@ -227,6 +258,15 @@ const DownloaderPage = () => {
             <VStack spacing={2} textAlign="center">
               <Heading color="white" size="xl">Universal Downloader</Heading>
               <Text color="gray.300">Unduh video dan musik favorit Anda dari berbagai platform dengan mudah.</Text>
+              {isVIP ? (
+                <Badge colorScheme="purple" p={2} borderRadius="xl" display="flex" alignItems="center" gap={1}>
+                  <Icon as={FaCrown} color="yellow.400" /> Member VIP (Download Unlimited)
+                </Badge>
+              ) : (
+                <Badge colorScheme={quota.remaining > 0 ? "teal" : "orange"} p={2} borderRadius="xl" display="flex" alignItems="center" gap={1}>
+                  <Icon as={FaCoins} color="yellow.400" /> Sisa Kuota Unduh Gratis: {quota.remaining}/{quota.limit} Hari Ini (Ekstra: {settings.downloader_coin_price || 2} Koin)
+                </Badge>
+              )}
             </VStack>
 
             <Box w="full" p={6} bg="whiteAlpha.100" backdropFilter="blur(10px)" borderRadius="2xl" borderWidth="1px" borderColor="whiteAlpha.300">
@@ -326,6 +366,20 @@ const DownloaderPage = () => {
           </VStack>
         </Container>
       </Box>
+
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onClose={() => setIsPaywallOpen(false)}
+        title="Batas Unduhan Harian Tercapai"
+        message={`Batas unduhan gratis harian (${settings.downloader_free_daily_limit || 5} unduhan/hari) telah tercapai. Ingin mengunduh media ini menggunakan ${settings.downloader_coin_price || 2} Koin?`}
+        price={settings.downloader_coin_price || 2}
+        currencyType="coins"
+        quotaInfo={isVIP ? "Akun VIP" : `Batas Akun Gratis: ${settings.downloader_free_daily_limit || 5} Unduhan / Hari`}
+        onPay={() => {
+          setIsPaywallOpen(false);
+          handleDownload();
+        }}
+      />
     </>
   );
 };

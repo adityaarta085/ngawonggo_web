@@ -12,88 +12,131 @@ import {
   Text,
   HStack,
   Icon,
+  Badge,
 } from '@chakra-ui/react';
-import { FaCoins, FaCrown, FaTicketAlt, FaPlay } from 'react-icons/fa';
+import { FaCoins, FaCrown, FaTicketAlt, FaCreditCard } from 'react-icons/fa';
 import { useMonetization } from '../../contexts/MonetizationContext';
 import { useNavigate } from 'react-router-dom';
 
-const PaywallModal = ({ isOpen, onClose, title, message, price, currencyType, onPay, isAdAvailable = false }) => {
+const PaywallModal = ({
+  isOpen,
+  onClose,
+  title = 'Akses Fitur Terbatas',
+  message = 'Kuota gratis harian Anda untuk fitur ini telah tercapai.',
+  price = 5,
+  currencyType = 'coins',
+  onPay,
+  quotaInfo = null,
+}) => {
   const { currency, deductCurrency } = useMonetization();
   const navigate = useNavigate();
-  const balance = currency[currencyType];
+  const balance = currency ? (currency[currencyType] || 0) : 0;
   const canAfford = balance >= price;
 
   const handlePay = async () => {
     if (canAfford) {
-        const success = await deductCurrency(price, currencyType, title);
-        if (success) {
-            onPay();
-            onClose();
-        }
+      const success = await deductCurrency(price, currencyType, title);
+      if (success) {
+        if (onPay) onPay();
+        onClose();
+      }
     }
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered size="md">
-      <ModalOverlay backdropFilter="blur(4px)" />
-      <ModalContent borderRadius="2xl">
-        <ModalHeader textAlign="center">{title}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <VStack spacing={6} textAlign="center" py={4}>
+      <ModalOverlay backdropFilter="blur(6px)" bg="blackAlpha.600" />
+      <ModalContent borderRadius="2xl" overflow="hidden" boxShadow="2xl">
+        <ModalHeader textAlign="center" pt={6} pb={2} bg="purple.50" _dark={{ bg: "purple.950" }}>
+          <VStack spacing={1}>
             <Icon
               as={currencyType === 'coins' ? FaCoins : FaTicketAlt}
-              boxSize={12}
-              color={currencyType === 'coins' ? 'yellow.400' : 'blue.400'}
+              boxSize={10}
+              color={currencyType === 'coins' ? 'yellow.500' : 'blue.500'}
             />
-            <Text color="gray.600">{message}</Text>
+            <Text fontSize="lg" fontWeight="bold" color="purple.800" _dark={{ color: "purple.200" }}>
+              {title}
+            </Text>
+          </VStack>
+        </ModalHeader>
+        <ModalCloseButton />
+        <ModalBody py={5}>
+          <VStack spacing={4} textAlign="center">
+            {quotaInfo && (
+              <Badge colorScheme="orange" px={3} py={1} borderRadius="full" fontSize="xs">
+                {quotaInfo}
+              </Badge>
+            )}
+            <Text color="gray.600" _dark={{ color: "gray.300" }} fontSize="sm">
+              {message}
+            </Text>
 
-            <HStack bg="gray.50" _dark={{ bg: "gray.900" }} p={4} borderRadius="xl" w="full" justify="space-between">
-                <Text fontWeight="bold" color="gray.600">Saldo Anda:</Text>
+            <HStack bg="gray.50" _dark={{ bg: "gray.800" }} p={4} borderRadius="xl" w="full" justify="space-between" borderWidth="1px" borderColor="gray.200">
+              <VStack align="start" spacing={0}>
+                <Text fontSize="xs" color="gray.500">Saldo {currencyType === 'coins' ? 'Koin Desa' : 'Tiket'}:</Text>
                 <HStack>
-                    <Icon as={currencyType === 'coins' ? FaCoins : FaTicketAlt} color={currencyType === 'coins' ? 'yellow.400' : 'blue.400'} />
-                    <Text fontWeight="bold" fontSize="lg">{balance}</Text>
+                  <Icon as={currencyType === 'coins' ? FaCoins : FaTicketAlt} color={currencyType === 'coins' ? 'yellow.500' : 'blue.500'} />
+                  <Text fontWeight="bold" fontSize="lg">{balance}</Text>
                 </HStack>
+              </VStack>
+
+              <VStack align="end" spacing={0}>
+                <Text fontSize="xs" color="gray.500">Biaya Akses:</Text>
+                <Badge colorScheme="purple" fontSize="md" px={2} py={0.5} borderRadius="md">
+                  {price} {currencyType === 'coins' ? 'Koin' : 'Tiket'}
+                </Badge>
+              </VStack>
             </HStack>
 
             {!canAfford && (
-                <Text fontSize="sm" color="red.500">
-                    Saldo {currencyType} tidak cukup. Silakan Topup / Isi Ulang (QRIS).
-                </Text>
+              <Text fontSize="xs" color="red.500" fontWeight="medium">
+                Saldo Koin Anda belum mencukupi. Silakan isi ulang melalui Kios Koin Desa (QRIS Instan) atau gunakan tiket VIP.
+              </Text>
             )}
           </VStack>
         </ModalBody>
 
-        <ModalFooter flexDirection="column" gap={3}>
+        <ModalFooter flexDirection="column" gap={2} bg="gray.50" _dark={{ bg: "gray.900" }} pt={3} pb={5}>
           <Button
             w="full"
-            colorScheme={currencyType === 'coins' ? 'yellow' : 'blue'}
+            colorScheme="yellow"
             size="lg"
             onClick={handlePay}
             isDisabled={!canAfford}
-            leftIcon={<Icon as={currencyType === 'coins' ? FaCoins : FaTicketAlt} />}
+            leftIcon={<Icon as={FaCoins} />}
+            shadow="md"
           >
-            Bayar {price} {currencyType === 'coins' ? 'Koin' : 'Tiket'}
+            Buka Sekarang ({price} Koin)
           </Button>
 
-          {isAdAvailable && (
-              <Button
-                w="full"
-                variant="outline"
-                colorScheme="gray"
-                leftIcon={<Icon as={FaPlay} color="gray.500" />}
-                isDisabled={true} // "SAAT INI BELUM ADA JADI HARUS BAYAR"
-              >
-                Nonton Iklan (Belum Tersedia)
-              </Button>
-          )}
-
-          <Button w="full" variant="ghost" colorScheme="brand" leftIcon={<FaCrown />} onClick={() => {
-            onClose();
-            navigate('/donasi'); // Redirecting to Topup/Donasi route as per existing QRIS flow
-          }}>
-            Upgrade Premium / VIP
-          </Button>
+          <HStack w="full" spacing={2}>
+            <Button
+              flex={1}
+              size="sm"
+              variant="outline"
+              colorScheme="yellow"
+              leftIcon={<FaCreditCard />}
+              onClick={() => {
+                onClose();
+                navigate('/topup');
+              }}
+            >
+              Topup Koin
+            </Button>
+            <Button
+              flex={1}
+              size="sm"
+              variant="outline"
+              colorScheme="purple"
+              leftIcon={<FaCrown />}
+              onClick={() => {
+                onClose();
+                navigate('/portal/toko');
+              }}
+            >
+              Member VIP
+            </Button>
+          </HStack>
         </ModalFooter>
       </ModalContent>
     </Modal>

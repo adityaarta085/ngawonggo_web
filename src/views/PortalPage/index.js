@@ -485,24 +485,28 @@ Alasan/Feedback: ${feedback || 'Tidak ada'}`;
                   }}>Klaim Daily Login (+10 Koin)</Button>
               )}
             </Flex>
-            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                <VStack p={4} bg="yellow.50" borderRadius="xl" align="start" border="1px solid" borderColor="yellow.100">
+            <SimpleGrid columns={{ base: 1, sm: 2, md: 4 }} spacing={4}>
+                <VStack p={4} bg="yellow.50" _dark={{ bg: "yellow.950" }} borderRadius="xl" align="start" border="1px solid" borderColor="yellow.100">
                     <HStack color="yellow.600" justify="space-between" w="full">
                         <HStack><Icon as={FaCoins} /><Text fontWeight="bold">Koin Desa</Text></HStack>
                         <IconButton size="xs" colorScheme="yellow" variant="ghost" icon={<FaCreditCard />} onClick={() => navigate('/topup')} aria-label="Topup Koin" />
                     </HStack>
-                    <Heading size="2xl" color="yellow.700">{currency?.coins || 0}</Heading>
+                    <Heading size="2xl" color="yellow.700" _dark={{ color: "yellow.300" }}>{currency?.coins || 0}</Heading>
                 </VStack>
-                <VStack p={4} bg="purple.50" borderRadius="xl" align="start" border="1px solid" borderColor="purple.100">
+                <VStack p={4} bg="purple.50" _dark={{ bg: "purple.950" }} borderRadius="xl" align="start" border="1px solid" borderColor="purple.100">
                     <HStack color="purple.600">
                         <Icon as={FaCrown} />
                         <Text fontWeight="bold">Tier Status</Text>
                     </HStack>
-                    <Heading size="xl" color="purple.700">{tier?.name || 'Free'}</Heading>
+                    <Heading size="xl" color="purple.700" _dark={{ color: "purple.300" }}>{tier?.name || 'Free'}</Heading>
                 </VStack>
-                <VStack p={4} bg="brand.50" borderRadius="xl" align="center" justify="center" as="button" onClick={() => navigate("/portal/toko")} _hover={{ bg: 'brand.100' }} transition="all 0.2s" border="1px solid" borderColor="brand.100">
-                    <Icon as={FaStore} color="brand.500" boxSize={8} mb={1} />
-                    <Text fontWeight="bold" color="brand.600" fontSize="md">Beli VIP & Gacha</Text>
+                <VStack p={4} bg="brand.50" _dark={{ bg: "brand.950" }} borderRadius="xl" align="center" justify="center" as="button" onClick={() => navigate("/portal/toko")} _hover={{ bg: 'brand.100' }} transition="all 0.2s" border="1px solid" borderColor="brand.100">
+                    <Icon as={FaStore} color="brand.500" boxSize={7} mb={1} />
+                    <Text fontWeight="bold" color="brand.600" _dark={{ color: "brand.300" }} fontSize="sm">Beli VIP & Gacha</Text>
+                </VStack>
+                <VStack p={4} bg="orange.50" _dark={{ bg: "orange.950" }} borderRadius="xl" align="center" justify="center" as="button" onClick={() => navigate("/portal/toko/lucky-wheel")} _hover={{ bg: 'orange.100' }} transition="all 0.2s" border="1px solid" borderColor="orange.200">
+                    <Icon as={FaGift} color="orange.500" boxSize={7} mb={1} />
+                    <Text fontWeight="bold" color="orange.600" _dark={{ color: "orange.300" }} fontSize="sm">Roda Keberuntungan</Text>
                 </VStack>
             </SimpleGrid>
           </Box>

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
-import { getById } from '../../lib/dataFetcher';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -17,13 +16,15 @@ import {
   Button,
   Image,
   Flex,
-    Badge,
+  Badge,
   Icon,
   useColorModeValue
 } from '@chakra-ui/react';
-import { FaMagic, FaPaintBrush } from 'react-icons/fa';
+import { FaMagic, FaPaintBrush, FaCoins, FaCrown } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { SEO } from '../../components';
+import { useMonetization } from '../../contexts/MonetizationContext';
+import PaywallModal from '../../components/Monetization/PaywallModal';
 
 const MotionBox = motion(Box);
 
@@ -32,6 +33,9 @@ export default function KreativitasPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingText, setLoadingText] = useState('');
   const [generatedImageUrl, setGeneratedImageUrl] = useState(null);
+  const [quota, setQuota] = useState({ remaining: 2, limit: 2, is_vip: false, allowed: true });
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
+  const [paywallMessage, setPaywallMessage] = useState('');
 
   const templates = [
     "NARUTO UZUMAKI",
@@ -40,108 +44,121 @@ export default function KreativitasPage() {
     "A cute cat wearing astronaut suit on the moon"
   ];
 
-
+  const { user, isVIP, settings, consumeFeatureOrCoins, getFeatureQuota } = useMonetization();
   const navigate = useNavigate();
   const toast = useToast();
-  const [user, setUser] = useState(null);
-  const [tier, setTier] = useState(null);
   const [isPublic, setIsPublic] = useState(true);
 
+  const fetchQuota = useCallback(async () => {
+    const freeLimit = settings.ai_image_free_daily_limit || 2;
+    const q = await getFeatureQuota('ai_image', freeLimit, 1);
+    setQuota(q);
+  }, [settings.ai_image_free_daily_limit, getFeatureQuota]);
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-        setUser(user);
-        if (user) {
-            getById('user_tiers', user.id).then(({ data }) => {
-                if (data) setTier(data.tier_name);
-            });
-        }
-    });
-  }, []);
+    fetchQuota();
+  }, [fetchQuota]);
 
   const handleGenerate = async () => {
     if (!user) {
-        toast({ title: 'Silakan login', description: 'Anda harus login untuk membuat gambar.', status: 'warning' });
-        navigate('/auth');
-        return;
+      toast({ title: 'Silakan login', description: 'Anda harus login untuk membuat gambar.', status: 'warning' });
+      navigate('/auth');
+      return;
     }
 
     if (!prompt.trim()) return;
+
+    // Check Monetization Quota & Coins
+    const freeLimit = settings.ai_image_free_daily_limit || 2;
+    const coinCost = settings.ai_image_coin_price || 5;
+
+    const quotaResult = await consumeFeatureOrCoins('ai_image', freeLimit, 1, coinCost, 'AI Image Generator');
+    if (!quotaResult.success) {
+      if (quotaResult.error === 'insufficient_coins' || quotaResult.error === 'quota_exceeded') {
+        setPaywallMessage(`Batas gratis (${freeLimit} gambar/hari) tercapai. Butuh ${coinCost} Koin untuk membuat gambar tambahan.`);
+        setIsPaywallOpen(true);
+      } else {
+        toast({ title: 'Batas Kuota', description: quotaResult.message || 'Batas harian pembuatan gambar telah tercapai.', status: 'warning' });
+      }
+      return;
+    }
+
     setIsGenerating(true);
     setGeneratedImageUrl(null);
 
     try {
+      const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
 
-        const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+      setLoadingText('Sedang melukis mahakarya... (Mungkin memakan waktu hingga 30 detik)');
 
-                        setLoadingText('Sedang melukis mahakarya... (Mungkin memakan waktu hingga 30 detik)');
+      // 1. Panggil serverless function kita untuk generate gambar
+      const generateResponse = await fetch('/api/ai-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, model: 'Flux1schnell' })
+      });
 
-        // 1. Panggil serverless function kita untuk generate gambar
-        const generateResponse = await fetch('/api/ai-image', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt, model: 'Flux1schnell' })
-        });
+      if (!generateResponse.ok) throw new Error('Gagal melakukan generate gambar dari server AI.');
+      const generateData = await generateResponse.json();
 
-        if (!generateResponse.ok) throw new Error('Gagal melakukan generate gambar dari server AI.');
-        const generateData = await generateResponse.json();
+      if (!generateData.success || !generateData.imageUrl) {
+        throw new Error(generateData.error || 'Gagal mendapatkan gambar dari AI.');
+      }
 
-        if (!generateData.success || !generateData.imageUrl) {
-            throw new Error(generateData.error || 'Gagal mendapatkan gambar dari AI.');
-        }
+      // 2. Fetch the generated image blob
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
 
-        // 2. Fetch the generated image blob
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout
+      let imageResponse;
+      try {
+        imageResponse = await fetch(generateData.imageUrl, { signal: controller.signal });
+      } catch (err) {
+        throw new Error('Koneksi ke server AI terputus atau timeout saat mendownload.');
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
-        let imageResponse;
-        try {
-            imageResponse = await fetch(generateData.imageUrl, { signal: controller.signal });
-        } catch (err) {
-            throw new Error('Koneksi ke server AI terputus atau timeout saat mendownload.');
-        } finally {
-            clearTimeout(timeoutId);
-        }
+      if (!imageResponse.ok) throw new Error('Gagal mendownload gambar hasil generate.');
+      const blob = await imageResponse.blob();
 
-        if (!imageResponse.ok) throw new Error('Gagal mendownload gambar hasil generate.');
-        const blob = await imageResponse.blob();
+      setLoadingText('Mengunggah mahakarya ke server...');
+      // 2. Upload to storage API (matching community logic)
+      const formData = new FormData();
+      formData.append('file', blob, `ai-image-${Date.now()}.jpg`);
 
-        setLoadingText('Mengunggah mahakarya ke server...');
-        // 2. Upload to storage API (matching community logic)
-        const formData = new FormData();
-        formData.append('file', blob, `ai-image-${Date.now()}.jpg`);
+      const key = "AIzaBj7z2z3xBjsk";
+      const uploadResponse = await fetch(`https://c.termai.cc/api/upload?key=${key}`, {
+        method: 'POST',
+        body: formData,
+      });
 
-        const key = "AIzaBj7z2z3xBjsk";
-        const uploadResponse = await fetch(`https://c.termai.cc/api/upload?key=${key}`, {
-            method: 'POST',
-            body: formData,
-        });
+      if (!uploadResponse.ok) throw new Error('Gagal mengunggah gambar ke penyimpanan.');
+      const uploadData = await uploadResponse.json();
+      if (!uploadData.status) throw new Error('Server penyimpanan mengembalikan error.');
 
-        if (!uploadResponse.ok) throw new Error('Gagal mengunggah gambar ke penyimpanan.');
-        const uploadData = await uploadResponse.json();
-        if (!uploadData.status) throw new Error('Server penyimpanan mengembalikan error.');
+      const finalImageUrl = uploadData.path;
+      setLoadingText('Menyimpan data...');
 
-        const finalImageUrl = uploadData.path;
-        setLoadingText('Menyimpan data...');
+      // 3. Simpan ke Supabase
+      const { data, error } = await supabase.from('ai_images').insert([{
+        user_id: user.id,
+        prompt: prompt,
+        image_url: finalImageUrl,
+        is_public: isVIP ? isPublic : true, // Free always public
+        user_name: userName
+      }]).select().single();
 
-        // 3. Simpan ke Supabase
-        const { data, error } = await supabase.from('ai_images').insert([{
-            user_id: user.id,
-            prompt: prompt,
-            image_url: finalImageUrl,
-            is_public: tier === 'VIP' ? isPublic : true, // Free always public
-            user_name: userName
-        }]).select().single();
+      if (error) throw error;
 
-        if (error) throw error;
-
-        toast({ title: 'Berhasil', description: 'Gambar berhasil dibuat dan disimpan.', status: 'success' });
-        navigate(`/kreativitas/create/${data.id}`);
+      fetchQuota();
+      toast({ title: 'Berhasil', description: 'Gambar berhasil dibuat dan disimpan.', status: 'success' });
+      navigate(`/kreativitas/create/${data.id}`);
 
     } catch (error) {
-        console.error("Error saving image:", error);
-        toast({ title: 'Gagal', description: error.message || 'Gagal membuat gambar.', status: 'error', duration: 7000, isClosable: true });
+      console.error("Error saving image:", error);
+      toast({ title: 'Gagal', description: error.message || 'Gagal membuat gambar.', status: 'error', duration: 7000, isClosable: true });
     } finally {
-        setIsGenerating(false);
+      setIsGenerating(false);
     }
   };
 
@@ -217,19 +234,28 @@ export default function KreativitasPage() {
             <VStack spacing={8} align="stretch">
 
 
-              <HStack spacing={4} justify="center" mb={6}>
+              <HStack spacing={4} justify="center" mb={2} flexWrap="wrap" gap={2}>
                   <Button colorScheme="brand" variant="outline" onClick={() => navigate('/kreativitas/publik')}>
                       Galeri Publik
                   </Button>
-                  <Button colorScheme="purple" variant={tier === 'VIP' ? 'solid' : 'outline'} onClick={() => {
-                      if (tier === 'VIP') navigate('/kreativitas/histori');
+                  <Button colorScheme="purple" variant={isVIP ? 'solid' : 'outline'} onClick={() => {
+                      if (isVIP) navigate('/kreativitas/histori');
                       else {
                           toast({ title: 'Fitur VIP', description: 'Histori hanya tersedia untuk pengguna VIP.', status: 'info' });
                           navigate('/portal/toko');
                       }
                   }}>
-                      Histori Saya {tier !== 'VIP' && '(VIP)'}
+                      Histori Saya {isVIP ? '(VIP Aktif)' : '(VIP)'}
                   </Button>
+                  {isVIP ? (
+                    <Badge colorScheme="purple" p={2} borderRadius="xl" display="flex" alignItems="center" gap={1}>
+                      <Icon as={FaCrown} color="yellow.400" /> Member VIP (Unlimited)
+                    </Badge>
+                  ) : (
+                    <Badge colorScheme={quota.remaining > 0 ? "teal" : "orange"} p={2} borderRadius="xl" display="flex" alignItems="center" gap={1}>
+                      <Icon as={FaCoins} color="yellow.500" /> Sisa Kuota Gratis: {quota.remaining}/{quota.limit} Hari Ini (Ekstra: {settings.ai_image_coin_price || 5} Koin)
+                    </Badge>
+                  )}
               </HStack>
 
               {/* Input Section */}
@@ -299,12 +325,12 @@ export default function KreativitasPage() {
 
                   <Flex justify="space-between" align="center" mt={2} p={3} bg={useColorModeValue('whiteAlpha.500', 'blackAlpha.300')} borderRadius="lg">
                       <FormControl display="flex" alignItems="center">
-                          <FormLabel htmlFor="public-switch" mb="0" fontSize="sm" color={tier === 'VIP' ? 'gray.700' : 'gray.500'}>
+                          <FormLabel htmlFor="public-switch" mb="0" fontSize="sm" color={isVIP ? 'gray.700' : 'gray.500'}>
                               Tampilkan di Publik
                           </FormLabel>
-                          <Switch id="public-switch" isChecked={tier === 'VIP' ? isPublic : true} onChange={(e) => setIsPublic(e.target.checked)} isDisabled={tier !== 'VIP'} colorScheme="purple" />
+                          <Switch id="public-switch" isChecked={isVIP ? isPublic : true} onChange={(e) => setIsPublic(e.target.checked)} isDisabled={!isVIP} colorScheme="purple" />
                       </FormControl>
-                      {tier !== 'VIP' && <Badge colorScheme="red" fontSize="xs">Hanya VIP (bisa privasi)</Badge>}
+                      {!isVIP && <Badge colorScheme="red" fontSize="xs">Hanya VIP (bisa privasi)</Badge>}
                   </Flex>
 
                 </VStack>
@@ -412,6 +438,20 @@ export default function KreativitasPage() {
 
         </Flex>
       </Container>
+
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onClose={() => setIsPaywallOpen(false)}
+        title="Batas Pembuatan Gambar AI Tercapai"
+        message={paywallMessage || `Kuota gratis harian Anda untuk membuat gambar AI telah habis. Ingin membuat gambar ini menggunakan ${settings.ai_image_coin_price || 5} Koin?`}
+        price={settings.ai_image_coin_price || 5}
+        currencyType="coins"
+        quotaInfo={isVIP ? "Akun VIP" : `Batas Akun Gratis: ${settings.ai_image_free_daily_limit || 2} Gambar / Hari`}
+        onPay={() => {
+          setIsPaywallOpen(false);
+          handleGenerate();
+        }}
+      />
     </Box>
   );
 }

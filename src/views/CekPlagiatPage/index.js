@@ -8,15 +8,18 @@ import {
   Button,
   HStack,
   Icon,
+  Badge,
   useToast,
   SimpleGrid,
 } from '@chakra-ui/react';
-import { FaSearch, FaShieldAlt } from 'react-icons/fa';
+import { FaSearch, FaShieldAlt, FaCoins, FaCrown } from 'react-icons/fa';
 import SEO from '../../components/SEO';
 import TextInputForm from './components/TextInputForm';
 import ResultDisplay from './components/ResultDisplay';
 import HistoryPanel from './components/HistoryPanel';
 import ScanAnimation from './components/ScanAnimation';
+import { useMonetization } from '../../contexts/MonetizationContext';
+import PaywallModal from '../../components/Monetization/PaywallModal';
 
 // --- Simulated plagiarism checking engine ---
 // In production, replace this with a real API call.
@@ -98,7 +101,21 @@ const CekPlagiatPage = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
+  const [quota, setQuota] = useState({ remaining: 3, limit: 3, is_vip: false, allowed: true });
+  const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const toast = useToast();
+
+  const { isVIP, settings, consumeFeatureOrCoins, getFeatureQuota } = useMonetization();
+
+  const fetchQuota = useCallback(async () => {
+    const freeLimit = settings.plagiat_free_daily_limit || 3;
+    const q = await getFeatureQuota('plagiat', freeLimit, 1);
+    setQuota(q);
+  }, [settings.plagiat_free_daily_limit, getFeatureQuota]);
+
+  useEffect(() => {
+    fetchQuota();
+  }, [fetchQuota]);
 
   // Load history from localStorage
   useEffect(() => {
@@ -146,12 +163,27 @@ const CekPlagiatPage = () => {
       return;
     }
 
+    // Check Monetization Quota & Coins
+    const freeLimit = settings.plagiat_free_daily_limit || 3;
+    const coinCost = settings.plagiat_coin_price || 5;
+
+    const quotaResult = await consumeFeatureOrCoins('plagiat', freeLimit, 1, coinCost, 'Cek Plagiat & Teks');
+    if (!quotaResult.success) {
+      if (quotaResult.error === 'insufficient_coins' || quotaResult.error === 'quota_exceeded') {
+        setIsPaywallOpen(true);
+      } else {
+        toast({ title: 'Batas Kuota', description: quotaResult.message || 'Batas harian pengecekan plagiasi tercapai.', status: 'warning' });
+      }
+      return;
+    }
+
     setLoading(true);
     setResult(null);
 
     try {
       const checkResult = await simulatePlagiarismCheck(trimmedText);
       setResult(checkResult);
+      fetchQuota();
 
       // Add to history
       const historyEntry = {
@@ -178,7 +210,6 @@ const CekPlagiatPage = () => {
         description: 'Terjadi kesalahan saat menganalisis teks. Silakan coba lagi.',
         status: 'error',
         duration: 4000,
-        isClosable: true,
       });
     } finally {
       setLoading(false);
@@ -262,6 +293,15 @@ const CekPlagiatPage = () => {
                 Analisis teks Anda secara instan. Deteksi kemiripan, temukan sumber terduplikasi,
                 dan lihat bagian mana yang perlu direvisi.
               </Text>
+              {isVIP ? (
+                <Badge colorScheme="purple" p={2} borderRadius="xl" display="flex" alignItems="center" gap={1}>
+                  <Icon as={FaCrown} color="yellow.400" /> Member VIP (Analisis Unlimited)
+                </Badge>
+              ) : (
+                <Badge colorScheme={quota.remaining > 0 ? "teal" : "orange"} p={2} borderRadius="xl" display="flex" alignItems="center" gap={1}>
+                  <Icon as={FaCoins} color="yellow.400" /> Sisa Kuota Cek Gratis: {quota.remaining}/{quota.limit} Hari Ini (Ekstra: {settings.plagiat_coin_price || 5} Koin)
+                </Badge>
+              )}
             </VStack>
 
             {/* Input Form */}
@@ -324,6 +364,20 @@ const CekPlagiatPage = () => {
           </VStack>
         </Container>
       </Box>
+
+      <PaywallModal
+        isOpen={isPaywallOpen}
+        onClose={() => setIsPaywallOpen(false)}
+        title="Batas Cek Plagiasi Harian Tercapai"
+        message={`Batas cek plagiasi gratis (${settings.plagiat_free_daily_limit || 3} cek/hari) telah tercapai. Ingin menganalisis teks ini menggunakan ${settings.plagiat_coin_price || 5} Koin?`}
+        price={settings.plagiat_coin_price || 5}
+        currencyType="coins"
+        quotaInfo={isVIP ? "Akun VIP" : `Batas Akun Gratis: ${settings.plagiat_free_daily_limit || 3} Cek / Hari`}
+        onPay={() => {
+          setIsPaywallOpen(false);
+          handleCheck();
+        }}
+      />
     </>
   );
 };
