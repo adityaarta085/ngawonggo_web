@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Box, Flex, Text, Heading, Icon, Badge, HStack } from '@chakra-ui/react';
 import { FaBroadcastTower, FaExclamationTriangle, FaMusic } from 'react-icons/fa';
 import Hls from 'hls.js';
@@ -30,7 +30,7 @@ export const detectMediaType = (url, forcedType = null) => {
 
 /**
  * Universal Broadcast Player supporting:
- * 1. YouTube Embed with precise start time offset
+ * 1. YouTube Embed with seamless PostMessage JS-API (zero-flash mute/unmute & seek)
  * 2. HLS .m3u8 Stream with Hls.js
  * 3. Radio Streaming Audio with Studio Visualizer
  * 4. HTML5 Direct MP4/WebM Video
@@ -50,10 +50,45 @@ export const BroadcastPlayer = ({
   const videoRef = useRef(null);
   const audioRef = useRef(null);
   const hlsRef = useRef(null);
+  const ytIframeRef = useRef(null);
   const [loadError, setLoadError] = useState(false);
 
   const detectedType = detectMediaType(url, mediaType);
   const ytId = extractYouTubeId(url);
+
+  // Send command to YouTube iframe via postMessage without re-mounting
+  const sendYouTubeCommand = useCallback((func, args = []) => {
+    try {
+      if (ytIframeRef.current && ytIframeRef.current.contentWindow) {
+        ytIframeRef.current.contentWindow.postMessage(
+          JSON.stringify({
+            event: 'command',
+            func: func,
+            args: args,
+          }),
+          '*'
+        );
+      }
+    } catch (e) {
+      console.warn('YouTube postMessage warning:', e);
+    }
+  }, []);
+
+  // Handle Mute / Unmute for YouTube via PostMessage
+  useEffect(() => {
+    if (detectedType === 'youtube' && ytId) {
+      sendYouTubeCommand(isMuted ? 'mute' : 'unMute');
+      sendYouTubeCommand('playVideo');
+    }
+  }, [isMuted, detectedType, ytId, sendYouTubeCommand]);
+
+  // Handle Sync Seek for YouTube via PostMessage (only when syncTimestamp changes)
+  useEffect(() => {
+    if (detectedType === 'youtube' && ytId && syncTimestamp > 0) {
+      sendYouTubeCommand('seekTo', [Math.floor(syncTimestamp), true]);
+      sendYouTubeCommand('playVideo');
+    }
+  }, [syncTimestamp, detectedType, ytId, sendYouTubeCommand]);
 
   // HLS Stream Setup
   useEffect(() => {
@@ -110,6 +145,7 @@ export const BroadcastPlayer = ({
   useEffect(() => {
     if (detectedType === 'radio' && audioRef.current) {
       audioRef.current.src = url;
+      audioRef.current.muted = isMuted;
       audioRef.current.play().catch(() => {});
     }
   }, [url, detectedType, isMuted]);
@@ -143,16 +179,17 @@ export const BroadcastPlayer = ({
     );
   }
 
-  // 1. YOUTUBE EMBED
+  // 1. YOUTUBE EMBED (Stable Mount with PostMessage Control)
   if (detectedType === 'youtube' && ytId) {
-    const startSec = Math.max(0, Math.floor(syncTimestamp));
-    // Standard clean embed URL
-    const embedSrc = `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=${isMuted ? 1 : 0}&start=${startSec}&controls=${isStudioMonitor ? 1 : 0}&modestbranding=1&rel=0&playsinline=1&enablejsapi=1`;
+    const initialStart = Math.max(0, Math.floor(syncTimestamp));
+    // Embed URL with enablejsapi=1 and stable origin
+    const embedSrc = `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&start=${initialStart}&controls=${isStudioMonitor ? 1 : 0}&modestbranding=1&rel=0&playsinline=1&enablejsapi=1`;
 
     return (
       <Box
+        ref={ytIframeRef}
         as="iframe"
-        key={`${ytId}-${isMuted ? 'muted' : 'unmuted'}-${startSec}`}
+        key={ytId} // STABLE KEY - Never re-mounts on mute/seek!
         src={embedSrc}
         title="Ngawonggo TV Stream"
         w="100%"
@@ -169,6 +206,11 @@ export const BroadcastPlayer = ({
           height: '100%',
           objectFit: 'cover',
           ...style,
+        }}
+        onLoad={() => {
+          // Send initial play and mute state when iframe finishes loading
+          sendYouTubeCommand(isMuted ? 'mute' : 'unMute');
+          sendYouTubeCommand('playVideo');
         }}
       />
     );

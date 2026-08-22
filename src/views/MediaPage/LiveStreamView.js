@@ -222,7 +222,7 @@ const LiveStreamView = () => {
 
   // 4. Time-Anchored Virtual Broadcast Sync Calculation
   const calculateTargetTimestamp = useCallback(() => {
-    if (!streamData || !streamData.started_at) return 0;
+    if (!streamData?.started_at) return 0;
     if (streamData.mode !== 'simulated') return 0;
 
     const startedAt = new Date(streamData.started_at).getTime();
@@ -234,13 +234,13 @@ const LiveStreamView = () => {
       return Math.floor(elapsedSeconds % effectiveDuration);
     }
     return Math.floor(Math.min(elapsedSeconds, effectiveDuration));
-  }, [streamData]);
+  }, [streamData?.started_at, streamData?.duration, streamData?.mode, streamData?.loop_broadcast]);
 
-  // Update initial sync timestamp
+  // Update initial sync timestamp only when stream URL or broadcast start time changes
   useEffect(() => {
     const ts = calculateTargetTimestamp();
     setSyncTimestamp(ts);
-  }, [calculateTargetTimestamp, streamData?.started_at, streamData?.url]);
+  }, [streamData?.started_at, streamData?.url, calculateTargetTimestamp]);
 
   // 5. Supabase Realtime Channels
   useEffect(() => {
