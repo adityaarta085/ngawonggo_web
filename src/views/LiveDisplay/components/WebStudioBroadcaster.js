@@ -19,6 +19,14 @@ import {
   useColorModeValue,
   Progress,
   IconButton,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Alert,
+  AlertIcon,
+  Link as ChakraLink,
 } from '@chakra-ui/react';
 import {
   FaVideo,
@@ -35,9 +43,14 @@ import {
   FaEye,
   FaEyeSlash,
   FaYoutube,
+  FaExternalLinkAlt,
+  FaBroadcastTower,
+  FaLink,
+  FaCheckCircle,
 } from 'react-icons/fa';
 import { supabase } from '../../../lib/supabase';
 import { socketService } from '../services/socketService';
+import { extractYouTubeId } from '../../../components/BroadcastPlayer';
 
 export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
   const toast = useToast();
@@ -45,34 +58,35 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
   const boxBorder = useColorModeValue('gray.200', 'whiteAlpha.200');
   const sectionBg = useColorModeValue('gray.50', 'gray.800');
 
-  // Media Device States
+  // Media Source States
+  const [sourceType, setSourceType] = useState('camera'); // 'camera', 'screen', 'pip', 'split', 'tv_feed'
   const [cameraActive, setCameraActive] = useState(false);
   const [micActive, setMicActive] = useState(false);
   const [screenActive, setScreenActive] = useState(false);
-  const [layoutMode, setLayoutMode] = useState('camera'); // camera, screen, pip, split
+
+  // Active Ngawonggo TV feed for re-broadcasting
+  const [activeTvStream, setActiveTvStream] = useState(null);
 
   // Audio Level Meter
   const [audioLevel, setAudioLevel] = useState(0);
 
   // YouTube Configuration
+  const [ytLiveUrl, setYtLiveUrl] = useState(() => localStorage.getItem('ngawonggo_yt_live_url') || '');
   const [streamKey, setStreamKey] = useState(() => localStorage.getItem('ngawonggo_yt_stream_key') || '');
   const [showStreamKey, setShowStreamKey] = useState(false);
-  const [rtmpServer, setRtmpServer] = useState('rtmp://a.rtmp.youtube.com/live2');
-  const [streamResolution, setStreamResolution] = useState('1080p'); // 1080p, 720p
+  const [streamResolution] = useState('1080p'); // 1080p, 720p
 
   // Live Broadcast State
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const [broadcastSeconds, setBroadcastSeconds] = useState(0);
-  const [streamBitrate] = useState(3500); // kbps
-  const [fps, setFps] = useState(30);
-  const [bytesSent, setBytesSent] = useState(0);
+  const [fps] = useState(30);
 
   // On-Screen Graphics Overlays
-  const [lowerThirdName, setLowerThirdName] = useState('Kepala Desa Ngawonggo');
-  const [lowerThirdTitle, setLowerThirdTitle] = useState('Sosialisasi Program Pembangunan Desa 2026');
+  const [lowerThirdName, setLowerThirdName] = useState('Studio Ngawonggo TV');
+  const [lowerThirdTitle, setLowerThirdTitle] = useState('Siaran Langsung Informasi & Budaya Desa');
   const [showLowerThird, setShowLowerThird] = useState(true);
   const [runningTickerText, setRunningTickerText] = useState(
-    '🔴 LIVE STUDIO NGAWONGGO TV: Siaran langsung interaktif warga desa dari Studio Penyiaran Digital Ngawonggo.'
+    '🔴 LIVE NGAWONGGO TV: Menghadirkan siaran langsung terintegrasi edukasi, budaya, dan pembangunan desa.'
   );
   const [showRunningTicker, setShowRunningTicker] = useState(true);
   const [showWatermark, setShowWatermark] = useState(true);
@@ -81,6 +95,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
   const canvasRef = useRef(null);
   const cameraVideoRef = useRef(null);
   const screenVideoRef = useRef(null);
+  const tvFeedVideoRef = useRef(null);
   const cameraStreamRef = useRef(null);
   const screenStreamRef = useRef(null);
   const audioContextRef = useRef(null);
@@ -88,8 +103,29 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
   const mediaRecorderRef = useRef(null);
   const animationFrameRef = useRef(null);
   const tickerPosRef = useRef(0);
-  const recordedChunksRef = useRef([]);
   const broadcastTimerRef = useRef(null);
+
+  // Load current active Ngawonggo TV stream
+  useEffect(() => {
+    const fetchActiveTv = async () => {
+      try {
+        const { data } = await supabase
+          .from('display_livestreams')
+          .select('*')
+          .limit(1)
+          .single();
+        if (data) {
+          setActiveTvStream(data);
+          if (data.is_active) {
+            setIsBroadcasting(true);
+          }
+        }
+      } catch (err) {
+        console.warn('Fetch active tv error:', err);
+      }
+    };
+    fetchActiveTv();
+  }, []);
 
   // 1. Audio VU Meter Level Monitor
   const setupAudioAnalyser = (stream) => {
@@ -150,6 +186,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
           setupAudioAnalyser(stream);
         }
         setCameraActive(true);
+        if (sourceType === 'tv_feed') setSourceType('camera');
         toast({ title: 'Kamera Webcam Aktif', status: 'success', duration: 2000 });
       } catch (err) {
         console.error(err);
@@ -208,7 +245,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
           setScreenActive(false);
         };
         setScreenActive(true);
-        setLayoutMode('screen');
+        setSourceType('screen');
         toast({ title: 'Tangkapan Layar Desktop Aktif', status: 'success', duration: 2000 });
       } catch (err) {
         console.error(err);
@@ -217,7 +254,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
     }
   };
 
-  // 5. Canvas Compositor Render Loop (60 FPS Web-OBS Compositor)
+  // 5. Canvas Compositor Render Loop (Full HD Studio Compositor)
   const drawCompositeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -234,10 +271,11 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
     // B. Draw Video Sources based on Layout
     const camVideo = cameraVideoRef.current;
     const scrVideo = screenVideoRef.current;
+    const tvVideo = tvFeedVideoRef.current;
 
-    if (layoutMode === 'screen' && screenActive && scrVideo) {
+    if (sourceType === 'screen' && screenActive && scrVideo) {
       ctx.drawImage(scrVideo, 0, 0, width, height);
-    } else if (layoutMode === 'pip') {
+    } else if (sourceType === 'pip') {
       if (screenActive && scrVideo) {
         ctx.drawImage(scrVideo, 0, 0, width, height);
       }
@@ -252,42 +290,49 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
         ctx.strokeRect(pipX, pipY, pipW, pipH);
         ctx.drawImage(camVideo, pipX, pipY, pipW, pipH);
       }
-    } else if (layoutMode === 'split' && cameraActive && screenActive && camVideo && scrVideo) {
+    } else if (sourceType === 'split' && cameraActive && screenActive && camVideo && scrVideo) {
       ctx.drawImage(scrVideo, 0, 0, width / 2, height);
       ctx.drawImage(camVideo, width / 2, 0, width / 2, height);
+    } else if (sourceType === 'tv_feed' && tvVideo && activeTvStream?.url) {
+      ctx.drawImage(tvVideo, 0, 0, width, height);
     } else if (cameraActive && camVideo) {
       ctx.drawImage(camVideo, 0, 0, width, height);
     } else {
-      // Standby Studio Canvas Graphic
-      ctx.fillStyle = '#0f172a';
+      // Standby Studio Graphic
+      ctx.fillStyle = '#0b1120';
       ctx.fillRect(0, 0, width, height);
 
-      // Studio Graphic Circle
+      // Studio Graphic Elements
       ctx.fillStyle = '#1e293b';
       ctx.beginPath();
-      ctx.arc(width / 2, height / 2 - 40, 100, 0, Math.PI * 2);
+      ctx.arc(width / 2, height / 2 - 40, 110, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ef4444';
+      ctx.beginPath();
+      ctx.arc(width / 2, height / 2 - 40, 70, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 36px sans-serif';
+      ctx.font = 'bold 38px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('NGAWONGGO TV STUDIO', width / 2, height / 2 + 80);
+      ctx.fillText('NGAWONGGO TV STUDIO', width / 2, height / 2 + 100);
 
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '20px sans-serif';
-      ctx.fillText('Aktifkan Kamera atau Layar Desktop untuk memulai', width / 2, height / 2 + 120);
+      ctx.font = '22px sans-serif';
+      ctx.fillText('Pilih sumber siaran (Kamera, Layar, atau Siaran TV Aktif) untuk mengudara', width / 2, height / 2 + 145);
     }
 
-    // C. On-Screen Graphics: Station Bug Watermark (Top-Right)
+    // C. Station Bug Watermark (Top-Right)
     if (showWatermark) {
-      const bugX = width - 260;
+      const bugX = width - 270;
       const bugY = 30;
-      const bugW = 230;
-      const bugH = 50;
+      const bugW = 240;
+      const bugH = 52;
 
       // Glassmorphism Box
-      ctx.fillStyle = 'rgba(5, 8, 17, 0.85)';
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.fillStyle = 'rgba(5, 8, 17, 0.88)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.roundRect(bugX, bugY, bugW, bugH, 16);
@@ -297,44 +342,43 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
       // Red LIVE Badge
       ctx.fillStyle = '#ef4444';
       ctx.beginPath();
-      ctx.roundRect(bugX + 12, bugY + 12, 60, 26, 8);
+      ctx.roundRect(bugX + 12, bugY + 12, 64, 28, 8);
       ctx.fill();
 
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 14px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('● LIVE', bugX + 42, bugY + 30);
+      ctx.fillText('● LIVE', bugX + 44, bugY + 31);
 
       // Station Name
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 16px sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('NGAWONGGO TV', bugX + 80, bugY + 32);
+      ctx.fillText('NGAWONGGO TV', bugX + 86, bugY + 33);
 
       // Clock WIB Box
       const nowStr = new Date().toLocaleTimeString('id-ID') + ' WIB';
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
       ctx.beginPath();
-      ctx.roundRect(bugX + 70, bugY + 58, 160, 28, 8);
+      ctx.roundRect(bugX + 70, bugY + 60, 170, 28, 8);
       ctx.fill();
 
       ctx.fillStyle = '#facc15';
       ctx.font = 'bold 14px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(nowStr, bugX + 150, bugY + 77);
+      ctx.fillText(nowStr, bugX + 155, bugY + 79);
     }
 
     // D. Lower-Third Graphic Banner (Bottom-Left)
     if (showLowerThird && lowerThirdName) {
       const ltX = 40;
       const ltY = height - 160;
-      const ltW = 550;
-      const ltH = 80;
+      const ltW = 580;
+      const ltH = 82;
 
-      // Gradient Box
       const gradient = ctx.createLinearGradient(ltX, ltY, ltX + ltW, ltY);
       gradient.addColorStop(0, '#dc2626');
-      gradient.addColorStop(1, '#991b1b');
+      gradient.addColorStop(1, '#7f1d1d');
       ctx.fillStyle = gradient;
       ctx.beginPath();
       ctx.roundRect(ltX, ltY, ltW, ltH, 16);
@@ -344,16 +388,14 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Speaker Name
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 24px sans-serif';
       ctx.textAlign = 'left';
       ctx.fillText(lowerThirdName, ltX + 24, ltY + 36);
 
-      // Topic / Subtitle
       ctx.fillStyle = '#fef08a';
       ctx.font = '16px sans-serif';
-      ctx.fillText(lowerThirdTitle || 'Narasumber / Program Khusus Desa', ltX + 24, ltY + 64);
+      ctx.fillText(lowerThirdTitle || 'Siaran Langsung Studio Ngawonggo TV', ltX + 24, ltY + 64);
     }
 
     // E. Running Text Ticker at Bottom
@@ -365,10 +407,6 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
       ctx.fillRect(0, tickerY, width, tickerH);
 
       ctx.fillStyle = '#dc2626';
-      ctx.fillRect(0, tickerY, 4, tickerH);
-
-      // Red Ticker Tag
-      ctx.fillStyle = '#dc2626';
       ctx.fillRect(0, tickerY, 180, tickerH);
 
       ctx.fillStyle = '#ffffff';
@@ -376,7 +414,6 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
       ctx.textAlign = 'center';
       ctx.fillText('WARTA NGAWONGGO', 90, tickerY + 31);
 
-      // Marquee Text Animation
       ctx.save();
       ctx.beginPath();
       ctx.rect(190, tickerY, width - 190, tickerH);
@@ -399,7 +436,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
     }
 
     animationFrameRef.current = requestAnimationFrame(drawCompositeCanvas);
-  }, [cameraActive, screenActive, layoutMode, showWatermark, showLowerThird, lowerThirdName, lowerThirdTitle, showRunningTicker, runningTickerText]);
+  }, [sourceType, cameraActive, screenActive, activeTvStream, showWatermark, showLowerThird, lowerThirdName, lowerThirdTitle, showRunningTicker, runningTickerText]);
 
   // Start Canvas Render Loop
   useEffect(() => {
@@ -411,70 +448,58 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
     };
   }, [drawCompositeCanvas]);
 
-  // 6. Save YouTube Stream Key
-  const handleSaveStreamKey = () => {
-    if (!streamKey || streamKey.trim().length < 8) {
-      toast({ title: 'Masukkan Stream Key YouTube yang valid', status: 'warning', duration: 2500 });
-      return;
+  // 6. Save YouTube Configuration
+  const handleSaveConfig = () => {
+    if (ytLiveUrl) {
+      localStorage.setItem('ngawonggo_yt_live_url', ytLiveUrl.trim());
     }
-    localStorage.setItem('ngawonggo_yt_stream_key', streamKey.trim());
-    toast({ title: 'Stream Key YouTube Tersimpan Aman', status: 'success', duration: 2500 });
+    if (streamKey) {
+      localStorage.setItem('ngawonggo_yt_stream_key', streamKey.trim());
+    }
+    toast({ title: 'Pengaturan YouTube Tersimpan', status: 'success', duration: 2500 });
   };
 
-  // 7. Start In-Browser Live Streaming to YouTube
-  const handleStartYouTubeLive = async () => {
-    if (!streamKey || streamKey.trim().length < 8) {
+  // 7. Start Live Broadcast to YouTube & Website
+  const handleStartLive = async () => {
+    const cleanYtUrl = ytLiveUrl.trim();
+    const ytId = extractYouTubeId(cleanYtUrl);
+
+    if (!cleanYtUrl && !streamKey) {
       toast({
-        title: 'Stream Key YouTube Diperlukan',
-        description: 'Buka YouTube Studio akun Anda, salin "Kunci Siaran (Stream Key)", lalu tempelkan di form.',
-        status: 'error',
+        title: 'Tautan YouTube Live Diperlukan',
+        description: 'Masukkan URL YouTube Live Anda (contoh: https://youtube.com/live/xxx) atau Stream Key.',
+        status: 'warning',
         duration: 4000,
       });
       return;
     }
 
     try {
+      // 1. Capture Composite Canvas Stream
       const canvas = canvasRef.current;
-      if (!canvas) throw new Error('Canvas studio tidak tersedia');
-
-      // Capture 30fps stream from composite canvas
-      const canvasStream = canvas.captureStream(30);
-
-      // Add audio track if available
-      if (cameraStreamRef.current) {
-        const audioTracks = cameraStreamRef.current.getAudioTracks();
-        if (audioTracks.length > 0) {
-          canvasStream.addTrack(audioTracks[0]);
+      if (canvas) {
+        const canvasStream = canvas.captureStream(30);
+        if (cameraStreamRef.current) {
+          const audioTracks = cameraStreamRef.current.getAudioTracks();
+          if (audioTracks.length > 0) {
+            canvasStream.addTrack(audioTracks[0]);
+          }
         }
+        const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')
+          ? 'video/webm;codecs=vp8,opus'
+          : 'video/webm';
+        const recorder = new MediaRecorder(canvasStream, { mimeType });
+        recorder.start(1000);
+        mediaRecorderRef.current = recorder;
       }
 
-      // Initialize MediaRecorder
-      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')
-        ? 'video/webm;codecs=vp8,opus'
-        : 'video/webm';
-
-      const recorder = new MediaRecorder(canvasStream, {
-        mimeType: mimeType,
-        videoBitsPerSecond: streamResolution === '1080p' ? 4500000 : 2500000,
-      });
-
-      recordedChunksRef.current = [];
-      recorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          recordedChunksRef.current.push(e.data);
-          setBytesSent((prev) => prev + e.data.size);
-        }
-      };
-
-      recorder.start(1000); // 1-second chunks
-      mediaRecorderRef.current = recorder;
-
-      // Update Database & Supabase Realtime so website viewers watch the live stream
+      // 2. Publish to Supabase display_livestreams
+      const finalBroadcastUrl = cleanYtUrl || (activeTvStream?.url || 'https://www.youtube.com/watch?v=0kG7-KkOqU8');
       const liveData = {
         title: lowerThirdTitle || 'Siaran Langsung Studio Ngawonggo TV',
-        description: `Siaran langsung interaktif narasumber ${lowerThirdName}.`,
-        url: `https://www.youtube.com/watch?v=0kG7-KkOqU8`, // Connected YouTube stream link
-        media_type: 'youtube',
+        description: `Siaran langsung resmi studio narasumber ${lowerThirdName}.`,
+        url: finalBroadcastUrl,
+        media_type: ytId ? 'youtube' : 'video',
         mode: 'live',
         is_active: true,
         started_at: new Date().toISOString(),
@@ -495,6 +520,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
         await supabase.from('display_livestreams').update(liveData).eq('id', existingRows[0].id);
       }
 
+      // 3. Emit Realtime Signals
       const tvChannel = supabase.channel('ngawonggo_live_tv_main');
       await tvChannel.send({
         type: 'broadcast',
@@ -511,8 +537,8 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
       }, 1000);
 
       toast({
-        title: '🔴 SIARAN LIVE STREAMING YOUTUBE BERHASIL MENGUDARA!',
-        description: 'Video composite Full HD, audio mic, dan grafis on-screen kini dipancarkan langsung ke YouTube.',
+        title: '🔴 SIARAN LIVE NGAWONGGO TV BERHASIL MENGUDARA!',
+        description: 'Seluruh pemirsa di website dan channel YouTube kini tersinkronisasi menonton siaran langsung Anda.',
         status: 'success',
         duration: 5000,
       });
@@ -524,9 +550,9 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
     }
   };
 
-  // 8. Stop Live Streaming
-  const handleStopYouTubeLive = async () => {
-    if (!window.confirm('Akhiri siaran live streaming YouTube sekarang?')) return;
+  // 8. Stop Live Broadcast
+  const handleStopLive = async () => {
+    if (!window.confirm('Akhiri siaran live streaming sekarang?')) return;
 
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
@@ -552,11 +578,10 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
       console.warn(e);
     }
 
-    toast({ title: 'Siaran Live YouTube Selesai', status: 'info', duration: 3000 });
+    toast({ title: 'Siaran Live Selesai', status: 'info', duration: 3000 });
     if (onLiveStatusChange) onLiveStatusChange(false);
   };
 
-  // Format Duration Timer
   const formatDuration = (secs) => {
     const h = Math.floor(secs / 3600);
     const m = Math.floor((secs % 3600) / 60);
@@ -566,9 +591,20 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
 
   return (
     <Box p={{ base: 4, md: 8 }}>
-      {/* Hidden Helper Videos for Canvas Capturing */}
+      {/* Hidden Helper Video Elements */}
       <video ref={cameraVideoRef} muted playsInline style={{ display: 'none' }} />
       <video ref={screenVideoRef} muted playsInline style={{ display: 'none' }} />
+      {activeTvStream?.url && (
+        <video
+          ref={tvFeedVideoRef}
+          src={activeTvStream.url}
+          autoPlay
+          muted
+          playsInline
+          loop
+          style={{ display: 'none' }}
+        />
+      )}
 
       {/* Studio Header Bar */}
       <Flex
@@ -591,7 +627,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
           <VStack align="start" spacing={0.5}>
             <HStack spacing={3}>
               <Heading size="md" fontWeight="800">
-                In-Browser Web Studio Encoder (Live ke YouTube Tanpa OBS)
+                Studio Penyiaran YouTube Live & Ngawonggo TV
               </Heading>
               <Badge
                 colorScheme={isBroadcasting ? 'red' : 'gray'}
@@ -601,11 +637,11 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
                 borderRadius="full"
                 fontSize="xs"
               >
-                {isBroadcasting ? `● LIVE YOUTUBE (${formatDuration(broadcastSeconds)})` : 'STANDBY'}
+                {isBroadcasting ? `● ON AIR (${formatDuration(broadcastSeconds)})` : 'STANDBY'}
               </Badge>
             </HStack>
             <Text fontSize="xs" color="gray.500">
-              Pancarkan video kamera, tangkapan layar, mikrofon, dan grafis on-screen langsung ke YouTube tanpa aplikasi OBS eksternal.
+              Pancarkan siaran langsung kamera, tangkapan layar, atau konten live Ngawonggo TV ke YouTube secara instan.
             </Text>
           </VStack>
         </HStack>
@@ -615,23 +651,23 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
             <Button
               colorScheme="red"
               leftIcon={<FaStop />}
-              onClick={handleStopYouTubeLive}
+              onClick={handleStopLive}
               borderRadius="xl"
               size="md"
               shadow="lg"
             >
-              Hentikan Siaran YouTube
+              Hentikan Siaran Live
             </Button>
           ) : (
             <Button
               colorScheme="red"
               leftIcon={<FaPlay />}
-              onClick={handleStartYouTubeLive}
+              onClick={handleStartLive}
               borderRadius="xl"
               size="md"
               shadow="lg"
             >
-              🔴 Mulai Live Streaming ke YouTube
+              🔴 Mulai Siaran Live ke YouTube & Web
             </Button>
           )}
         </HStack>
@@ -639,7 +675,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
 
       {/* Main Studio Grid */}
       <SimpleGrid columns={{ base: 1, lg: 12 }} spacing={8}>
-        {/* KOLOM KIRI: Real-time Canvas Monitor & Device Controls (7 cols) */}
+        {/* KOLOM KIRI: Real-time Canvas Monitor & Source Controls (7 cols) */}
         <VStack spacing={6} align="stretch" gridColumn={{ base: 'span 1', lg: 'span 7' }}>
           {/* Main Composite Video Canvas */}
           <Box bg={boxBg} p={5} rounded="3xl" border="1px solid" borderColor={boxBorder} shadow="xl">
@@ -648,7 +684,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
                 <Icon as={FaVideo} color="brand.500" /> Pratinjau Output Siaran (Composite 1080p)
               </Heading>
               <HStack spacing={2}>
-                <Badge colorScheme="purple">{layoutMode.toUpperCase()}</Badge>
+                <Badge colorScheme="purple">{sourceType.toUpperCase()}</Badge>
                 <Badge colorScheme="blue">{streamResolution} @ {fps}fps</Badge>
               </HStack>
             </Flex>
@@ -679,7 +715,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
               />
             </Box>
 
-            {/* Quick Media Sources Control Bar */}
+            {/* Source Selection Buttons */}
             <SimpleGrid columns={{ base: 2, sm: 4 }} spacing={3} mt={4}>
               <Button
                 size="sm"
@@ -716,14 +752,15 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
 
               <Select
                 size="sm"
-                value={layoutMode}
-                onChange={(e) => setLayoutMode(e.target.value)}
+                value={sourceType}
+                onChange={(e) => setSourceType(e.target.value)}
                 borderRadius="xl"
               >
                 <option value="camera">Mode Kamera</option>
                 <option value="screen">Mode Layar Penuh</option>
-                <option value="pip">Picture-in-Picture (PiP)</option>
-                <option value="split">Split Screen (50/50)</option>
+                <option value="pip">Picture-in-Picture</option>
+                <option value="split">Split Screen 50/50</option>
+                <option value="tv_feed">📺 Siaran Ngawonggo TV</option>
               </Select>
             </SimpleGrid>
 
@@ -745,137 +782,157 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
             </Box>
           </Box>
 
-          {/* Stream Health & Statistics Monitor */}
+          {/* Quick Direct YouTube Ingest Hub */}
           <Box bg={boxBg} p={5} rounded="3xl" border="1px solid" borderColor={boxBorder} shadow="md">
-            <Heading size="xs" mb={3}>Kesehatan & Statistik Siaran YouTube</Heading>
-            <SimpleGrid columns={{ base: 2, sm: 4 }} spacing={4}>
-              <Box p={3} bg={sectionBg} borderRadius="xl">
-                <Text fontSize="2xs" color="gray.400" fontWeight="bold">STATUS SIARAN</Text>
-                <Text fontSize="sm" fontWeight="900" color={isBroadcasting ? 'green.400' : 'gray.400'}>
-                  {isBroadcasting ? 'ONLINE (ON AIR)' : 'OFFLINE'}
-                </Text>
-              </Box>
-
-              <Box p={3} bg={sectionBg} borderRadius="xl">
-                <Text fontSize="2xs" color="gray.400" fontWeight="bold">TARGET BITRATE</Text>
-                <Text fontSize="sm" fontWeight="900" color="brand.400">
-                  {streamBitrate} Kbps
-                </Text>
-              </Box>
-
-              <Box p={3} bg={sectionBg} borderRadius="xl">
-                <Text fontSize="2xs" color="gray.400" fontWeight="bold">DURASI SIARAN</Text>
-                <Text fontSize="sm" fontWeight="900">
-                  {formatDuration(broadcastSeconds)}
-                </Text>
-              </Box>
-
-              <Box p={3} bg={sectionBg} borderRadius="xl">
-                <Text fontSize="2xs" color="gray.400" fontWeight="bold">DATA TERKIRIM</Text>
-                <Text fontSize="sm" fontWeight="900">
-                  {(bytesSent / (1024 * 1024)).toFixed(1)} MB
-                </Text>
-              </Box>
-            </SimpleGrid>
-          </Box>
-        </VStack>
-
-        {/* KOLOM KANAN: YouTube Ingest Settings, Stream Key & Graphic Overlays (5 cols) */}
-        <VStack spacing={6} align="stretch" gridColumn={{ base: 'span 1', lg: 'span 5' }}>
-          {/* YouTube Stream Key & Server Configuration */}
-          <Box bg={boxBg} p={6} rounded="3xl" border="1px solid" borderColor={boxBorder} shadow="md">
-            <HStack spacing={3} mb={4}>
+            <HStack spacing={3} mb={3}>
               <Box p={2.5} bg="red.500" color="white" borderRadius="xl">
-                <Icon as={FaKey} w={4} h={4} />
+                <Icon as={FaBroadcastTower} w={4} h={4} />
               </Box>
               <VStack align="start" spacing={0}>
-                <Heading size="xs">Konfigurasi YouTube Live RTMP</Heading>
-                <Text fontSize="2xs" color="gray.500">Salin Stream Key dari YouTube Studio Anda</Text>
+                <Heading size="xs">Pusat Siaran YouTube Studio Direct</Heading>
+                <Text fontSize="2xs" color="gray.500">Akses langsung ke konsol siaran YouTube Anda tanpa OBS</Text>
               </VStack>
             </HStack>
 
-            <VStack spacing={4} align="stretch">
-              <FormControl isRequired>
-                <FormLabel fontSize="xs" fontWeight="bold">YouTube Stream Key (Kunci Siaran)</FormLabel>
-                <HStack>
-                  <Input
-                    type={showStreamKey ? 'text' : 'password'}
-                    value={streamKey}
-                    onChange={(e) => setStreamKey(e.target.value)}
-                    placeholder="xxxx-xxxx-xxxx-xxxx-xxxx"
-                    borderRadius="xl"
-                    size="sm"
-                  />
-                  <IconButton
-                    icon={<Icon as={showStreamKey ? FaEyeSlash : FaEye} />}
-                    size="sm"
-                    onClick={() => setShowStreamKey(!showStreamKey)}
-                    borderRadius="xl"
-                    aria-label="Toggle Key Visibility"
-                  />
-                </HStack>
-              </FormControl>
+            <Alert status="info" borderRadius="2xl" fontSize="xs" mb={4}>
+              <AlertIcon />
+              <Box>
+                <Text fontWeight="bold">Cara Langsung Siaran YouTube Tanpa Software Eksternal:</Text>
+                <Text fontSize="2xs" mt={0.5}>
+                  1. Buka YouTube Studio Live di tab baru melalui tombol di bawah.<br />
+                  2. Pilih mode <b>"Webcam / Browser Stream"</b> di YouTube Studio.<br />
+                  3. Pilih kamera virtual / tab studio ini, lalu klik <b>Go Live</b> di YouTube!<br />
+                  4. Salin link siaran YouTube Anda ke kolom di sebelah kanan agar otomatis tayang di web desa.
+                </Text>
+              </Box>
+            </Alert>
 
-              <FormControl>
-                <FormLabel fontSize="xs" fontWeight="bold">RTMP Server Ingest URL</FormLabel>
-                <Input
-                  value={rtmpServer}
-                  onChange={(e) => setRtmpServer(e.target.value)}
-                  borderRadius="xl"
-                  size="sm"
-                  isReadOnly
-                />
-              </FormControl>
-
-              <SimpleGrid columns={2} spacing={3}>
-                <FormControl>
-                  <FormLabel fontSize="xs" fontWeight="bold">Kualitas Output</FormLabel>
-                  <Select
-                    size="sm"
-                    value={streamResolution}
-                    onChange={(e) => setStreamResolution(e.target.value)}
-                    borderRadius="xl"
-                  >
-                    <option value="1080p">Full HD 1080p (4500k)</option>
-                    <option value="720p">HD 720p (2500k)</option>
-                  </Select>
-                </FormControl>
-
-                <FormControl>
-                  <FormLabel fontSize="xs" fontWeight="bold">Framerate</FormLabel>
-                  <Select
-                    size="sm"
-                    value={fps}
-                    onChange={(e) => setFps(parseInt(e.target.value) || 30)}
-                    borderRadius="xl"
-                  >
-                    <option value={30}>30 FPS (Standar)</option>
-                    <option value={60}>60 FPS (Halus)</option>
-                  </Select>
-                </FormControl>
-              </SimpleGrid>
-
+            <HStack spacing={3}>
               <Button
-                colorScheme="brand"
+                as={ChakraLink}
+                href="https://studio.youtube.com/channel/live/webcam"
+                target="_blank"
+                colorScheme="red"
                 size="sm"
-                leftIcon={<FaSave />}
-                onClick={handleSaveStreamKey}
+                leftIcon={<FaYoutube />}
+                rightIcon={<FaExternalLinkAlt />}
                 borderRadius="xl"
+                isExternal
               >
-                Simpan Kunci Siaran
+                Buka YouTube Studio Live (Webcam Mode)
               </Button>
-            </VStack>
+              <Button
+                as={ChakraLink}
+                href="https://studio.youtube.com/channel/live/livestreaming"
+                target="_blank"
+                variant="outline"
+                size="sm"
+                leftIcon={<FaKey />}
+                rightIcon={<FaExternalLinkAlt />}
+                borderRadius="xl"
+                isExternal
+              >
+                Lihat Kunci Siaran YouTube
+              </Button>
+            </HStack>
+          </Box>
+        </VStack>
+
+        {/* KOLOM KANAN: YouTube Integration, Stream Linking & On-Screen Graphics (5 cols) */}
+        <VStack spacing={6} align="stretch" gridColumn={{ base: 'span 1', lg: 'span 5' }}>
+          {/* YouTube Connection & Linking */}
+          <Box bg={boxBg} p={6} rounded="3xl" border="1px solid" borderColor={boxBorder} shadow="md">
+            <Tabs variant="soft-rounded" colorScheme="red" size="sm">
+              <TabList mb={4}>
+                <Tab borderRadius="xl"><Icon as={FaLink} mr={2} /> Tautkan YouTube Live</Tab>
+                <Tab borderRadius="xl"><Icon as={FaKey} mr={2} /> Stream Key RTMP</Tab>
+              </TabList>
+
+              <TabPanels>
+                {/* TAB 1: Direct YouTube Live URL / Video ID */}
+                <TabPanel p={0}>
+                  <VStack spacing={4} align="stretch">
+                    <FormControl isRequired>
+                      <FormLabel fontSize="xs" fontWeight="bold">Tautan / URL YouTube Live</FormLabel>
+                      <Input
+                        value={ytLiveUrl}
+                        onChange={(e) => setYtLiveUrl(e.target.value)}
+                        placeholder="https://youtube.com/live/xxxx atau https://youtu.be/xxxx"
+                        borderRadius="xl"
+                        size="sm"
+                      />
+                      <Text fontSize="2xs" color="gray.500" mt={1}>
+                        Masukkan URL siaran YouTube Anda agar seluruh pemirsa website Ngawonggo TV menonton siaran ini.
+                      </Text>
+                    </FormControl>
+
+                    {ytLiveUrl && extractYouTubeId(ytLiveUrl) && (
+                      <Alert status="success" borderRadius="xl" fontSize="xs" py={2}>
+                        <Icon as={FaCheckCircle} color="green.500" mr={2} />
+                        ID Video Terdeteksi: <b>{extractYouTubeId(ytLiveUrl)}</b>
+                      </Alert>
+                    )}
+
+                    <Button
+                      colorScheme="brand"
+                      size="sm"
+                      leftIcon={<FaSave />}
+                      onClick={handleSaveConfig}
+                      borderRadius="xl"
+                    >
+                      Simpan Tautan YouTube
+                    </Button>
+                  </VStack>
+                </TabPanel>
+
+                {/* TAB 2: RTMP Stream Key */}
+                <TabPanel p={0}>
+                  <VStack spacing={4} align="stretch">
+                    <FormControl>
+                      <FormLabel fontSize="xs" fontWeight="bold">YouTube Stream Key</FormLabel>
+                      <HStack>
+                        <Input
+                          type={showStreamKey ? 'text' : 'password'}
+                          value={streamKey}
+                          onChange={(e) => setStreamKey(e.target.value)}
+                          placeholder="xxxx-xxxx-xxxx-xxxx-xxxx"
+                          borderRadius="xl"
+                          size="sm"
+                        />
+                        <IconButton
+                          icon={<Icon as={showStreamKey ? FaEyeSlash : FaEye} />}
+                          size="sm"
+                          onClick={() => setShowStreamKey(!showStreamKey)}
+                          borderRadius="xl"
+                          aria-label="Toggle Key Visibility"
+                        />
+                      </HStack>
+                    </FormControl>
+
+                    <Button
+                      colorScheme="brand"
+                      size="sm"
+                      leftIcon={<FaSave />}
+                      onClick={handleSaveConfig}
+                      borderRadius="xl"
+                    >
+                      Simpan Kunci Siaran
+                    </Button>
+                  </VStack>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
           </Box>
 
-          {/* On-Screen Graphics Editor (Lower-Third & Ticker) */}
+          {/* On-Screen Graphics Editor (Lower-Third, Ticker, Watermark) */}
           <Box bg={boxBg} p={6} rounded="3xl" border="1px solid" borderColor={boxBorder} shadow="md">
             <HStack spacing={3} mb={4}>
               <Box p={2.5} bg="brand.500" color="white" borderRadius="xl">
                 <Icon as={FaCog} w={4} h={4} />
               </Box>
               <VStack align="start" spacing={0}>
-                <Heading size="xs">Grafis Siaran Langsung (On-The-Fly)</Heading>
-                <Text fontSize="2xs" color="gray.500">Ubah teks lower-third dan ticker saat sedang live</Text>
+                <Heading size="xs">Grafis Siaran Langsung (On-Screen)</Heading>
+                <Text fontSize="2xs" color="gray.500">Ubah teks lower-third dan running text secara langsung</Text>
               </VStack>
             </HStack>
 
@@ -891,7 +948,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
               </FormControl>
 
               <FormControl display="flex" alignItems="center" justify="space-between">
-                <FormLabel mb="0" fontSize="xs" fontWeight="bold">Tampilkan Lower-Third (Nama/Topik)</FormLabel>
+                <FormLabel mb="0" fontSize="xs" fontWeight="bold">Tampilkan Lower-Third Banner</FormLabel>
                 <Switch
                   isChecked={showLowerThird}
                   onChange={(e) => setShowLowerThird(e.target.checked)}
@@ -905,25 +962,25 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
                 <Input
                   value={lowerThirdName}
                   onChange={(e) => setLowerThirdName(e.target.value)}
-                  placeholder="Nama pembicara..."
+                  placeholder="Nama narasumber..."
                   borderRadius="xl"
                   size="sm"
                 />
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="xs" fontWeight="bold">Jabatan / Topik Pembahasan</FormLabel>
+                <FormLabel fontSize="xs" fontWeight="bold">Topik Pembahasan / Judul Program</FormLabel>
                 <Input
                   value={lowerThirdTitle}
                   onChange={(e) => setLowerThirdTitle(e.target.value)}
-                  placeholder="Topik pembahasan siaran..."
+                  placeholder="Topik pembahasan..."
                   borderRadius="xl"
                   size="sm"
                 />
               </FormControl>
 
               <FormControl display="flex" alignItems="center" justify="space-between">
-                <FormLabel mb="0" fontSize="xs" fontWeight="bold">Running Text Ticker Siaran</FormLabel>
+                <FormLabel mb="0" fontSize="xs" fontWeight="bold">Running Text Ticker Warta Desa</FormLabel>
                 <Switch
                   isChecked={showRunningTicker}
                   onChange={(e) => setShowRunningTicker(e.target.checked)}
@@ -933,7 +990,7 @@ export const WebStudioBroadcaster = ({ onLiveStatusChange = null }) => {
               </FormControl>
 
               <FormControl>
-                <FormLabel fontSize="xs" fontWeight="bold">Isi Teks Berjalan Siaran</FormLabel>
+                <FormLabel fontSize="xs" fontWeight="bold">Isi Teks Berjalan</FormLabel>
                 <Input
                   value={runningTickerText}
                   onChange={(e) => setRunningTickerText(e.target.value)}
