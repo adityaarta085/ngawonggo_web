@@ -33,7 +33,7 @@ import { useLanguage } from '../../contexts/LanguageContext';
 import { translations } from '../../translations';
 import SEO from '../../components/SEO';
 import { supabase } from '../../lib/supabase';
-import { getYouTubeVideoId } from './LiveStreamView';
+import { BroadcastPlayer } from '../../components/BroadcastPlayer';
 
 const MediaPage = () => {
   const { language } = useLanguage();
@@ -80,8 +80,6 @@ const MediaPage = () => {
       supabase.removeChannel(tvChannel);
     };
   }, []);
-
-  const ytId = getYouTubeVideoId(liveData?.url);
 
   return (
     <Box pt={0} pb={32} bg="gray.50" _dark={{ bg: 'gray.900' }} minH="100vh">
@@ -156,37 +154,15 @@ const MediaPage = () => {
                           <Spinner size="xl" color="red.500" />
                         </Flex>
                       ) : liveData?.is_active && liveData?.url ? (
-                        ytId ? (
-                          <Box
-                            as="iframe"
-                            src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&enablejsapi=1`}
-                            title="Ngawonggo TV Preview"
-                            position="absolute"
-                            top={0}
-                            left={0}
-                            w="100%"
-                            h="100%"
-                            border="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        ) : (
-                          <video
-                            src={liveData.url}
-                            autoPlay
-                            playsInline
-                            muted
-                            controls
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              width: '100%',
-                              height: '100%',
-                              objectFit: 'cover',
-                            }}
-                          />
-                        )
+                        <BroadcastPlayer
+                          url={liveData.url}
+                          mediaType={liveData.media_type}
+                          isMuted={true}
+                          syncTimestamp={0}
+                          loop={liveData.loop_broadcast}
+                          title={liveData.title}
+                          isStudioMonitor={true}
+                        />
                       ) : (
                         <Flex
                           position="absolute"

@@ -25,20 +25,14 @@ import {
   FaExclamationTriangle,
   FaEye,
   FaEyeSlash,
+  FaCalendarAlt,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
-
-// Helper to extract YouTube Video ID from any format
-export const getYouTubeVideoId = (url) => {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|live\/)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return match && match[2].length === 11 ? match[2] : null;
-};
+import { BroadcastPlayer, extractYouTubeId } from '../../components/BroadcastPlayer';
 
 const DEFAULT_STREAM = {
   id: 'default-live',
@@ -63,6 +57,7 @@ const DEFAULT_STREAM = {
   emergency_mode: false,
   emergency_title: 'PENGUMUMAN PENTING DESA',
   emergency_message: '',
+  media_type: 'youtube',
 };
 
 const LiveStreamView = () => {
@@ -87,7 +82,6 @@ const LiveStreamView = () => {
   const containerRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
   const audioChimeRef = useRef(null);
-  const videoElementRef = useRef(null);
   const navigate = useNavigate();
 
   // Play audio chime alert
@@ -248,7 +242,7 @@ const LiveStreamView = () => {
     setSyncTimestamp(ts);
   }, [calculateTargetTimestamp, streamData?.started_at, streamData?.url]);
 
-  // 5. Supabase Realtime Channels: Broadcast updates, presence viewer counter & instant signals
+  // 5. Supabase Realtime Channels
   useEffect(() => {
     fetchStreamData();
 
@@ -285,9 +279,6 @@ const LiveStreamView = () => {
     tvChannel.on('broadcast', { event: 'sync-player' }, () => {
       const ts = calculateTargetTimestamp();
       setSyncTimestamp(ts);
-      if (videoElementRef.current) {
-        videoElementRef.current.currentTime = ts;
-      }
     });
 
     tvChannel.on('broadcast', { event: 'play-chime' }, () => {
@@ -366,8 +357,6 @@ const LiveStreamView = () => {
     };
   }, []);
 
-  const youtubeId = getYouTubeVideoId(streamData?.url);
-
   return (
     <Box
       ref={containerRef}
@@ -398,49 +387,17 @@ const LiveStreamView = () => {
         </Flex>
       ) : streamData?.is_active && streamData?.url ? (
         <Box w="full" h="full" position="relative" bg="black">
-          {youtubeId ? (
-            /* 100% Reliable Native YouTube Embed with Synchronized Seek */
-            <Box
-              as="iframe"
-              key={`${youtubeId}-${isMuted ? 'muted' : 'unmuted'}-${syncTimestamp}`}
-              src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=${isMuted ? 1 : 0}&start=${syncTimestamp}&controls=0&modestbranding=1&rel=0&loop=1&playlist=${youtubeId}&enablejsapi=1&iv_load_policy=3&showinfo=0`}
-              title="Ngawonggo TV Stream"
-              w="100vw"
-              h="100vh"
-              border="0"
-              position="absolute"
-              top={0}
-              left={0}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              style={{
-                width: '100vw',
-                height: '100vh',
-                pointerEvents: 'auto',
-              }}
-            />
-          ) : (
-            /* HTML5 Direct Video Stream (MP4/HLS) */
-            <video
-              ref={videoElementRef}
-              src={streamData.url}
-              autoPlay
-              playsInline
-              muted={isMuted}
-              loop={streamData.loop_broadcast}
-              style={{
-                width: '100vw',
-                height: '100vh',
-                objectFit: 'cover',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-              }}
-            />
-          )}
+          <BroadcastPlayer
+            url={streamData.url}
+            mediaType={streamData.media_type}
+            isMuted={isMuted}
+            syncTimestamp={syncTimestamp}
+            loop={streamData.loop_broadcast}
+            title={streamData.title}
+          />
         </Box>
       ) : (
-        /* Standby / Off-Air Screen */
+        /* Standby / Station Bumper Screen */
         <Flex
           w="full"
           h="full"
@@ -487,7 +444,7 @@ const LiveStreamView = () => {
             letterSpacing="widest"
             mb={4}
           >
-            STANDBY / OFFLINE
+            STANDBY / JEDA SIARAN
           </Badge>
 
           <Heading size="xl" fontWeight="900" letterSpacing="tight" mb={3}>
@@ -770,6 +727,7 @@ const LiveStreamView = () => {
               fontSize="xs"
               color="brand.300"
             >
+              <Icon as={FaCalendarAlt} />
               <Text fontWeight="bold">Berikutnya:</Text>
               <Text color="whiteAlpha.900" noOfLines={1}>
                 {streamData.next_program_title} ({streamData.next_program_time || 'Segera'})
@@ -849,7 +807,7 @@ const LiveStreamView = () => {
         </Flex>
       )}
 
-      {/* 8. Autoplay Unmute Assistant Overlay (If Browser Muted Audio) */}
+      {/* 8. Autoplay Unmute Assistant Overlay */}
       {isMuted && streamData?.is_active && (
         <Flex
           position="absolute"
@@ -980,4 +938,5 @@ const LiveStreamView = () => {
   );
 };
 
+export { extractYouTubeId };
 export default LiveStreamView;

@@ -44,7 +44,6 @@ import {
   FaTv,
   FaBroadcastTower,
   FaCalendarAlt,
-  FaImages,
   FaPlus,
   FaTrash,
   FaEdit,
@@ -61,11 +60,14 @@ import {
   FaMosque,
   FaClock,
   FaShieldAlt,
+  FaSearch,
+  FaBolt,
 } from 'react-icons/fa';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import { socketService } from '../services/socketService';
-import { getYouTubeVideoId } from '../../MediaPage/LiveStreamView';
+import { BroadcastPlayer, extractYouTubeId, detectMediaType } from '../../../components/BroadcastPlayer';
+import axios from 'axios';
 
 // Stat Card Component
 const StatCard = ({ title, value, icon, color }) => {
@@ -127,12 +129,70 @@ const SidebarItem = ({ icon, children, to, isActive }) => {
   );
 };
 
-// 1. DASHBOARD HOME (OVERVIEW - SINGLE NGAWONGGO TV)
+// PRESET VIDEO & BROADCAST TEMPLATES
+const BROADCAST_TEMPLATES = [
+  {
+    title: 'Siaran Langsung TVRI Nasional (HLS)',
+    url: 'https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8',
+    media_type: 'hls',
+    mode: 'live',
+    duration: 3600,
+    description: 'Siaran langsung TVRI Nasional resolusi tinggi melalui jaringan OTT HLS.',
+    running_text: '🔴 TVRI NASIONAL: Menghadirkan berita nasional dan program edukasi untuk seluruh rakyat Indonesia.',
+  },
+  {
+    title: 'Streaming Radio Studio Gemilang 98.6 FM',
+    url: 'https://streaming-radio.magelangkab.go.id/studio',
+    media_type: 'radio',
+    mode: 'live',
+    duration: 3600,
+    description: 'Siaran radio audio streaming resmi Pemerintah Kabupaten Magelang.',
+    running_text: '📻 RADIO GEMILANG: Menemani aktivitas warga Desa Ngawonggo dengan alunan musik dan informasi Magelang.',
+  },
+  {
+    title: 'Profil Desa & Pesona Wisata Ngawonggo',
+    url: 'https://www.youtube.com/watch?v=kYV3V5d9Dk8',
+    media_type: 'youtube',
+    mode: 'simulated',
+    duration: 600,
+    description: 'Menelusuri keindahan alam dan potensi wisata alam Desa Ngawonggo.',
+    running_text: '🌿 PROFIL DESA: Keindahan panorama alam, kearifan lokal, dan kerukunan warga Desa Ngawonggo.',
+  },
+  {
+    title: 'Pesona Alam Kaliangkrik & Gunung Sumbing',
+    url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
+    media_type: 'youtube',
+    mode: 'simulated',
+    duration: 1800,
+    description: 'Pemandangan alam spektakuler lereng Gunung Sumbing Kaliangkrik Magelang.',
+    running_text: '⛰️ PESONA SUMBING: Keagungan Gunung Sumbing dan pesona alam lereng Kaliangkrik.',
+  },
+  {
+    title: 'Sejarah Peradaban & Budaya Magelang',
+    url: 'https://www.youtube.com/watch?v=0kG7-KkOqU8',
+    media_type: 'youtube',
+    mode: 'simulated',
+    duration: 900,
+    description: 'Kisah sejarah peradaban dan kearifan lokal masyarakat Magelang.',
+    running_text: '🏛️ BUDAYA MAGELANG: Warisan sejarah leluhur dan nilai-nilai luhur masyarakat Magelang.',
+  },
+  {
+    title: 'Kajian Islam & Mutiara Hikmah Warga',
+    url: 'https://www.youtube.com/watch?v=Em2PWeaSzok',
+    media_type: 'youtube',
+    mode: 'simulated',
+    duration: 1200,
+    description: 'Siraman rohani, tadabbur Al-Quran, dan panduan ibadah harian.',
+    running_text: '🕌 KAJIAN WARGA: Mari senantiasa mempererat ukhuwah islamiyah dan memakmurkan ibadah di Desa Ngawonggo.',
+  },
+];
+
+// 1. DASHBOARD HOME (OVERVIEW)
 const DashboardHome = () => {
   const boxBg = useColorModeValue('white', 'gray.850');
   const boxBorder = useColorModeValue('gray.100', 'gray.700');
   
-  const [counts, setCounts] = useState({ contents: 0, schedules: 0 });
+  const [schedulesCount, setSchedulesCount] = useState(0);
   const [liveStream, setLiveStream] = useState(null);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
@@ -140,14 +200,8 @@ const DashboardHome = () => {
   const fetchOverview = useCallback(async () => {
     try {
       setLoading(true);
-      
-      const { count: cCount } = await supabase.from('display_contents').select('id', { count: 'exact', head: true });
       const { count: sCount } = await supabase.from('display_schedules').select('id', { count: 'exact', head: true });
-      
-      setCounts({
-        contents: cCount || 0,
-        schedules: sCount || 0
-      });
+      setSchedulesCount(sCount || 0);
 
       const { data: liveData } = await supabase
         .from('display_livestreams')
@@ -205,8 +259,8 @@ const DashboardHome = () => {
           icon={FaBroadcastTower}
           color={liveStream ? 'red' : 'gray'}
         />
-        <StatCard title="Konten Slideshow" value={counts.contents} icon={FaImages} color="green" />
-        <StatCard title="Agenda & Jadwal" value={counts.schedules} icon={FaCalendarAlt} color="purple" />
+        <StatCard title="Jadwal Program Siaran" value={schedulesCount} icon={FaCalendarAlt} color="purple" />
+        <StatCard title="Tipe Aliran Siaran" value={liveStream?.media_type ? liveStream.media_type.toUpperCase() : 'STANDBY'} icon={FaTv} color="teal" />
       </SimpleGrid>
 
       <Box bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} shadow="sm">
@@ -216,6 +270,7 @@ const DashboardHome = () => {
             <Tr>
               <Th>Saluran TV</Th>
               <Th>Status Siaran</Th>
+              <Th>Format Aliran</Th>
               <Th>Program Saat Ini</Th>
               <Th>Aksi Cepat</Th>
             </Tr>
@@ -227,6 +282,9 @@ const DashboardHome = () => {
                 <Badge colorScheme={liveStream ? 'green' : 'gray'}>
                   {liveStream ? '● ON AIR' : 'STANDBY'}
                 </Badge>
+              </Td>
+              <Td>
+                <Badge colorScheme="purple">{liveStream?.media_type ? liveStream.media_type.toUpperCase() : 'NONE'}</Badge>
               </Td>
               <Td color="gray.500">
                 {liveStream?.title || 'Layar Standby'}
@@ -252,209 +310,7 @@ const DashboardHome = () => {
   );
 };
 
-// 2. KONTEN MANAGER (SLIDESHOW)
-const ContentManager = () => {
-  const boxBg = useColorModeValue('white', 'gray.850');
-  const boxBorder = useColorModeValue('gray.100', 'gray.700');
-
-  const [contents, setContents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
-
-  const [formData, setFormData] = useState({
-    id: null,
-    title: '',
-    type: 'image',
-    media_url: '',
-    duration: 10,
-    order: 0,
-    is_active: true
-  });
-
-  const fetchContents = useCallback(async () => {
-    try {
-      setLoading(true);
-      const { data } = await supabase.from('display_contents').select('*').order('order', { ascending: true });
-      setContents(data || []);
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Gagal memuat konten', status: 'error', duration: 3000 });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    fetchContents();
-  }, [fetchContents]);
-
-  const handleOpenModal = (content = null) => {
-    if (content) {
-      setFormData(content);
-    } else {
-      setFormData({
-        id: null,
-        title: '',
-        type: 'image',
-        media_url: '',
-        duration: 10,
-        order: contents.length + 1,
-        is_active: true
-      });
-    }
-    onOpen();
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    try {
-      if (formData.id) {
-        const { error } = await supabase.from('display_contents').update(formData).eq('id', formData.id);
-        if (error) throw error;
-        toast({ title: 'Konten berhasil diupdate', status: 'success', duration: 2500 });
-      } else {
-        const { error } = await supabase.from('display_contents').insert([formData]);
-        if (error) throw error;
-        toast({ title: 'Konten berhasil ditambahkan', status: 'success', duration: 2500 });
-      }
-      onClose();
-      fetchContents();
-      socketService.emit('NGAWONGGO-TV', 'content-updated');
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Gagal menyimpan konten', status: 'error', duration: 3000 });
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus konten ini?')) return;
-    try {
-      const { error } = await supabase.from('display_contents').delete().eq('id', id);
-      if (error) throw error;
-      toast({ title: 'Konten dihapus', status: 'success', duration: 2500 });
-      fetchContents();
-      socketService.emit('NGAWONGGO-TV', 'content-updated');
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Gagal menghapus', status: 'error', duration: 3000 });
-    }
-  };
-
-  return (
-    <Box p={{ base: 4, md: 8 }}>
-      <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="lg">Manajemen Konten Slideshow TV</Heading>
-        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={() => handleOpenModal()}>
-          Tambah Konten
-        </Button>
-      </Flex>
-
-      {loading ? (
-        <Flex justify="center" p={12}><Spinner size="xl" color="brand.500" /></Flex>
-      ) : (
-        <Box bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} shadow="sm">
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                <Th>Urutan</Th>
-                <Th>Judul Konten</Th>
-                <Th>Tipe</Th>
-                <Th>Durasi (Detik)</Th>
-                <Th>Status</Th>
-                <Th>Aksi</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {contents.map(c => (
-                <Tr key={c.id}>
-                  <Td fontWeight="bold">#{c.order}</Td>
-                  <Td fontWeight="semibold">{c.title}</Td>
-                  <Td><Badge colorScheme="teal">{c.type.toUpperCase()}</Badge></Td>
-                  <Td>{c.duration}s</Td>
-                  <Td>
-                    <Badge colorScheme={c.is_active ? 'green' : 'red'}>
-                      {c.is_active ? 'AKTIF' : 'NONAKTIF'}
-                    </Badge>
-                  </Td>
-                  <Td>
-                    <HStack spacing={2}>
-                      <IconButton icon={<FaEdit />} size="sm" onClick={() => handleOpenModal(c)} aria-label="Edit" />
-                      <IconButton icon={<FaTrash />} size="sm" colorScheme="red" onClick={() => handleDelete(c.id)} aria-label="Delete" />
-                    </HStack>
-                  </Td>
-                </Tr>
-              ))}
-              {contents.length === 0 && (
-                <Tr>
-                  <Td colSpan={6} textAlign="center" py={8} color="gray.500">
-                    Belum ada konten display.
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          </Table>
-        </Box>
-      )}
-
-      {/* MODAL FORM */}
-      <Modal isOpen={isOpen} onClose={onClose} size="lg">
-        <ModalOverlay />
-        <ModalContent rounded="2xl" p={2}>
-          <form onSubmit={handleSave}>
-            <ModalHeader>{formData.id ? 'Edit Konten' : 'Tambah Konten Baru'}</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <VStack spacing={4}>
-                <FormControl isRequired>
-                  <FormLabel>Judul Konten</FormLabel>
-                  <Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="Contoh: Jadwal Sholat Tarawih, Pengumuman Zakat" />
-                </FormControl>
-
-                <FormControl isRequired>
-                  <FormLabel>Tipe Konten</FormLabel>
-                  <Select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
-                    <option value="image">Gambar / Poster</option>
-                    <option value="text">Teks Pengumuman</option>
-                    <option value="video">Video Singkat</option>
-                  </Select>
-                </FormControl>
-
-                <FormControl isRequired={formData.type !== 'text'}>
-                  <FormLabel>URL Media</FormLabel>
-                  <Input value={formData.media_url || ''} onChange={e => setFormData({ ...formData, media_url: e.target.value })} placeholder="https://..." />
-                </FormControl>
-
-                <SimpleGrid columns={2} spacing={4} w="full">
-                  <FormControl isRequired>
-                    <FormLabel>Durasi Tampil (Detik)</FormLabel>
-                    <Input type="number" min={5} max={120} value={formData.duration} onChange={e => setFormData({ ...formData, duration: parseInt(e.target.value) || 10 })} />
-                  </FormControl>
-
-                  <FormControl isRequired>
-                    <FormLabel>Urutan Slide</FormLabel>
-                    <Input type="number" min={1} value={formData.order} onChange={e => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })} />
-                  </FormControl>
-                </SimpleGrid>
-
-                <FormControl display="flex" alignItems="center">
-                  <FormLabel mb="0">Aktifkan Konten</FormLabel>
-                  <Switch isChecked={formData.is_active} onChange={e => setFormData({ ...formData, is_active: e.target.checked })} colorScheme="brand" />
-                </FormControl>
-              </VStack>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="ghost" mr={3} onClick={onClose}>Batal</Button>
-              <Button colorScheme="brand" type="submit">Simpan Konten</Button>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
-    </Box>
-  );
-};
-
-// 3. MASTER CONTROL PENYIARAN NGAWONGGO TV (LIVESTREAM & OVERLAYS STUDIO)
+// 2. MASTER CONTROL PENYIARAN NGAWONGGO TV (LIVESTREAM STUDIO)
 const LiveStreamControl = () => {
   const boxBg = useColorModeValue('white', 'gray.850');
   const boxBorder = useColorModeValue('gray.200', 'whiteAlpha.200');
@@ -467,6 +323,7 @@ const LiveStreamControl = () => {
   const [activeLive, setActiveLive] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [detecting, setDetecting] = useState(false);
   const [viewerCount, setViewerCount] = useState(1);
   const [activeTab, setActiveTab] = useState(0);
   const toast = useToast();
@@ -475,6 +332,7 @@ const LiveStreamControl = () => {
     title: 'Pesona Wisata, Sejarah & Budaya Ngawonggo',
     description: 'Dokumenter keindahan alam, kearifan lokal, dan kehidupan masyarakat Desa Ngawonggo.',
     url: 'https://www.youtube.com/watch?v=0kG7-KkOqU8',
+    media_type: 'youtube',
     mode: 'simulated',
     duration: 900,
     loop_broadcast: true,
@@ -492,37 +350,6 @@ const LiveStreamControl = () => {
     emergency_title: 'PENGUMUMAN PENTING DESA',
     emergency_message: 'Harap seluruh warga memperhatikan himbauan darurat ini dan tetap waspada.',
   });
-
-  const PRESET_VIDEOS = [
-    {
-      title: 'Profil Desa & Wisata Ngawonggo',
-      url: 'https://www.youtube.com/watch?v=kYV3V5d9Dk8',
-      mode: 'simulated',
-      duration: 600,
-      description: 'Menelusuri keindahan alam dan potensi wisata alam Desa Ngawonggo.',
-    },
-    {
-      title: 'Pesona Sejarah & Kebudayaan Magelang',
-      url: 'https://www.youtube.com/watch?v=0kG7-KkOqU8',
-      mode: 'simulated',
-      duration: 900,
-      description: 'Kisah sejarah peradaban dan kearifan lokal masyarakat Magelang.',
-    },
-    {
-      title: 'Pesona Alam Kaliangkrik & Gunung Sumbing',
-      url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
-      mode: 'simulated',
-      duration: 1800,
-      description: 'Pemandangan alam spektakuler lereng Gunung Sumbing Kaliangkrik.',
-    },
-    {
-      title: 'Kajian & Mutiara Hikmah Warga',
-      url: 'https://www.youtube.com/watch?v=Em2PWeaSzok',
-      mode: 'simulated',
-      duration: 1200,
-      description: 'Siraman rohani dan panduan ibadah harian untuk masyarakat.',
-    },
-  ];
 
   const TICKER_PRESETS = [
     '🔴 LIVE: Ngawonggo TV - Menghadirkan tayangan edukasi, kebudayaan, informasi desa, dan kajian 24 jam nonstop untuk seluruh masyarakat.',
@@ -575,6 +402,63 @@ const LiveStreamControl = () => {
     };
   }, [fetchLiveStatus]);
 
+  // Automatic YouTube / Stream Info & Duration Detection
+  const handleAutoDetectInfo = async () => {
+    if (!streamForm.url || !streamForm.url.trim()) {
+      toast({ title: 'Masukkan URL video terlebih dahulu', status: 'warning', duration: 2500 });
+      return;
+    }
+
+    try {
+      setDetecting(true);
+      const cleanUrl = streamForm.url.trim();
+      const detected = detectMediaType(cleanUrl);
+      const ytId = extractYouTubeId(cleanUrl);
+
+      if (ytId) {
+        // Fetch YouTube metadata via oEmbed
+        const oembedRes = await axios.get(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${ytId}`);
+        if (oembedRes.data?.title) {
+          setStreamForm((prev) => ({
+            ...prev,
+            title: oembedRes.data.title || prev.title,
+            media_type: 'youtube',
+            description: `Tayangan resmi "${oembedRes.data.title}" oleh ${oembedRes.data.author_name || 'Ngawonggo TV'}.`,
+          }));
+          toast({
+            title: 'Info Video Berhasil Dideteksi!',
+            description: `Judul: ${oembedRes.data.title}`,
+            status: 'success',
+            duration: 3000,
+          });
+        }
+      } else if (detected === 'hls') {
+        setStreamForm((prev) => ({
+          ...prev,
+          media_type: 'hls',
+          mode: 'live',
+          duration: 3600,
+        }));
+        toast({ title: 'Format HLS (.m3u8) Dideteksi!', status: 'info', duration: 2500 });
+      } else if (detected === 'radio') {
+        setStreamForm((prev) => ({
+          ...prev,
+          media_type: 'radio',
+          mode: 'live',
+          duration: 3600,
+        }));
+        toast({ title: 'Format Audio Radio Streaming Dideteksi!', status: 'info', duration: 2500 });
+      } else {
+        toast({ title: 'Format video standar terdeteksi', status: 'info', duration: 2000 });
+      }
+    } catch (err) {
+      console.warn('Auto detect warning:', err);
+      toast({ title: 'Deteksi otomatis selesai', status: 'info', duration: 2000 });
+    } finally {
+      setDetecting(false);
+    }
+  };
+
   // Robust handleStartBroadcast without duplicate key errors
   const handleStartBroadcast = async (customConfig = null) => {
     const payload = customConfig || streamForm;
@@ -585,12 +469,15 @@ const LiveStreamControl = () => {
 
     try {
       setSaving(true);
-      
+      const cleanUrl = payload.url.trim();
+      const detected = detectMediaType(cleanUrl, payload.media_type);
+
       const broadcastData = {
         title: payload.title || 'Siaran Ngawonggo TV',
         description: payload.description || '',
-        url: payload.url.trim(),
-        mode: payload.mode || 'simulated',
+        url: cleanUrl,
+        media_type: detected,
+        mode: payload.mode || (detected === 'youtube' ? 'simulated' : 'live'),
         duration: payload.duration || 900,
         loop_broadcast: payload.loop_broadcast !== false,
         running_text: payload.running_text || '',
@@ -613,7 +500,6 @@ const LiveStreamControl = () => {
 
       let savedData = null;
 
-      // Update existing single row or insert fresh
       const { data: existingRows } = await supabase
         .from('display_livestreams')
         .select('id')
@@ -644,7 +530,7 @@ const LiveStreamControl = () => {
       setActiveLive(savedData);
       setStreamForm((prev) => ({ ...prev, ...savedData }));
 
-      // Broadcast update to all viewers and display
+      // Broadcast update to all viewers and displays
       const tvChannel = supabase.channel('ngawonggo_live_tv_main');
       await tvChannel.send({
         type: 'broadcast',
@@ -705,9 +591,14 @@ const LiveStreamControl = () => {
   const handleSaveLiveConfig = async () => {
     try {
       setSaving(true);
+      const cleanUrl = streamForm.url.trim();
+      const detected = detectMediaType(cleanUrl, streamForm.media_type);
+
       const configData = {
         title: streamForm.title,
         description: streamForm.description,
+        url: cleanUrl,
+        media_type: detected,
         mode: streamForm.mode,
         duration: streamForm.duration,
         loop_broadcast: streamForm.loop_broadcast,
@@ -741,7 +632,7 @@ const LiveStreamControl = () => {
       } else {
         const { error } = await supabase
           .from('display_livestreams')
-          .insert([{ ...configData, is_active: false, url: streamForm.url }]);
+          .insert([{ ...configData, is_active: false }]);
         if (error) throw error;
       }
 
@@ -944,7 +835,7 @@ const LiveStreamControl = () => {
               </Heading>
               {activeLive && (
                 <Badge colorScheme="green" fontSize="xx-small">
-                  SYNC AKTIF
+                  SYNC AKTIF ({activeLive.media_type ? activeLive.media_type.toUpperCase() : 'STREAM'})
                 </Badge>
               )}
             </Flex>
@@ -960,37 +851,15 @@ const LiveStreamControl = () => {
                 borderColor="red.500"
                 boxShadow="xl"
               >
-                {getYouTubeVideoId(activeLive.url) ? (
-                  <Box
-                    as="iframe"
-                    src={`https://www.youtube-nocookie.com/embed/${getYouTubeVideoId(activeLive.url)}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&enablejsapi=1`}
-                    title="Live Studio Monitor"
-                    position="absolute"
-                    top={0}
-                    left={0}
-                    w="100%"
-                    h="100%"
-                    border="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <video
-                    src={activeLive.url}
-                    autoPlay
-                    playsInline
-                    muted
-                    controls
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                )}
+                <BroadcastPlayer
+                  url={activeLive.url}
+                  mediaType={activeLive.media_type}
+                  isMuted={true}
+                  syncTimestamp={0}
+                  loop={activeLive.loop_broadcast}
+                  title={activeLive.title}
+                  isStudioMonitor={true}
+                />
                 <Badge
                   position="absolute"
                   top={3}
@@ -1001,7 +870,7 @@ const LiveStreamControl = () => {
                   py={0.5}
                   borderRadius="full"
                   fontSize="2xs"
-                  zIndex={2}
+                  zIndex={10}
                 >
                   ● LIVE STUDIO (MUTED)
                 </Badge>
@@ -1020,7 +889,7 @@ const LiveStreamControl = () => {
               >
                 <Icon as={FaTv} w={10} h={10} mb={2} color="gray.500" />
                 <Text fontWeight="bold" fontSize="sm">SIARAN STANDBY / OFFLINE</Text>
-                <Text fontSize="xs" color="gray.500">Pilih preset atau mulai siaran di sebelah kanan</Text>
+                <Text fontSize="xs" color="gray.500">Pilih template atau mulai siaran di sebelah kanan</Text>
               </Flex>
             )}
 
@@ -1031,9 +900,9 @@ const LiveStreamControl = () => {
                   <Text fontWeight="bold" noOfLines={1}>{activeLive.title}</Text>
                 </HStack>
                 <HStack justify="space-between">
-                  <Text color="gray.500">Mode Siaran:</Text>
-                  <Badge colorScheme={activeLive.mode === 'simulated' ? 'purple' : 'teal'}>
-                    {activeLive.mode === 'simulated' ? 'SIMULATED LIVE (SINKRON)' : 'REAL LIVE'}
+                  <Text color="gray.500">Format Aliran:</Text>
+                  <Badge colorScheme="purple">
+                    {activeLive.media_type ? activeLive.media_type.toUpperCase() : 'YOUTUBE'}
                   </Badge>
                 </HStack>
                 <HStack justify="space-between">
@@ -1098,13 +967,13 @@ const LiveStreamControl = () => {
             </SimpleGrid>
           </Box>
 
-          {/* Preset Video Library */}
+          {/* Template Siaran Lengkap (YouTube, TVRI HLS, Radio Gemilang) */}
           <Box bg={boxBg} p={6} rounded="3xl" border="1px solid" borderColor={boxBorder} shadow="md">
-            <Heading size="sm" mb={2}>Preset Video Siaran Cepat</Heading>
-            <Text fontSize="xs" color="gray.500" mb={4}>Klik salah satu video untuk mengisi konfigurasi dan siarkan seketika:</Text>
+            <Heading size="sm" mb={2}>Template Siaran Langsung & Video</Heading>
+            <Text fontSize="xs" color="gray.500" mb={4}>Klik template untuk menyiarkan seketika ke seluruh layar:</Text>
 
             <VStack spacing={3} align="stretch">
-              {PRESET_VIDEOS.map((video, idx) => (
+              {BROADCAST_TEMPLATES.map((tpl, idx) => (
                 <Box
                   key={idx}
                   p={3.5}
@@ -1118,25 +987,27 @@ const LiveStreamControl = () => {
                   onClick={() => {
                     setStreamForm((prev) => ({
                       ...prev,
-                      title: video.title,
-                      url: video.url,
-                      mode: video.mode,
-                      duration: video.duration || 900,
-                      description: video.description || prev.description,
+                      title: tpl.title,
+                      url: tpl.url,
+                      media_type: tpl.media_type,
+                      mode: tpl.mode,
+                      duration: tpl.duration,
+                      description: tpl.description,
+                      running_text: tpl.running_text || prev.running_text,
                     }));
-                    toast({ title: `Preset dipilih: ${video.title}`, status: 'info', duration: 1500 });
+                    toast({ title: `Template dipilih: ${tpl.title}`, status: 'info', duration: 1500 });
                   }}
                 >
                   <Flex justify="space-between" align="start" mb={1}>
                     <Text fontWeight="bold" fontSize="sm" noOfLines={1}>
-                      {video.title}
+                      {tpl.title}
                     </Text>
-                    <Badge colorScheme={video.mode === 'simulated' ? 'purple' : 'green'} fontSize="2xs">
-                      {video.mode.toUpperCase()}
+                    <Badge colorScheme={tpl.media_type === 'hls' ? 'blue' : tpl.media_type === 'radio' ? 'purple' : 'red'} fontSize="2xs">
+                      {tpl.media_type.toUpperCase()}
                     </Badge>
                   </Flex>
                   <Text fontSize="2xs" color="gray.500" noOfLines={1} mb={2}>
-                    {video.description}
+                    {tpl.description}
                   </Text>
                   <HStack spacing={2}>
                     <Button
@@ -1147,10 +1018,13 @@ const LiveStreamControl = () => {
                         e.stopPropagation();
                         handleStartBroadcast({
                           ...streamForm,
-                          title: video.title,
-                          url: video.url,
-                          mode: video.mode,
-                          duration: video.duration || 900,
+                          title: tpl.title,
+                          url: tpl.url,
+                          media_type: tpl.media_type,
+                          mode: tpl.mode,
+                          duration: tpl.duration,
+                          description: tpl.description,
+                          running_text: tpl.running_text || streamForm.running_text,
                         });
                       }}
                     >
@@ -1163,10 +1037,13 @@ const LiveStreamControl = () => {
                         e.stopPropagation();
                         setStreamForm((prev) => ({
                           ...prev,
-                          title: video.title,
-                          url: video.url,
-                          mode: video.mode,
-                          duration: video.duration || 900,
+                          title: tpl.title,
+                          url: tpl.url,
+                          media_type: tpl.media_type,
+                          mode: tpl.mode,
+                          duration: tpl.duration,
+                          description: tpl.description,
+                          running_text: tpl.running_text || prev.running_text,
                         }));
                       }}
                     >
@@ -1256,6 +1133,32 @@ const LiveStreamControl = () => {
                 <TabPanel p={0}>
                   <VStack spacing={5} align="stretch">
                     <FormControl isRequired>
+                      <FormLabel fontSize="sm" fontWeight="bold">URL Video / Stream</FormLabel>
+                      <HStack>
+                        <Input
+                          value={streamForm.url}
+                          onChange={(e) => setStreamForm({ ...streamForm, url: e.target.value })}
+                          placeholder="https://www.youtube.com/watch?v=... atau .m3u8 atau audio stream"
+                          borderRadius="xl"
+                        />
+                        <Button
+                          leftIcon={<FaSearch />}
+                          onClick={handleAutoDetectInfo}
+                          isLoading={detecting}
+                          colorScheme="blue"
+                          borderRadius="xl"
+                          size="md"
+                          flexShrink={0}
+                        >
+                          Deteksi Info
+                        </Button>
+                      </HStack>
+                      <Text fontSize="2xs" color="gray.500" mt={1}>
+                        * Mendukung link YouTube apa pun (normal, short, embed), HLS Live (.m3u8), dan Radio Audio Stream.
+                      </Text>
+                    </FormControl>
+
+                    <FormControl isRequired>
                       <FormLabel fontSize="sm" fontWeight="bold">Judul Program Siaran</FormLabel>
                       <Input
                         value={streamForm.title}
@@ -1276,17 +1179,21 @@ const LiveStreamControl = () => {
                       />
                     </FormControl>
 
-                    <FormControl isRequired>
-                      <FormLabel fontSize="sm" fontWeight="bold">URL Video / Stream (YouTube, MP4, HLS m3u8)</FormLabel>
-                      <Input
-                        value={streamForm.url}
-                        onChange={(e) => setStreamForm({ ...streamForm, url: e.target.value })}
-                        placeholder="https://www.youtube.com/watch?v=... atau .m3u8"
-                        borderRadius="xl"
-                      />
-                    </FormControl>
+                    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+                      <FormControl isRequired>
+                        <FormLabel fontSize="sm" fontWeight="bold">Format Aliran</FormLabel>
+                        <Select
+                          value={streamForm.media_type}
+                          onChange={(e) => setStreamForm({ ...streamForm, media_type: e.target.value })}
+                          borderRadius="xl"
+                        >
+                          <option value="youtube">YouTube Embed (Video / Live)</option>
+                          <option value="hls">HLS Stream (.m3u8 TVRI)</option>
+                          <option value="radio">Radio Audio Streaming</option>
+                          <option value="video">Direct MP4 / WebM Video</option>
+                        </Select>
+                      </FormControl>
 
-                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                       <FormControl isRequired>
                         <FormLabel fontSize="sm" fontWeight="bold">Mode Penyiaran</FormLabel>
                         <Select
@@ -1294,25 +1201,19 @@ const LiveStreamControl = () => {
                           onChange={(e) => setStreamForm({ ...streamForm, mode: e.target.value })}
                           borderRadius="xl"
                         >
-                          <option value="simulated">Simulated Live (Presisi Sinkron 24 Jam)</option>
-                          <option value="live">Real Live Stream (HLS / YouTube Live)</option>
+                          <option value="simulated">Simulated Live (Presisi Sinkron)</option>
+                          <option value="live">Real Live Stream</option>
                         </Select>
-                        <Text fontSize="2xs" color="gray.500" mt={1}>
-                          * Simulated Live menjamin detik video sama persis di seluruh pemirsa.
-                        </Text>
                       </FormControl>
 
                       <FormControl isRequired>
-                        <FormLabel fontSize="sm" fontWeight="bold">Durasi Video (Detik)</FormLabel>
+                        <FormLabel fontSize="sm" fontWeight="bold">Durasi (Detik)</FormLabel>
                         <Input
                           type="number"
                           value={streamForm.duration}
                           onChange={(e) => setStreamForm({ ...streamForm, duration: parseInt(e.target.value) || 0 })}
                           borderRadius="xl"
                         />
-                        <Text fontSize="2xs" color="gray.500" mt={1}>
-                          * Diperlukan untuk perhitungan perulangan loop sinkron.
-                        </Text>
                       </FormControl>
                     </SimpleGrid>
 
@@ -1482,7 +1383,7 @@ const LiveStreamControl = () => {
                       <HStack spacing={3}>
                         <Icon as={FaMosque} color="teal.500" w={5} h={5} />
                         <Text fontSize="xs" color="teal.800" _dark={{ color: 'teal.200' }} fontWeight="semibold">
-                          Jadwal sholat terhubung langsung dengan API Aladhan (Metode Kemenag RI / Wilayah Magelang) dengan pembaruan otomatis setiap hari.
+                          Jadwal sholat terhubung langsung dengan API Aladhan (Wilayah Magelang) dengan pembaruan otomatis setiap hari.
                         </Text>
                       </HStack>
                     </Box>
@@ -1608,8 +1509,8 @@ const LiveStreamControl = () => {
   );
 };
 
-// 4. JADWAL & AGENDA MANAGER
-const ScheduleManager = () => {
+// 3. JADWAL PENYIARAN OTOMATIS & PLAYLIST TV (BROADCAST SCHEDULER)
+const BroadcastScheduler = () => {
   const boxBg = useColorModeValue('white', 'gray.850');
   const boxBorder = useColorModeValue('gray.100', 'gray.700');
 
@@ -1621,19 +1522,27 @@ const ScheduleManager = () => {
   const [formData, setFormData] = useState({
     id: null,
     title: '',
-    speaker: '',
-    time: '',
-    type: 'kajian'
+    speaker: 'Pemerintah Desa Ngawonggo',
+    start_time: '08:00',
+    end_time: '09:00',
+    type: 'berita',
+    url: 'https://www.youtube.com/watch?v=kYV3V5d9Dk8',
+    media_type: 'youtube',
+    duration: 600,
+    is_active: true,
+    order_num: 1,
+    description: '',
+    running_text: '',
   });
 
   const fetchSchedules = useCallback(async () => {
     try {
       setLoading(true);
-      const { data } = await supabase.from('display_schedules').select('*').order('time', { ascending: true });
+      const { data } = await supabase.from('display_schedules').select('*').order('order_num', { ascending: true });
       setSchedules(data || []);
     } catch (err) {
       console.error(err);
-      toast({ title: 'Gagal memuat jadwal', status: 'error', duration: 3000 });
+      toast({ title: 'Gagal memuat jadwal siaran', status: 'error', duration: 3000 });
     } finally {
       setLoading(false);
     }
@@ -1645,24 +1554,22 @@ const ScheduleManager = () => {
 
   const handleOpenModal = (sched = null) => {
     if (sched) {
-      const date = new Date(sched.time);
-      const tzOffset = date.getTimezoneOffset() * 60000;
-      const localISOTime = (new Date(date - tzOffset)).toISOString().slice(0, 16);
-      
-      setFormData({
-        id: sched.id,
-        title: sched.title,
-        speaker: sched.speaker || '',
-        time: localISOTime,
-        type: sched.type
-      });
+      setFormData(sched);
     } else {
       setFormData({
         id: null,
         title: '',
-        speaker: '',
-        time: '',
-        type: 'kajian'
+        speaker: 'Tim Penyiaran Desa',
+        start_time: '08:00',
+        end_time: '09:00',
+        type: 'berita',
+        url: '',
+        media_type: 'youtube',
+        duration: 900,
+        is_active: true,
+        order_num: schedules.length + 1,
+        description: '',
+        running_text: '',
       });
     }
     onOpen();
@@ -1671,90 +1578,193 @@ const ScheduleManager = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
+      const cleanUrl = formData.url ? formData.url.trim() : '';
+      const detected = detectMediaType(cleanUrl, formData.media_type);
+
       const payload = {
         title: formData.title,
-        speaker: formData.speaker || null,
-        time: new Date(formData.time).toISOString(),
-        type: formData.type,
-        updated_at: new Date()
+        speaker: formData.speaker || 'Pemerintah Desa',
+        time: new Date(),
+        start_time: formData.start_time || '08:00',
+        end_time: formData.end_time || '09:00',
+        type: formData.type || 'berita',
+        url: cleanUrl,
+        media_type: detected,
+        duration: formData.duration || 900,
+        is_active: formData.is_active !== false,
+        order_num: formData.order_num || 1,
+        description: formData.description || '',
+        running_text: formData.running_text || '',
+        updated_at: new Date(),
       };
 
       if (formData.id) {
         const { error } = await supabase.from('display_schedules').update(payload).eq('id', formData.id);
         if (error) throw error;
-        toast({ title: 'Agenda diperbarui', status: 'success', duration: 2500 });
+        toast({ title: 'Slot Jadwal Siaran Diperbarui', status: 'success', duration: 2500 });
       } else {
         const { error } = await supabase.from('display_schedules').insert([payload]);
         if (error) throw error;
-        toast({ title: 'Agenda baru ditambahkan', status: 'success', duration: 2500 });
+        toast({ title: 'Slot Jadwal Siaran Ditambahkan', status: 'success', duration: 2500 });
       }
       onClose();
       fetchSchedules();
       socketService.emit('NGAWONGGO-TV', 'content-updated');
     } catch (err) {
       console.error(err);
-      toast({ title: 'Gagal menyimpan agenda', status: 'error', duration: 3000 });
+      toast({ title: 'Gagal menyimpan jadwal', status: 'error', duration: 3000 });
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus agenda ini?')) return;
+    if (!window.confirm('Yakin ingin menghapus slot jadwal siaran ini?')) return;
     try {
       const { error } = await supabase.from('display_schedules').delete().eq('id', id);
       if (error) throw error;
-      toast({ title: 'Agenda dihapus', status: 'success', duration: 2500 });
+      toast({ title: 'Slot jadwal dihapus', status: 'success', duration: 2500 });
       fetchSchedules();
       socketService.emit('NGAWONGGO-TV', 'content-updated');
     } catch (err) {
       console.error(err);
-      toast({ title: 'Gagal menghapus agenda', status: 'error', duration: 3000 });
+      toast({ title: 'Gagal menghapus jadwal', status: 'error', duration: 3000 });
+    }
+  };
+
+  // Instant broadcast this schedule slot
+  const handleBroadcastSlotNow = async (slot) => {
+    try {
+      const cleanUrl = slot.url ? slot.url.trim() : '';
+      const detected = detectMediaType(cleanUrl, slot.media_type);
+
+      const broadcastData = {
+        title: slot.title,
+        description: slot.description || `Program siaran ${slot.title} (${slot.start_time} - ${slot.end_time} WIB)`,
+        url: cleanUrl,
+        media_type: detected,
+        mode: detected === 'youtube' ? 'simulated' : 'live',
+        duration: slot.duration || 900,
+        loop_broadcast: true,
+        running_text: slot.running_text || `🔴 SIARAN JADWAL: ${slot.title} (${slot.start_time} - ${slot.end_time} WIB) - Ngawonggo TV.`,
+        show_running_text: true,
+        show_prayer_widget: true,
+        show_program_info: true,
+        show_watermark: true,
+        next_program_title: 'Program Berikutnya',
+        next_program_time: slot.end_time || 'WIB',
+        is_active: true,
+        started_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: existingRows } = await supabase
+        .from('display_livestreams')
+        .select('id')
+        .limit(1);
+
+      if (existingRows && existingRows.length > 0) {
+        await supabase
+          .from('display_livestreams')
+          .update(broadcastData)
+          .eq('id', existingRows[0].id);
+      } else {
+        await supabase
+          .from('display_livestreams')
+          .insert([broadcastData]);
+      }
+
+      const tvChannel = supabase.channel('ngawonggo_live_tv_main');
+      await tvChannel.send({
+        type: 'broadcast',
+        event: 'start-live',
+        payload: broadcastData,
+      });
+
+      await socketService.emit('NGAWONGGO-TV', 'start-live', { url: cleanUrl });
+      toast({
+        title: `⚡ Siaran Diluncurkan: ${slot.title}`,
+        description: 'Seluruh pemirsa langsung memutar program jadwal ini sekarang.',
+        status: 'success',
+        duration: 3500,
+      });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Gagal menyiarkan slot', status: 'error', duration: 3000 });
     }
   };
 
   return (
     <Box p={{ base: 4, md: 8 }}>
-      <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="lg">Jadwal & Agenda Masjid</Heading>
-        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={() => handleOpenModal()}>
-          Tambah Agenda
+      <Flex justify="space-between" align="center" mb={6} wrap="wrap" gap={3}>
+        <VStack align="start" spacing={1}>
+          <Heading size="lg">Penjadwalan Siaran TV Otomatis</Heading>
+          <Text fontSize="sm" color="gray.500">
+            Susun jadwal tayang harian Ngawonggo TV (Jam tayang, video YouTube, siaran HLS TVRI, dan Radio).
+          </Text>
+        </VStack>
+        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={() => handleOpenModal()} borderRadius="xl">
+          Tambah Slot Jadwal
         </Button>
       </Flex>
 
       {loading ? (
         <Flex justify="center" p={12}><Spinner size="xl" color="brand.500" /></Flex>
       ) : (
-        <Box bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} shadow="sm">
+        <Box bg={boxBg} p={6} rounded="3xl" border="1px solid" borderColor={boxBorder} shadow="sm" overflowX="auto">
           <Table variant="simple">
             <Thead>
               <Tr>
-                <Th>Nama Kegiatan / Topik</Th>
-                <Th>Pembicara / Imam</Th>
-                <Th>Waktu Pelaksanaan</Th>
-                <Th>Kategori</Th>
+                <Th>Urutan / Jam</Th>
+                <Th>Judul Program</Th>
+                <Th>Format</Th>
+                <Th>Durasi</Th>
+                <Th>Sumber Stream / Video</Th>
                 <Th>Aksi</Th>
               </Tr>
             </Thead>
             <Tbody>
-              {schedules.map(s => (
+              {schedules.map((s) => (
                 <Tr key={s.id}>
-                  <Td fontWeight="bold">{s.title}</Td>
-                  <Td>{s.speaker || '-'}</Td>
-                  <Td fontWeight="bold" color="brand.500">
-                    {new Date(s.time).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })} WIB
+                  <Td>
+                    <VStack align="start" spacing={0}>
+                      <Badge colorScheme="teal">#{s.order_num}</Badge>
+                      <Text fontWeight="bold" fontSize="xs" color="brand.500">
+                        {s.start_time} - {s.end_time} WIB
+                      </Text>
+                    </VStack>
                   </Td>
-                  <Td><Badge colorScheme={s.type === 'kajian' ? 'purple' : 'green'}>{s.type.toUpperCase()}</Badge></Td>
+                  <Td>
+                    <Text fontWeight="bold">{s.title}</Text>
+                    <Text fontSize="2xs" color="gray.500" noOfLines={1}>{s.speaker || s.description}</Text>
+                  </Td>
+                  <Td>
+                    <Badge colorScheme={s.media_type === 'hls' ? 'blue' : s.media_type === 'radio' ? 'purple' : 'red'}>
+                      {s.media_type ? s.media_type.toUpperCase() : 'YOUTUBE'}
+                    </Badge>
+                  </Td>
+                  <Td fontSize="xs">{Math.floor((s.duration || 900) / 60)} Menit</Td>
+                  <Td maxW="200px">
+                    <Text fontSize="2xs" noOfLines={1} color="gray.400">{s.url}</Text>
+                  </Td>
                   <Td>
                     <HStack spacing={2}>
-                      <IconButton icon={<FaEdit />} size="sm" onClick={() => handleOpenModal(s)} aria-label="Edit" />
-                      <IconButton icon={<FaTrash />} size="sm" colorScheme="red" onClick={() => handleDelete(s.id)} aria-label="Delete" />
+                      <Button
+                        size="xs"
+                        colorScheme="red"
+                        leftIcon={<FaBolt />}
+                        onClick={() => handleBroadcastSlotNow(s)}
+                      >
+                        Siarkan Sekarang
+                      </Button>
+                      <IconButton icon={<FaEdit />} size="xs" onClick={() => handleOpenModal(s)} aria-label="Edit" />
+                      <IconButton icon={<FaTrash />} size="xs" colorScheme="red" onClick={() => handleDelete(s.id)} aria-label="Delete" />
                     </HStack>
                   </Td>
                 </Tr>
               ))}
               {schedules.length === 0 && (
                 <Tr>
-                  <Td colSpan={5} textAlign="center" py={8} color="gray.500">
-                    Belum ada agenda terjadwal.
+                  <Td colSpan={6} textAlign="center" py={8} color="gray.500">
+                    Belum ada slot jadwal siaran. Klik "Tambah Slot Jadwal" di atas.
                   </Td>
                 </Tr>
               )}
@@ -1766,41 +1776,115 @@ const ScheduleManager = () => {
       {/* MODAL FORM */}
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalOverlay />
-        <ModalContent rounded="2xl" p={2}>
+        <ModalContent rounded="3xl" p={2}>
           <form onSubmit={handleSave}>
-            <ModalHeader>{formData.id ? 'Edit Agenda Masjid' : 'Tambah Agenda Baru'}</ModalHeader>
+            <ModalHeader>{formData.id ? 'Edit Slot Jadwal Siaran' : 'Tambah Slot Jadwal Siaran Baru'}</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
               <VStack spacing={4}>
                 <FormControl isRequired>
-                  <FormLabel>Nama Kegiatan</FormLabel>
-                  <Input value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="Contoh: Kajian Ahad Pagi, Sholat Jum'at" />
+                  <FormLabel fontSize="sm" fontWeight="bold">Judul Program Siaran</FormLabel>
+                  <Input
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    placeholder="Contoh: Warta Pagi & Profil Desa Ngawonggo"
+                    borderRadius="xl"
+                  />
                 </FormControl>
+
+                <SimpleGrid columns={2} spacing={4} w="full">
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="bold">Jam Mulai (WIB)</FormLabel>
+                    <Input
+                      value={formData.start_time}
+                      onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                      placeholder="08:00"
+                      borderRadius="xl"
+                    />
+                  </FormControl>
+
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="bold">Jam Selesai (WIB)</FormLabel>
+                    <Input
+                      value={formData.end_time}
+                      onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                      placeholder="10:00"
+                      borderRadius="xl"
+                    />
+                  </FormControl>
+                </SimpleGrid>
+
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="bold">URL Video / Sumber Siaran</FormLabel>
+                  <Input
+                    value={formData.url || ''}
+                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                    placeholder="https://www.youtube.com/watch?v=... atau .m3u8"
+                    borderRadius="xl"
+                  />
+                </FormControl>
+
+                <SimpleGrid columns={2} spacing={4} w="full">
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="bold">Format Aliran</FormLabel>
+                    <Select
+                      value={formData.media_type}
+                      onChange={(e) => setFormData({ ...formData, media_type: e.target.value })}
+                      borderRadius="xl"
+                    >
+                      <option value="youtube">YouTube Embed</option>
+                      <option value="hls">HLS Stream (.m3u8 TVRI)</option>
+                      <option value="radio">Radio Audio Stream</option>
+                      <option value="video">Direct MP4 Video</option>
+                    </Select>
+                  </FormControl>
+
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="bold">Durasi Video (Detik)</FormLabel>
+                    <Input
+                      type="number"
+                      value={formData.duration}
+                      onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 900 })}
+                      borderRadius="xl"
+                    />
+                  </FormControl>
+                </SimpleGrid>
 
                 <FormControl>
-                  <FormLabel>Pembicara / Penceramah / Imam</FormLabel>
-                  <Input value={formData.speaker} onChange={e => setFormData({ ...formData, speaker: e.target.value })} placeholder="Contoh: Ustadz Ahmad, S.Pd.I" />
+                  <FormLabel fontSize="sm" fontWeight="bold">Running Text Khusus Program</FormLabel>
+                  <Input
+                    value={formData.running_text}
+                    onChange={(e) => setFormData({ ...formData, running_text: e.target.value })}
+                    placeholder="Ketik warta teks berjalan untuk program ini..."
+                    borderRadius="xl"
+                  />
                 </FormControl>
 
-                <FormControl isRequired>
-                  <FormLabel>Waktu Pelaksanaan</FormLabel>
-                  <Input type="datetime-local" value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} />
-                </FormControl>
+                <SimpleGrid columns={2} spacing={4} w="full">
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="bold">Urutan Playlist</FormLabel>
+                    <Input
+                      type="number"
+                      value={formData.order_num}
+                      onChange={(e) => setFormData({ ...formData, order_num: parseInt(e.target.value) || 1 })}
+                      borderRadius="xl"
+                    />
+                  </FormControl>
 
-                <FormControl isRequired>
-                  <FormLabel>Kategori Agenda</FormLabel>
-                  <Select value={formData.type} onChange={e => setFormData({ ...formData, type: e.target.value })}>
-                    <option value="kajian">Kajian / Pengajian</option>
-                    <option value="sholat">Sholat Berjamaah / Jum'at</option>
-                    <option value="event">Acara / Peringatan PHBI</option>
-                    <option value="lainnya">Lainnya</option>
-                  </Select>
-                </FormControl>
+                  <FormControl display="flex" alignItems="center" pt={8}>
+                    <FormLabel mb="0" fontSize="sm" fontWeight="bold">Status Aktif</FormLabel>
+                    <Switch
+                      isChecked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      colorScheme="brand"
+                    />
+                  </FormControl>
+                </SimpleGrid>
               </VStack>
             </ModalBody>
             <ModalFooter>
               <Button variant="ghost" mr={3} onClick={onClose}>Batal</Button>
-              <Button colorScheme="brand" type="submit">Simpan Agenda</Button>
+              <Button colorScheme="brand" type="submit" borderRadius="xl">Simpan Slot Jadwal</Button>
             </ModalFooter>
           </form>
         </ModalContent>
@@ -1877,27 +1961,19 @@ const DashboardLayout = ({ setSession }) => {
           </SidebarItem>
 
           <SidebarItem
+            icon={FaCalendarAlt}
+            to="/admin/live/schedule"
+            isActive={location.pathname === '/admin/live/schedule'}
+          >
+            Penjadwalan Siaran TV
+          </SidebarItem>
+
+          <SidebarItem
             icon={FaTv}
             to="/admin/live/overview"
             isActive={location.pathname === '/admin/live/overview'}
           >
             Overview Sistem
-          </SidebarItem>
-
-          <SidebarItem
-            icon={FaImages}
-            to="/admin/live/content"
-            isActive={location.pathname === '/admin/live/content'}
-          >
-            Konten Display Slideshow
-          </SidebarItem>
-
-          <SidebarItem
-            icon={FaCalendarAlt}
-            to="/admin/live/schedule"
-            isActive={location.pathname === '/admin/live/schedule'}
-          >
-            Jadwal & Agenda TV
           </SidebarItem>
 
           <Box px={4} pt={6} borderTop="1px" borderColor={useColorModeValue('gray.100', 'gray.700')} mt={6}>
@@ -1937,8 +2013,8 @@ const DashboardLayout = ({ setSession }) => {
           <Route path="/" element={<LiveStreamControl />} />
           <Route path="/overview" element={<DashboardHome />} />
           <Route path="/live" element={<LiveStreamControl />} />
-          <Route path="/content" element={<ContentManager />} />
-          <Route path="/schedule" element={<ScheduleManager />} />
+          <Route path="/schedule" element={<BroadcastScheduler />} />
+          <Route path="/content" element={<BroadcastScheduler />} />
         </Routes>
       </Box>
     </Flex>
