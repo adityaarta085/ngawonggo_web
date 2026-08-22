@@ -288,67 +288,41 @@ Kembalikan respon HANYA DALAM FORMAT JSON BERIKUT (TANPA MARKDOWN, TANPA TEKS LA
       systemPrompt = `${customPrompt}\n\n${DEFAULT_KNOWLEDGE_PROMPT}`;
     }
 
-    // 2. Check limits for authenticated users
-    let isVIP = false;
+    // 2. Check limits & monetization for authenticated users
     if (userId && userId !== 'anonymous_user' && userId !== 'takedown_user') {
       try {
-        const { data: tierData } = await supabase
-          .from('user_tiers')
-          .select('tier_name')
-          .eq('user_id', userId)
-          .single();
-
-        // 2. Check dynamic limits from Supabase site_settings
         const { data: settingsData } = await supabase
           .from('site_settings')
           .select('key, value')
-          .in('key', ['ai_free_daily_limit', 'monetization_enabled']);
+          .in('key', ['ai_free_daily_limit', 'ai_chat_coin_price', 'monetization_enabled']);
 
-        const freeLimitVal = parseInt(settingsData?.find(s => s.key === 'ai_free_daily_limit')?.value || '3', 10);
-        const freeLimit = isNaN(freeLimitVal) ? 3 : freeLimitVal;
         const monetizationEnabled = settingsData?.find(s => s.key === 'monetization_enabled')?.value !== 'false';
+        const freeLimitVal = parseInt(settingsData?.find(s => s.key === 'ai_free_daily_limit')?.value || '5', 10);
+        const coinCostVal = parseInt(settingsData?.find(s => s.key === 'ai_chat_coin_price')?.value || '2', 10);
+        const freeLimit = isNaN(freeLimitVal) ? 5 : freeLimitVal;
+        const coinCost = isNaN(coinCostVal) ? 2 : coinCostVal;
 
-        isVIP = tierData && tierData.tier_name !== 'Free';
-        const limit = !monetizationEnabled ? 9999 : (isVIP ? 50 : freeLimit);
-
-        const today = new Date().toISOString().split('T')[0];
-        const { data: usageData } = await supabase
-          .from('user_feature_usage')
-          .select('usage_count')
-          .eq('user_id', userId)
-          .eq('feature_name', 'ai_chat')
-          .eq('usage_date', today)
-          .single();
-
-        const usageCount = usageData ? usageData.usage_count : 0;
-
-        if (usageCount >= limit) {
-          return res.status(403).json({
-            error: `Limit harian AI tercapai (${usageCount}/${limit} pesan). ${isVIP ? 'Anda telah mencapai kuota 50 chat hari ini.' : `Batas harian akun gratis adalah ${limit} pesan/hari. Upgrade ke akun VIP untuk 50 pesan/hari!`}`,
-            limitReached: true
+        if (monetizationEnabled) {
+          const { data: quotaResult, error: quotaError } = await supabase.rpc('consume_feature_quota_or_coins', {
+            p_user_id: userId,
+            p_feature_name: 'ai_chat',
+            p_free_limit: freeLimit,
+            p_window_days: 1,
+            p_coin_cost: coinCost,
+            p_action_name: 'AI Chat Asisten Desa'
           });
-        }
 
-        // Increment usage count
-        if (usageData) {
-          await supabase
-            .from('user_feature_usage')
-            .update({ usage_count: usageCount + 1, last_used_at: new Date().toISOString() })
-            .eq('user_id', userId)
-            .eq('feature_name', 'ai_chat')
-            .eq('usage_date', today);
-        } else {
-          await supabase
-            .from('user_feature_usage')
-            .insert({
-              user_id: userId,
-              feature_name: 'ai_chat',
-              usage_date: today,
-              usage_count: 1
+          if (!quotaError && quotaResult && !quotaResult.success) {
+            return res.status(403).json({
+              error: quotaResult.message || `Limit harian AI tercapai (${freeLimit} pesan/hari). Butuh ${coinCost} Koin per pesan tambahan atau upgrade ke VIP!`,
+              limitReached: true,
+              requiredCoins: coinCost,
+              balance: quotaResult.balance || 0
             });
+          }
         }
       } catch (usageErr) {
-        console.warn('Usage check warning:', usageErr.message);
+        console.warn('Usage check warning in chat.js:', usageErr.message);
       }
     }
 

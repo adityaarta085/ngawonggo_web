@@ -33,7 +33,7 @@ import { useMonetization } from '../../contexts/MonetizationContext';
 const MotionBox = motion(Box);
 
 const QuranPage = () => {
-  const { user, isVIP, settings, currency, deductCurrency, checkFeatureLimit } = useMonetization();
+  const { user, isVIP, settings, consumeFeatureOrCoins } = useMonetization();
   const [surahs, setSurahs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -230,29 +230,25 @@ const QuranPage = () => {
 
     if (settings?.monetization_enabled && !isVIP && user) {
       const quranLimit = settings.quran_free_daily_limit || 5;
-      const tafsirPrice = settings.tafsir_ai_price || 10;
-      const { allowed } = await checkFeatureLimit('quran_tafsir', quranLimit, 1);
+      const tafsirPrice = settings.tafsir_ai_price || 5;
+      const quotaResult = await consumeFeatureOrCoins('quran_tafsir', quranLimit, 1, tafsirPrice, 'Buka Tafsir Quran');
 
-      if (!allowed) {
-        if (currency?.coins >= tafsirPrice) {
-          const confirmPay = window.confirm(
-            `Batas gratis buka tafsir (${quranLimit}x/hari) telah tercapai.\n\nGunakan ${tafsirPrice} Koin untuk membuka tafsir ayat ini?`
-          );
-          if (confirmPay) {
-            const deducted = await deductCurrency(tafsirPrice, 'coins', 'Buka Tafsir Quran');
-            if (!deducted) return;
-          } else {
-            return;
-          }
-        } else {
+      if (!quotaResult.success) {
+        if (quotaResult.error === 'insufficient_coins') {
           toast({
             title: 'Limit Harian Tafsir Tercapai',
             description: `Batas gratis (${quranLimit}x/hari) tercapai. Butuh ${tafsirPrice} Koin untuk membuka tafsir tambahan atau upgrade ke VIP.`,
             status: 'warning',
             duration: 5000,
           });
-          return;
+        } else {
+          toast({
+            title: 'Batas Kuota',
+            description: quotaResult.message || 'Batas harian membuka tafsir tercapai.',
+            status: 'warning',
+          });
         }
+        return;
       }
     }
 
