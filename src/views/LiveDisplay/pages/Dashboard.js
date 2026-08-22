@@ -62,11 +62,13 @@ import {
   FaShieldAlt,
   FaSearch,
   FaBolt,
+  FaYoutube,
 } from 'react-icons/fa';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import { socketService } from '../services/socketService';
 import { BroadcastPlayer, extractYouTubeId, detectMediaType } from '../../../components/BroadcastPlayer';
+import WebStudioBroadcaster from '../components/WebStudioBroadcaster';
 import axios from 'axios';
 
 // Stat Card Component
@@ -1229,6 +1231,34 @@ const LiveStreamControl = () => {
                       />
                     </FormControl>
 
+                    <Box p={4} bg="red.50" _dark={{ bg: 'rgba(239, 68, 68, 0.12)' }} borderRadius="2xl" border="1px solid" borderColor="red.300">
+                      <Flex justify="space-between" align="center" wrap="wrap" gap={3}>
+                        <HStack spacing={3}>
+                          <Box p={2.5} bg="red.500" color="white" borderRadius="xl">
+                            <Icon as={FaYoutube} w={5} h={5} />
+                          </Box>
+                          <VStack align="start" spacing={0}>
+                            <Text fontSize="xs" fontWeight="bold" color="red.700" _dark={{ color: 'red.200' }}>
+                              In-Browser Live Broadcaster ke YouTube (Tanpa OBS)
+                            </Text>
+                            <Text fontSize="2xs" color="gray.600" _dark={{ color: 'gray.400' }}>
+                              Pancarkan kamera webcam, mikrofon, dan layar desktop dengan grafis TV langsung ke YouTube.
+                            </Text>
+                          </VStack>
+                        </HStack>
+                        <Button
+                          as={Link}
+                          to="/admin/live/web-studio"
+                          colorScheme="red"
+                          size="sm"
+                          borderRadius="xl"
+                          leftIcon={<FaVideo />}
+                        >
+                          Buka Studio Web-OBS
+                        </Button>
+                      </Flex>
+                    </Box>
+
                     <HStack spacing={3} pt={2}>
                       <Button
                         colorScheme="brand"
@@ -1961,6 +1991,14 @@ const DashboardLayout = ({ setSession }) => {
           </SidebarItem>
 
           <SidebarItem
+            icon={FaYoutube}
+            to="/admin/live/web-studio"
+            isActive={location.pathname === '/admin/live/web-studio'}
+          >
+            Studio YouTube (Web-OBS)
+          </SidebarItem>
+
+          <SidebarItem
             icon={FaCalendarAlt}
             to="/admin/live/schedule"
             isActive={location.pathname === '/admin/live/schedule'}
@@ -2011,6 +2049,7 @@ const DashboardLayout = ({ setSession }) => {
       <Box ml={{ base: '240px', md: '280px' }} w="full" minH="85vh" bg={mainBg}>
         <Routes>
           <Route path="/" element={<LiveStreamControl />} />
+          <Route path="/web-studio" element={<WebStudioBroadcaster />} />
           <Route path="/overview" element={<DashboardHome />} />
           <Route path="/live" element={<LiveStreamControl />} />
           <Route path="/schedule" element={<BroadcastScheduler />} />
