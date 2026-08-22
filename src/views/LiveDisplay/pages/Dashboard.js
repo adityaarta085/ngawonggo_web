@@ -127,13 +127,12 @@ const SidebarItem = ({ icon, children, to, isActive }) => {
   );
 };
 
-// 1. DASHBOARD HOME (OVERVIEW)
+// 1. DASHBOARD HOME (OVERVIEW - SINGLE NGAWONGGO TV)
 const DashboardHome = () => {
   const boxBg = useColorModeValue('white', 'gray.850');
   const boxBorder = useColorModeValue('gray.100', 'gray.700');
   
-  const [counts, setCounts] = useState({ displays: 0, contents: 0, schedules: 0 });
-  const [displays, setDisplays] = useState([]);
+  const [counts, setCounts] = useState({ contents: 0, schedules: 0 });
   const [liveStream, setLiveStream] = useState(null);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
@@ -142,18 +141,13 @@ const DashboardHome = () => {
     try {
       setLoading(true);
       
-      const { count: dCount } = await supabase.from('displays').select('id', { count: 'exact', head: true });
       const { count: cCount } = await supabase.from('display_contents').select('id', { count: 'exact', head: true });
       const { count: sCount } = await supabase.from('display_schedules').select('id', { count: 'exact', head: true });
       
       setCounts({
-        displays: dCount || 0,
         contents: cCount || 0,
         schedules: sCount || 0
       });
-
-      const { data: dData } = await supabase.from('displays').select('*');
-      setDisplays(dData || []);
 
       const { data: liveData } = await supabase
         .from('display_livestreams')
@@ -176,10 +170,10 @@ const DashboardHome = () => {
     fetchOverview();
   }, [fetchOverview]);
 
-  const handleControlTV = async (code, action, extraPayload = {}) => {
+  const handleControlTV = async (action, extraPayload = {}) => {
     try {
-      await socketService.emit(code, action, extraPayload);
-      toast({ title: `Sinyal ${action} dikirim ke ${code}`, status: 'success', duration: 2500 });
+      await socketService.emit('NGAWONGGO-TV', action, extraPayload);
+      toast({ title: `Sinyal ${action} dikirim ke Ngawonggo TV`, status: 'success', duration: 2500 });
       fetchOverview();
     } catch (err) {
       console.error(err);
@@ -196,62 +190,61 @@ const DashboardHome = () => {
   }
 
   return (
-    <Box p={8}>
+    <Box p={{ base: 4, md: 8 }}>
       <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="lg">Overview Penyiaran & Display TV</Heading>
+        <Heading size="lg">Overview Penyiaran Ngawonggo TV</Heading>
         <Button leftIcon={<FaSyncAlt />} onClick={fetchOverview} size="sm" colorScheme="gray">
           Refresh Data
         </Button>
       </Flex>
 
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={6} mb={8}>
-        <StatCard title="Total TV Terdaftar" value={counts.displays} icon={FaTv} color="blue" />
-        <StatCard title="Konten Slideshow" value={counts.contents} icon={FaImages} color="green" />
-        <StatCard title="Agenda Terjadwal" value={counts.schedules} icon={FaCalendarAlt} color="purple" />
+      <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mb={8}>
         <StatCard
-          title="Status Siaran TV"
+          title="Status Penyiaran"
           value={liveStream ? 'ON AIR' : 'OFF AIR'}
           icon={FaBroadcastTower}
           color={liveStream ? 'red' : 'gray'}
         />
+        <StatCard title="Konten Slideshow" value={counts.contents} icon={FaImages} color="green" />
+        <StatCard title="Agenda & Jadwal" value={counts.schedules} icon={FaCalendarAlt} color="purple" />
       </SimpleGrid>
 
       <Box bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} shadow="sm">
-        <Heading size="md" mb={4}>TV Display yang Terhubung</Heading>
+        <Heading size="md" mb={4}>Status Saluran Televisi Utama</Heading>
         <Table variant="simple">
           <Thead>
             <Tr>
-              <Th>Nama TV</Th>
-              <Th>Kode TV</Th>
-              <Th>Status Realtime</Th>
+              <Th>Saluran TV</Th>
+              <Th>Status Siaran</Th>
+              <Th>Program Saat Ini</Th>
               <Th>Aksi Cepat</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {displays.map(tv => (
-              <Tr key={tv.id}>
-                <Td fontWeight="bold">{tv.name}</Td>
-                <Td><Badge colorScheme="blue">{tv.code}</Badge></Td>
-                <Td>
-                  <Badge colorScheme={tv.status === 'online' ? 'green' : 'red'}>
-                    {tv.status.toUpperCase()}
-                  </Badge>
-                </Td>
-                <Td>
-                  <HStack spacing={2}>
-                    <Button size="xs" colorScheme="blue" onClick={() => window.open(`/live/display/${tv.code}`, '_blank')} rightIcon={<FaExternalLinkAlt />}>
-                      Buka TV
-                    </Button>
-                    <Button size="xs" colorScheme="gray" onClick={() => handleControlTV(tv.code, 'reload')}>
-                      Refresh TV
-                    </Button>
-                    <Button size="xs" colorScheme="teal" onClick={() => handleControlTV(tv.code, 'set-mode', { mode: 'normal' })}>
-                      Set Normal
-                    </Button>
-                  </HStack>
-                </Td>
-              </Tr>
-            ))}
+            <Tr>
+              <Td fontWeight="bold">Ngawonggo TV Utama</Td>
+              <Td>
+                <Badge colorScheme={liveStream ? 'green' : 'gray'}>
+                  {liveStream ? '● ON AIR' : 'STANDBY'}
+                </Badge>
+              </Td>
+              <Td color="gray.500">
+                {liveStream?.title || 'Layar Standby'}
+              </Td>
+              <Td>
+                <HStack spacing={2}>
+                  <Button size="xs" colorScheme="red" onClick={() => window.open('/media/live', '_blank')} rightIcon={<FaExternalLinkAlt />}>
+                    Buka Siaran TV
+                  </Button>
+                  <Button size="xs" colorScheme="gray" onClick={() => handleControlTV('reload')}>
+                    Refresh TV
+                  </Button>
+                  <Button size="xs" colorScheme="teal" onClick={() => handleControlTV('set-mode', { mode: 'normal' })}>
+                    Set Normal
+                  </Button>
+                </HStack>
+              </Td>
+            </Tr>
           </Tbody>
         </Table>
       </Box>
@@ -327,7 +320,7 @@ const ContentManager = () => {
       }
       onClose();
       fetchContents();
-      socketService.emit('DEMO-TV', 'content-updated');
+      socketService.emit('NGAWONGGO-TV', 'content-updated');
     } catch (err) {
       console.error(err);
       toast({ title: 'Gagal menyimpan konten', status: 'error', duration: 3000 });
@@ -341,7 +334,7 @@ const ContentManager = () => {
       if (error) throw error;
       toast({ title: 'Konten dihapus', status: 'success', duration: 2500 });
       fetchContents();
-      socketService.emit('DEMO-TV', 'content-updated');
+      socketService.emit('NGAWONGGO-TV', 'content-updated');
     } catch (err) {
       console.error(err);
       toast({ title: 'Gagal menghapus', status: 'error', duration: 3000 });
@@ -349,7 +342,7 @@ const ContentManager = () => {
   };
 
   return (
-    <Box p={8}>
+    <Box p={{ base: 4, md: 8 }}>
       <Flex justify="space-between" align="center" mb={6}>
         <Heading size="lg">Manajemen Konten Slideshow TV</Heading>
         <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={() => handleOpenModal()}>
@@ -582,6 +575,7 @@ const LiveStreamControl = () => {
     };
   }, [fetchLiveStatus]);
 
+  // Robust handleStartBroadcast without duplicate key errors
   const handleStartBroadcast = async (customConfig = null) => {
     const payload = customConfig || streamForm;
     if (!payload.url || !payload.url.trim()) {
@@ -591,34 +585,75 @@ const LiveStreamControl = () => {
 
     try {
       setSaving(true);
-      await supabase.from('display_livestreams').update({ is_active: false }).eq('is_active', true);
-
-      const newRow = {
-        ...payload,
+      
+      const broadcastData = {
+        title: payload.title || 'Siaran Ngawonggo TV',
+        description: payload.description || '',
+        url: payload.url.trim(),
+        mode: payload.mode || 'simulated',
+        duration: payload.duration || 900,
+        loop_broadcast: payload.loop_broadcast !== false,
+        running_text: payload.running_text || '',
+        show_running_text: payload.show_running_text !== false,
+        show_prayer_widget: payload.show_prayer_widget !== false,
+        show_breaking_news: !!payload.show_breaking_news,
+        breaking_news_title: payload.breaking_news_title || 'WARTA KHUSUS NGAWONGGO',
+        breaking_news_text: payload.breaking_news_text || '',
+        show_program_info: payload.show_program_info !== false,
+        show_watermark: payload.show_watermark !== false,
+        next_program_title: payload.next_program_title || 'Warta Warga Desa Ngawonggo',
+        next_program_time: payload.next_program_time || '19:30 WIB',
+        emergency_mode: !!payload.emergency_mode,
+        emergency_title: payload.emergency_title || 'PENGUMUMAN PENTING DESA',
+        emergency_message: payload.emergency_message || '',
         is_active: true,
         started_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
-      const { data, error } = await supabase
+      let savedData = null;
+
+      // Update existing single row or insert fresh
+      const { data: existingRows } = await supabase
         .from('display_livestreams')
-        .insert([newRow])
-        .select()
-        .single();
+        .select('id')
+        .limit(1);
 
-      if (error) throw error;
+      if (existingRows && existingRows.length > 0) {
+        const targetId = existingRows[0].id;
+        const { data, error } = await supabase
+          .from('display_livestreams')
+          .update(broadcastData)
+          .eq('id', targetId)
+          .select()
+          .single();
 
-      setActiveLive(data);
+        if (error) throw error;
+        savedData = data;
+      } else {
+        const { data, error } = await supabase
+          .from('display_livestreams')
+          .insert([broadcastData])
+          .select()
+          .single();
 
+        if (error) throw error;
+        savedData = data;
+      }
+
+      setActiveLive(savedData);
+      setStreamForm((prev) => ({ ...prev, ...savedData }));
+
+      // Broadcast update to all viewers and display
       const tvChannel = supabase.channel('ngawonggo_live_tv_main');
       await tvChannel.send({
         type: 'broadcast',
         event: 'start-live',
-        payload: data,
+        payload: savedData,
       });
 
-      await socketService.emit('DEMO-TV', 'start-live', { url: data.url });
-      await socketService.emit('DEMO-TV', 'set-mode', { mode: 'live', url: data.url });
+      await socketService.emit('NGAWONGGO-TV', 'start-live', { url: savedData.url });
+      await socketService.emit('NGAWONGGO-TV', 'set-mode', { mode: 'live', url: savedData.url });
 
       toast({
         title: 'Siaran Berhasil Mengudara (ON AIR)!',
@@ -628,19 +663,23 @@ const LiveStreamControl = () => {
       });
       fetchLiveStatus();
     } catch (err) {
-      console.error(err);
+      console.error('Error starting broadcast:', err);
       toast({ title: 'Gagal memulai siaran', description: err.message, status: 'error', duration: 3500 });
     } finally {
       setSaving(false);
     }
   };
 
+  // Robust handleStopBroadcast
   const handleStopBroadcast = async () => {
     if (!window.confirm('Hentikan siaran Ngawonggo TV sekarang dan alihkan ke layar Standby?')) return;
 
     try {
       setSaving(true);
-      await supabase.from('display_livestreams').update({ is_active: false }).eq('is_active', true);
+      await supabase
+        .from('display_livestreams')
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq('is_active', true);
 
       const tvChannel = supabase.channel('ngawonggo_live_tv_main');
       await tvChannel.send({
@@ -648,51 +687,71 @@ const LiveStreamControl = () => {
         event: 'stop-live',
       });
 
-      await socketService.emit('DEMO-TV', 'stop-live');
-      await socketService.emit('DEMO-TV', 'set-mode', { mode: 'normal' });
+      await socketService.emit('NGAWONGGO-TV', 'stop-live');
+      await socketService.emit('NGAWONGGO-TV', 'set-mode', { mode: 'normal' });
 
       setActiveLive(null);
       toast({ title: 'Siaran dihentikan. Mode Standby aktif.', status: 'info', duration: 3000 });
       fetchLiveStatus();
     } catch (err) {
-      console.error(err);
+      console.error('Error stopping broadcast:', err);
       toast({ title: 'Gagal menghentikan siaran', status: 'error', duration: 3000 });
     } finally {
       setSaving(false);
     }
   };
 
+  // Robust handleSaveLiveConfig
   const handleSaveLiveConfig = async () => {
     try {
       setSaving(true);
-      if (activeLive?.id) {
+      const configData = {
+        title: streamForm.title,
+        description: streamForm.description,
+        mode: streamForm.mode,
+        duration: streamForm.duration,
+        loop_broadcast: streamForm.loop_broadcast,
+        running_text: streamForm.running_text,
+        show_running_text: streamForm.show_running_text,
+        show_prayer_widget: streamForm.show_prayer_widget,
+        show_breaking_news: streamForm.show_breaking_news,
+        breaking_news_title: streamForm.breaking_news_title,
+        breaking_news_text: streamForm.breaking_news_text,
+        show_program_info: streamForm.show_program_info,
+        show_watermark: streamForm.show_watermark,
+        next_program_title: streamForm.next_program_title,
+        next_program_time: streamForm.next_program_time,
+        emergency_mode: streamForm.emergency_mode,
+        emergency_title: streamForm.emergency_title,
+        emergency_message: streamForm.emergency_message,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: existingRows } = await supabase
+        .from('display_livestreams')
+        .select('id')
+        .limit(1);
+
+      if (existingRows && existingRows.length > 0) {
         const { error } = await supabase
           .from('display_livestreams')
-          .update({
-            title: streamForm.title,
-            description: streamForm.description,
-            mode: streamForm.mode,
-            duration: streamForm.duration,
-            loop_broadcast: streamForm.loop_broadcast,
-            running_text: streamForm.running_text,
-            show_running_text: streamForm.show_running_text,
-            show_prayer_widget: streamForm.show_prayer_widget,
-            show_breaking_news: streamForm.show_breaking_news,
-            breaking_news_title: streamForm.breaking_news_title,
-            breaking_news_text: streamForm.breaking_news_text,
-            show_program_info: streamForm.show_program_info,
-            show_watermark: streamForm.show_watermark,
-            next_program_title: streamForm.next_program_title,
-            next_program_time: streamForm.next_program_time,
-            emergency_mode: streamForm.emergency_mode,
-            emergency_title: streamForm.emergency_title,
-            emergency_message: streamForm.emergency_message,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', activeLive.id);
-
+          .update(configData)
+          .eq('id', existingRows[0].id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('display_livestreams')
+          .insert([{ ...configData, is_active: false, url: streamForm.url }]);
         if (error) throw error;
       }
+
+      // Broadcast update
+      const tvChannel = supabase.channel('ngawonggo_live_tv_main');
+      await tvChannel.send({
+        type: 'broadcast',
+        event: 'update-overlay',
+        payload: configData,
+      });
 
       toast({
         title: 'Pengaturan Berhasil Disimpan & Diterapkan',
@@ -702,7 +761,7 @@ const LiveStreamControl = () => {
       });
       fetchLiveStatus();
     } catch (err) {
-      console.error(err);
+      console.error('Error saving config:', err);
       toast({ title: 'Gagal menyimpan pengaturan', status: 'error', duration: 3000 });
     } finally {
       setSaving(false);
@@ -710,21 +769,28 @@ const LiveStreamControl = () => {
   };
 
   const handleResetSyncAnchor = async () => {
-    if (!activeLive) return;
     try {
       setSaving(true);
       const newStartedAt = new Date().toISOString();
-      await supabase
+      
+      const { data: existingRows } = await supabase
         .from('display_livestreams')
-        .update({ started_at: newStartedAt, updated_at: newStartedAt })
-        .eq('id', activeLive.id);
+        .select('id')
+        .limit(1);
+
+      if (existingRows && existingRows.length > 0) {
+        await supabase
+          .from('display_livestreams')
+          .update({ started_at: newStartedAt, updated_at: newStartedAt })
+          .eq('id', existingRows[0].id);
+      }
 
       const tvChannel = supabase.channel('ngawonggo_live_tv_main');
       await tvChannel.send({
         type: 'broadcast',
         event: 'sync-player',
       });
-      await socketService.emit('DEMO-TV', 'sync-player');
+      await socketService.emit('NGAWONGGO-TV', 'sync-player');
 
       toast({
         title: 'Jam Sinkronisasi Direset ke Detik Ini!',
@@ -748,7 +814,7 @@ const LiveStreamControl = () => {
         type: 'broadcast',
         event: 'sync-player',
       });
-      await socketService.emit('DEMO-TV', 'sync-player');
+      await socketService.emit('NGAWONGGO-TV', 'sync-player');
       toast({ title: 'Sinyal sinkronisasi dikirim ke semua layar!', status: 'success', duration: 2000 });
     } catch (err) {
       console.error(err);
@@ -763,7 +829,7 @@ const LiveStreamControl = () => {
         type: 'broadcast',
         event: 'play-chime',
       });
-      await socketService.emit('DEMO-TV', 'play-chime');
+      await socketService.emit('NGAWONGGO-TV', 'play-chime');
       toast({ title: 'Nada lonceng studio dipicu di semua pemirsa!', status: 'teal', duration: 2000 });
     } catch (err) {
       console.error(err);
@@ -779,7 +845,7 @@ const LiveStreamControl = () => {
         type: 'broadcast',
         event: 'reload',
       });
-      await socketService.emit('DEMO-TV', 'reload');
+      await socketService.emit('NGAWONGGO-TV', 'reload');
       toast({ title: 'Sinyal reload dikirim!', status: 'warning', duration: 2000 });
     } catch (err) {
       console.error(err);
@@ -1606,7 +1672,7 @@ const ScheduleManager = () => {
       }
       onClose();
       fetchSchedules();
-      socketService.emit('DEMO-TV', 'content-updated');
+      socketService.emit('NGAWONGGO-TV', 'content-updated');
     } catch (err) {
       console.error(err);
       toast({ title: 'Gagal menyimpan agenda', status: 'error', duration: 3000 });
@@ -1620,7 +1686,7 @@ const ScheduleManager = () => {
       if (error) throw error;
       toast({ title: 'Agenda dihapus', status: 'success', duration: 2500 });
       fetchSchedules();
-      socketService.emit('DEMO-TV', 'content-updated');
+      socketService.emit('NGAWONGGO-TV', 'content-updated');
     } catch (err) {
       console.error(err);
       toast({ title: 'Gagal menghapus agenda', status: 'error', duration: 3000 });
@@ -1628,7 +1694,7 @@ const ScheduleManager = () => {
   };
 
   return (
-    <Box p={8}>
+    <Box p={{ base: 4, md: 8 }}>
       <Flex justify="space-between" align="center" mb={6}>
         <Heading size="lg">Jadwal & Agenda Masjid</Heading>
         <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={() => handleOpenModal()}>
@@ -1717,180 +1783,6 @@ const ScheduleManager = () => {
             <ModalFooter>
               <Button variant="ghost" mr={3} onClick={onClose}>Batal</Button>
               <Button colorScheme="brand" type="submit">Simpan Agenda</Button>
-            </ModalFooter>
-          </form>
-        </ModalContent>
-      </Modal>
-    </Box>
-  );
-};
-
-// 5. DISPLAYS (TV CLIENTS) MANAGER
-const DisplaysManager = () => {
-  const boxBg = useColorModeValue('white', 'gray.850');
-  const boxBorder = useColorModeValue('gray.100', 'gray.700');
-
-  const [displays, setDisplays] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const toast = useToast();
-
-  const [formData, setFormData] = useState({
-    id: null,
-    name: '',
-    code: '',
-  });
-
-  const fetchDisplays = useCallback(async () => {
-    try {
-      setLoading(true);
-      const { data } = await supabase.from('displays').select('*').order('created_at', { ascending: false });
-      setDisplays(data || []);
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Gagal memuat displays', status: 'error', duration: 3000 });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    fetchDisplays();
-  }, [fetchDisplays]);
-
-  const handleOpenModal = (disp = null) => {
-    if (disp) {
-      setFormData(disp);
-    } else {
-      setFormData({
-        id: null,
-        name: '',
-        code: `TV-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-      });
-    }
-    onOpen();
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    try {
-      if (formData.id) {
-        const { error } = await supabase.from('displays').update({ name: formData.name }).eq('id', formData.id);
-        if (error) throw error;
-        toast({ title: 'Display diperbarui', status: 'success', duration: 2500 });
-      } else {
-        const { error } = await supabase.from('displays').insert([{
-          name: formData.name,
-          code: formData.code,
-          status: 'offline'
-        }]);
-        if (error) throw error;
-        toast({ title: 'Display baru didaftarkan', status: 'success', duration: 2500 });
-      }
-      onClose();
-      fetchDisplays();
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Gagal menyimpan TV', status: 'error', duration: 3000 });
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus TV Display ini?')) return;
-    try {
-      const { error } = await supabase.from('displays').delete().eq('id', id);
-      if (error) throw error;
-      toast({ title: 'Display TV dihapus', status: 'success', duration: 2500 });
-      fetchDisplays();
-    } catch (err) {
-      console.error(err);
-      toast({ title: 'Gagal menghapus', status: 'error', duration: 3000 });
-    }
-  };
-
-  return (
-    <Box p={8}>
-      <Flex justify="space-between" align="center" mb={6}>
-        <Heading size="lg">Manajemen Perangkat Layar TV Fisik</Heading>
-        <Button leftIcon={<FaPlus />} colorScheme="brand" onClick={() => handleOpenModal()}>
-          Daftarkan TV Baru
-        </Button>
-      </Flex>
-
-      {loading ? (
-        <Flex justify="center" p={12}><Spinner size="xl" color="brand.500" /></Flex>
-      ) : (
-        <Box bg={boxBg} p={6} rounded="2xl" border="1px solid" borderColor={boxBorder} shadow="sm">
-          <Table variant="simple">
-            <Thead>
-              <Tr>
-                <Th>Nama Lokasi / TV</Th>
-                <Th>Kode Unik Layar</Th>
-                <Th>Status Koneksi</Th>
-                <Th>URL Layar TV</Th>
-                <Th>Aksi</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {displays.map(d => (
-                <Tr key={d.id}>
-                  <Td fontWeight="bold">{d.name}</Td>
-                  <Td><Badge colorScheme="purple" fontSize="sm">{d.code}</Badge></Td>
-                  <Td>
-                    <Badge colorScheme={d.status === 'online' ? 'green' : 'red'}>
-                      {d.status.toUpperCase()}
-                    </Badge>
-                  </Td>
-                  <Td>
-                    <Button size="xs" colorScheme="blue" onClick={() => window.open(`/live/display/${d.code}`, '_blank')} rightIcon={<FaExternalLinkAlt />}>
-                      /live/display/{d.code}
-                    </Button>
-                  </Td>
-                  <Td>
-                    <HStack spacing={2}>
-                      <IconButton icon={<FaEdit />} size="sm" onClick={() => handleOpenModal(d)} aria-label="Edit" />
-                      <IconButton icon={<FaTrash />} size="sm" colorScheme="red" onClick={() => handleDelete(d.id)} aria-label="Delete" />
-                    </HStack>
-                  </Td>
-                </Tr>
-              ))}
-              {displays.length === 0 && (
-                <Tr>
-                  <Td colSpan={5} textAlign="center" py={8} color="gray.500">
-                    Belum ada TV yang didaftarkan.
-                  </Td>
-                </Tr>
-              )}
-            </Tbody>
-          </Table>
-        </Box>
-      )}
-
-      {/* MODAL FORM */}
-      <Modal isOpen={isOpen} onClose={onClose} size="md">
-        <ModalOverlay />
-        <ModalContent rounded="2xl" p={2}>
-          <form onSubmit={handleSave}>
-            <ModalHeader>{formData.id ? 'Edit Data TV' : 'Daftarkan Layar TV Baru'}</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <VStack spacing={4}>
-                <FormControl isRequired>
-                  <FormLabel>Nama Layar / Lokasi</FormLabel>
-                  <Input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="Contoh: TV Ruang Tunggu Balai Desa, TV Masjid Utama" />
-                </FormControl>
-
-                {!formData.id && (
-                  <FormControl isRequired>
-                    <FormLabel>Kode TV Display</FormLabel>
-                    <Input value={formData.code} onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })} />
-                  </FormControl>
-                )}
-              </VStack>
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="ghost" mr={3} onClick={onClose}>Batal</Button>
-              <Button colorScheme="brand" type="submit">Simpan TV</Button>
             </ModalFooter>
           </form>
         </ModalContent>
@@ -1990,14 +1882,6 @@ const DashboardLayout = ({ setSession }) => {
             Jadwal & Agenda TV
           </SidebarItem>
 
-          <SidebarItem
-            icon={FaTv}
-            to="/admin/live/displays"
-            isActive={location.pathname === '/admin/live/displays'}
-          >
-            Kelola Layar TV Fisik
-          </SidebarItem>
-
           <Box px={4} pt={6} borderTop="1px" borderColor={useColorModeValue('gray.100', 'gray.700')} mt={6}>
             <VStack spacing={2}>
               {!isTvAdmin && (
@@ -2037,7 +1921,6 @@ const DashboardLayout = ({ setSession }) => {
           <Route path="/live" element={<LiveStreamControl />} />
           <Route path="/content" element={<ContentManager />} />
           <Route path="/schedule" element={<ScheduleManager />} />
-          <Route path="/displays" element={<DisplaysManager />} />
         </Routes>
       </Box>
     </Flex>

@@ -243,7 +243,8 @@ const DisplayView = () => {
     document.body.style.backgroundColor = '#0b0f19';
 
     // Socket Connection
-    socketService.connect(code);
+    const displayTargetCode = code || 'NGAWONGGO-TV';
+    socketService.connect(displayTargetCode);
     socketService.on('connected', () => setIsConnected(true));
 
     socketService.on('reload', () => {
