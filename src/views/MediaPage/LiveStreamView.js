@@ -26,12 +26,19 @@ import {
   FaEye,
   FaEyeSlash,
 } from 'react-icons/fa';
-import ReactPlayer from 'react-player';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+
+// Helper to extract YouTube Video ID from any format
+export const getYouTubeVideoId = (url) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|live\/)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+};
 
 const DEFAULT_STREAM = {
   id: 'default-live',
@@ -61,9 +68,7 @@ const DEFAULT_STREAM = {
 const LiveStreamView = () => {
   const [streamData, setStreamData] = useState(DEFAULT_STREAM);
   const [loading, setLoading] = useState(true);
-  const [isPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
-  const [volume] = useState(0.9);
+  const [isMuted, setIsMuted] = useState(true); // Default muted to guarantee autoplay across all browsers
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [showOverlays, setShowOverlays] = useState(true);
@@ -71,6 +76,7 @@ const LiveStreamView = () => {
   const [viewerCount, setViewerCount] = useState(1);
   const [currentTimeWIB, setCurrentTimeWIB] = useState('');
   const [currentDateWIB, setCurrentDateWIB] = useState('');
+  const [syncTimestamp, setSyncTimestamp] = useState(0);
 
   // Prayer times state
   const [prayerTimes, setPrayerTimes] = useState(null);
@@ -78,11 +84,10 @@ const LiveStreamView = () => {
   const [prayerCountdown, setPrayerCountdown] = useState('');
 
   // References
-  const playerRef = useRef(null);
   const containerRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
-  const hasInitialSeekedRef = useRef(false);
   const audioChimeRef = useRef(null);
+  const videoElementRef = useRef(null);
   const navigate = useNavigate();
 
   // Play audio chime alert
@@ -154,7 +159,6 @@ const LiveStreamView = () => {
           setPrayerTimes(mapped);
         }
       } catch (e) {
-        // Fallback default prayer times for Central Java
         setPrayerTimes({
           Subuh: '04:30',
           Dzuhur: '11:55',
@@ -198,7 +202,6 @@ const LiveStreamView = () => {
         }
 
         if (!target && prayerList[0]) {
-          // If past Isya, next prayer is Subuh tomorrow
           const [h, m] = prayerList[0].time.split(':').map(Number);
           target = { ...prayerList[0], minutes: h * 60 + m + 24 * 60 };
         }
@@ -223,95 +226,38 @@ const LiveStreamView = () => {
     return () => clearInterval(interval);
   }, [prayerTimes]);
 
-  // 4. Time-Anchored Virtual Broadcast Sync Calculator
-  const calculateTargetTimestamp = useCallback(
-    (duration) => {
-      if (!streamData || !streamData.started_at) return 0;
-      if (streamData.mode !== 'simulated') return 0;
+  // 4. Time-Anchored Virtual Broadcast Sync Calculation
+  const calculateTargetTimestamp = useCallback(() => {
+    if (!streamData || !streamData.started_at) return 0;
+    if (streamData.mode !== 'simulated') return 0;
 
-      const startedAt = new Date(streamData.started_at).getTime();
-      const now = Date.now();
-      const elapsedSeconds = Math.max(0, (now - startedAt) / 1000);
+    const startedAt = new Date(streamData.started_at).getTime();
+    const now = Date.now();
+    const elapsedSeconds = Math.max(0, (now - startedAt) / 1000);
+    const effectiveDuration = streamData.duration > 0 ? streamData.duration : 900;
 
-      const effectiveDuration = duration > 0 ? duration : (streamData.duration || 900);
-
-      if (streamData.loop_broadcast !== false) {
-        return elapsedSeconds % effectiveDuration;
-      }
-      return Math.min(elapsedSeconds, effectiveDuration);
-    },
-    [streamData]
-  );
-
-  // Sync seek handler
-  const performSyncSeek = useCallback(
-    (duration) => {
-      if (!playerRef.current || streamData?.mode !== 'simulated') return;
-      const targetTime = calculateTargetTimestamp(duration);
-      try {
-        playerRef.current.seekTo(targetTime, 'seconds');
-      } catch (e) {
-        console.warn('Seek error:', e);
-      }
-    },
-    [calculateTargetTimestamp, streamData]
-  );
-
-  // Handle player ready / duration detected
-  const handleDuration = (duration) => {
-    if (duration > 0 && !hasInitialSeekedRef.current) {
-      performSyncSeek(duration);
-      hasInitialSeekedRef.current = true;
+    if (streamData.loop_broadcast !== false) {
+      return Math.floor(elapsedSeconds % effectiveDuration);
     }
-  };
+    return Math.floor(Math.min(elapsedSeconds, effectiveDuration));
+  }, [streamData]);
 
-  const handlePlayerReady = () => {
-    hasInitialSeekedRef.current = false;
-    if (playerRef.current) {
-      const dur = playerRef.current.getDuration?.() || streamData?.duration || 900;
-      performSyncSeek(dur);
-      hasInitialSeekedRef.current = true;
-    }
-  };
-
-  // 5. Continuous Drift Correction (every 6 seconds)
+  // Update initial sync timestamp
   useEffect(() => {
-    if (!streamData?.is_active || streamData?.mode !== 'simulated') return;
+    const ts = calculateTargetTimestamp();
+    setSyncTimestamp(ts);
+  }, [calculateTargetTimestamp, streamData?.started_at, streamData?.url]);
 
-    const driftInterval = setInterval(() => {
-      if (!playerRef.current) return;
-      try {
-        const currentTime = playerRef.current.getCurrentTime?.();
-        const duration = playerRef.current.getDuration?.() || streamData.duration || 900;
-        if (typeof currentTime === 'number' && duration > 0) {
-          const targetTime = calculateTargetTimestamp(duration);
-          const drift = Math.abs(currentTime - targetTime);
-          // If drift exceeds 3.5 seconds, resynchronize seamlessly
-          if (drift > 3.5) {
-            console.log(`[Ngawonggo TV Sync] Drift detected: ${drift.toFixed(1)}s. Correcting playback to ${targetTime.toFixed(1)}s.`);
-            playerRef.current.seekTo(targetTime, 'seconds');
-          }
-        }
-      } catch (e) {
-        // Ignore read errors during buffering
-      }
-    }, 6000);
-
-    return () => clearInterval(driftInterval);
-  }, [calculateTargetTimestamp, streamData]);
-
-  // 6. Supabase Realtime Channels: Broadcast updates, presence viewer counter & instant signals
+  // 5. Supabase Realtime Channels: Broadcast updates, presence viewer counter & instant signals
   useEffect(() => {
     fetchStreamData();
 
-    // Channel for Realtime Postgres Changes & Broadcasts
     const tvChannel = supabase.channel('ngawonggo_live_tv_main', {
       config: {
         presence: { key: `viewer_${Math.random().toString(36).substring(2, 9)}` },
       },
     });
 
-    // 6.1 Listen to DB changes on display_livestreams
     tvChannel.on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'display_livestreams' },
@@ -320,11 +266,15 @@ const LiveStreamView = () => {
       }
     );
 
-    // 6.2 Listen to broadcast events
     tvChannel.on('broadcast', { event: 'start-live' }, (payload) => {
       if (payload?.payload) {
         setStreamData((prev) => ({ ...prev, ...payload.payload, is_active: true }));
-        hasInitialSeekedRef.current = false;
+      }
+    });
+
+    tvChannel.on('broadcast', { event: 'update-overlay' }, (payload) => {
+      if (payload?.payload) {
+        setStreamData((prev) => ({ ...prev, ...payload.payload }));
       }
     });
 
@@ -333,9 +283,10 @@ const LiveStreamView = () => {
     });
 
     tvChannel.on('broadcast', { event: 'sync-player' }, () => {
-      if (playerRef.current) {
-        const dur = playerRef.current.getDuration?.() || 900;
-        performSyncSeek(dur);
+      const ts = calculateTargetTimestamp();
+      setSyncTimestamp(ts);
+      if (videoElementRef.current) {
+        videoElementRef.current.currentTime = ts;
       }
     });
 
@@ -347,7 +298,6 @@ const LiveStreamView = () => {
       window.location.reload();
     });
 
-    // 6.3 Track Presence for live viewer count
     tvChannel.on('presence', { event: 'sync' }, () => {
       const state = tvChannel.presenceState();
       const count = Object.keys(state).length;
@@ -366,9 +316,9 @@ const LiveStreamView = () => {
     return () => {
       supabase.removeChannel(tvChannel);
     };
-  }, [fetchStreamData, performSyncSeek, playChime]);
+  }, [calculateTargetTimestamp, fetchStreamData, playChime]);
 
-  // 7. Auto-hide banner after 12 seconds
+  // 6. Auto-hide banner after 12 seconds
   useEffect(() => {
     const bannerTimer = setTimeout(() => {
       setShowProgramBanner(false);
@@ -376,7 +326,7 @@ const LiveStreamView = () => {
     return () => clearTimeout(bannerTimer);
   }, [streamData?.url, streamData?.title]);
 
-  // 8. Auto-hide mouse controls after 4 seconds of inactivity
+  // 7. Auto-hide mouse controls after 4 seconds of inactivity
   const handleMouseMove = () => {
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -385,7 +335,7 @@ const LiveStreamView = () => {
     }, 4000);
   };
 
-  // 9. Fullscreen Toggle (Native API)
+  // 8. Fullscreen Toggle (Native API)
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
     if (!document.fullscreenElement) {
@@ -416,6 +366,8 @@ const LiveStreamView = () => {
     };
   }, []);
 
+  const youtubeId = getYouTubeVideoId(streamData?.url);
+
   return (
     <Box
       ref={containerRef}
@@ -441,56 +393,51 @@ const LiveStreamView = () => {
             MENGHUBUNGKAN KE NGAWONGGO TV...
           </Heading>
           <Text color="gray.400" fontSize="sm" mt={2}>
-            Menyelaraskan frekuensi siaran televisi digital
+            Menyelaraskan frekuensi siaran televisi digital desa
           </Text>
         </Flex>
       ) : streamData?.is_active && streamData?.url ? (
-        <Box w="full" h="full" position="relative">
-          <ReactPlayer
-            ref={playerRef}
-            url={streamData.url}
-            width="100%"
-            height="100%"
-            playing={isPlaying}
-            muted={isMuted}
-            volume={volume}
-            controls={false}
-            onReady={handlePlayerReady}
-            onDuration={handleDuration}
-            onEnded={() => {
-              if (streamData.loop_broadcast) {
-                performSyncSeek(streamData.duration || 900);
-              }
-            }}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              pointerEvents: 'none',
-              objectFit: 'cover',
-            }}
-            config={{
-              youtube: {
-                playerVars: {
-                  autoplay: 1,
-                  controls: 0,
-                  disablekb: 1,
-                  fs: 0,
-                  modestbranding: 1,
-                  rel: 0,
-                  iv_load_policy: 3,
-                  showinfo: 0,
-                },
-              },
-              file: {
-                attributes: {
-                  autoPlay: true,
-                  controlsList: 'nodownload noplaybackrate',
-                  playsInline: true,
-                },
-              },
-            }}
-          />
+        <Box w="full" h="full" position="relative" bg="black">
+          {youtubeId ? (
+            /* 100% Reliable Native YouTube Embed with Synchronized Seek */
+            <Box
+              as="iframe"
+              key={`${youtubeId}-${isMuted ? 'muted' : 'unmuted'}-${syncTimestamp}`}
+              src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=${isMuted ? 1 : 0}&start=${syncTimestamp}&controls=0&modestbranding=1&rel=0&loop=1&playlist=${youtubeId}&enablejsapi=1&iv_load_policy=3&showinfo=0`}
+              title="Ngawonggo TV Stream"
+              w="100vw"
+              h="100vh"
+              border="0"
+              position="absolute"
+              top={0}
+              left={0}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              style={{
+                width: '100vw',
+                height: '100vh',
+                pointerEvents: 'auto',
+              }}
+            />
+          ) : (
+            /* HTML5 Direct Video Stream (MP4/HLS) */
+            <video
+              ref={videoElementRef}
+              src={streamData.url}
+              autoPlay
+              playsInline
+              muted={isMuted}
+              loop={streamData.loop_broadcast}
+              style={{
+                width: '100vw',
+                height: '100vh',
+                objectFit: 'cover',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+              }}
+            />
+          )}
         </Box>
       ) : (
         /* Standby / Off-Air Screen */
@@ -506,7 +453,6 @@ const LiveStreamView = () => {
           textAlign="center"
           position="relative"
         >
-          {/* Animated Background Pulse */}
           <Box
             position="absolute"
             w="600px"
@@ -712,7 +658,7 @@ const LiveStreamView = () => {
         </Flex>
       )}
 
-      {/* 4. Jadwal Sholat (Prayer Times) Widget (Top Center-Right or floating) */}
+      {/* 4. Jadwal Sholat (Prayer Times) Widget */}
       {showOverlays && streamData?.show_prayer_widget && prayerTimes && (
         <Flex
           position="absolute"
@@ -784,7 +730,7 @@ const LiveStreamView = () => {
         </Flex>
       )}
 
-      {/* 5. Program Banner: "Sedang Tayang" & "Berikutnya" (Glides in on stream start) */}
+      {/* 5. Program Banner: "Sedang Tayang" & "Berikutnya" */}
       {showOverlays && streamData?.show_program_info && showProgramBanner && (
         <Box
           position="absolute"
@@ -897,7 +843,7 @@ const LiveStreamView = () => {
             boxShadow="0 0 60px rgba(0,0,0,0.8)"
           >
             <Text fontSize={{ base: 'xl', md: '3xl' }} fontWeight="bold" lineHeight="tall">
-              {streamData.emergency_message || 'Harap tetap tenang dan ikuti arahan dari aparat Desa Ngawonggo.'}
+              {streamData.emergency_message || 'Harap seluruh warga memperhatikan himbauan darurat ini dan tetap waspada.'}
             </Text>
           </Box>
         </Flex>
@@ -908,37 +854,40 @@ const LiveStreamView = () => {
         <Flex
           position="absolute"
           bottom={{ base: 20, md: 24 }}
-          right={6}
+          left="50%"
+          transform="translateX(-50%)"
           zIndex={100}
-          bg="rgba(15, 23, 42, 0.85)"
-          backdropFilter="blur(16px)"
-          p={3}
-          px={5}
+          bg="rgba(15, 23, 42, 0.9)"
+          backdropFilter="blur(20px)"
+          p={3.5}
+          px={6}
           borderRadius="2xl"
-          border="1px solid rgba(239, 68, 68, 0.5)"
-          boxShadow="0 10px 30px rgba(0,0,0,0.5)"
+          border="2px solid"
+          borderColor="brand.400"
+          boxShadow="0 10px 40px rgba(239, 68, 68, 0.5)"
           align="center"
           gap={3}
           cursor="pointer"
           onClick={() => setIsMuted(false)}
-          _hover={{ transform: 'scale(1.05)', bg: 'rgba(30, 41, 59, 0.95)' }}
+          _hover={{ transform: 'translateX(-50%) scale(1.04)', bg: 'rgba(30, 41, 59, 0.98)' }}
           transition="all 0.2s"
+          animation="bounce-subtle 2s infinite"
         >
-          <Box p={2} bg="red.500" color="white" borderRadius="full" animation="pulse-dot 1.5s infinite">
-            <Icon as={FaVolumeMute} w={4} h={4} />
+          <Box p={2.5} bg="red.500" color="white" borderRadius="full" animation="pulse-dot 1.5s infinite">
+            <Icon as={FaVolumeUp} w={4} h={4} />
           </Box>
           <VStack align="start" spacing={0}>
-            <Text fontSize="xs" fontWeight="800" color="white">
-              Klik Layar untuk Suara
+            <Text fontSize="sm" fontWeight="900" color="white">
+              🔊 Klik di Sini untuk Menyalakan Suara Siaran
             </Text>
-            <Text fontSize="2xs" color="gray.400">
-              Browser membisukan audio secara default
+            <Text fontSize="xs" color="gray.300">
+              Siaran telah terhubung dan berputar secara langsung
             </Text>
           </VStack>
         </Flex>
       )}
 
-      {/* 9. Bottom Running Text Ticker (Continuous Marquee) */}
+      {/* 9. Bottom Running Text Ticker */}
       {showOverlays && streamData?.show_running_text && (
         <Box
           position="absolute"
@@ -956,7 +905,6 @@ const LiveStreamView = () => {
           alignItems="center"
           overflow="hidden"
         >
-          {/* Left Ticker Badge */}
           <Flex
             bg="brand.500"
             color="white"
@@ -976,7 +924,6 @@ const LiveStreamView = () => {
             <Text display={{ base: 'inline', sm: 'none' }}>N-TV</Text>
           </Flex>
 
-          {/* Marquee Scroller */}
           <Box flex={1} overflow="hidden" position="relative" h="full" display="flex" alignItems="center">
             <Box
               as="div"
@@ -1007,6 +954,10 @@ const LiveStreamView = () => {
         @keyframes pulse-slow {
           0%, 100% { opacity: 0.95; }
           50% { opacity: 1; transform: translateX(-50%) scale(1.01); }
+        }
+        @keyframes bounce-subtle {
+          0%, 100% { transform: translateX(-50%) translateY(0); }
+          50% { transform: translateX(-50%) translateY(-4px); }
         }
         @keyframes slide-in-up {
           from { opacity: 0; transform: translateY(30px); }

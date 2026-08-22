@@ -1,5 +1,4 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -15,197 +14,333 @@ import {
   TabPanel,
   Icon,
   Badge,
-  Slider,
-  SliderTrack,
-  SliderFilledTrack,
-  SliderThumb,
-  IconButton,
+  Button,
   Flex,
+  useColorModeValue,
+  Spinner,
 } from '@chakra-ui/react';
-import { FaBroadcastTower, FaTv, FaPlay, FaPause, FaVolumeUp, FaUpload } from 'react-icons/fa';
-import videojs from 'video.js';
-import 'video.js/dist/video-js.css';
-
+import {
+  FaTv,
+  FaUpload,
+  FaExternalLinkAlt,
+  FaPlay,
+  FaUsers,
+  FaClock,
+  FaBroadcastTower,
+} from 'react-icons/fa';
 import CommunityFeed from './CommunityFeed';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { translations } from '../../translations';
 import SEO from '../../components/SEO';
+import { supabase } from '../../lib/supabase';
+import { getYouTubeVideoId } from './LiveStreamView';
 
 const MediaPage = () => {
   const { language } = useLanguage();
   const t = translations[language].media;
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(70);
 
-  const audioRef = useRef(null);
-  const videoRef = useRef(null);
-  const playerRef = useRef(null);
+  const [liveData, setLiveData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [viewerCount, setViewerCount] = useState(1);
 
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-    }
-    if (playerRef.current) {
-      playerRef.current.volume(volume / 100);
-    }
-  }, [volume]);
+  const cardBg = useColorModeValue('white', 'gray.850');
+  const cardBorder = useColorModeValue('gray.200', 'whiteAlpha.200');
+  const tagBg = useColorModeValue('gray.100', 'gray.800');
 
   useEffect(() => {
-    // TVRI player init
-    if (videoRef.current && !playerRef.current) {
-      playerRef.current = videojs(videoRef.current, {
-        autoplay: false,
-        controls: true,
-        responsive: true,
-        fluid: true,
-        sources: [{
-          src: 'https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8',
-          type: 'application/x-mpegURL'
-        }]
-      });
-    }
-    return () => {
-      if (playerRef.current) {
-        playerRef.current.dispose();
-        playerRef.current = null;
+    const fetchLive = async () => {
+      try {
+        setLoading(true);
+        const { data } = await supabase
+          .from('display_livestreams')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        setLiveData(data);
+      } catch (err) {
+        console.error('Error loading livestream in media page:', err);
+      } finally {
+        setLoading(false);
       }
+    };
+
+    fetchLive();
+
+    const tvChannel = supabase.channel('ngawonggo_live_tv_main');
+    tvChannel.on('presence', { event: 'sync' }, () => {
+      const state = tvChannel.presenceState();
+      setViewerCount(Math.max(1, Object.keys(state).length));
+    });
+    tvChannel.subscribe();
+
+    return () => {
+      supabase.removeChannel(tvChannel);
     };
   }, []);
 
-  const toggleRadio = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
+  const ytId = getYouTubeVideoId(liveData?.url);
 
   return (
-    <Box pt={0} pb={32} bg="gray.50" _dark={{ bg: "gray.900" }} minH="100vh">
+    <Box pt={0} pb={32} bg="gray.50" _dark={{ bg: 'gray.900' }} minH="100vh">
       <SEO
-        title="Streaming & Media Komunitas Warga Ngawonggo"
-        description="Pusat media digital, radio online, video streaming, dan komunitas publik warga Desa Ngawonggo Kaliangkrik Magelang."
-        keywords="Media Ngawonggo, Radio Ngawonggo, Live Streaming Desa Ngawonggo, Komunitas Ngawonggo"
+        title="Ngawonggo TV - Streaming & Media Komunitas Warga"
+        description="Saluran televisi resmi dan pusat media digital, penyiaran informasi desa, edukasi, budaya, dan kreativitas warga Desa Ngawonggo."
+        keywords="Ngawonggo TV, Live Streaming Desa Ngawonggo, Media Desa, Komunitas Ngawonggo"
       />
       <Container maxW="container.xl">
-        <VStack spacing={12} align="stretch">
-          <Box textAlign="center">
-            <Badge colorScheme="brand" px={4} py={1} borderRadius="full" mb={4}>
-              LIVE STREAMING
+        <VStack spacing={10} align="stretch">
+          {/* Header */}
+          <Box textAlign="center" pt={6}>
+            <Badge colorScheme="red" px={4} py={1.5} borderRadius="full" mb={4} fontSize="sm" fontWeight="800">
+              ● NGAWONGGO TV LIVE
             </Badge>
-            <Heading as="h1" size="2xl" fontWeight="800" mb={4}>
+            <Heading as="h1" size="2xl" fontWeight="900" mb={4} letterSpacing="tight">
               {t.title}
             </Heading>
-            <Text color="gray.600" fontSize="lg" maxW="2xl" mx="auto">
-              {t.subtitle}
+            <Text color="gray.600" _dark={{ color: 'gray.300' }} fontSize="lg" maxW="2xl" mx="auto">
+              Saksikan siaran televisi desa terintegrasi 24 jam nonstop yang menyajikan warta desa, kebudayaan, informasi keagamaan, dan ruang ekspresi masyarakat.
             </Text>
           </Box>
 
           <Tabs variant="soft-rounded" colorScheme="brand">
-            <TabList layerStyle="glassCard" p={2} mb={8} display="inline-flex" flexWrap="wrap" gap={2}>
-              <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
-                <Icon as={FaBroadcastTower} mr={2} /> Radio Gemilang
+            <TabList
+              p={2}
+              mb={8}
+              display="inline-flex"
+              flexWrap="wrap"
+              gap={3}
+              bg={cardBg}
+              borderRadius="2xl"
+              border="1px solid"
+              borderColor={cardBorder}
+              shadow="sm"
+            >
+              <Tab fontWeight="800" borderRadius="xl" _selected={{ bg: 'red.500', color: 'white' }}>
+                <Icon as={FaTv} mr={2} /> Siaran Utama (Ngawonggo TV)
               </Tab>
-              <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
-                <Icon as={FaTv} mr={2} /> TVRI Nasional
+              <Tab fontWeight="800" borderRadius="xl" _selected={{ bg: 'brand.500', color: 'white' }}>
+                <Icon as={FaUpload} mr={2} /> Komunitas & Karya Warga
               </Tab>
-              <Tab fontWeight="700" borderRadius="2xl" _selected={{ bg: 'brand.500', color: 'white' }}>
-                <Icon as={FaUpload} mr={2} /> Komunitas
-              </Tab>
-              {/* Ngawonggo TV link instead of a tab */}
-              <Box as="a" href="/media/live" target="_blank" display="inline-flex" alignItems="center" fontWeight="700" borderRadius="2xl" p="8px 16px" color="white" bg="red.500" _hover={{ bg: 'red.600', transform: 'scale(1.05)' }} transition="all 0.2s">
-                <Icon as={FaTv} mr={2} /> Ngawonggo TV (Live)
-              </Box>
             </TabList>
 
             <TabPanels>
+              {/* TAB 1: NGAWONGGO TV SHOWCASE */}
               <TabPanel p={0}>
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
-                  <Box layerStyle="glassCard" p={10} textAlign="center">
-                    <VStack spacing={8}>
-                      <Flex
-                        w={40}
-                        h={40}
-                        bg="brand.50"
+                <SimpleGrid columns={{ base: 1, lg: 12 }} spacing={8} align="start">
+                  {/* Video Player Card (7 cols) */}
+                  <Box
+                    gridColumn={{ base: 'span 1', lg: 'span 7' }}
+                    bg={cardBg}
+                    p={4}
+                    borderRadius="3xl"
+                    border="1px solid"
+                    borderColor={cardBorder}
+                    shadow="xl"
+                    overflow="hidden"
+                  >
+                    <Box
+                      position="relative"
+                      pb="56.25%"
+                      bg="black"
+                      borderRadius="2xl"
+                      overflow="hidden"
+                      border="2px solid"
+                      borderColor={liveData?.is_active ? 'red.500' : 'gray.700'}
+                      boxShadow="2xl"
+                    >
+                      {loading ? (
+                        <Flex position="absolute" top={0} left={0} w="full" h="full" justify="center" align="center" bg="#050811">
+                          <Spinner size="xl" color="red.500" />
+                        </Flex>
+                      ) : liveData?.is_active && liveData?.url ? (
+                        ytId ? (
+                          <Box
+                            as="iframe"
+                            src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&enablejsapi=1`}
+                            title="Ngawonggo TV Preview"
+                            position="absolute"
+                            top={0}
+                            left={0}
+                            w="100%"
+                            h="100%"
+                            border="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <video
+                            src={liveData.url}
+                            autoPlay
+                            playsInline
+                            muted
+                            controls
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                            }}
+                          />
+                        )
+                      ) : (
+                        <Flex
+                          position="absolute"
+                          top={0}
+                          left={0}
+                          w="full"
+                          h="full"
+                          direction="column"
+                          justify="center"
+                          align="center"
+                          bg="#0b0f19"
+                          color="white"
+                          p={6}
+                          textAlign="center"
+                        >
+                          <Icon as={FaTv} w={12} h={12} color="gray.600" mb={3} />
+                          <Heading size="sm" mb={1}>SIARAN STANDBY</Heading>
+                          <Text fontSize="xs" color="gray.400">Studio sedang mempersiapkan tayangan berikutnya.</Text>
+                        </Flex>
+                      )}
+
+                      {/* Top Overlay Badge */}
+                      <Badge
+                        position="absolute"
+                        top={3}
+                        left={3}
+                        colorScheme={liveData?.is_active ? 'red' : 'gray'}
+                        variant="solid"
+                        px={3}
+                        py={1}
                         borderRadius="full"
-                        align="center"
-                        justify="center"
-                        color="brand.500"
-                        fontSize="5xl"
-                        shadow="inner"
+                        fontSize="xs"
+                        fontWeight="900"
+                        letterSpacing="wider"
+                        boxShadow="md"
                       >
-                        <FaBroadcastTower />
-                      </Flex>
-                      <Box>
-                        <Heading size="lg" color="gray.800" _dark={{ color: "white" }}>Radio Gemilang</Heading>
-                        <Text color="brand.500" fontWeight="800">98.6 FM</Text>
-                      </Box>
-                      <HStack spacing={6}>
-                        <IconButton
-                          size="lg"
-                          icon={isPlaying ? <FaPause /> : <FaPlay />}
-                          onClick={toggleRadio}
-                          colorScheme="brand"
-                          borderRadius="full"
-                          w={24}
-                          h={24}
-                          fontSize="3xl"
-                          boxShadow="xl"
-                          _hover={{ transform: 'scale(1.1)' }}
-                          aria-label="Toggle Play"
-                        />
-                      </HStack>
-                      <Box w="100%" maxW="300px">
-                        <HStack spacing={4}>
-                          <Icon as={FaVolumeUp} color="gray.400" />
-                          <Slider value={volume} onChange={setVolume} min={0} max={100} colorScheme="brand">
-                            <SliderTrack h={2} borderRadius="full"><SliderFilledTrack /></SliderTrack>
-                            <SliderThumb boxSize={6} />
-                          </Slider>
+                        {liveData?.is_active ? '● LIVE BROADCAST' : 'OFF AIR'}
+                      </Badge>
+                    </Box>
+
+                    {/* Bottom Action Bar */}
+                    <Flex justify="space-between" align="center" mt={4} px={2} wrap="wrap" gap={3}>
+                      <HStack spacing={3}>
+                        <HStack bg={tagBg} px={3.5} py={1.5} borderRadius="xl" fontSize="xs" fontWeight="bold">
+                          <Icon as={FaUsers} color="red.400" />
+                          <Text>{viewerCount} Pemirsa Menonton</Text>
                         </HStack>
-                      </Box>
-                    </VStack>
+                        <HStack bg={tagBg} px={3.5} py={1.5} borderRadius="xl" fontSize="xs" fontWeight="bold">
+                          <Icon as={FaClock} color="yellow.400" />
+                          <Text>24 Jam Nonstop</Text>
+                        </HStack>
+                      </HStack>
+
+                      <Button
+                        as="a"
+                        href="/media/live"
+                        target="_blank"
+                        colorScheme="red"
+                        size="md"
+                        borderRadius="2xl"
+                        leftIcon={<FaPlay />}
+                        rightIcon={<FaExternalLinkAlt />}
+                        fontWeight="800"
+                        boxShadow="0 4px 20px rgba(239, 68, 68, 0.4)"
+                        _hover={{ transform: 'translateY(-2px)', boxShadow: '0 6px 25px rgba(239, 68, 68, 0.6)' }}
+                      >
+                        Buka Siaran Full Layar
+                      </Button>
+                    </Flex>
                   </Box>
-                  <Box bgGradient="linear(to-br, blue.600, brand.600)" p={10} borderRadius="3xl" color="white" boxShadow="xl">
-                    <Heading size="md" mb={6}>Tentang Radio Gemilang</Heading>
-                    <Text opacity={0.9} lineHeight="relaxed" fontSize="lg">
-                      Radio Gemilang 98.6 FM adalah stasiun radio pemerintah Kabupaten Magelang.
-                      Menyajikan informasi terkini seputar Magelang, hiburan musik pilihan, dan program edukasi untuk masyarakat.
-                      Kini hadir secara streaming untuk menjangkau warga Ngawonggo di mana pun berada.
-                    </Text>
-                    <VStack mt={10} align="start" spacing={4}>
-                      <HStack layerStyle="glass" p={2} px={4} borderRadius="xl"><Badge colorScheme="green">LIVE</Badge><Text fontSize="sm" fontWeight="bold">24 Jam Nonstop</Text></HStack>
-                      <HStack layerStyle="glass" p={2} px={4} borderRadius="xl"><Badge colorScheme="blue">NEWS</Badge><Text fontSize="sm" fontWeight="bold">Info Kabupaten Magelang</Text></HStack>
-                    </VStack>
-                  </Box>
+
+                  {/* Channel & Program Description Card (5 cols) */}
+                  <VStack
+                    gridColumn={{ base: 'span 1', lg: 'span 5' }}
+                    spacing={6}
+                    align="stretch"
+                  >
+                    <Box
+                      bg={cardBg}
+                      p={8}
+                      borderRadius="3xl"
+                      border="1px solid"
+                      borderColor={cardBorder}
+                      shadow="lg"
+                    >
+                      <HStack spacing={3} mb={4}>
+                        <Box p={3} bg="red.500" color="white" borderRadius="2xl">
+                          <Icon as={FaBroadcastTower} w={6} h={6} />
+                        </Box>
+                        <VStack align="start" spacing={0}>
+                          <Badge colorScheme="red" fontSize="2xs" px={2} borderRadius="md">
+                            SALURAN UTAMA DESA
+                          </Badge>
+                          <Heading size="md" fontWeight="900">
+                            Ngawonggo TV
+                          </Heading>
+                        </VStack>
+                      </HStack>
+
+                      <Heading size="sm" mb={2} color="gray.800" _dark={{ color: 'white' }}>
+                        {liveData?.title || 'Pesona Wisata, Sejarah & Budaya Ngawonggo'}
+                      </Heading>
+                      <Text color="gray.600" _dark={{ color: 'gray.300' }} fontSize="sm" lineHeight="relaxed" mb={6}>
+                        {liveData?.description ||
+                          'Saluran penyiaran informasi resmi Desa Ngawonggo yang menyajikan warta pembangunan desa, tayangan kebudayaan Kaliangkrik, edukasi pertanian & peternakan, serta kajian keagamaan warga.'}
+                      </Text>
+
+                      {liveData?.running_text && (
+                        <Box
+                          p={4}
+                          bg="red.50"
+                          _dark={{ bg: 'rgba(239, 68, 68, 0.1)' }}
+                          borderRadius="2xl"
+                          border="1px solid"
+                          borderColor="red.200"
+                          _darkBorderColor="red.800"
+                          mb={6}
+                        >
+                          <Text fontSize="2xs" fontWeight="900" color="red.500" letterSpacing="wider" mb={1}>
+                            WARTA BERJALAN SAAT INI:
+                          </Text>
+                          <Text fontSize="xs" fontWeight="bold" color="gray.800" _dark={{ color: 'white' }} noOfLines={2}>
+                            {liveData.running_text}
+                          </Text>
+                        </Box>
+                      )}
+
+                      <Button
+                        as="a"
+                        href="/media/live"
+                        target="_blank"
+                        w="full"
+                        size="lg"
+                        colorScheme="red"
+                        borderRadius="2xl"
+                        leftIcon={<FaTv />}
+                        rightIcon={<FaExternalLinkAlt />}
+                        fontWeight="800"
+                      >
+                        Nonton Siaran di TV / Layar Lebar
+                      </Button>
+                    </Box>
+                  </VStack>
                 </SimpleGrid>
               </TabPanel>
 
-              <TabPanel p={0}>
-                <Box layerStyle="glassCard" bg="black" borderRadius="3xl" overflow="hidden" boxShadow="2xl">
-                  <div data-vjs-player>
-                    <video ref={videoRef} className="video-js vjs-big-play-centered vjs-16-9" />
-                  </div>
-                </Box>
-                <Box mt={10} p={10} layerStyle="glassCard">
-                  <Heading size="lg" mb={4} color="gray.800" _dark={{ color: "white" }}>TVRI Nasional</Heading>
-                  <Text color="gray.600" fontSize="lg" lineHeight="relaxed">
-                    Saksikan siaran TVRI Nasional secara langsung. Menghadirkan berita nasional, program kebudayaan, dan edukasi untuk seluruh rakyat Indonesia. Media pemersatu bangsa kini hadir dalam genggaman Anda.
-                  </Text>
-                </Box>
-              </TabPanel>
+              {/* TAB 2: COMMUNITY FEED */}
               <TabPanel p={0}>
                 <CommunityFeed />
               </TabPanel>
-
             </TabPanels>
           </Tabs>
         </VStack>
       </Container>
-      <audio ref={audioRef} src="https://streaming-radio.magelangkab.go.id/studio" preload="none" />
     </Box>
   );
 };

@@ -65,7 +65,7 @@ import {
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import { socketService } from '../services/socketService';
-import ReactPlayer from 'react-player';
+import { getYouTubeVideoId } from '../../MediaPage/LiveStreamView';
 
 // Stat Card Component
 const StatCard = ({ title, value, icon, color }) => {
@@ -509,18 +509,18 @@ const LiveStreamControl = () => {
       description: 'Kisah sejarah peradaban dan kearifan lokal masyarakat Magelang.',
     },
     {
-      title: 'Kajian & Mutiara Hikmah Islam',
+      title: 'Pesona Alam Kaliangkrik & Gunung Sumbing',
       url: 'https://www.youtube.com/watch?v=jfKfPfyJRdk',
       mode: 'simulated',
       duration: 1800,
-      description: 'Siraman rohani, tafsir Al-Quran, dan panduan ibadah harian.',
+      description: 'Pemandangan alam spektakuler lereng Gunung Sumbing Kaliangkrik.',
     },
     {
-      title: 'Siaran HLS Live Stream (TVRI Nasional)',
-      url: 'https://ott-balancer.tvri.go.id/live/eds/Nasional/hls/Nasional.m3u8',
-      mode: 'live',
-      duration: 0,
-      description: 'Siaran langsung TVRI Nasional resolusi tinggi.',
+      title: 'Kajian & Mutiara Hikmah Warga',
+      url: 'https://www.youtube.com/watch?v=Em2PWeaSzok',
+      mode: 'simulated',
+      duration: 1200,
+      description: 'Siraman rohani dan panduan ibadah harian untuk masyarakat.',
     },
   ];
 
@@ -960,20 +960,37 @@ const LiveStreamControl = () => {
                 borderColor="red.500"
                 boxShadow="xl"
               >
-                <ReactPlayer
-                  url={activeLive.url}
-                  width="100%"
-                  height="100%"
-                  playing={true}
-                  muted={true}
-                  controls={true}
-                  style={{ position: 'absolute', top: 0, left: 0 }}
-                  config={{
-                    youtube: {
-                      playerVars: { autoplay: 1, controls: 1 },
-                    },
-                  }}
-                />
+                {getYouTubeVideoId(activeLive.url) ? (
+                  <Box
+                    as="iframe"
+                    src={`https://www.youtube-nocookie.com/embed/${getYouTubeVideoId(activeLive.url)}?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&enablejsapi=1`}
+                    title="Live Studio Monitor"
+                    position="absolute"
+                    top={0}
+                    left={0}
+                    w="100%"
+                    h="100%"
+                    border="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    src={activeLive.url}
+                    autoPlay
+                    playsInline
+                    muted
+                    controls
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                )}
                 <Badge
                   position="absolute"
                   top={3}
@@ -984,6 +1001,7 @@ const LiveStreamControl = () => {
                   py={0.5}
                   borderRadius="full"
                   fontSize="2xs"
+                  zIndex={2}
                 >
                   ● LIVE STUDIO (MUTED)
                 </Badge>
