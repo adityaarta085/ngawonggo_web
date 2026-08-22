@@ -119,7 +119,8 @@ function App() {
   const isDownPage = location.pathname === '/down';
   const isBlockedPage = location.pathname === '/blocked';
   const isWatchPage = location.pathname.includes('/play') && location.pathname.startsWith('/dracin');
-  const isLiveDisplayPage = location.pathname.startsWith('/live/display');
+  const isLiveTVPage = location.pathname === '/media/live' || location.pathname === '/live' || location.pathname === '/tv' || location.pathname.startsWith('/live/display');
+  const isLiveDisplayPage = isLiveTVPage;
   const isSecurityPolicyPage = location.pathname === '/security-policy';
 
   const [adminSession, setAdminSession] = useState(() => {
@@ -348,16 +349,25 @@ function App() {
                 <Route
                   path="/admin"
                   element={
-                    adminSession ? <AdminPage setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />
+                    adminSession ? (
+                      adminSession.role === 'tv_admin' ? (
+                        <Navigate to="/admin/live" replace />
+                      ) : (
+                        <AdminPage setSession={setAdminSession} />
+                      )
+                    ) : (
+                      <Navigate to="/admin/login" replace />
+                    )
                   }
                 />
                 <Route path="/admin/login" element={<Login setSession={setAdminSession} />} />
+                <Route path="/admin/live/login" element={<Login setSession={setAdminSession} />} />
                 <Route path="/admin/cs/*" element={<CSApp />} />
 
-
-                <Route path="/live" element={<Navigate to="/media" replace />} />
-                <Route path="/admin/live/*" element={adminSession ? <DashboardLive /> : <Navigate to="/admin/login" replace />} />
+                <Route path="/live" element={<LiveStreamView />} />
+                <Route path="/tv" element={<LiveStreamView />} />
                 <Route path="/media/live" element={<LiveStreamView />} />
+                <Route path="/admin/live/*" element={adminSession ? <DashboardLive setSession={setAdminSession} /> : <Navigate to="/admin/login" replace />} />
                 <Route path="/live/display/:code" element={<DisplayView />} />
                 <Route path="*" element={<PageNotFound />} />
               </Routes>

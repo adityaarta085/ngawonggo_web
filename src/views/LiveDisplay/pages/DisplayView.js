@@ -118,7 +118,7 @@ const DisplayView = () => {
   const handleDuration = (duration) => {
     if (liveStreamData && liveStreamData.mode === 'simulated') {
       if (duration > 0 && !hasSeekedRef.current) {
-        const startedAt = new Date(liveStreamData.created_at);
+        const startedAt = new Date(liveStreamData.started_at || liveStreamData.created_at);
         const now = new Date();
         const diffSeconds = Math.max(0, Math.floor((now.getTime() - startedAt.getTime()) / 1000));
         const seekTime = diffSeconds % duration;

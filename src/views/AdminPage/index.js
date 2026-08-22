@@ -34,6 +34,7 @@ import {
   FaMapMarkedAlt,
   FaEnvelope,
   FaUsers,
+  FaBroadcastTower,
 } from 'react-icons/fa';
 import { supabase } from '../../lib/supabase';
 import { useNavigate } from 'react-router-dom';
@@ -132,6 +133,21 @@ const AdminPage = ({ setSession }) => {
             <Text fontWeight="bold" fontSize="sm">{item.name}</Text>
           </HStack>
         ))}
+        <HStack
+          p={3}
+          borderRadius="xl"
+          cursor="pointer"
+          bg="red.50"
+          _dark={{ bg: "red.900" }}
+          color="red.600"
+          _dark_color={{ color: "red.200" }}
+          onClick={() => navigate('/admin/live')}
+          _hover={{ bg: 'red.100', transform: 'translateX(2px)' }}
+          transition="all 0.2s"
+        >
+          <Icon as={FaBroadcastTower} />
+          <Text fontWeight="bold" fontSize="sm">Studio Ngawonggo TV</Text>
+        </HStack>
         <HStack
           p={3}
           borderRadius="xl"
