@@ -150,7 +150,7 @@ const DonasiDetail = () => {
                       setPaymentStatus(currentStatus);
 
                       // Fast sync the status with our backend so the DB updates instantly
-                      await fetch('/api/qrispy-sync', {
+                      await fetch('/api/qrispy?action=sync', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ trx_id: paymentData.trx_id })
