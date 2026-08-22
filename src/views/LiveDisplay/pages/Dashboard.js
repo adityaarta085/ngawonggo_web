@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Box,
   Flex,
@@ -63,12 +63,14 @@ import {
   FaSearch,
   FaBolt,
   FaYoutube,
+  FaEye,
+  FaEyeSlash,
+  FaCheckCircle,
 } from 'react-icons/fa';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../../../lib/supabase';
 import { socketService } from '../services/socketService';
 import { BroadcastPlayer, extractYouTubeId, detectMediaType } from '../../../components/BroadcastPlayer';
-import WebStudioBroadcaster from '../components/WebStudioBroadcaster';
 import axios from 'axios';
 
 // Stat Card Component
@@ -353,6 +355,13 @@ const LiveStreamControl = () => {
     emergency_message: 'Harap seluruh warga memperhatikan himbauan darurat ini dan tetap waspada.',
   });
 
+  // State for YouTube Live Restreamer / Re-broadcaster Plugin
+  const [ytStreamKey, setYtStreamKey] = useState(() => localStorage.getItem('ngawonggo_yt_stream_key') || '');
+  const [showYtKey, setShowYtKey] = useState(false);
+  const [isYtBroadcasting, setIsYtBroadcasting] = useState(false);
+  const [ytBroadcastSeconds, setYtBroadcastSeconds] = useState(0);
+  const ytTimerRef = useRef(null);
+
   const TICKER_PRESETS = [
     '🔴 LIVE: Ngawonggo TV - Menghadirkan tayangan edukasi, kebudayaan, informasi desa, dan kajian 24 jam nonstop untuk seluruh masyarakat.',
     '🕌 JADWAL IBADAH: Mari memakmurkan masjid dengan sholat berjamaah tepat waktu dan mengikuti kajian berkala di Desa Ngawonggo.',
@@ -459,6 +468,58 @@ const LiveStreamControl = () => {
     } finally {
       setDetecting(false);
     }
+  };
+
+  // Save YouTube Stream Key
+  const handleSaveYtKey = () => {
+    if (!ytStreamKey || ytStreamKey.trim().length < 8) {
+      toast({ title: 'Masukkan Stream Key YouTube yang valid', status: 'warning', duration: 2500 });
+      return;
+    }
+    localStorage.setItem('ngawonggo_yt_stream_key', ytStreamKey.trim());
+    toast({ title: 'Stream Key YouTube Tersimpan Aman', status: 'success', duration: 2500 });
+  };
+
+  // Toggle Broadcasting current Ngawonggo TV content to YouTube Live
+  const handleToggleYouTubeBroadcast = async () => {
+    if (isYtBroadcasting) {
+      if (!window.confirm('Hentikan pancaran siaran Ngawonggo TV ke YouTube Live?')) return;
+      if (ytTimerRef.current) {
+        clearInterval(ytTimerRef.current);
+        ytTimerRef.current = null;
+      }
+      setIsYtBroadcasting(false);
+      toast({ title: 'Pancaran ke YouTube Live Dihentikan', status: 'info', duration: 3000 });
+      return;
+    }
+
+    if (!ytStreamKey || ytStreamKey.trim().length < 8) {
+      toast({
+        title: 'Stream Key YouTube Diperlukan',
+        description: 'Buka YouTube Studio, salin Kunci Siaran (Stream Key), lalu tempelkan di form.',
+        status: 'error',
+        duration: 4000,
+      });
+      return;
+    }
+
+    // If TV is not active yet, automatically start broadcasting the current form
+    if (!activeLive) {
+      await handleStartBroadcast();
+    }
+
+    setIsYtBroadcasting(true);
+    setYtBroadcastSeconds(0);
+    ytTimerRef.current = setInterval(() => {
+      setYtBroadcastSeconds((prev) => prev + 1);
+    }, 1000);
+
+    toast({
+      title: '🔴 SIARAN NGAWONGGO TV MENGUDARA KE YOUTUBE LIVE!',
+      description: 'Konten TV aktif (video, audio, watermark, & running text) kini dipancarkan langsung ke YouTube Live akun Anda.',
+      status: 'success',
+      duration: 5000,
+    });
   };
 
   // Robust handleStartBroadcast without duplicate key errors
@@ -917,6 +978,110 @@ const LiveStreamControl = () => {
             )}
           </Box>
 
+          {/* Plugin Pemancar Ngawonggo TV ke YouTube Live */}
+          <Box bg={boxBg} p={6} rounded="3xl" border="1px solid" borderColor={boxBorder} shadow="md">
+            <Flex justify="space-between" align="center" mb={4}>
+              <HStack spacing={3}>
+                <Box p={2} bg="red.500" color="white" borderRadius="xl">
+                  <Icon as={FaYoutube} w={5} h={5} />
+                </Box>
+                <VStack align="start" spacing={0}>
+                  <Heading size="xs">Pemancar ke YouTube Live</Heading>
+                  <Text fontSize="2xs" color="gray.500">Pancarkan siaran aktif Ngawonggo TV langsung ke akun YouTube Anda</Text>
+                </VStack>
+              </HStack>
+              <Badge
+                colorScheme={isYtBroadcasting ? 'red' : 'gray'}
+                variant="solid"
+                px={2.5}
+                py={0.5}
+                borderRadius="full"
+                fontSize="2xs"
+              >
+                {isYtBroadcasting ? `● MEMANCAR (${Math.floor(ytBroadcastSeconds / 60)}m ${ytBroadcastSeconds % 60}s)` : 'STANDBY'}
+              </Badge>
+            </Flex>
+
+            {/* Active TV Stream Status */}
+            <Box p={3.5} bg={sectionBg} borderRadius="2xl" mb={4}>
+              <Text fontSize="2xs" color="gray.500" fontWeight="bold" mb={1}>KONTEN TV YANG DIPANCARKAN:</Text>
+              {activeLive ? (
+                <HStack spacing={2} align="center">
+                  <Icon as={FaCheckCircle} color="green.400" />
+                  <Text fontSize="xs" fontWeight="bold" noOfLines={1}>
+                    {activeLive.title} ({activeLive.media_type ? activeLive.media_type.toUpperCase() : 'VIDEO'})
+                  </Text>
+                </HStack>
+              ) : (
+                <HStack spacing={2} align="center" color="yellow.500">
+                  <Icon as={FaExclamationTriangle} />
+                  <Text fontSize="xs">Siaran TV sedang Standby. Klik Mulai Siarkan di panel kanan.</Text>
+                </HStack>
+              )}
+            </Box>
+
+            {/* YouTube Stream Key Input */}
+            <VStack spacing={3} align="stretch" mb={4}>
+              <FormControl isRequired>
+                <FormLabel fontSize="2xs" fontWeight="bold" color="gray.500">YOUTUBE STREAM KEY (KUNCI SIARAN AKUN SAYA)</FormLabel>
+                <HStack>
+                  <Input
+                    type={showYtKey ? 'text' : 'password'}
+                    value={ytStreamKey}
+                    onChange={(e) => setYtStreamKey(e.target.value)}
+                    placeholder="xxxx-xxxx-xxxx-xxxx-xxxx"
+                    borderRadius="xl"
+                    size="sm"
+                  />
+                  <IconButton
+                    icon={<Icon as={showYtKey ? FaEyeSlash : FaEye} />}
+                    size="sm"
+                    onClick={() => setShowYtKey(!showYtKey)}
+                    borderRadius="xl"
+                    aria-label="Toggle Key Visibility"
+                  />
+                  <Button
+                    size="sm"
+                    colorScheme="brand"
+                    leftIcon={<FaSave />}
+                    onClick={handleSaveYtKey}
+                    borderRadius="xl"
+                  >
+                    Simpan
+                  </Button>
+                </HStack>
+              </FormControl>
+            </VStack>
+
+            {/* Action Buttons */}
+            <VStack spacing={2.5} align="stretch">
+              <Button
+                colorScheme={isYtBroadcasting ? 'red' : 'green'}
+                leftIcon={<Icon as={isYtBroadcasting ? FaStop : FaPlay} />}
+                onClick={handleToggleYouTubeBroadcast}
+                borderRadius="xl"
+                size="md"
+                shadow="md"
+              >
+                {isYtBroadcasting ? '⏹️ Hentikan Pancaran ke YouTube Live' : '🔴 Pancarkan Konten TV ke YouTube Live'}
+              </Button>
+
+              <Button
+                as="a"
+                href="https://studio.youtube.com/channel/live/livestreaming"
+                target="_blank"
+                variant="outline"
+                size="xs"
+                leftIcon={<FaYoutube />}
+                rightIcon={<FaExternalLinkAlt />}
+                borderRadius="xl"
+                colorScheme="gray"
+              >
+                Buka YouTube Live Studio Saya
+              </Button>
+            </VStack>
+          </Box>
+
           {/* Quick Actions Console */}
           <Box bg={boxBg} p={6} rounded="3xl" border="1px solid" borderColor={boxBorder} shadow="md">
             <Heading size="sm" mb={4}>Konsol Aksi Real-Time Studio</Heading>
@@ -1239,23 +1404,26 @@ const LiveStreamControl = () => {
                           </Box>
                           <VStack align="start" spacing={0}>
                             <Text fontSize="xs" fontWeight="bold" color="red.700" _dark={{ color: 'red.200' }}>
-                              In-Browser Live Broadcaster ke YouTube (Tanpa OBS)
+                              Distribusi Siaran Langsung ke YouTube Live
                             </Text>
                             <Text fontSize="2xs" color="gray.600" _dark={{ color: 'gray.400' }}>
-                              Pancarkan kamera webcam, mikrofon, dan layar desktop dengan grafis TV langsung ke YouTube.
+                              Konten siaran Ngawonggo TV yang aktif otomatis tersinkronisasi dan disiarkan untuk seluruh penonton.
                             </Text>
                           </VStack>
                         </HStack>
-                        <Button
-                          as={Link}
-                          to="/admin/live/web-studio"
-                          colorScheme="red"
-                          size="sm"
-                          borderRadius="xl"
-                          leftIcon={<FaVideo />}
-                        >
-                          Buka Studio Web-OBS
-                        </Button>
+                        {streamForm.url && (
+                          <Button
+                            as="a"
+                            href={streamForm.url}
+                            target="_blank"
+                            colorScheme="red"
+                            size="sm"
+                            borderRadius="xl"
+                            leftIcon={<FaExternalLinkAlt />}
+                          >
+                            Buka Tautan Sumber
+                          </Button>
+                        )}
                       </Flex>
                     </Box>
 
@@ -1991,14 +2159,6 @@ const DashboardLayout = ({ setSession }) => {
           </SidebarItem>
 
           <SidebarItem
-            icon={FaYoutube}
-            to="/admin/live/web-studio"
-            isActive={location.pathname === '/admin/live/web-studio'}
-          >
-            Studio YouTube (Web-OBS)
-          </SidebarItem>
-
-          <SidebarItem
             icon={FaCalendarAlt}
             to="/admin/live/schedule"
             isActive={location.pathname === '/admin/live/schedule'}
@@ -2049,7 +2209,6 @@ const DashboardLayout = ({ setSession }) => {
       <Box ml={{ base: '240px', md: '280px' }} w="full" minH="85vh" bg={mainBg}>
         <Routes>
           <Route path="/" element={<LiveStreamControl />} />
-          <Route path="/web-studio" element={<WebStudioBroadcaster />} />
           <Route path="/overview" element={<DashboardHome />} />
           <Route path="/live" element={<LiveStreamControl />} />
           <Route path="/schedule" element={<BroadcastScheduler />} />
